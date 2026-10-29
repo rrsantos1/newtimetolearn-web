@@ -4,7 +4,7 @@ import axios from "axios";
 import { ArrowLeft, CheckCircle2, ClipboardList } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { WordSearchForm } from "@/modules/activities/components/WordSearchForm";
-import { createWordSearchService } from "@/modules/activities/services/createWordSearchService";
+import { createWordSearchService } from "@/modules/activities/services/wordSearch/createWordSearchService";
 import type { CreateWordSearchFormValues } from "@/modules/activities/schemas/createWordSearchSchema";
 
 const ACTIVITIES_LIST_ROUTE = "/teacher/activities";
