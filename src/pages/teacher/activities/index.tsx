@@ -82,6 +82,16 @@ function getStatusClass(activity: ListedActivity): string {
   return "border-border bg-background text-muted";
 }
 
+function canEditActivity(activity: ListedActivity): boolean {
+  if (activity.type !== "word_search" || !activity.latestVersion) {
+    return false;
+  }
+
+  return ["DRAFT", "REJECTED", "CHANGES_REQUESTED"].includes(
+    activity.latestVersion.status,
+  );
+}
+
 function formatDate(value: string): string {
   const date = new Date(value);
 
@@ -298,14 +308,17 @@ export default function TeacherActivitiesPage() {
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <span className="text-xs text-muted">
                     {activity.executionCount}{" "}
-                    {activity.executionCount === 1
-                      ? "execução"
-                      : "execuções"}
+                    {activity.executionCount === 1 ? "execução" : "execuções"}
                   </span>
 
-                  <span className="text-xs font-medium text-muted">
-                    Ações de gerenciamento em breve
-                  </span>
+                  {canEditActivity(activity) && (
+                    <Link
+                      href={`/teacher/activities/word-search/${encodeURIComponent(activity.slug)}/edit`}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    >
+                      Editar
+                    </Link>
+                  )}
                 </div>
               </article>
             ))}
