@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { CheckCircle2, KeyRound, Mail, UserRound } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
@@ -24,26 +24,36 @@ export default function ProfilePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [emailChangeMessage, setEmailChangeMessage] = useState("");
-
-  const loadProfile = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const data = await userProfileService.getProfile();
-      setProfile(data);
-    } catch {
-      setErrorMessage(
-        "Não foi possível carregar seu perfil. Tente novamente.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadProfile();
-  }, [loadProfile]);
+    let cancelled = false;
+
+    userProfileService
+      .getProfile()
+      .then((data) => {
+        if (cancelled) return;
+
+        setProfile(data);
+        setErrorMessage("");
+      })
+      .catch(() => {
+        if (cancelled) return;
+
+        setErrorMessage(
+          "Não foi possível carregar seu perfil. Tente novamente."
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   const handleSave = async (values: UpdateUserProfileFormValues) => {
     setIsSaving(true);
@@ -92,7 +102,10 @@ export default function ProfilePage() {
               {errorMessage}
               <button
                 type="button"
-                onClick={() => void loadProfile()}
+                onClick={() => {
+                  setIsLoading(true);
+                  setReloadKey((current) => current + 1);
+                }}
                 className="ml-2 font-semibold underline underline-offset-2"
               >
                 Tentar novamente

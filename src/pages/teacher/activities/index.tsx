@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import {
@@ -101,24 +101,34 @@ export default function TeacherActivitiesPage() {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const loadActivities = useCallback(async () => {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const data = await listActivitiesService.execute(page, 20);
-      setResult(data);
-    } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadActivities();
-  }, [loadActivities]);
+    let cancelled = false;
+
+    listActivitiesService
+      .execute(page, 20)
+      .then((data) => {
+        if (cancelled) return;
+
+        setResult(data);
+        setErrorMessage("");
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+
+        setErrorMessage(getErrorMessage(error));
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [page, reloadKey]);
 
   return (
     <RoleBasedLayout
@@ -161,7 +171,10 @@ export default function TeacherActivitiesPage() {
 
           <button
             type="button"
-            onClick={() => void loadActivities()}
+            onClick={() => {
+              setIsLoading(true);
+              setReloadKey((current) => current + 1);
+            }}
             disabled={isLoading}
             className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-red-300 px-3 text-sm font-semibold transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
           >
@@ -233,7 +246,7 @@ export default function TeacherActivitiesPage() {
                         : activity.type.replaceAll("_", " ")}
                     </p>
 
-                    <h2 className="mt-2 break-words text-lg font-semibold text-dark">
+                    <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
                       {activity.latestVersion?.name ??
                         activity.publishedVersion?.name ??
                         "Atividade sem título"}
@@ -305,7 +318,10 @@ export default function TeacherActivitiesPage() {
             >
               <button
                 type="button"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                onClick={() => {
+                  setIsLoading(true);
+                  setPage((currentPage) => Math.max(1, currentPage - 1));
+                }}
                 disabled={page <= 1 || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -320,11 +336,12 @@ export default function TeacherActivitiesPage() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setPage((current) =>
-                    Math.min(result.pagination.totalPages, current + 1),
-                  )
-                }
+                onClick={() => {
+                  setIsLoading(true);
+                  setPage((currentPage) =>
+                    Math.min(result.pagination.totalPages, currentPage + 1),
+                  );
+                }}
                 disabled={
                   page >= result.pagination.totalPages || isLoading
                 }

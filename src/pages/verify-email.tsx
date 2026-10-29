@@ -37,27 +37,34 @@ export default function VerifyEmailPage() {
   const [resendMessage, setResendMessage] = useState("");
   const [resendError, setResendError] = useState(false);
 
+  const token = router.query.token;
+
+  const isInvalidToken =
+    router.isReady &&
+    (typeof token !== "string" || !TOKEN_PATTERN.test(token));
+
+  const visibleStatus: VerificationStatus = isInvalidToken
+    ? "error"
+    : status;
+
+  const visibleMessage = isInvalidToken
+    ? "O link de verificação é inválido ou está incompleto."
+    : message;
+
   useEffect(() => {
-    if (!router.isReady || startedRef.current) {
+    if (!router.isReady || startedRef.current || isInvalidToken) {
+      return;
+    }
+
+    if (typeof token !== "string") {
       return;
     }
 
     startedRef.current = true;
 
-    const token = router.query.token;
-
-    if (typeof token !== "string" || !TOKEN_PATTERN.test(token)) {
-      setStatus("error");
-      setMessage(
-        "O link de verificação é inválido ou está incompleto.",
-      );
-      return;
-    }
-
     async function verifyEmail() {
       try {
         const response = await api.post<{
-          success: true;
           data: { message: string };
         }>("/auth/verify-email", { token });
 
@@ -67,32 +74,30 @@ export default function VerifyEmailPage() {
             "Seu endereço de e-mail foi confirmado com sucesso.",
         );
       } catch (error: unknown) {
-        setStatus("error");
-
         if (axios.isAxiosError<ApiErrorResponse>(error)) {
           const data = error.response?.data;
 
           if (data?.success === false) {
             setMessage(data.error.message);
-            return;
+          } else {
+            setMessage(
+              error.response
+                ? "Não foi possível confirmar seu e-mail. O link pode ter expirado ou já ter sido utilizado."
+                : "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.",
+            );
           }
-
+        } else {
           setMessage(
-            error.response
-              ? "Não foi possível confirmar seu e-mail. O link pode ter expirado ou já ter sido utilizado."
-              : "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.",
+            "Ocorreu um erro inesperado ao confirmar seu e-mail.",
           );
-          return;
         }
 
-        setMessage(
-          "Ocorreu um erro inesperado ao confirmar seu e-mail.",
-        );
+        setStatus("error");
       }
     }
 
     void verifyEmail();
-  }, [router.isReady, router.query.token]);
+  }, [router.isReady, token, isInvalidToken]);
 
   async function handleResend() {
     setResendMessage("");
@@ -137,8 +142,8 @@ export default function VerifyEmailPage() {
     }
   }
 
-  const isLoading = status === "loading";
-  const isSuccess = status === "success";
+  const isLoading = visibleStatus === "loading";
+  const isSuccess = visibleStatus === "success";
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
@@ -192,7 +197,7 @@ export default function VerifyEmailPage() {
             role="status"
             aria-live="polite"
           >
-            {message}
+            {visibleMessage}
           </p>
 
           {isSuccess ? (

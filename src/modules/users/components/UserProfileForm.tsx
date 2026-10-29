@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { LoaderCircle, Pencil, Save, X } from "lucide-react";
+import { LoaderCircle, Save, X } from "lucide-react";
 import { updateUserProfileSchema } from "@/modules/users/schemas/updateUserProfileSchema";
 import type { UpdateUserProfileFormValues } from "@/modules/users/schemas/updateUserProfileSchema";
 import { useEffect } from "react";
