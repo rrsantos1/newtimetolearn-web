@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   ErrorMessage,
   Field,
@@ -14,9 +13,11 @@ import type { ActivityDifficulty } from "@/modules/activities/types/activities.t
 interface WordSearchFormProps {
   onSubmit: (values: CreateWordSearchFormValues) => Promise<void>;
   submitError?: string | null;
+  initialValues?: CreateWordSearchFormValues;
+  mode?: "create" | "edit";
 }
 
-const initialValues: CreateWordSearchFormValues = {
+const defaultInitialValues: CreateWordSearchFormValues = {
   name: "",
   description: "",
   difficulty: "EASY",
@@ -43,12 +44,15 @@ const errorClassName = "mt-1 text-sm text-red-600";
 export function WordSearchForm({
   onSubmit,
   submitError,
+  initialValues = defaultInitialValues,
+  mode = "create",
 }: Readonly<WordSearchFormProps>) {
-  const [unlimitedTime, setUnlimitedTime] = useState(false);
+  const isEditing = mode === "edit";
 
   return (
     <Formik<CreateWordSearchFormValues>
       initialValues={initialValues}
+      enableReinitialize
       validationSchema={createWordSearchSchema}
       onSubmit={onSubmit}
     >
@@ -148,11 +152,11 @@ export function WordSearchForm({
                     id="timeLimitSeconds"
                     name="timeLimitSeconds"
                     value={
-                      unlimitedTime
+                      values.timeLimitSeconds == null
                         ? ""
-                        : String(values.timeLimitSeconds ?? 900)
+                        : String(values.timeLimitSeconds)
                     }
-                    disabled={unlimitedTime}
+                    disabled={values.timeLimitSeconds === null}
                     className={`${inputClassName} disabled:cursor-not-allowed disabled:opacity-60`}
                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
                       const value = event.target.value;
@@ -179,11 +183,9 @@ export function WordSearchForm({
                   <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-muted">
                     <input
                       type="checkbox"
-                      checked={unlimitedTime}
+                      checked={values.timeLimitSeconds === null}
                       onChange={(event) => {
                         const checked = event.target.checked;
-
-                        setUnlimitedTime(checked);
 
                         void setFieldValue(
                           "timeLimitSeconds",
@@ -307,8 +309,10 @@ export function WordSearchForm({
                     className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
                     aria-hidden="true"
                   />
-                  Criando atividade...
+                  {isEditing ? "Salvando alterações..." : "Criando atividade..."}
                 </>
+              ) : isEditing ? (
+                "Salvar alterações"
               ) : (
                 "Criar caça-palavras"
               )}
