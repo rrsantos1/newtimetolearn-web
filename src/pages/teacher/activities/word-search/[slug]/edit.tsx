@@ -8,14 +8,13 @@ import {
   ClipboardList,
   LoaderCircle,
 } from "lucide-react";
-
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { WordSearchForm } from "@/modules/activities/components/WordSearchForm";
-
 import type { CreateWordSearchFormValues } from "@/modules/activities/schemas/createWordSearchSchema";
 import type { EditableWordSearchActivity } from "@/modules/activities/types/activities.types";
 import { getWordSearchActivityService } from "@/modules/activities/services/wordSearch/getWordSearchActivityService";
 import { updateWordSearchActivityService } from "@/modules/activities/services/wordSearch/updateWordSearchActivityService";
+import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
 
 const ACTIVITIES_LIST_ROUTE = "/teacher/activities";
 
@@ -65,6 +64,9 @@ export default function EditWordSearchPage() {
   const [loadError, setLoadError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [resubmitError, setResubmitError] = useState("");
+  const [resubmitSuccess, setResubmitSuccess] = useState(false);
 
   useEffect(() => {
     if (!router.isReady) {
@@ -121,58 +123,78 @@ export default function EditWordSearchPage() {
   }, [router.isReady, router.query.slug]);
 
   async function handleSubmit(
-    values: CreateWordSearchFormValues,
-  ): Promise<void> {
-    if (!activity) {
-      setSubmitError("Não foi possível identificar a atividade.");
-      return;
-    }
-
-    setSubmitError("");
-    setSuccess(false);
-
-    try {
-      const result = await updateWordSearchActivityService.execute(
-        activity.slug,
-        {
-          name: values.name,
-          description: values.description,
-          difficulty: values.difficulty,
-          timeLimitSeconds: values.timeLimitSeconds,
-          words: values.words,
-        },
-      );
-
-      setActivity((current) => {
-        if (!current) {
-          return current;
+        values: CreateWordSearchFormValues,
+    ): Promise<void> {
+        if (!activity) {
+        setSubmitError("Não foi possível identificar a atividade.");
+        return;
         }
 
-        return {
-          ...current,
-          version: {
-            ...current.version,
+        setSubmitError("");
+        setSuccess(false);
+
+        try {
+        const result = await updateWordSearchActivityService.execute(
+            activity.slug,
+            {
             name: values.name,
-            description: values.description || null,
+            description: values.description,
             difficulty: values.difficulty,
-            timeLimitSeconds: values.timeLimitSeconds ?? null,
-            content: {
-              ...current.version.content,
-              words: values.words,
+            timeLimitSeconds: values.timeLimitSeconds,
+            words: values.words,
             },
-          },
-        };
-      });
+        );
 
-      setSuccess(true);
+        setActivity((current) => {
+            if (!current) {
+            return current;
+            }
 
-      // O resultado da API é mantido disponível para uso posterior,
-      // incluindo a pré-visualização da nova grade.
-      void result;
-    } catch (error: unknown) {
-      setSubmitError(getErrorMessage(error));
+            return {
+            ...current,
+            version: {
+                ...current.version,
+                name: values.name,
+                description: values.description || null,
+                difficulty: values.difficulty,
+                timeLimitSeconds: values.timeLimitSeconds ?? null,
+                content: {
+                ...current.version.content,
+                words: values.words,
+                },
+            },
+            };
+        });
+
+        setSuccess(true);
+
+        // O resultado da API é mantido disponível para uso posterior,
+        // incluindo a pré-visualização da nova grade.
+        void result;
+        } catch (error: unknown) {
+        setSubmitError(getErrorMessage(error));
+        }
     }
-  }
+
+    async function handleResubmit(): Promise<void> {
+        if (!activity || resubmitting) {
+        return;
+        }
+
+        setResubmitError("");
+        setResubmitSuccess(false);
+        setResubmitting(true);
+
+        try {
+        await submitActivityVersionService.execute(activity.slug);
+
+        setResubmitSuccess(true);
+        } catch (error: unknown) {
+        setResubmitError(getErrorMessage(error));
+        } finally {
+        setResubmitting(false);
+        }
+    }
 
   return (
     <RoleBasedLayout
@@ -273,14 +295,87 @@ export default function EditWordSearchPage() {
           </div>
         </section>
       ) : activity ? (
-        <WordSearchForm
-          key={activity.slug}
-          mode="edit"
-          initialValues={toFormValues(activity)}
-          onSubmit={handleSubmit}
-          submitError={submitError}
-        />
-      ) : null}
+        <div className="space-y-6">
+            {(activity.version.status === "REJECTED" ||
+            activity.version.status === "CHANGES_REQUESTED") && (
+            <section
+                aria-labelledby="review-feedback-title"
+                className="rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:p-6"
+            >
+                <h2
+                id="review-feedback-title"
+                className="text-lg font-semibold text-amber-900"
+                >
+                {activity.version.status === "REJECTED"
+                    ? "Atividade rejeitada"
+                    : "Correções solicitadas"}
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-amber-800">
+                Confira as observações do administrador antes de reenviar
+                sua atividade.
+                </p>
+
+                {activity.version.reviewFeedback ? (
+                <div className="mt-4 rounded-xl border border-amber-200 bg-white p-4">
+                    <p className="whitespace-pre-wrap text-sm leading-6 text-dark">
+                    {activity.version.reviewFeedback}
+                    </p>
+                </div>
+                ) : (
+                <p className="mt-3 text-sm text-amber-800">
+                    Nenhuma observação foi registrada pelo administrador.
+                </p>
+                )}
+
+                <div className="mt-5 space-y-3">
+                {resubmitError && (
+                    <p role="alert" className="text-sm text-red-700">
+                    {resubmitError}
+                    </p>
+                )}
+
+                {resubmitSuccess && (
+                    <p
+                    role="status"
+                    className="text-sm font-medium text-green-700"
+                    >
+                    Atividade reenviada com sucesso para análise.
+                    </p>
+                )}
+
+                <button
+                    type="button"
+                    onClick={() => void handleResubmit()}
+                    disabled={resubmitting || resubmitSuccess}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {resubmitting && (
+                    <LoaderCircle
+                        aria-hidden="true"
+                        className="size-4 animate-spin"
+                    />
+                    )}
+
+                    {resubmitting
+                    ? "Enviando para análise..."
+                    : resubmitSuccess
+                        ? "Enviada para análise"
+                        : "Reenviar para aprovação"}
+                </button>
+                </div>
+            </section>
+            )}
+
+            <WordSearchForm
+            key={activity.slug}
+            mode="edit"
+            initialValues={toFormValues(activity)}
+            onSubmit={handleSubmit}
+            submitError={submitError}
+            />
+        </div>
+        ) : null}
     </RoleBasedLayout>
   );
 }

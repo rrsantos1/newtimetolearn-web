@@ -50,6 +50,7 @@ export interface EditableWordSearchActivity {
     generatedData: Record<string, unknown> | null;
     submittedAt: string | null;
     publishedAt: string | null;
+    reviewFeedback: string | null;
   };
 }
 
