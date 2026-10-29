@@ -10,7 +10,6 @@ import {
   LoaderCircle,
   LockKeyhole,
   Mail,
-  ShieldCheck,
 } from "lucide-react";
 import api from "@/lib/api";
 import * as Yup from "yup";

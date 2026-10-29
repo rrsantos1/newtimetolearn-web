@@ -18,18 +18,26 @@ export default function ConfirmEmailChangePage() {
     "Estamos confirmando a alteração do seu e-mail.",
   );
 
+  const token = router.query.token;
+
+  const isInvalidToken =
+    router.isReady &&
+    (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token));
+
+  const visibleStatus: ConfirmationStatus = isInvalidToken
+    ? "error"
+    : status;
+
+  const visibleMessage = isInvalidToken
+    ? "O link de confirmação é inválido ou está incompleto."
+    : message;
+
   useEffect(() => {
-    if (!router.isReady) return;
-
-    const token = router.query.token;
-
-    if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token)) {
-      setStatus("error");
-      setMessage("O link de confirmação é inválido ou está incompleto.");
+    if (!router.isReady || isInvalidToken || typeof token !== "string") {
       return;
     }
 
-    const confirmationToken = token;
+    const confirmationToken: string = token;
 
     let isMounted = true;
 
@@ -73,7 +81,7 @@ export default function ConfirmEmailChangePage() {
     return () => {
       isMounted = false;
     };
-  }, [router.isReady, router.query.token, refreshProfile]);
+  }, [router.isReady, token, isInvalidToken, refreshProfile]);
 
   return (
     <div className="min-h-dvh bg-background">
@@ -100,18 +108,18 @@ export default function ConfirmEmailChangePage() {
           </span>
 
           <h1 className="mt-6 text-2xl font-bold text-dark">
-            {status === "loading"
+            {visibleStatus === "loading"
               ? "Confirmando seu e-mail"
-              : status === "success"
+              : visibleStatus === "success"
                 ? "E-mail alterado"
                 : "Não foi possível confirmar"}
           </h1>
 
           <p
             className="mt-3 text-sm leading-6 text-muted"
-            role={status === "error" ? "alert" : "status"}
+            role={visibleStatus === "error" ? "alert" : "status"}
           >
-            {message}
+            {visibleMessage}
           </p>
 
           {status !== "loading" && (

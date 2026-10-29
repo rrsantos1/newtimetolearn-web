@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardList, Users } from "lucide-react";
+import { BookOpen, ClipboardList, Plus, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import Link from "next/link";
 
@@ -10,7 +10,7 @@ const features = [
   },
   {
     title: "Atividades",
-    description: "Prepare atividades para seus alunos.",
+    description: "Consulte suas atividades, acompanhe o status de aprovação e gerencie seus caça-palavras.",
     icon: ClipboardList,
   },
   {
@@ -32,10 +32,9 @@ export default function TeacherPage() {
         {features.map(({ title, description, icon: Icon }) => {
           if (title === "Atividades") {
             return (
-              <Link
+              <article
                 key={title}
-                href="/teacher/activities/word-search/new"
-                className="block rounded-2xl border border-border bg-surface p-6 shadow-sm transition hover:border-accent/40 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition hover:border-accent/40 hover:shadow-md"
               >
                 <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon size={22} aria-hidden="true" />
@@ -47,10 +46,24 @@ export default function TeacherPage() {
                   {description}
                 </p>
 
-                <span className="mt-4 inline-block text-xs font-semibold text-accent">
-                  Criar caça-palavras
-                </span>
-              </Link>
+                <div className="mt-5 flex flex-col gap-2">
+                  <Link
+                    href="/teacher/activities"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                  >
+                    <ClipboardList size={16} aria-hidden="true" />
+                    Ver minhas atividades
+                  </Link>
+
+                  <Link
+                    href="/teacher/activities/word-search/new"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                  >
+                    <Plus size={16} aria-hidden="true" />
+                    Criar caça-palavras
+                  </Link>
+                </div>
+              </article>
             );
           }
 
