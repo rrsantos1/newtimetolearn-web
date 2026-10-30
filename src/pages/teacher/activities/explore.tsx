@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import {
@@ -100,7 +100,11 @@ export default function ExploreActivitiesPage() {
 
     setIsLoading(true);
     listActivitiesService
-      .execute(1, 100, "explore")
+      .execute(page, PAGE_SIZE, "explore", {
+        ...(search.trim() ? { search: search.trim() } : {}),
+        ...(typeFilter !== "ALL" ? { type: typeFilter } : {}),
+        ...(difficultyFilter !== "ALL" ? { difficulty: difficultyFilter } : {}),
+      })
       .then((data) => {
         if (cancelled) return;
         setResult(data);
@@ -117,35 +121,7 @@ export default function ExploreActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  const filteredActivities = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
-
-    return (result?.items ?? []).filter((activity) => {
-      const name = getActivityName(activity).toLocaleLowerCase("pt-BR");
-      const description = (
-        activity.latestVersion?.description ?? ""
-      ).toLocaleLowerCase("pt-BR");
-
-      const matchesSearch =
-        !normalizedSearch ||
-        name.includes(normalizedSearch) ||
-        description.includes(normalizedSearch);
-      const matchesType = typeFilter === "ALL" || activity.type === typeFilter;
-      const matchesDifficulty =
-        difficultyFilter === "ALL" ||
-        activity.latestVersion?.difficulty === difficultyFilter;
-
-      return matchesSearch && matchesType && matchesDifficulty;
-    });
-  }, [result, search, typeFilter, difficultyFilter]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredActivities.length / PAGE_SIZE));
-  const visibleActivities = filteredActivities.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
-  );
+  }, [page, search, typeFilter, difficultyFilter]);
 
   useEffect(() => {
     setPage(1);
@@ -238,26 +214,34 @@ export default function ExploreActivitiesPage() {
         >
           <AlertCircle size={20} className="mt-0.5 shrink-0" aria-hidden="true" />
           <p className="leading-6">{errorMessage}</p>
+          <button
+            type="button"
+            onClick={() => setPage((current) => current)}
+            className="sr-only"
+          >
+            Tentar novamente
+          </button>
         </section>
       )}
 
       {isLoading ? (
-        <section aria-live="polite" className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm">
+        <section
+          aria-live="polite"
+          className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
+        >
           <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
           <p className="text-sm text-muted">Carregando biblioteca...</p>
         </section>
-      ) : !errorMessage && visibleActivities.length === 0 ? (
+      ) : !errorMessage && result && result.items.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
           <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <BookOpen size={26} aria-hidden="true" />
           </span>
           <h2 className="mt-5 text-lg font-semibold text-dark">
-            {result?.items.length
-              ? "Nenhuma atividade encontrada"
-              : "A biblioteca ainda está vazia"}
+            Nenhuma atividade encontrada
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            {result?.items.length
+            {search || typeFilter !== "ALL" || difficultyFilter !== "ALL"
               ? "Tente alterar os termos da busca ou os filtros selecionados."
               : "Quando outros professores publicarem atividades elegíveis para compartilhamento, elas aparecerão aqui."}
           </p>
@@ -279,9 +263,9 @@ export default function ExploreActivitiesPage() {
         <>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted" aria-live="polite">
-              {filteredActivities.length === 1
+              {result.pagination.total === 1
                 ? "1 atividade encontrada"
-                : `${filteredActivities.length} atividades encontradas`}
+                : `${result.pagination.total} atividades encontradas`}
             </p>
             <p className="text-xs text-muted">
               Exibindo atividades publicadas de outros professores
@@ -292,7 +276,7 @@ export default function ExploreActivitiesPage() {
             aria-label="Biblioteca de atividades"
             className="grid gap-4 lg:grid-cols-2"
           >
-            {visibleActivities.map((activity) => (
+            {result.items.map((activity) => (
               <article
                 key={activity.slug}
                 className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:border-accent/40 hover:shadow-md sm:p-6"
@@ -360,7 +344,7 @@ export default function ExploreActivitiesPage() {
             ))}
           </section>
 
-          {totalPages > 1 && (
+          {result.pagination.totalPages > 1 && (
             <nav
               aria-label="Paginação da biblioteca"
               className="mt-8 flex items-center justify-center gap-3"
@@ -368,19 +352,23 @@ export default function ExploreActivitiesPage() {
               <button
                 type="button"
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
-                disabled={page <= 1}
+                disabled={page <= 1 || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
                 Anterior
               </button>
               <span className="text-sm text-muted">
-                Página {page} de {totalPages}
+                Página {result.pagination.page} de {result.pagination.totalPages}
               </span>
               <button
                 type="button"
-                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                disabled={page >= totalPages}
+                onClick={() =>
+                  setPage((current) =>
+                    Math.min(result.pagination.totalPages, current + 1),
+                  )
+                }
+                disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Próxima
