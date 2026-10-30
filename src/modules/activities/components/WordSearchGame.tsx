@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
 
 export interface WordSearchPosition {
@@ -12,6 +12,8 @@ interface WordSearchGameProps {
   grid: string[][];
   words: string[];
   wordPositions: WordSearchPosition[];
+  timeLimitSeconds: number | null;
+  onComplete: (wordsFound: string[], elapsedSeconds: number) => void;
 }
 
 interface CellPosition {
@@ -142,8 +144,14 @@ export function WordSearchGame({
   grid,
   words,
   wordPositions,
+  timeLimitSeconds,
+  onComplete,
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startedAtRef = useRef(Date.now());
+  const finishedRef = useRef(false);
+  const foundWordsRef = useRef<string[]>([]);
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
   const [selection, setSelection] = useState<CellPosition[]>([]);
   const [message, setMessage] = useState("");
@@ -152,6 +160,26 @@ export function WordSearchGame({
     () => words.map((word) => ({ original: word, normalized: normalizeWord(word) })),
     [words],
   );
+
+  const timeLimit = timeLimitSeconds ?? 900;
+  const completed = words.length > 0 && foundWords.length === words.length;
+  const timedOut = elapsedSeconds >= timeLimit && !completed;
+  foundWordsRef.current = foundWords;
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    if (!timedOut || finishedRef.current) return;
+
+    finishedRef.current = true;
+    onComplete(foundWordsRef.current, timeLimit);
+  }, [onComplete, timeLimit, timedOut]);
 
   const foundSet = useMemo(() => new Set(foundWords), [foundWords]);
   const selectedSet = useMemo(
@@ -212,13 +240,20 @@ export function WordSearchGame({
     });
 
     if (match) {
-      setFoundWords((current) =>
-        current.includes(match.word) ? current : [...current, match.word],
-      );
+      const nextFoundWords = foundWords.includes(match.word)
+        ? foundWords
+        : [...foundWords, match.word];
+      setFoundWords(nextFoundWords);
+      foundWordsRef.current = nextFoundWords;
       const original = normalizedWords.find(
         (word) => word.normalized === match.word,
       )?.original ?? match.word;
       setMessage(`Boa! Você encontrou: ${original}.`);
+
+      if (nextFoundWords.length === words.length && !finishedRef.current) {
+        finishedRef.current = true;
+        onComplete(nextFoundWords, elapsedSeconds);
+      }
     } else {
       setMessage("Essa seleção não corresponde a uma palavra da lista.");
     }
@@ -228,7 +263,7 @@ export function WordSearchGame({
   }
 
   function handleCellPointerDown(row: number, col: number): void {
-    if (foundWords.length === words.length) return;
+    if (finishedRef.current || timedOut || completed) return;
 
     const start = { row, col };
     setSelectionStart(start);
@@ -243,13 +278,21 @@ export function WordSearchGame({
   }
 
   function resetGame(): void {
+    finishedRef.current = false;
+    startedAtRef.current = Date.now();
+    foundWordsRef.current = [];
     setFoundWords([]);
+    setElapsedSeconds(0);
     setSelectionStart(null);
     setSelection([]);
     setMessage("");
   }
 
-  const completed = words.length > 0 && foundWords.length === words.length;
+  function formatTime(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -261,9 +304,14 @@ export function WordSearchGame({
               Toque ou clique na primeira letra e arraste até a última.
             </p>
           </div>
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-dark">
-            {foundWords.length} de {words.length}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-background text-dark"}`}>
+              Tempo: {formatTime(Math.min(elapsedSeconds, timeLimit))}
+            </span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-dark">
+              {foundWords.length} de {words.length}
+            </span>
+          </div>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-border bg-background p-2 sm:p-4">
@@ -324,14 +372,14 @@ export function WordSearchGame({
           </p>
         )}
 
-        {completed && (
-          <div role="status" className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-            <p className="flex items-center gap-2 font-semibold text-emerald-900">
+        {(completed || timedOut) && (
+          <div role="status" className={`mt-4 rounded-xl border p-4 ${completed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+            <p className={`flex items-center gap-2 font-semibold ${completed ? "text-emerald-900" : "text-amber-900"}`}>
               <CheckCircle2 size={19} aria-hidden="true" />
-              Parabéns! Você encontrou todas as palavras.
+              {completed ? "Parabéns! Você encontrou todas as palavras." : "O tempo acabou."}
             </p>
-            <p className="mt-1 text-sm text-emerald-800">
-              Você pode reiniciar o jogo para jogar novamente.
+            <p className={`mt-1 text-sm ${completed ? "text-emerald-800" : "text-amber-800"}`}>
+              {completed ? "Sua pontuação está sendo registrada." : "Sua pontuação parcial está sendo registrada."}
             </p>
           </div>
         )}
