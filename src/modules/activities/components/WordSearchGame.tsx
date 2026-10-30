@@ -13,6 +13,7 @@ interface WordSearchGameProps {
   words: string[];
   wordPositions: WordSearchPosition[];
   timeLimitSeconds: number | null;
+  canSubmitScore: boolean;
   onComplete: (wordsFound: string[], elapsedSeconds: number) => void;
 }
 
@@ -145,6 +146,7 @@ export function WordSearchGame({
   words,
   wordPositions,
   timeLimitSeconds,
+  canSubmitScore,
   onComplete,
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
@@ -379,7 +381,11 @@ export function WordSearchGame({
               {completed ? "Parabéns! Você encontrou todas as palavras." : "O tempo acabou."}
             </p>
             <p className={`mt-1 text-sm ${completed ? "text-emerald-800" : "text-amber-800"}`}>
-              {completed ? "Sua pontuação está sendo registrada." : "Sua pontuação parcial está sendo registrada."}
+              {canSubmitScore
+                ? completed
+                  ? "Sua pontuação está sendo registrada."
+                  : "Sua pontuação parcial está sendo registrada."
+                : "Atividade concluída."}
             </p>
           </div>
         )}
