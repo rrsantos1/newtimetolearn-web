@@ -36,7 +36,7 @@ function getErrorMessage(
     return (
       data?.error?.message ??
       data?.message ??
-      "Não foi possível carregar esta atividade."
+      fallback
     );
   }
 
@@ -93,11 +93,16 @@ export default function PlayWordSearchPage() {
   const [attemptResult, setAttemptResult] = useState<WordSearchAttemptResult | null>(null);
   const [submittingAttempt, setSubmittingAttempt] = useState(false);
   const [attemptError, setAttemptError] = useState("");
+  const [pendingAttempt, setPendingAttempt] = useState<{
+    wordsFound: string[];
+    elapsedSeconds: number;
+  } | null>(null);
 
   const handleComplete = useCallback(
     async (wordsFound: string[], elapsedSeconds: number): Promise<void> => {
       if (!activity || attemptResult) return;
 
+      setPendingAttempt({ wordsFound, elapsedSeconds });
       setSubmittingAttempt(true);
       setAttemptError("");
 
@@ -108,6 +113,7 @@ export default function PlayWordSearchPage() {
           elapsedSeconds,
         );
         setAttemptResult(result);
+        setPendingAttempt(null);
       } catch (submitError: unknown) {
         setAttemptError(
           getErrorMessage(
@@ -263,9 +269,22 @@ export default function PlayWordSearchPage() {
                   )}
 
                   {attemptError && (
-                    <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-                      {attemptError}
-                    </p>
+                    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                      <p>{attemptError}</p>
+                      {pendingAttempt && (
+                        <button
+                          type="button"
+                          onClick={() => void handleComplete(
+                            pendingAttempt.wordsFound,
+                            pendingAttempt.elapsedSeconds,
+                          )}
+                          disabled={submittingAttempt}
+                          className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Tentar registrar novamente
+                        </button>
+                      )}
+                    </div>
                   )}
 
                   {attemptResult && (
