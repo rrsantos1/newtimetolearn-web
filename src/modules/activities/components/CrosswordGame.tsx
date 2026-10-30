@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface CrosswordClue {
@@ -168,7 +168,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
     selectCell(nextRow, nextCol);
   }
 
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>, row: number, col: number): void {
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>, row: number, col: number): void {
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
       focusNextCell(row, col, event.key === "ArrowDown" ? "down" : "across");
