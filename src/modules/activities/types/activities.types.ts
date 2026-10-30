@@ -20,11 +20,18 @@ export interface CreatedActivity {
   status: string;
 }
 
+export interface ActivityVersionResponse {
+  id: string;
+  versionNumber: number;
+  status: string;
+  revision: number;
+}
+
 export interface CreateWordSearchResponse {
   success: true;
   data: {
     activity: CreatedActivity;
-    version: unknown;
+    version: ActivityVersionResponse;
     preview: WordSearchPreview;
   };
 }
