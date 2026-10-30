@@ -48,7 +48,7 @@ export interface CreateCrosswordResponse {
   };
 }
 
-export interface UpdateCrosswordResponse extends CreateCrosswordResponse {}
+export type UpdateCrosswordResponse = CreateCrosswordResponse;
 
 export interface EditableCrosswordActivity {
   slug: string;
