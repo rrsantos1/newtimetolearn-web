@@ -282,7 +282,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
             <p className="text-xs text-muted">Setas para navegar</p>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-[680px]">
+        <div className="mx-auto w-full max-w-170">
           <div
             role="group"
             aria-label="Grade de palavras cruzadas"
@@ -333,8 +333,9 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
               </button>
             )}
             <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
-            Conferir respostas
-          </button>
+              Conferir respostas
+            </button>
+          </div>
         </div>
       </div>
       <aside className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
@@ -344,7 +345,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
           {renderClueList(acrossClues, "across")}
           {renderClueList(downClues, "down")}
         </div>
-      </aside>
+      </aside>      
     </section>
   );
 }
