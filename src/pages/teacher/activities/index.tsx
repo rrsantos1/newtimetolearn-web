@@ -105,7 +105,10 @@ function getStatusClass(activity: ListedActivity): string {
 }
 
 function canEditActivity(activity: ListedActivity): boolean {
-  if (!["word_search", "crossword"].includes(activity.type) || !activity.latestVersion) {
+  if (
+    (activity.type !== "word_search" && activity.type !== "crossword") ||
+    !activity.latestVersion
+  ) {
     return false;
   }
 
@@ -115,6 +118,18 @@ function canEditActivity(activity: ListedActivity): boolean {
     "REJECTED",
     "CHANGES_REQUESTED",
   ].includes(activity.latestVersion.status);
+}
+
+function getActivityTypeLabel(type: ListedActivity["type"]): string {
+  if (type === "word_search") {
+    return "Caça-palavras";
+  }
+
+  if (type === "crossword") {
+    return "Palavras cruzadas";
+  }
+
+  return type.replaceAll("_", " ");
 }
 
 function formatDate(value: string): string {
@@ -358,11 +373,7 @@ export default function TeacherActivitiesPage() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                      {activity.type === "word_search"
-                        ? "Caça-palavras"
-                        : activity.type === "crossword"
-                          ? "Palavras cruzadas"
-                          : activity.type.replaceAll("_", " ")}
+                      {getActivityTypeLabel(activity.type)}
                     </p>
 
                     <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
