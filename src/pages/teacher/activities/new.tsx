@@ -86,7 +86,7 @@ export default function NewActivityPage() {
               </div>
               <h2 className="mt-4 text-base font-semibold text-dark">{activity.label}</h2>
               <p className="mt-2 flex-1 text-sm leading-6 text-muted">{activity.description}</p>
-              <span className={`mt-5 inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold ${activity.available ? "bg-primary text-white" : "border border-border text-muted"}`}>
+              <span className={`mt-5 inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold ${activity.available ? "bg-dark text-white" : "border border-border text-muted"}`}>
                 {activity.available ? "Criar atividade" : "Ainda indisponível"}
               </span>
             </>
