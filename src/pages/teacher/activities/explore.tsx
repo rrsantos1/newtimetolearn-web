@@ -20,25 +20,9 @@ import type {
   ActivityListData,
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
+import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 
 const PAGE_SIZE = 12;
-
-const typeLabels: Record<ActivityType, string> = {
-  quiz: "Quiz",
-  word_search: "Caça-palavras",
-  crossword: "Palavras cruzadas",
-  cloze: "Texto lacunado",
-  multiple_choice: "Múltipla escolha",
-  fill_in_the_blank: "Complete a lacuna",
-  drag_drop: "Arrastar e soltar",
-  sentence_order: "Ordenar frases",
-  board_game: "Jogo de tabuleiro",
-  roulette: "Roleta",
-  hangman: "Forca",
-  memory: "Jogo da memória",
-  fill_in_blanks: "Preencher lacunas",
-  mole_hit: "Acertar a toupeira",
-};
 
 const difficultyLabels: Record<ActivityDifficulty, string> = {
   EASY: "Fácil",
@@ -185,7 +169,7 @@ export default function ExploreActivitiesPage() {
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">Todos os tipos</option>
-              {Object.entries(typeLabels).map(([value, label]) => (
+              {Object.entries(activityTypeLabels).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
