@@ -52,6 +52,22 @@ const FOUND_WORD_COLORS = [
     cell: "bg-rose-200 text-rose-950",
     list: "border-rose-200 bg-rose-50 text-rose-900",
   },
+  {
+    cell: "bg-blue-200 text-blue-950",
+    list: "border-blue-200 bg-blue-50 text-blue-900",
+  },
+  {
+    cell: "bg-amber-200 text-amber-950",
+    list: "border-amber-200 bg-amber-50 text-amber-900",
+  },
+  {
+    cell: "bg-bronze-200 text-bronze-950",
+    list: "border-bronze-200 bg-bronze-50 text-bronze-900",
+  },
+  {
+    cell: "bg-slate-200 text-slate-950",
+    list: "border-slate-200 bg-slate-50 text-slate-900",
+  },
 ] as const;
 
 function normalizeWord(value: string): string {
