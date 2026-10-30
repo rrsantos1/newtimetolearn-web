@@ -94,6 +94,7 @@ export default function ExploreActivitiesPage() {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -121,7 +122,7 @@ export default function ExploreActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, typeFilter, difficultyFilter]);
+  }, [page, search, typeFilter, difficultyFilter, reloadKey]);
 
   useEffect(() => {
     setPage(1);
@@ -216,8 +217,8 @@ export default function ExploreActivitiesPage() {
           <p className="leading-6">{errorMessage}</p>
           <button
             type="button"
-            onClick={() => setPage((current) => current)}
-            className="sr-only"
+            onClick={() => setReloadKey((current) => current + 1)}
+            className="ml-auto shrink-0 rounded-lg border border-red-300 px-3 py-2 font-semibold transition hover:bg-red-100"
           >
             Tentar novamente
           </button>
