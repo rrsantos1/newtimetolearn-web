@@ -120,7 +120,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
         return lettersRef.current[getCellKey(row, col)] ?? "";
       });
       return normalizeAnswer(lettersForClue.join(""));
-    });
+    }).filter(Boolean);
   }
 
   function finishGame(): void {
