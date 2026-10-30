@@ -62,14 +62,12 @@ export default function NewCrosswordPage() {
               Cruzadinha criada com sucesso!
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
-              Sua atividade foi salva e está aguardando a aprovação do administrador.
-              Você poderá encontrá-la na lista de atividades.
+              Sua atividade foi salva como rascunho. Para enviá-la à aprovação do administrador, abra Minhas atividades, clique em Editar e selecione Enviar para aprovação.
             </p>
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
               <p className="font-medium text-amber-900">O que acontece agora?</p>
               <p className="mt-1 text-sm leading-6 text-amber-800">
-                Enquanto estiver em análise, a atividade ficará disponível para você
-                e para os administradores, conforme as regras de acesso da plataforma.
+                Depois do envio, a atividade ficará disponível para você e para os administradores durante a análise. Os demais professores só poderão acessá-la após a aprovação.
               </p>
             </div>
             <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
