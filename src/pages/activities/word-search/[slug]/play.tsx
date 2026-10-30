@@ -40,7 +40,7 @@ function getErrorMessage(
     );
   }
 
-  return fallback === "Não foi possível carregar esta atividade."\n    ? "Ocorreu um erro inesperado ao carregar a atividade."\n    : fallback;
+  return fallback;
 }
 
 function isGrid(value: unknown): value is string[][] {
