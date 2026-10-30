@@ -250,7 +250,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
           <div
             role="group"
             aria-label="Grade de palavras cruzadas"
-            className="grid gap-px overflow-hidden rounded-lg bg-slate-300 p-px"
+            className="grid gap-px overflow-hidden rounded-lg"
             style={{ gridTemplateColumns: `repeat(${visibleCols}, minmax(0, 1fr))` }}
           >
             {Array.from({ length: visibleRows }, (_, rowOffset) => {
@@ -265,7 +265,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
                 const selected = activeCells.has(key);
                 const starts = clues.filter((clue) => clue.row === row && clue.col === col);
                 return (
-                  <div key={key} className={`relative aspect-square min-w-0 ${selected ? "bg-amber-100" : "bg-white"}`}>
+                  <div key={key} className={`relative aspect-square min-w-0 border border-slate-300 ${selected ? "bg-amber-100" : "bg-white"}`}>
                     {starts.length > 0 && <span className="pointer-events-none absolute left-0.5 top-0 text-[clamp(6px,0.8vw,9px)] leading-none text-slate-700">{Math.min(...starts.map((clue) => clue.number))}</span>}
                     <input
                       id={`crossword-cell-${row}-${col}`}
