@@ -49,7 +49,7 @@ export const createCrosswordSchema = Yup.object({
           .trim()
           .required("Informe a pista.")
           .max(500, "A pista deve ter no máximo 500 caracteres."),
-      }),
+      }).required(),
     )
     .required("Informe as respostas e pistas.")
     .min(3, "Informe pelo menos 3 respostas.")
