@@ -51,7 +51,7 @@ function normalizeCrosswordClues(value: unknown): CrosswordClue[] | null {
     if ("length" in item && typeof item.length === "number") {
       length = item.length;
     } else if ("word" in item && typeof item.word === "string") {
-      length = item.word.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[\\s-]/g, "").length;
+      length = item.word.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s-]/g, "").length;
     } else {
       return null;
     }
