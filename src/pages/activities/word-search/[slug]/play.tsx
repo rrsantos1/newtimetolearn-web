@@ -126,7 +126,14 @@ export default function PlayWordSearchPage() {
 
   const handleComplete = useCallback(
     async (wordsFound: string[], elapsedSeconds: number): Promise<void> => {
-      if (!activity || attemptResult || !isStudent || submittingAttempt) return;
+      if (!activity) return;
+
+      if (!isStudent) {
+        setPhase("finished");
+        return;
+      }
+
+      if (attemptResult || submittingAttempt) return;
 
       setPendingAttempt({ wordsFound, elapsedSeconds });
       setSubmittingAttempt(true);
@@ -268,12 +275,17 @@ export default function PlayWordSearchPage() {
                           : "Sem limite de tempo"}
                       </p>
                     </div>
+                    {user?.roles.includes("TEACHER") && (
+                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        <Play size={18} aria-hidden="true" /> Testar caça-palavras
+                      </button>
+                    )}
                     {isStudent && (
                       <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                         <Play size={18} aria-hidden="true" /> Iniciar caça-palavras
                       </button>
                     )}
-                    {!isStudent && <p className="mt-5 text-sm text-muted">A prévia está disponível. A execução pontuada é exclusiva para alunos.</p>}
+                    {!isStudent && !user?.roles.includes("TEACHER") && <p className="mt-5 text-sm text-muted">A prévia está disponível. A execução pontuada é exclusiva para alunos.</p>}
                   </section>
 
                   {isStudent && (
@@ -323,7 +335,22 @@ export default function PlayWordSearchPage() {
                 </>
               )}
 
-              {phase === "finished" && attemptResult && (
+              {phase === "finished" && !isStudent && (
+                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-bold text-dark">Teste concluído</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    Você terminou a prévia desta atividade. Testes de professor não são registrados no ranking dos alunos.
+                  </p>
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95">
+                      <Play size={17} aria-hidden="true" /> Testar novamente
+                    </button>
+                    <Link href={backHref} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark transition hover:bg-background">{backLabel}</Link>
+                  </div>
+                </section>
+              )}
+
+              {phase === "finished" && attemptResult && isStudent && (
                 <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
