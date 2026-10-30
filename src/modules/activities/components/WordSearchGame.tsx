@@ -19,6 +19,41 @@ interface CellPosition {
   col: number;
 }
 
+const FOUND_WORD_COLORS = [
+  {
+    cell: "bg-emerald-200 text-emerald-950",
+    list: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  },
+  {
+    cell: "bg-sky-200 text-sky-950",
+    list: "border-sky-200 bg-sky-50 text-sky-900",
+  },
+  {
+    cell: "bg-violet-200 text-violet-950",
+    list: "border-violet-200 bg-violet-50 text-violet-900",
+  },
+  {
+    cell: "bg-orange-200 text-orange-950",
+    list: "border-orange-200 bg-orange-50 text-orange-900",
+  },
+  {
+    cell: "bg-pink-200 text-pink-950",
+    list: "border-pink-200 bg-pink-50 text-pink-900",
+  },
+  {
+    cell: "bg-cyan-200 text-cyan-950",
+    list: "border-cyan-200 bg-cyan-50 text-cyan-900",
+  },
+  {
+    cell: "bg-lime-200 text-lime-950",
+    list: "border-lime-200 bg-lime-50 text-lime-900",
+  },
+  {
+    cell: "bg-rose-200 text-rose-950",
+    list: "border-rose-200 bg-rose-50 text-rose-900",
+  },
+] as const;
+
 function normalizeWord(value: string): string {
   return value
     .normalize("NFD")
@@ -232,16 +267,6 @@ export function WordSearchGame({
                 const foundColorIndex = foundCellColors.get(key);
                 const isFound = foundColorIndex !== undefined;
                 const isSelected = selectedSet.has(key);
-                const foundColorClasses = [
-                  "bg-emerald-200 text-emerald-950",
-                  "bg-sky-200 text-sky-950",
-                  "bg-violet-200 text-violet-950",
-                  "bg-orange-200 text-orange-950",
-                  "bg-pink-200 text-pink-950",
-                  "bg-cyan-200 text-cyan-950",
-                  "bg-lime-200 text-lime-950",
-                  "bg-rose-200 text-rose-950",
-                ];
 
                 return (
                   <button
@@ -253,7 +278,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? foundColorClasses[(foundColorIndex ?? 0) % foundColorClasses.length] : isSelected ? "bg-yellow-300 text-gray-950" : "bg-white text-gray-800 hover:bg-yellow-50"}`}
+                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-yellow-300 text-gray-950" : "bg-white text-gray-800 hover:bg-yellow-50"}`}
                   >
                     {letter}
                   </button>
@@ -306,12 +331,16 @@ export function WordSearchGame({
         </p>
         <ul className="mt-4 space-y-2">
           {normalizedWords.map(({ original, normalized }) => {
-            const found = foundSet.has(normalized);
+            const foundIndex = foundWords.indexOf(normalized);
+            const found = foundIndex >= 0;
+            const foundColor = found
+              ? FOUND_WORD_COLORS[foundIndex % FOUND_WORD_COLORS.length].list
+              : "border-border bg-background text-dark";
 
             return (
               <li
                 key={normalized}
-                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm ${found ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-border bg-background text-dark"}`}
+                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm ${foundColor}`}
               >
                 <span className={found ? "line-through decoration-2" : ""}>
                   {original}
