@@ -4,6 +4,7 @@ import axios from "axios";
 import {
   AlertCircle,
   ArrowLeft,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -11,8 +12,11 @@ import {
   Gamepad2,
   Plus,
   RefreshCw,
+  Trash2,
+  X,
 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { deleteActivityService } from "@/modules/activities/services/deleteActivityService";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import type {
   ActivityListData,
@@ -55,6 +59,22 @@ function getErrorMessage(error: unknown): string {
   }
 
   return "Ocorreu um erro inesperado ao carregar as atividades.";
+}
+
+function getDeleteErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data as
+      | { error?: { message?: string }; message?: string }
+      | undefined;
+
+    return (
+      responseData?.error?.message ??
+      responseData?.message ??
+      "Não foi possível excluir a atividade. Tente novamente."
+    );
+  }
+
+  return "Ocorreu um erro inesperado ao excluir a atividade.";
 }
 
 function getStatusLabel(activity: ListedActivity): string {
@@ -110,12 +130,25 @@ function formatDate(value: string): string {
   }).format(date);
 }
 
+function getActivityName(activity: ListedActivity): string {
+  return (
+    activity.latestVersion?.name ??
+    activity.publishedVersion?.name ??
+    "Atividade sem título"
+  );
+}
+
 export default function TeacherActivitiesPage() {
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+  const [activityToDelete, setActivityToDelete] =
+    useState<ListedActivity | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+  const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -144,6 +177,57 @@ export default function TeacherActivitiesPage() {
     };
   }, [page, reloadKey]);
 
+  async function handleDeleteActivity() {
+    if (!activityToDelete || deletingSlug) {
+      return;
+    }
+
+    const activity = activityToDelete;
+    setDeletingSlug(activity.slug);
+    setDeleteErrorMessage("");
+
+    try {
+      await deleteActivityService.execute(activity.slug);
+
+      setResult((current) => {
+        if (!current) return current;
+
+        const items = current.items.filter(
+          (item) => item.slug !== activity.slug,
+        );
+        const total = Math.max(0, current.pagination.total - 1);
+        const totalPages = Math.max(1, Math.ceil(total / 20));
+
+        return {
+          ...current,
+          items,
+          pagination: {
+            ...current.pagination,
+            total,
+            totalPages,
+          },
+        };
+      });
+
+      setActivityToDelete(null);
+      setSuccessMessage(
+        `A atividade "${getActivityName(activity)}" foi excluída. O histórico foi preservado.`,
+      );
+      setErrorMessage("");
+
+      if (result && result.items.length === 1 && page > 1) {
+        setIsLoading(true);
+        setPage((currentPage) => Math.max(1, currentPage - 1));
+      } else {
+        setReloadKey((current) => current + 1);
+      }
+    } catch (error: unknown) {
+      setDeleteErrorMessage(getDeleteErrorMessage(error));
+    } finally {
+      setDeletingSlug(null);
+    }
+  }
+
   return (
     <RoleBasedLayout
       area="teacher"
@@ -168,6 +252,24 @@ export default function TeacherActivitiesPage() {
           Criar caça-palavras
         </Link>
       </div>
+
+      {successMessage && (
+        <div
+          role="status"
+          className="mb-6 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+        >
+          <CheckCircle2 size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+          <p className="flex-1 leading-6">{successMessage}</p>
+          <button
+            type="button"
+            onClick={() => setSuccessMessage("")}
+            aria-label="Fechar mensagem de sucesso"
+            className="rounded-md p-1 transition hover:bg-green-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {errorMessage && (
         <section
@@ -261,9 +363,7 @@ export default function TeacherActivitiesPage() {
                     </p>
 
                     <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
-                      {activity.latestVersion?.name ??
-                        activity.publishedVersion?.name ??
-                        "Atividade sem título"}
+                      {getActivityName(activity)}
                     </h2>
 
                     {activity.latestVersion?.description && (
@@ -334,6 +434,19 @@ export default function TeacherActivitiesPage() {
                         Editar
                       </Link>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivityToDelete(activity);
+                        setDeleteErrorMessage("");
+                      }}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                      aria-label={`Excluir atividade ${getActivityName(activity)}`}
+                    >
+                      <Trash2 size={15} aria-hidden="true" />
+                      Excluir
+                    </button>
                   </div>
                 </div>
               </article>
@@ -359,8 +472,7 @@ export default function TeacherActivitiesPage() {
               </button>
 
               <span className="text-sm text-muted">
-                Página {result.pagination.page} de{" "}
-                {result.pagination.totalPages}
+                Página {result.pagination.page} de {result.pagination.totalPages}
               </span>
 
               <button
@@ -383,6 +495,105 @@ export default function TeacherActivitiesPage() {
           )}
         </>
       ) : null}
+
+      {activityToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !deletingSlug) {
+              setActivityToDelete(null);
+              setDeleteErrorMessage("");
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-activity-title"
+            aria-describedby="delete-activity-description"
+            className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                <Trash2 size={21} aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2
+                  id="delete-activity-title"
+                  className="text-lg font-semibold text-dark"
+                >
+                  Excluir atividade?
+                </h2>
+                <p className="mt-2 break-words text-sm font-semibold text-dark">
+                  {getActivityName(activityToDelete)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActivityToDelete(null);
+                  setDeleteErrorMessage("");
+                }}
+                disabled={Boolean(deletingSlug)}
+                aria-label="Fechar confirmação"
+                className="rounded-lg p-1.5 text-muted transition hover:bg-background hover:text-dark disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
+
+            <p
+              id="delete-activity-description"
+              className="mt-4 text-sm leading-6 text-muted"
+            >
+              A atividade deixará de ficar disponível para os alunos. O
+              histórico de versões, execuções e resultados será preservado.
+              Esta ação não pode ser desfeita pela tela.
+            </p>
+
+            {deleteErrorMessage && (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-5 text-red-800"
+              >
+                {deleteErrorMessage}
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setActivityToDelete(null);
+                  setDeleteErrorMessage("");
+                }}
+                disabled={Boolean(deletingSlug)}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteActivity}
+                disabled={Boolean(deletingSlug)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletingSlug ? (
+                  <>
+                    <span className="size-4 animate-spin rounded-full border-2 border-white border-r-transparent" />
+                    Excluindo...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} aria-hidden="true" />
+                    Confirmar exclusão
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </RoleBasedLayout>
   );
 }
