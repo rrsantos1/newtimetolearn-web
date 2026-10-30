@@ -88,9 +88,12 @@ function canEditActivity(activity: ListedActivity): boolean {
     return false;
   }
 
-  return ["DRAFT", "REJECTED", "CHANGES_REQUESTED"].includes(
-    activity.latestVersion.status,
-  );
+  return [
+    "DRAFT",
+    "PUBLISHED",
+    "REJECTED",
+    "CHANGES_REQUESTED",
+  ].includes(activity.latestVersion.status);
 }
 
 function formatDate(value: string): string {
