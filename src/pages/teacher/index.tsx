@@ -64,11 +64,11 @@ export default function TeacherPage() {
                   </Link>
 
                   <Link
-                    href="/teacher/activities/word-search/new"
+                    href="/teacher/activities/new"
                     className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                   >
                     <Plus size={16} aria-hidden="true" />
-                    Criar caça-palavras
+                    Criar atividade
                   </Link>
                 </div>
               </article>
