@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -10,6 +10,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { WordSearchGame } from "@/modules/activities/components/WordSearchGame";
 import { getWordSearchActivityService } from "@/modules/activities/services/wordSearch/getWordSearchActivityService";
 import type { EditableWordSearchActivity } from "@/modules/activities/types/activities.types";
+import { submitWordSearchAttemptService, type WordSearchAttemptResult } from "@/modules/activities/services/wordSearch/submitWordSearchAttemptService";
 
 interface GeneratedData {
   grid?: unknown;
@@ -23,7 +24,10 @@ interface WordPosition {
   direction: string;
 }
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(
+  error: unknown,
+  fallback = "Não foi possível carregar esta atividade.",
+): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as
       | { error?: { message?: string }; message?: string }
@@ -36,7 +40,7 @@ function getErrorMessage(error: unknown): string {
     );
   }
 
-  return "Ocorreu um erro inesperado ao carregar a atividade.";
+  return fallback === "Não foi possível carregar esta atividade."\n    ? "Ocorreu um erro inesperado ao carregar a atividade."\n    : fallback;
 }
 
 function isGrid(value: unknown): value is string[][] {
@@ -86,6 +90,37 @@ export default function PlayWordSearchPage() {
   const [words, setWords] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [attemptResult, setAttemptResult] = useState<WordSearchAttemptResult | null>(null);
+  const [submittingAttempt, setSubmittingAttempt] = useState(false);
+  const [attemptError, setAttemptError] = useState("");
+
+  const handleComplete = useCallback(
+    async (wordsFound: string[], elapsedSeconds: number): Promise<void> => {
+      if (!activity || attemptResult) return;
+
+      setSubmittingAttempt(true);
+      setAttemptError("");
+
+      try {
+        const result = await submitWordSearchAttemptService.execute(
+          activity.slug,
+          wordsFound,
+          elapsedSeconds,
+        );
+        setAttemptResult(result);
+      } catch (submitError: unknown) {
+        setAttemptError(
+          getErrorMessage(
+            submitError,
+            "Não foi possível registrar sua pontuação. Tente novamente mais tarde.",
+          ),
+        );
+      } finally {
+        setSubmittingAttempt(false);
+      }
+    },
+    [activity, attemptResult],
+  );
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -212,7 +247,77 @@ export default function PlayWordSearchPage() {
                 grid={grid}
                 words={words}
                 wordPositions={wordPositions}
+                timeLimitSeconds={activity.version.timeLimitSeconds}
+                onComplete={handleComplete}
               />
+
+              {(submittingAttempt || attemptError || attemptResult) && (
+                <section
+                  aria-live="polite"
+                  className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+                >
+                  {submittingAttempt && (
+                    <p role="status" className="text-sm font-medium text-muted">
+                      Calculando e registrando sua pontuação...
+                    </p>
+                  )}
+
+                  {attemptError && (
+                    <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                      {attemptError}
+                    </p>
+                  )}
+
+                  {attemptResult && (
+                    <>
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                            Resultado final
+                          </p>
+                          <p className="mt-1 text-3xl font-bold text-dark">
+                            {attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span>
+                          </p>
+                          <p className="mt-2 text-sm text-muted">
+                            Precisão: {attemptResult.attempt.accuracyPoints}/80 · Velocidade: {attemptResult.attempt.speedPoints}/20
+                          </p>
+                        </div>
+                        <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
+                          {attemptResult.isInRanking
+                            ? "Você entrou no Top 5!"
+                            : "Desta vez, você não entrou no Top 5."}
+                        </p>
+                      </div>
+
+                      <div className="mt-6">
+                        <h2 className="text-lg font-semibold text-dark">Ranking — melhores resultados</h2>
+                        {attemptResult.ranking.length > 0 ? (
+                          <ol className="mt-3 divide-y divide-border rounded-xl border border-border">
+                            {attemptResult.ranking.map((entry) => (
+                              <li key={`${entry.position}-${entry.studentName}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
+                                <div className="flex min-w-0 items-center gap-3">
+                                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">
+                                    {entry.position}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
+                                    <p className="text-xs text-muted">
+                                      {Math.floor(entry.elapsedSeconds / 60).toString().padStart(2, "0")}:{(entry.elapsedSeconds % 60).toString().padStart(2, "0")}
+                                    </p>
+                                  </div>
+                                </div>
+                                <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
+                              </li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <p className="mt-2 text-sm text-muted">Ainda não há resultados no ranking.</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </section>
+              )}
             </>
           ) : null}
         </main>
