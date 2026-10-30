@@ -31,16 +31,43 @@ function isCrosswordGrid(value: unknown): value is CrosswordGrid {
   );
 }
 
-function isCrosswordClues(value: unknown): value is CrosswordClue[] {
-  return Array.isArray(value) && value.every((item: unknown) =>
-    typeof item === "object" && item !== null &&
-    "number" in item && typeof item.number === "number" &&
-    "clue" in item && typeof item.clue === "string" &&
-    "direction" in item && (item.direction === "across" || item.direction === "down") &&
-    "row" in item && typeof item.row === "number" &&
-    "col" in item && typeof item.col === "number" &&
-    "length" in item && typeof item.length === "number",
-  );
+function normalizeCrosswordClues(value: unknown): CrosswordClue[] | null {
+  if (!Array.isArray(value)) return null;
+
+  const normalized: CrosswordClue[] = [];
+  for (const item of value) {
+    if (
+      typeof item !== "object" || item === null ||
+      !("number" in item) || typeof item.number !== "number" ||
+      !("clue" in item) || typeof item.clue !== "string" ||
+      !("direction" in item) || (item.direction !== "across" && item.direction !== "down") ||
+      !("row" in item) || typeof item.row !== "number" ||
+      !("col" in item) || typeof item.col !== "number"
+    ) {
+      return null;
+    }
+
+    let length: number;
+    if ("length" in item && typeof item.length === "number") {
+      length = item.length;
+    } else if ("word" in item && typeof item.word === "string") {
+      length = item.word.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[\\s-]/g, "").length;
+    } else {
+      return null;
+    }
+
+    if (!Number.isInteger(length) || length < 1) return null;
+    normalized.push({
+      number: item.number,
+      clue: item.clue,
+      direction: item.direction,
+      row: item.row,
+      col: item.col,
+      length,
+    });
+  }
+
+  return normalized;
 }
 
 function formatTime(seconds: number | null): string {
@@ -86,9 +113,9 @@ export default function PlayCrosswordPage() {
 
         const generatedData = result.version.generatedData;
         const rawGrid = generatedData?.grid;
-        const rawClues = generatedData?.clues;
+        const rawClues = normalizeCrosswordClues(generatedData?.clues);
 
-        if (!isCrosswordGrid(rawGrid) || !isCrosswordClues(rawClues) || rawClues.length === 0) {
+        if (!isCrosswordGrid(rawGrid) || !rawClues || rawClues.length === 0) {
           setError("A grade ou as pistas desta cruzadinha estão indisponíveis ou inválidas.");
           return;
         }
