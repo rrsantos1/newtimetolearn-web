@@ -151,18 +151,19 @@ export default function EditWordSearchPage() {
             }
 
             return {
-            ...current,
-            version: {
-                ...current.version,
-                name: values.name,
-                description: values.description || null,
-                difficulty: values.difficulty,
-                timeLimitSeconds: values.timeLimitSeconds ?? null,
-                content: {
-                ...current.version.content,
-                words: values.words,
+                ...current,
+                version: {
+                    ...current.version,
+                    name: values.name,
+                    description: values.description || null,
+                    difficulty: values.difficulty,
+                    timeLimitSeconds: values.timeLimitSeconds ?? null,
+                    status: "DRAFT",
+                    content: {
+                        ...current.version.content,
+                        words: values.words,
+                    },
                 },
-            },
             };
         });
 
@@ -177,18 +178,32 @@ export default function EditWordSearchPage() {
     }
 
     async function handleResubmit(): Promise<void> {
-        if (!activity || resubmitting) {
-        return;
-        }
+        if (!activity || resubmitting) {return}
 
         setResubmitError("");
         setResubmitSuccess(false);
         setResubmitting(true);
 
         try {
-        await submitActivityVersionService.execute(activity.slug);
+            await submitActivityVersionService.execute(activity.slug);
 
-        setResubmitSuccess(true);
+            setActivity((current) => {
+                if (!current) {
+                    return current;
+                }
+
+                return {
+                    ...current,
+                    version: {
+                    ...current.version,
+                    status: "PENDING_REVIEW",
+                    reviewFeedback: null,
+                    submittedAt: new Date().toISOString(),
+                    },
+                };
+            });
+
+            setResubmitSuccess(true);
         } catch (error: unknown) {
         setResubmitError(getErrorMessage(error));
         } finally {
@@ -296,8 +311,14 @@ export default function EditWordSearchPage() {
         </section>
       ) : activity ? (
         <div className="space-y-6">
-            {(activity.version.status === "REJECTED" ||
-            activity.version.status === "CHANGES_REQUESTED") && (
+            {(
+                activity.version.status === "REJECTED" ||
+                activity.version.status === "CHANGES_REQUESTED" ||
+                (
+                    activity.version.status === "DRAFT" &&
+                    Boolean(activity.version.reviewFeedback)
+                )
+            ) && (
             <section
                 aria-labelledby="review-feedback-title"
                 className="rounded-2xl border border-amber-300 bg-amber-50 p-5 sm:p-6"
@@ -367,13 +388,37 @@ export default function EditWordSearchPage() {
             </section>
             )}
 
-            <WordSearchForm
-            key={activity.slug}
-            mode="edit"
-            initialValues={toFormValues(activity)}
-            onSubmit={handleSubmit}
-            submitError={submitError}
-            />
+            {activity.version.status === "PENDING_REVIEW" ? (
+                <section
+                    role="status"
+                    className="rounded-2xl border border-blue-200 bg-blue-50 p-6"
+                >
+                    <h2 className="text-lg font-semibold text-blue-900">
+                    Atividade em análise
+                    </h2>
+
+                    <p className="mt-2 text-sm leading-6 text-blue-800">
+                    Sua atividade foi enviada para revisão. Você poderá
+                    realizar novas alterações quando a análise for concluída.
+                    </p>
+
+                    <Link
+                    href={ACTIVITIES_LIST_ROUTE}
+                    className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                    >
+                    <ClipboardList aria-hidden="true" className="size-4" />
+                    Voltar às minhas atividades
+                    </Link>
+                </section>
+                ) : (
+                <WordSearchForm
+                    key={activity.slug}
+                    mode="edit"
+                    initialValues={toFormValues(activity)}
+                    onSubmit={handleSubmit}
+                    submitError={submitError}
+                />
+            )}
         </div>
         ) : null}
     </RoleBasedLayout>
