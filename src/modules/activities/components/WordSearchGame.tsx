@@ -163,16 +163,18 @@ export function WordSearchGame({
     [words],
   );
 
-  const timeLimit = timeLimitSeconds ?? 900;
+  const timeLimit = Math.max(1, timeLimitSeconds ?? 900);
   const completed = words.length > 0 && foundWords.length === words.length;
   const timedOut = elapsedSeconds >= timeLimit && !completed;
   useEffect(() => {
+    if (completed || timedOut) return;
+
     const intervalId = window.setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [completed, timedOut]);
 
   useEffect(() => {
     if (!timedOut || finishedRef.current) return;
