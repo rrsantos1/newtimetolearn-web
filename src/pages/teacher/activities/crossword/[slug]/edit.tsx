@@ -28,7 +28,7 @@ function getErrorMessage(error: unknown): string {
 function toFormValues(activity: EditableCrosswordActivity): CreateCrosswordFormValues {
   const rawWords = activity.version.content.words;
   const words = Array.isArray(rawWords)
-    ? rawWords.flatMap((entry): { word: string; clue: string }[] => {
+    ? rawWords.flatMap((entry: unknown): { word: string; clue: string }[] => {
         if (
           typeof entry !== "object" ||
           entry === null ||
