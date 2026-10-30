@@ -108,22 +108,28 @@ export function WordSearchGame({
     [selection],
   );
 
-  const foundCells = useMemo(() => {
-    const cells = new Set<string>();
+  const foundCellColors = useMemo(() => {
+    const cells = new Map<string, number>();
 
     for (const position of wordPositions) {
-      if (!foundSet.has(position.word)) continue;
+      const foundIndex = foundWords.indexOf(position.word);
+      if (foundIndex < 0) continue;
 
       const line = getLine(
         { row: position.row, col: position.col },
         getLineEnd(position),
       );
 
-      line.forEach(({ row, col }) => cells.add(`${row}:${col}`));
+      line.forEach(({ row, col }) => {
+        const key = `${row}:${col}`;
+        if (!cells.has(key)) {
+          cells.set(key, foundIndex);
+        }
+      });
     }
 
     return cells;
-  }, [foundSet, wordPositions]);
+  }, [foundWords, wordPositions]);
 
 
   function finishSelection(): void {
@@ -223,8 +229,19 @@ export function WordSearchGame({
             {grid.map((row, rowIndex) =>
               row.map((letter, colIndex) => {
                 const key = `${rowIndex}:${colIndex}`;
-                const isFound = foundCells.has(key);
+                const foundColorIndex = foundCellColors.get(key);
+                const isFound = foundColorIndex !== undefined;
                 const isSelected = selectedSet.has(key);
+                const foundColorClasses = [
+                  "bg-emerald-200 text-emerald-950",
+                  "bg-sky-200 text-sky-950",
+                  "bg-violet-200 text-violet-950",
+                  "bg-orange-200 text-orange-950",
+                  "bg-pink-200 text-pink-950",
+                  "bg-cyan-200 text-cyan-950",
+                  "bg-lime-200 text-lime-950",
+                  "bg-rose-200 text-rose-950",
+                ];
 
                 return (
                   <button
@@ -236,7 +253,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? "bg-emerald-200 text-emerald-950" : isSelected ? "bg-yellow-300 text-gray-950" : "bg-white text-gray-800 hover:bg-yellow-50"}`}
+                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? foundColorClasses[(foundColorIndex ?? 0) % foundColorClasses.length] : isSelected ? "bg-yellow-300 text-gray-950" : "bg-white text-gray-800 hover:bg-yellow-50"}`}
                   >
                     {letter}
                   </button>
@@ -248,7 +265,7 @@ export function WordSearchGame({
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">
-            Palavras encontradas ficam destacadas em verde.
+            Cada palavra encontrada recebe uma cor diferente.
           </p>
           <button
             type="button"
