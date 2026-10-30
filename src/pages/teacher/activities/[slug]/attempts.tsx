@@ -68,7 +68,6 @@ export default function ActivityAttemptsPage() {
     if (!router.isReady || !slug) return;
 
     let cancelled = false;
-    setIsLoading(true);
 
     listActivityAttemptsService
       .execute(slug, page, 20)
@@ -118,7 +117,10 @@ export default function ActivityAttemptsPage() {
           </div>
           <button
             type="button"
-            onClick={() => setReloadKey((current) => current + 1)}
+            onClick={() => {
+              setIsLoading(true);
+              setReloadKey((current) => current + 1);
+            }}
             disabled={isLoading}
             className="inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-lg border border-red-300 px-3 text-sm font-semibold transition hover:bg-red-100 disabled:opacity-60 sm:self-auto"
           >
@@ -209,7 +211,10 @@ export default function ActivityAttemptsPage() {
             >
               <button
                 type="button"
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                onClick={() => {
+                  setIsLoading(true);
+                  setPage((current) => Math.max(1, current - 1));
+                }}
                 disabled={page <= 1 || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -221,11 +226,12 @@ export default function ActivityAttemptsPage() {
               </span>
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  setIsLoading(true);
                   setPage((current) =>
                     Math.min(result.pagination.totalPages, current + 1),
-                  )
-                }
+                  );
+                }}
                 disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
