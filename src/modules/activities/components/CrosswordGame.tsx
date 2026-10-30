@@ -8,6 +8,7 @@ export interface CrosswordClue {
   row: number;
   col: number;
   length: number;
+  answer?: string;
 }
 
 interface CrosswordGameProps {
@@ -15,6 +16,7 @@ interface CrosswordGameProps {
   clues: CrosswordClue[];
   timeLimitSeconds: number | null;
   onComplete: (answers: string[], elapsedSeconds: number) => void;
+  canAutoFill: boolean;
 }
 
 interface GridBounds {
@@ -58,7 +60,7 @@ function formatTime(seconds: number): string {
   return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
 
-export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Readonly<CrosswordGameProps>) {
+export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAutoFill }: Readonly<CrosswordGameProps>) {
   const bounds = useMemo(() => getBounds(grid, clues), [grid, clues]);
   const [letters, setLetters] = useState<Record<string, string>>({});
   const lettersRef = useRef<Record<string, string>>({});
@@ -170,6 +172,23 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
     setLetters(next);
   }
 
+  function fillGrid(): void {
+    const next: Record<string, string> = {};
+
+    clues.forEach((clue) => {
+      if (!clue.answer) return;
+      const answer = normalizeAnswer(clue.answer);
+      Array.from(answer).forEach((letter, offset) => {
+        const row = clue.row + (clue.direction === "down" ? offset : 0);
+        const col = clue.col + (clue.direction === "across" ? offset : 0);
+        next[getCellKey(row, col)] = letter;
+      });
+    });
+
+    lettersRef.current = next;
+    setLetters(next);
+  }
+
   function focusNextCell(row: number, col: number, direction: "across" | "down"): void {
     const nextRow = row + (direction === "down" ? 1 : 0);
     const nextCol = col + (direction === "across" ? 1 : 0);
@@ -179,6 +198,13 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>, row: number, col: number): void {
+    if (/^[a-zA-Z]$/.test(event.key)) {
+      event.preventDefault();
+      updateLetter(row, col, event.key);
+      focusNextCell(row, col, activeDirection);
+      return;
+    }
+
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
       focusNextCell(row, col, event.key === "ArrowDown" ? "down" : "across");
@@ -300,7 +326,13 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">{Object.keys(letters).length} casas preenchidas</p>
-          <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+          <div className="flex flex-wrap items-center gap-2">
+            {canAutoFill && (
+              <button type="button" onClick={fillGrid} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+                Preencher grade
+              </button>
+            )}
+            <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
             Conferir respostas
           </button>
         </div>
