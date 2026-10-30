@@ -56,6 +56,20 @@ function normalizeAnswer(value: string): string {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s-]/g, "").toUpperCase();
 }
 
+const FILLED_WORD_COLORS = [
+  "bg-emerald-200",
+  "bg-sky-200",
+  "bg-violet-200",
+  "bg-orange-200",
+  "bg-pink-200",
+  "bg-cyan-200",
+  "bg-lime-200",
+  "bg-rose-200",
+  "bg-blue-200",
+  "bg-amber-200",
+  "bg-slate-200",
+] as const;
+
 function formatTime(seconds: number): string {
   return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
 }
@@ -110,6 +124,29 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
     }
     return cells;
   }, [activeClue]);
+
+  const filledCellColors = useMemo(() => {
+    const colors: Record<string, string> = {};
+    let colorIndex = 0;
+
+    clues.forEach((clue) => {
+      const cellKeys = Array.from({ length: clue.length }, (_, offset) => {
+        const row = clue.row + (clue.direction === "down" ? offset : 0);
+        const col = clue.col + (clue.direction === "across" ? offset : 0);
+        return getCellKey(row, col);
+      });
+
+      if (!cellKeys.every((key) => Boolean(letters[key]))) return;
+
+      const color = FILLED_WORD_COLORS[colorIndex % FILLED_WORD_COLORS.length];
+      cellKeys.forEach((key) => {
+        colors[key] ??= color;
+      });
+      colorIndex += 1;
+    });
+
+    return colors;
+  }, [clues, letters]);
 
   useEffect(() => {
     if (completedRef.current) return;
@@ -301,7 +338,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
                 const selected = activeCells.has(key);
                 const starts = clues.filter((clue) => clue.row === row && clue.col === col);
                 return (
-                  <div key={key} className={`relative aspect-square min-w-0 border border-slate-300 ${selected ? "bg-amber-100" : "bg-white"}`}>
+                  <div key={key} className={`relative aspect-square min-w-0 border border-slate-300 ${filledCellColors[key] ?? (selected ? "bg-amber-100" : "bg-white")}`}>
                     {starts.length > 0 && <span className="pointer-events-none absolute left-0.5 top-0 text-[clamp(6px,0.8vw,9px)] leading-none text-slate-700">{Math.min(...starts.map((clue) => clue.number))}</span>}
                     <input
                       id={`crossword-cell-${row}-${col}`}
