@@ -276,12 +276,12 @@ export default function PlayWordSearchPage() {
                       </p>
                     </div>
                     {user?.roles.includes("TEACHER") && (
-                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                         <Play size={18} aria-hidden="true" /> Testar caça-palavras
                       </button>
                     )}
                     {isStudent && (
-                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                         <Play size={18} aria-hidden="true" /> Iniciar caça-palavras
                       </button>
                     )}
@@ -342,7 +342,7 @@ export default function PlayWordSearchPage() {
                     Você terminou a prévia desta atividade. Testes de professor não são registrados no ranking dos alunos.
                   </p>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                    <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95">
+                    <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover">
                       <Play size={17} aria-hidden="true" /> Testar novamente
                     </button>
                     <Link href={backHref} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark transition hover:bg-background">{backLabel}</Link>
@@ -372,7 +372,7 @@ export default function PlayWordSearchPage() {
                     <RankingList ranking={ranking} />
                   </div>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                    <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:brightness-95">
+                    <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover">
                       <Play size={17} aria-hidden="true" /> Jogar novamente
                     </button>
                     <Link href={backHref} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark transition hover:bg-background">{backLabel}</Link>
