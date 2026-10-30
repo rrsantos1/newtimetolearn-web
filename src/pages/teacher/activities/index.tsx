@@ -430,7 +430,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {activity.type === "word_search" && (
+                    {(activity.type === "word_search" || activity.type === "crossword") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
