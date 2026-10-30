@@ -124,8 +124,7 @@ export default function ExploreActivitiesPage() {
         if (cancelled) return;
         setErrorMessage(getErrorMessage(error));
         setLoadedRequestKey(requestKey);
-      })
-      ;
+      });
 
     return () => {
       cancelled = true;
