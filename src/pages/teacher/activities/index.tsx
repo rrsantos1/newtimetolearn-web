@@ -335,8 +335,7 @@ export default function TeacherActivitiesPage() {
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            Crie seu primeiro caça-palavras para começar a organizar atividades
-            para seus alunos.
+            Crie seu primeiro caça-palavras ou palavras cruzadas para começar a organizar atividades para seus alunos.
           </p>
 
           <Link
@@ -344,7 +343,7 @@ export default function TeacherActivitiesPage() {
             className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
           >
             <Plus size={18} aria-hidden="true" />
-            Criar caça-palavras
+            Criar atividade
           </Link>
         </section>
       ) : result ? (
