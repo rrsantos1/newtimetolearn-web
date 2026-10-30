@@ -24,7 +24,7 @@ import type {
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
 
-const CREATE_ACTIVITY_ROUTE = "/teacher/activities/word-search/new";
+const CREATE_ACTIVITY_ROUTE = "/teacher/activities/new";
 
 const versionStatusLabels: Record<string, string> = {
   DRAFT: "Rascunho",
@@ -105,7 +105,7 @@ function getStatusClass(activity: ListedActivity): string {
 }
 
 function canEditActivity(activity: ListedActivity): boolean {
-  if (activity.type !== "word_search" || !activity.latestVersion) {
+  if (!["word_search", "crossword"].includes(activity.type) || !activity.latestVersion) {
     return false;
   }
 
@@ -250,7 +250,7 @@ export default function TeacherActivitiesPage() {
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           <Plus size={18} aria-hidden="true" />
-          Criar caça-palavras
+          Criar atividade
         </Link>
       </div>
 
@@ -360,7 +360,9 @@ export default function TeacherActivitiesPage() {
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                       {activity.type === "word_search"
                         ? "Caça-palavras"
-                        : activity.type.replaceAll("_", " ")}
+                        : activity.type === "crossword"
+                          ? "Palavras cruzadas"
+                          : activity.type.replaceAll("_", " ")}
                     </p>
 
                     <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
@@ -439,7 +441,7 @@ export default function TeacherActivitiesPage() {
 
                     {canEditActivity(activity) && (
                       <Link
-                        href={`/teacher/activities/word-search/${encodeURIComponent(activity.slug)}/edit`}
+                        href={`/teacher/activities/${activity.type === "crossword" ? "crossword" : "word-search"}/${encodeURIComponent(activity.slug)}/edit`}
                         className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
                         Editar
