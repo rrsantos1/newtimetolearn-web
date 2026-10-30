@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface CrosswordClue {
@@ -13,6 +13,8 @@ export interface CrosswordClue {
 interface CrosswordGameProps {
   grid: (string | null)[][];
   clues: CrosswordClue[];
+  timeLimitSeconds: number | null;
+  onComplete: (answers: string[], elapsedSeconds: number) => void;
 }
 
 interface GridBounds {
@@ -24,8 +26,8 @@ interface GridBounds {
 
 function getBounds(grid: (string | null)[][], clues: CrosswordClue[]): GridBounds | null {
   if (grid.length === 0 || clues.length === 0) return null;
-
   const cells: Array<{ row: number; col: number }> = [];
+
   clues.forEach((clue) => {
     for (let offset = 0; offset < clue.length; offset += 1) {
       cells.push({
@@ -36,7 +38,6 @@ function getBounds(grid: (string | null)[][], clues: CrosswordClue[]): GridBound
   });
 
   if (cells.length === 0) return null;
-
   return {
     minRow: Math.min(...cells.map((cell) => cell.row)),
     maxRow: Math.max(...cells.map((cell) => cell.row)),
@@ -49,21 +50,42 @@ function getCellKey(row: number, col: number): string {
   return `${row}-${col}`;
 }
 
-export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
+function normalizeAnswer(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s-]/g, "").toUpperCase();
+}
+
+function formatTime(seconds: number): string {
+  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+}
+
+export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Readonly<CrosswordGameProps>) {
   const bounds = useMemo(() => getBounds(grid, clues), [grid, clues]);
   const [letters, setLetters] = useState<Record<string, string>>({});
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeDirection, setActiveDirection] = useState<"across" | "down">("across");
   const [activeClueNumber, setActiveClueNumber] = useState<number | null>(
-    clues.find((clue) => clue.direction === "across")?.number
-      ?? clues[0]?.number
-      ?? null,
+    clues.find((clue) => clue.direction === "across")?.number ?? clues[0]?.number ?? null,
   );
+  const startedAtRef = useRef(Date.now());
+  const completedRef = useRef(false);
 
   const activeClue = clues.find(
     (clue) => clue.number === activeClueNumber && clue.direction === activeDirection,
   ) ?? clues[0];
 
   const clueCells = useMemo(() => {
+    const cells = new Set<string>();
+    clues.forEach((clue) => {
+      for (let offset = 0; offset < clue.length; offset += 1) {
+        const row = clue.row + (clue.direction === "down" ? offset : 0);
+        const col = clue.col + (clue.direction === "across" ? offset : 0);
+        cells.add(getCellKey(row, col));
+      }
+    });
+    return cells;
+  }, [clues]);
+
+  const activeCells = useMemo(() => {
     const cells = new Set<string>();
     if (!activeClue) return cells;
     for (let offset = 0; offset < activeClue.length; offset += 1) {
@@ -74,19 +96,40 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
     return cells;
   }, [activeClue]);
 
-  if (!bounds) {
-    return (
-      <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-        A grade desta cruzadinha não está disponível.
-      </section>
-    );
+  useEffect(() => {
+    if (completedRef.current || timeLimitSeconds === null) {
+      return;
+    }
+    const intervalId = window.setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+      setElapsedSeconds(elapsed);
+      if (elapsed >= timeLimitSeconds && !completedRef.current) {
+        completedRef.current = true;
+        onComplete(getAnswers(), timeLimitSeconds);
+      }
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+    // The timer starts when this component mounts, after the user confirms the start screen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLimitSeconds, onComplete]);
+
+  function getAnswers(): string[] {
+    return clues.map((clue) => {
+      const lettersForClue = Array.from({ length: clue.length }, (_, offset) => {
+        const row = clue.row + (clue.direction === "down" ? offset : 0);
+        const col = clue.col + (clue.direction === "across" ? offset : 0);
+        return letters[getCellKey(row, col)] ?? "";
+      });
+      return normalizeAnswer(lettersForClue.join(""));
+    });
   }
 
-  const visibleRows = bounds.maxRow - bounds.minRow + 1;
-  const visibleCols = bounds.maxCol - bounds.minCol + 1;
-  const cellSize = `minmax(0, 1fr)`;
-  const acrossClues = clues.filter((clue) => clue.direction === "across").sort((a, b) => a.number - b.number);
-  const downClues = clues.filter((clue) => clue.direction === "down").sort((a, b) => a.number - b.number);
+  function finishGame(): void {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    const elapsed = Math.min(elapsedSeconds, timeLimitSeconds ?? elapsedSeconds);
+    onComplete(getAnswers(), elapsed);
+  }
 
   function selectCell(row: number, col: number): void {
     const candidates = clues.filter((clue) => {
@@ -118,33 +161,30 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
   function focusNextCell(row: number, col: number, direction: "across" | "down"): void {
     const nextRow = row + (direction === "down" ? 1 : 0);
     const nextCol = col + (direction === "across" ? 1 : 0);
-    if (nextRow >= grid.length || nextCol >= (grid[nextRow]?.length ?? 0)) return;
-    if (grid[nextRow]?.[nextCol] === null || grid[nextRow]?.[nextCol] === undefined) return;
-    const next = document.getElementById(`crossword-cell-${nextRow}-${nextCol}`);
-    next?.focus();
+    if (!clueCells.has(getCellKey(nextRow, nextCol))) return;
+    document.getElementById(`crossword-cell-${nextRow}-${nextCol}`)?.focus();
     selectCell(nextRow, nextCol);
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>, row: number, col: number): void {
-    if (event.key === "ArrowRight") {
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
       event.preventDefault();
-      focusNextCell(row, col, "across");
-    } else if (event.key === "ArrowDown") {
-      event.preventDefault();
-      focusNextCell(row, col, "down");
+      focusNextCell(row, col, event.key === "ArrowDown" ? "down" : "across");
     } else if (event.key === "ArrowLeft" || event.key === "Backspace") {
       if (event.key === "Backspace" && letters[getCellKey(row, col)]) return;
       event.preventDefault();
       const previousRow = row - (activeDirection === "down" ? 1 : 0);
       const previousCol = col - (activeDirection === "across" ? 1 : 0);
-      const previous = document.getElementById(`crossword-cell-${previousRow}-${previousCol}`);
-      previous?.focus();
-      selectCell(previousRow, previousCol);
+      if (clueCells.has(getCellKey(previousRow, previousCol))) {
+        document.getElementById(`crossword-cell-${previousRow}-${previousCol}`)?.focus();
+        selectCell(previousRow, previousCol);
+      }
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      const previous = document.getElementById(`crossword-cell-${row - 1}-${col}`);
-      previous?.focus();
-      selectCell(row - 1, col);
+      if (clueCells.has(getCellKey(row - 1, col))) {
+        document.getElementById(`crossword-cell-${row - 1}-${col}`)?.focus();
+        selectCell(row - 1, col);
+      }
     }
   }
 
@@ -155,9 +195,7 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
           {direction === "across" ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
           {direction === "across" ? "Horizontais" : "Verticais"}
         </h3>
-        {items.length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma pista.</p>
-        ) : (
+        {items.length === 0 ? <p className="text-sm text-muted">Nenhuma pista.</p> : (
           <ol className="space-y-1">
             {items.map((clue) => {
               const selected = activeClue?.number === clue.number && activeDirection === direction;
@@ -173,8 +211,7 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
                     aria-pressed={selected}
                     className={`flex min-h-10 w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selected ? "bg-primary/10 text-dark ring-1 ring-primary/30" : "text-muted hover:bg-background hover:text-dark"}`}
                   >
-                    <span className="shrink-0 font-bold">{clue.number}.</span>
-                    <span>{clue.clue}</span>
+                    <span className="shrink-0 font-bold">{clue.number}.</span><span>{clue.clue}</span>
                   </button>
                 </li>
               );
@@ -185,41 +222,49 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
     );
   }
 
+  if (!bounds) {
+    return <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">A grade desta cruzadinha não está disponível.</section>;
+  }
+
+  const visibleRows = bounds.maxRow - bounds.minRow + 1;
+  const visibleCols = bounds.maxCol - bounds.minCol + 1;
+  const acrossClues = clues.filter((clue) => clue.direction === "across").sort((a, b) => a.number - b.number);
+  const downClues = clues.filter((clue) => clue.direction === "down").sort((a, b) => a.number - b.number);
+  const timedOut = timeLimitSeconds !== null && elapsedSeconds >= timeLimitSeconds;
+
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)]">
-      <div className="min-w-0 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-5">
+      <div className="min-w-0 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-dark">Preencha as letras nas casas</p>
-          <p className="text-xs text-muted">Setas do teclado para navegar</p>
+          <div className="flex items-center gap-2">
+            <p role="timer" aria-live="off" className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-background text-dark"}`}>
+              {timeLimitSeconds === null ? `Tempo: ${formatTime(elapsedSeconds)}` : `Restante: ${formatTime(Math.max(0, timeLimitSeconds - elapsedSeconds))}`}
+            </p>
+            <p className="text-xs text-muted">Setas para navegar</p>
+          </div>
         </div>
-        <div className="mx-auto w-full max-w-full">
+        <div className="mx-auto w-full max-w-[680px]">
           <div
             role="group"
             aria-label="Grade de palavras cruzadas"
             className="grid gap-px overflow-hidden rounded-lg bg-slate-300 p-px"
-            style={{
-              gridTemplateColumns: `repeat(${visibleCols}, ${cellSize})`,
-            }}
+            style={{ gridTemplateColumns: `repeat(${visibleCols}, minmax(0, 1fr))` }}
           >
             {Array.from({ length: visibleRows }, (_, rowOffset) => {
               const row = bounds.minRow + rowOffset;
               return Array.from({ length: visibleCols }, (_, colOffset) => {
                 const col = bounds.minCol + colOffset;
-                const cell = grid[row]?.[col];
-                const isPlayable = typeof cell === "string";
                 const key = getCellKey(row, col);
-                const selected = clueCells.has(key);
-                const starts = clues.filter((clue) => clue.row === row && clue.col === col);
-                if (!isPlayable) {
-                  return <span key={key} aria-hidden="true" className="aspect-square bg-slate-800" />;
+                const isPartOfWord = clueCells.has(key);
+                if (!isPartOfWord) {
+                  return <span key={key} aria-hidden="true" className="aspect-square bg-transparent" />;
                 }
+                const selected = activeCells.has(key);
+                const starts = clues.filter((clue) => clue.row === row && clue.col === col);
                 return (
                   <div key={key} className={`relative aspect-square min-w-0 ${selected ? "bg-amber-100" : "bg-white"}`}>
-                    {starts.length > 0 && (
-                      <span className="pointer-events-none absolute left-0.5 top-0 text-[clamp(7px,1vw,10px)] leading-none text-slate-700">
-                        {Math.min(...starts.map((clue) => clue.number))}
-                      </span>
-                    )}
+                    {starts.length > 0 && <span className="pointer-events-none absolute left-0.5 top-0 text-[clamp(6px,0.8vw,9px)] leading-none text-slate-700">{Math.min(...starts.map((clue) => clue.number))}</span>}
                     <input
                       id={`crossword-cell-${row}-${col}`}
                       aria-label={`Linha ${rowOffset + 1}, coluna ${colOffset + 1}`}
@@ -233,7 +278,7 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
                         if (event.target.value) focusNextCell(row, col, activeDirection);
                       }}
                       onKeyDown={(event) => handleKeyDown(event, row, col)}
-                      className="size-full min-h-0 min-w-0 bg-transparent p-0 pt-1 text-center text-[clamp(10px,2.2vw,24px)] font-bold uppercase text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                      className="size-full min-h-0 min-w-0 bg-transparent p-0 pt-1 text-center text-[clamp(9px,1.6vw,19px)] font-bold uppercase text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
                     />
                   </div>
                 );
@@ -241,24 +286,16 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
             })}
           </div>
         </div>
-        <p className="mt-3 text-xs text-muted">
-          {Object.keys(letters).length} letras preenchidas
-        </p>
-      </div>
-
-      <aside className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <Check size={18} className="text-primary" aria-hidden="true" />
-          <h2 className="text-base font-bold text-dark">Pistas</h2>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-muted">{Object.keys(letters).length} casas preenchidas</p>
+          <button type="button" onClick={finishGame} disabled={completedRef.current} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+            Conferir respostas
+          </button>
         </div>
-        {activeClue && (
-          <div className="mb-4 rounded-xl bg-background p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-              {activeDirection === "across" ? "Horizontal" : "Vertical"} · {activeClue.number}
-            </p>
-            <p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p>
-          </div>
-        )}
+      </div>
+      <aside className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center gap-2"><Check size={18} className="text-primary" aria-hidden="true" /><h2 className="text-base font-bold text-dark">Pistas</h2></div>
+        {activeClue && <div className="mb-4 rounded-xl bg-background p-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted">{activeDirection === "across" ? "Horizontal" : "Vertical"} · {activeClue.number}</p><p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p></div>}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
           {renderClueList(acrossClues, "across")}
           {renderClueList(downClues, "down")}
