@@ -151,20 +151,13 @@ export default function PlayWordSearchPage() {
     <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
       <div className="min-h-screen bg-background">
         <header className="border-b border-border bg-surface">
-          <div className="mx-auto flex min-h-18 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
+          <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/dashboard" />
             <LogoutButton />
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-10">
-          <Link
-            href={backHref}
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
-          >
-            <ArrowLeft size={16} aria-hidden="true" />
-            {backLabel}
-          </Link>
+        <main className="mx-auto max-w-7xl px-4 py-4 sm:px-8 sm:py-5">
 
           {loading ? (
             <div
@@ -191,18 +184,29 @@ export default function PlayWordSearchPage() {
             </section>
           ) : activity ? (
             <>
-              <div className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  Caça-palavras
-                </p>
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-dark sm:text-3xl">
-                  {activity.version.name}
-                </h1>
-                {activity.version.description && (
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-                    {activity.version.description}
-                  </p>
-                )}
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                      Caça-palavras
+                    </p>
+                    <h1 className="text-xl font-bold tracking-tight text-dark sm:text-2xl">
+                      {activity.version.name}
+                    </h1>
+                  </div>
+                  {activity.version.description && (
+                    <p className="mt-1 max-w-3xl text-sm leading-5 text-muted">
+                      {activity.version.description}
+                    </p>
+                  )}
+                </div>
+                <Link
+                  href={backHref}
+                  className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark sm:self-auto"
+                >
+                  <ArrowLeft size={16} aria-hidden="true" />
+                  {backLabel}
+                </Link>
               </div>
               <WordSearchGame
                 grid={grid}
