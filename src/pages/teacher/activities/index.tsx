@@ -524,7 +524,7 @@ export default function TeacherActivitiesPage() {
                 >
                   Excluir atividade?
                 </h2>
-                <p className="mt-2 break-words text-sm font-semibold text-dark">
+                <p className="mt-2 wrap-break-word text-sm font-semibold text-dark">
                   {getActivityName(activityToDelete)}
                 </p>
               </div>
