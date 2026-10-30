@@ -158,7 +158,7 @@ export default function EditWordSearchPage() {
                     description: values.description || null,
                     difficulty: values.difficulty,
                     timeLimitSeconds: values.timeLimitSeconds ?? null,
-                    status: "DRAFT",
+                    status: result.version.status,
                     content: {
                         ...current.version.content,
                         words: values.words,
@@ -169,9 +169,6 @@ export default function EditWordSearchPage() {
 
         setSuccess(true);
 
-        // O resultado da API é mantido disponível para uso posterior,
-        // incluindo a pré-visualização da nova grade.
-        void result;
         } catch (error: unknown) {
         setSubmitError(getErrorMessage(error));
         }
@@ -282,9 +279,9 @@ export default function EditWordSearchPage() {
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-muted">
-              As alterações da atividade foram enviadas com sucesso.
-              A disponibilidade da versão atualizada seguirá o fluxo
-              de aprovação da plataforma.
+{activity?.version.status === "PUBLISHED"
+                ? "As alterações foram salvas e publicadas imediatamente porque sua conta possui perfil de administrador."
+                : "As alterações foram salvas. A versão atualizada precisará ser enviada para revisão e aprovada antes de ser publicada."}
             </p>
 
             <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
