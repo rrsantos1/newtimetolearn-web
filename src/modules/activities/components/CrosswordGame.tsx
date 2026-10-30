@@ -148,16 +148,14 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
   function updateLetter(row: number, col: number, value: string): void {
     const key = getCellKey(row, col);
     const letter = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "").slice(-1);
-    setLetters((current) => {
-      const next = { ...current };
-      if (!letter) {
-        delete next[key];
-      } else {
-        next[key] = letter;
-      }
-      lettersRef.current = next;
-      return next;
-    });
+    const next = { ...lettersRef.current };
+    if (!letter) {
+      delete next[key];
+    } else {
+      next[key] = letter;
+    }
+    lettersRef.current = next;
+    setLetters(next);
   }
 
   function focusNextCell(row: number, col: number, direction: "across" | "down"): void {
