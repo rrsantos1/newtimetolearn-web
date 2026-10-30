@@ -369,7 +369,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
                 Preencher grade
               </button>
             )}
-            <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+            <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
               Conferir respostas
             </button>
           </div>
