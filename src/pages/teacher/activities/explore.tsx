@@ -278,7 +278,7 @@ export default function ExploreActivitiesPage() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                      {typeLabels[activity.type] ?? activity.type}
+                      {activityTypeLabels[activity.type] ?? activity.type}
                     </p>
                     <span className="inline-flex shrink-0 items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
                       Publicada
