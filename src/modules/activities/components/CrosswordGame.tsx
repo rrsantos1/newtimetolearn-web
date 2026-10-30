@@ -61,6 +61,7 @@ function formatTime(seconds: number): string {
 export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Readonly<CrosswordGameProps>) {
   const bounds = useMemo(() => getBounds(grid, clues), [grid, clues]);
   const [letters, setLetters] = useState<Record<string, string>>({});
+  const lettersRef = useRef<Record<string, string>>({});
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeDirection, setActiveDirection] = useState<"across" | "down">("across");
   const [activeClueNumber, setActiveClueNumber] = useState<number | null>(
@@ -97,13 +98,11 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
   }, [activeClue]);
 
   useEffect(() => {
-    if (completedRef.current || timeLimitSeconds === null) {
-      return;
-    }
+    if (completedRef.current) return;
     const intervalId = window.setInterval(() => {
       const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
       setElapsedSeconds(elapsed);
-      if (elapsed >= timeLimitSeconds && !completedRef.current) {
+      if (timeLimitSeconds !== null && elapsed >= timeLimitSeconds && !completedRef.current) {
         completedRef.current = true;
         onComplete(getAnswers(), timeLimitSeconds);
       }
@@ -118,7 +117,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
       const lettersForClue = Array.from({ length: clue.length }, (_, offset) => {
         const row = clue.row + (clue.direction === "down" ? offset : 0);
         const col = clue.col + (clue.direction === "across" ? offset : 0);
-        return letters[getCellKey(row, col)] ?? "";
+        return lettersRef.current[getCellKey(row, col)] ?? "";
       });
       return normalizeAnswer(lettersForClue.join(""));
     });
@@ -127,7 +126,8 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
   function finishGame(): void {
     if (completedRef.current) return;
     completedRef.current = true;
-    const elapsed = Math.min(elapsedSeconds, timeLimitSeconds ?? elapsedSeconds);
+    const actualElapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+    const elapsed = timeLimitSeconds === null ? actualElapsed : Math.min(actualElapsed, timeLimitSeconds);
     onComplete(getAnswers(), elapsed);
   }
 
@@ -149,12 +149,14 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
     const key = getCellKey(row, col);
     const letter = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "").slice(-1);
     setLetters((current) => {
+      const next = { ...current };
       if (!letter) {
-        const next = { ...current };
         delete next[key];
-        return next;
+      } else {
+        next[key] = letter;
       }
-      return { ...current, [key]: letter };
+      lettersRef.current = next;
+      return next;
     });
   }
 
