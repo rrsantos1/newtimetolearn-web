@@ -192,7 +192,7 @@ export function CrosswordGame({ grid, clues }: Readonly<CrosswordGameProps>) {
           <p className="text-sm font-semibold text-dark">Preencha as letras nas casas</p>
           <p className="text-xs text-muted">Setas do teclado para navegar</p>
         </div>
-        <div className="mx-auto w-full max-w-[min(100%,760px)]">
+        <div className="mx-auto w-full max-w-full">
           <div
             role="group"
             aria-label="Grade de palavras cruzadas"
