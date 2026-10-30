@@ -63,12 +63,24 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
   const [letters, setLetters] = useState<Record<string, string>>({});
   const lettersRef = useRef<Record<string, string>>({});
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [completed, setCompleted] = useState(false);
   const [activeDirection, setActiveDirection] = useState<"across" | "down">("across");
   const [activeClueNumber, setActiveClueNumber] = useState<number | null>(
     clues.find((clue) => clue.direction === "across")?.number ?? clues[0]?.number ?? null,
   );
-  const startedAtRef = useRef(Date.now());
+  const startedAtRef = useRef<number | null>(null);
   const completedRef = useRef(false);
+
+  function getAnswers(): string[] {
+    return clues.map((clue) => {
+      const lettersForClue = Array.from({ length: clue.length }, (_, offset) => {
+        const row = clue.row + (clue.direction === "down" ? offset : 0);
+        const col = clue.col + (clue.direction === "across" ? offset : 0);
+        return lettersRef.current[getCellKey(row, col)] ?? "";
+      });
+      return normalizeAnswer(lettersForClue.join(""));
+    }).filter(Boolean);
+  }
 
   const activeClue = clues.find(
     (clue) => clue.number === activeClueNumber && clue.direction === activeDirection,
@@ -99,35 +111,35 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
 
   useEffect(() => {
     if (completedRef.current) return;
+    if (startedAtRef.current === null) {
+      startedAtRef.current = Date.now();
+    }
+
     const intervalId = window.setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+      const startedAt = startedAtRef.current;
+      if (startedAt === null || completedRef.current) return;
+
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
       setElapsedSeconds(elapsed);
-      if (timeLimitSeconds !== null && elapsed >= timeLimitSeconds && !completedRef.current) {
+      if (timeLimitSeconds !== null && elapsed >= timeLimitSeconds) {
         completedRef.current = true;
+        setCompleted(true);
         onComplete(getAnswers(), timeLimitSeconds);
       }
     }, 1000);
+
     return () => window.clearInterval(intervalId);
-    // The timer starts when this component mounts, after the user confirms the start screen.
+    // getAnswers reads the latest letters from a ref and does not need to be a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLimitSeconds, onComplete]);
-
-  function getAnswers(): string[] {
-    return clues.map((clue) => {
-      const lettersForClue = Array.from({ length: clue.length }, (_, offset) => {
-        const row = clue.row + (clue.direction === "down" ? offset : 0);
-        const col = clue.col + (clue.direction === "across" ? offset : 0);
-        return lettersRef.current[getCellKey(row, col)] ?? "";
-      });
-      return normalizeAnswer(lettersForClue.join(""));
-    }).filter(Boolean);
-  }
 
   function finishGame(): void {
     if (completedRef.current) return;
     completedRef.current = true;
-    const actualElapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+    const startedAt = startedAtRef.current ?? Date.now();
+    const actualElapsed = Math.floor((Date.now() - startedAt) / 1000);
     const elapsed = timeLimitSeconds === null ? actualElapsed : Math.min(actualElapsed, timeLimitSeconds);
+    setCompleted(true);
     onComplete(getAnswers(), elapsed);
   }
 
@@ -288,7 +300,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete }: Rea
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted">{Object.keys(letters).length} casas preenchidas</p>
-          <button type="button" onClick={finishGame} disabled={completedRef.current} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+          <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
             Conferir respostas
           </button>
         </div>
