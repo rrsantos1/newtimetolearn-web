@@ -66,6 +66,27 @@ function sameCells(
   );
 }
 
+function getLineEnd(position: WordSearchPosition): CellPosition {
+  const directionSteps: Record<string, CellPosition> = {
+    right: { row: 0, col: 1 },
+    left: { row: 0, col: -1 },
+    down: { row: 1, col: 0 },
+    up: { row: -1, col: 0 },
+    "down-right": { row: 1, col: 1 },
+    "down-left": { row: 1, col: -1 },
+    "up-right": { row: -1, col: 1 },
+    "up-left": { row: -1, col: -1 },
+  };
+  const step = directionSteps[position.direction];
+
+  if (!step) return { row: position.row, col: position.col };
+
+  return {
+    row: position.row + step.row * (position.word.length - 1),
+    col: position.col + step.col * (position.word.length - 1),
+  };
+}
+
 export function WordSearchGame({
   grid,
   words,
@@ -104,26 +125,6 @@ export function WordSearchGame({
     return cells;
   }, [foundSet, wordPositions]);
 
-  function getLineEnd(position: WordSearchPosition): CellPosition {
-    const directionSteps: Record<string, CellPosition> = {
-      RIGHT: { row: 0, col: 1 },
-      LEFT: { row: 0, col: -1 },
-      DOWN: { row: 1, col: 0 },
-      UP: { row: -1, col: 0 },
-      DOWN_RIGHT: { row: 1, col: 1 },
-      DOWN_LEFT: { row: 1, col: -1 },
-      UP_RIGHT: { row: -1, col: 1 },
-      UP_LEFT: { row: -1, col: -1 },
-    };
-    const step = directionSteps[position.direction];
-
-    if (!step) return { row: position.row, col: position.col };
-
-    return {
-      row: position.row + step.row * (position.word.length - 1),
-      col: position.col + step.col * (position.word.length - 1),
-    };
-  }
 
   function finishSelection(): void {
     if (!selectionStart || selection.length < 2) {
