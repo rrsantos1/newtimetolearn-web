@@ -100,7 +100,7 @@ export default function PlayWordSearchPage() {
 
   const handleComplete = useCallback(
     async (wordsFound: string[], elapsedSeconds: number): Promise<void> => {
-      if (!activity || attemptResult) return;
+      if (!activity || attemptResult || !user?.roles.includes("STUDENT")) return;
 
       setPendingAttempt({ wordsFound, elapsedSeconds });
       setSubmittingAttempt(true);
@@ -125,7 +125,7 @@ export default function PlayWordSearchPage() {
         setSubmittingAttempt(false);
       }
     },
-    [activity, attemptResult],
+    [activity, attemptResult, user],
   );
 
   useEffect(() => {
@@ -254,6 +254,7 @@ export default function PlayWordSearchPage() {
                 words={words}
                 wordPositions={wordPositions}
                 timeLimitSeconds={activity.version.timeLimitSeconds}
+                canSubmitScore={user?.roles.includes("STUDENT") ?? false}
                 onComplete={handleComplete}
               />
 
