@@ -61,6 +61,7 @@ function normalizeCrosswordClues(value: unknown): CrosswordClue[] | null {
       row: item.row,
       col: item.col,
       length,
+      answer: "word" in item && typeof item.word === "string" ? item.word : undefined,
     });
   }
   return normalized;
@@ -229,8 +230,10 @@ export default function PlayCrosswordPage() {
             <>
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">Palavras cruzadas</p>
-                  <h1 className="mt-1 text-xl font-bold tracking-tight text-dark sm:text-2xl">{activity.version.name}</h1>
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">Palavras cruzadas</p>
+                    <h1 className="text-xl font-bold tracking-tight text-dark sm:text-2xl">{activity.version.name}</h1>
+                  </div>
                   {activity.version.description && <p className="mt-1 max-w-3xl text-sm leading-5 text-muted">{activity.version.description}</p>}
                 </div>
                 <Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
@@ -264,7 +267,7 @@ export default function PlayCrosswordPage() {
                 </div>
               )}
 
-              {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues} timeLimitSeconds={activity.version.timeLimitSeconds} onComplete={handleComplete} />}
+              {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues} timeLimitSeconds={activity.version.timeLimitSeconds} onComplete={handleComplete} canAutoFill={!isStudent} />}
 
               {phase === "finished" && !isStudent && (
                 <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
