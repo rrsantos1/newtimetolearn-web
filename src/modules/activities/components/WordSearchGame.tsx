@@ -151,7 +151,7 @@ export function WordSearchGame({
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const startedAtRef = useRef(Date.now());
+  const startedAtRef = useRef(0);
   const finishedRef = useRef(false);
   const foundWordsRef = useRef<string[]>([]);
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
@@ -168,6 +168,10 @@ export function WordSearchGame({
   const timedOut = elapsedSeconds >= timeLimit && !completed;
   useEffect(() => {
     if (completed || timedOut) return;
+
+    if (startedAtRef.current === 0) {
+      startedAtRef.current = Date.now();
+    }
 
     const intervalId = window.setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
