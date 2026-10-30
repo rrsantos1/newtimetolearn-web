@@ -198,7 +198,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>, row: number, col: number): void {
-    if (/^[a-zA-Z]$/.test(event.key)) {
+    if (/^[a-zA-Z]$/.test(event.key) && !event.ctrlKey && !event.metaKey && !event.altKey) {
       event.preventDefault();
       updateLetter(row, col, event.key);
       focusNextCell(row, col, activeDirection);
