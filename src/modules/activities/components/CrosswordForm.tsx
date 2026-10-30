@@ -55,7 +55,7 @@ export function CrosswordForm({
       validationSchema={createCrosswordSchema}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, values, setFieldValue }) => (
+      {({ isSubmitting, values, errors, setFieldValue }) => (
         <Form className="space-y-6">
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
@@ -219,7 +219,9 @@ export function CrosswordForm({
                       </div>
                     </fieldset>
                   ))}
-                  <ErrorMessage name="words" component="p" className={errorClassName} />
+                  {typeof errors.words === "string" ? (
+                    <p className={errorClassName} role="alert">{errors.words}</p>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => push({ word: "", clue: "" })}
