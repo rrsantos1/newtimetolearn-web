@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardList, Plus, Users } from "lucide-react";
+import { BookOpen, ClipboardList, Plus, Search, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import Link from "next/link";
 
@@ -53,6 +53,14 @@ export default function TeacherPage() {
                   >
                     <ClipboardList size={16} aria-hidden="true" />
                     Ver minhas atividades
+                  </Link>
+
+                  <Link
+                    href="/teacher/activities/explore"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                  >
+                    <Search size={16} aria-hidden="true" />
+                    Explorar atividades
                   </Link>
 
                   <Link
