@@ -64,8 +64,8 @@ const FOUND_WORD_COLORS = [
     list: "border-amber-200 bg-amber-50 text-amber-900",
   },
   {
-    cell: "bg-bronze-200 text-bronze-950",
-    list: "border-bronze-200 bg-bronze-50 text-bronze-900",
+    cell: "bg-teal-200 text-teal-950",
+    list: "border-teal-200 bg-teal-50 text-teal-900",
   },
   {
     cell: "bg-slate-200 text-slate-950",
