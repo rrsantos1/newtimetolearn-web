@@ -6,6 +6,7 @@ import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { RoleGuard } from "@/modules/auth/components/RoleGuard";
+import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { WordSearchGame } from "@/modules/activities/components/WordSearchGame";
 import { getWordSearchActivityService } from "@/modules/activities/services/wordSearch/getWordSearchActivityService";
 import type { EditableWordSearchActivity } from "@/modules/activities/types/activities.types";
@@ -71,6 +72,13 @@ function isWordPositions(value: unknown): value is WordPosition[] {
 
 export default function PlayWordSearchPage() {
   const router = useRouter();
+  const { user } = useAuth();
+  const backHref = user?.roles.includes("TEACHER")
+    ? "/teacher/activities"
+    : "/dashboard";
+  const backLabel = user?.roles.includes("TEACHER")
+    ? "Voltar às atividades"
+    : "Voltar ao painel";
   const [activity, setActivity] =
     useState<EditableWordSearchActivity | null>(null);
   const [grid, setGrid] = useState<string[][]>([]);
@@ -151,11 +159,11 @@ export default function PlayWordSearchPage() {
 
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-10">
           <Link
-            href="/teacher/activities"
+            href={backHref}
             className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            Voltar às atividades
+            {backLabel}
           </Link>
 
           {loading ? (
