@@ -92,14 +92,22 @@ export default function ExploreActivitiesPage() {
     ActivityDifficulty | "ALL"
   >("ALL");
   const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadedRequestKey, setLoadedRequestKey] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+
+  const requestKey = JSON.stringify({
+    page,
+    search: search.trim(),
+    typeFilter,
+    difficultyFilter,
+    reloadKey,
+  });
+  const isLoading = loadedRequestKey !== requestKey;
 
   useEffect(() => {
     let cancelled = false;
 
-    setIsLoading(true);
     listActivitiesService
       .execute(page, PAGE_SIZE, "explore", {
         ...(search.trim() ? { search: search.trim() } : {}),
@@ -110,23 +118,19 @@ export default function ExploreActivitiesPage() {
         if (cancelled) return;
         setResult(data);
         setErrorMessage("");
+        setLoadedRequestKey(requestKey);
       })
       .catch((error: unknown) => {
         if (cancelled) return;
         setErrorMessage(getErrorMessage(error));
+        setLoadedRequestKey(requestKey);
       })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
+      ;
 
     return () => {
       cancelled = true;
     };
-  }, [page, search, typeFilter, difficultyFilter, reloadKey]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, typeFilter, difficultyFilter]);
+  }, [page, search, typeFilter, difficultyFilter, reloadKey, requestKey]);
 
   return (
     <RoleBasedLayout
@@ -162,7 +166,10 @@ export default function ExploreActivitiesPage() {
             <input
               type="search"
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
               placeholder="Buscar atividade..."
               className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
@@ -172,9 +179,10 @@ export default function ExploreActivitiesPage() {
             <span className="sr-only">Filtrar por tipo</span>
             <select
               value={typeFilter}
-              onChange={(event) =>
-                setTypeFilter(event.target.value as ActivityType | "ALL")
-              }
+              onChange={(event) => {
+                setTypeFilter(event.target.value as ActivityType | "ALL");
+                setPage(1);
+              }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">Todos os tipos</option>
@@ -190,11 +198,12 @@ export default function ExploreActivitiesPage() {
             <span className="sr-only">Filtrar por dificuldade</span>
             <select
               value={difficultyFilter}
-              onChange={(event) =>
+              onChange={(event) => {
                 setDifficultyFilter(
                   event.target.value as ActivityDifficulty | "ALL",
-                )
-              }
+                );
+                setPage(1);
+              }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">Todas as dificuldades</option>
@@ -253,6 +262,7 @@ export default function ExploreActivitiesPage() {
                 setSearch("");
                 setTypeFilter("ALL");
                 setDifficultyFilter("ALL");
+                setPage(1);
               }}
               className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background"
             >
