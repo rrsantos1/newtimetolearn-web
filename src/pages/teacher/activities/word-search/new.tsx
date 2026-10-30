@@ -71,10 +71,7 @@ export default function NewWordSearchPage() {
             </h2>
 
             <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">
-              Seu caça-palavras foi salvo e está aguardando a aprovação
-              do administrador. Enquanto isso, você poderá acessá-lo na
-              sua lista de atividades e executá-lo para conferir o
-              resultado.
+              Seu caça-palavras foi salvo como rascunho. Para enviá-lo à aprovação do administrador, abra Minhas atividades, clique em Editar e selecione Enviar para aprovação.
             </p>
 
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
@@ -83,10 +80,7 @@ export default function NewWordSearchPage() {
               </p>
 
               <p className="mt-1 text-sm leading-6 text-amber-800">
-                A atividade ficará disponível para você e para os
-                administradores durante a análise. Após a aprovação,
-                poderá ser disponibilizada aos demais professores,
-                conforme as regras de acesso da plataforma.
+                Depois do envio, a atividade ficará disponível para você e para os administradores durante a análise. Os demais professores só poderão acessá-la após a aprovação.
               </p>
             </div>
 
