@@ -164,8 +164,6 @@ export function WordSearchGame({
   const timeLimit = timeLimitSeconds ?? 900;
   const completed = words.length > 0 && foundWords.length === words.length;
   const timedOut = elapsedSeconds >= timeLimit && !completed;
-  foundWordsRef.current = foundWords;
-
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
@@ -356,14 +354,16 @@ export function WordSearchGame({
           <p className="text-xs text-muted">
             Cada palavra encontrada recebe uma cor diferente.
           </p>
-          <button
-            type="button"
-            onClick={resetGame}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-dark transition hover:bg-background"
-          >
-            <RotateCcw size={15} aria-hidden="true" />
-            Reiniciar
-          </button>
+          {!completed && !timedOut && (
+            <button
+              type="button"
+              onClick={resetGame}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-dark transition hover:bg-background"
+            >
+              <RotateCcw size={15} aria-hidden="true" />
+              Reiniciar
+            </button>
+          )}
         </div>
 
         {message && (
