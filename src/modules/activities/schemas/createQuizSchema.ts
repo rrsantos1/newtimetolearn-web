@@ -13,7 +13,10 @@ const optionSchema = Yup.object({
 }).test(
   "option-has-content",
   "Preencha o texto da alternativa ou adicione uma imagem.",
-  (option) => Boolean(option?.text?.trim() || (option?.images?.length ?? 0) > 0),
+  function (option) {
+    if (option?.text?.trim() || (option?.images?.length ?? 0) > 0) return true;
+    return this.createError({ path: `${this.path}.text`, message: "Preencha o texto da alternativa ou adicione uma imagem." });
+  },
 );
 
 const questionSchema = Yup.object({
@@ -31,7 +34,10 @@ const questionSchema = Yup.object({
 }).test(
   "correct-option-exists",
   "A resposta correta deve corresponder a uma alternativa.",
-  (question) => Boolean(question?.correctOptionId && question.options?.some((option) => option?.id === question.correctOptionId)),
+  function (question) {
+    if (question?.correctOptionId && question.options?.some((option) => option?.id === question.correctOptionId)) return true;
+    return this.createError({ path: `${this.path}.correctOptionId`, message: "Marque uma alternativa correta válida." });
+  },
 );
 
 export const createQuizSchema = Yup.object({
