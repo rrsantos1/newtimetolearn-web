@@ -463,34 +463,29 @@ export default function TeacherActivitiesPage() {
                     {activity.executionCount === 1 ? "execução" : "execuções"}
                   </span>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {(activity.type === "word_search" || activity.type === "crossword") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        title="Ver histórico"
+                        aria-label={`Ver histórico de ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
                         <History size={16} aria-hidden="true" />
-                        Histórico
                       </Link>
                     )}
 
-                    {activity.type === "word_search" && (
+                    {(activity.type === "word_search" || activity.type === "crossword") && (
                       <Link
-                        href={`/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
+                        href={activity.type === "crossword"
+                          ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
+                          : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                        title="Executar atividade"
+                        aria-label={`Executar ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        style={{ color: "var(--primary-foreground)" }}
                       >
                         <Gamepad2 size={16} aria-hidden="true" />
-                        Executar
-                      </Link>
-                    )}
-
-                    {activity.type === "crossword" && (
-                      <Link
-                        href={`/activities/crossword/${encodeURIComponent(activity.slug)}/play`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
-                      >
-                        <Gamepad2 size={16} aria-hidden="true" />
-                        Executar
                       </Link>
                     )}
 
@@ -500,22 +495,25 @@ export default function TeacherActivitiesPage() {
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
                           disabled={Boolean(submittingSlug)}
-                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
+                          title="Enviar para aprovação"
+                          aria-label={`Enviar ${getActivityName(activity)} para aprovação`}
+                          className="inline-flex size-9 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
                           style={{ color: "var(--primary-foreground)" }}
                         >
-                          <Send size={15} aria-hidden="true" />
                           {submittingSlug === activity.slug
-                            ? "Enviando..."
-                            : "Enviar para aprovação"}
+                            ? <RefreshCw size={16} className="animate-spin" aria-hidden="true" />
+                            : <Send size={16} aria-hidden="true" />}
                         </button>
                       )}
 
                     {canEditActivity(activity) && (
                       <Link
                         href={`/teacher/activities/${activity.type === "crossword" ? "crossword" : "word-search"}/${encodeURIComponent(activity.slug)}/edit`}
-                        className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        title="Editar atividade"
+                        aria-label={`Editar ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
-                        Editar
+                        <ClipboardList size={16} aria-hidden="true" />
                       </Link>
                     )}
 
@@ -525,11 +523,11 @@ export default function TeacherActivitiesPage() {
                         setActivityToDelete(activity);
                         setDeleteErrorMessage("");
                       }}
-                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                      title="Excluir atividade"
                       aria-label={`Excluir atividade ${getActivityName(activity)}`}
+                      className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                     >
                       <Trash2 size={15} aria-hidden="true" />
-                      Excluir
                     </button>
                   </div>
                 </div>
