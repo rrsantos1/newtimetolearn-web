@@ -262,7 +262,7 @@ export default function TeacherActivitiesPage() {
 
         <Link
           href={CREATE_ACTIVITY_ROUTE}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
         >
           <Plus size={18} aria-hidden="true" />
           Criar atividade
@@ -340,7 +340,7 @@ export default function TeacherActivitiesPage() {
 
           <Link
             href={CREATE_ACTIVITY_ROUTE}
-            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover"
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}
           >
             <Plus size={18} aria-hidden="true" />
             Criar atividade
@@ -442,7 +442,7 @@ export default function TeacherActivitiesPage() {
                     {activity.type === "word_search" && (
                       <Link
                         href={`/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                       >
                         <Gamepad2 size={16} aria-hidden="true" />
                         Executar
@@ -452,7 +452,7 @@ export default function TeacherActivitiesPage() {
                     {activity.type === "crossword" && (
                       <Link
                         href={`/activities/crossword/${encodeURIComponent(activity.slug)}/play`}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                       >
                         <Gamepad2 size={16} aria-hidden="true" />
                         Executar
