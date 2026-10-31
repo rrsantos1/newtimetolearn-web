@@ -13,12 +13,14 @@ import {
   History,
   Plus,
   RefreshCw,
+  Send,
   Trash2,
   X,
 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { deleteActivityService } from "@/modules/activities/services/deleteActivityService";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
+import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
 import type {
   ActivityListData,
   ListedActivity,
@@ -165,6 +167,8 @@ export default function TeacherActivitiesPage() {
     useState<ListedActivity | null>(null);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
+  const [submittingSlug, setSubmittingSlug] = useState<string | null>(null);
+  const [submissionErrorMessage, setSubmissionErrorMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -192,6 +196,28 @@ export default function TeacherActivitiesPage() {
       cancelled = true;
     };
   }, [page, reloadKey]);
+
+  async function handleSubmitForApproval(activity: ListedActivity): Promise<void> {
+    if (submittingSlug || activity.latestVersion?.status !== "DRAFT") {
+      return;
+    }
+
+    setSubmittingSlug(activity.slug);
+    setSubmissionErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      await submitActivityVersionService.execute(activity.slug);
+      setSuccessMessage(
+        `A atividade "${getActivityName(activity)}" foi enviada para aprovação.`,
+      );
+      setReloadKey((current) => current + 1);
+    } catch (error: unknown) {
+      setSubmissionErrorMessage(getErrorMessage(error));
+    } finally {
+      setSubmittingSlug(null);
+    }
+  }
 
   async function handleDeleteActivity() {
     if (!activityToDelete || deletingSlug) {
@@ -285,6 +311,15 @@ export default function TeacherActivitiesPage() {
             <X size={16} aria-hidden="true" />
           </button>
         </div>
+      )}
+
+      {submissionErrorMessage && (
+        <section
+          role="alert"
+          className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+        >
+          {submissionErrorMessage}
+        </section>
       )}
 
       {errorMessage && (
@@ -458,6 +493,22 @@ export default function TeacherActivitiesPage() {
                         Executar
                       </Link>
                     )}
+
+                    {activity.latestVersion?.status === "DRAFT" &&
+                      (activity.type === "word_search" || activity.type === "crossword") && (
+                        <button
+                          type="button"
+                          onClick={() => void handleSubmitForApproval(activity)}
+                          disabled={Boolean(submittingSlug)}
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
+                          style={{ color: "var(--primary-foreground)" }}
+                        >
+                          <Send size={15} aria-hidden="true" />
+                          {submittingSlug === activity.slug
+                            ? "Enviando..."
+                            : "Enviar para aprovação"}
+                        </button>
+                      )}
 
                     {canEditActivity(activity) && (
                       <Link
