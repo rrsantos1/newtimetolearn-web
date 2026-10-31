@@ -89,8 +89,8 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
 export default function PlayWordSearchPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const backHref = user?.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
-  const backLabel = user?.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar ao painel";
+  const backHref = user?.roles.includes("ADMIN") ? "/admin/activities" : user?.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backLabel = user?.roles.includes("ADMIN") || user?.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar ao painel";
   const isStudent = user?.roles.includes("STUDENT") ?? false;
 
   const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
@@ -275,7 +275,7 @@ export default function PlayWordSearchPage() {
                           : "Sem limite de tempo"}
                       </p>
                     </div>
-                    {user?.roles.includes("TEACHER") && (
+                    {(user?.roles.includes("TEACHER") || user?.roles.includes("ADMIN")) && (
                       <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                         <Play size={18} aria-hidden="true" /> Testar caça-palavras
                       </button>
