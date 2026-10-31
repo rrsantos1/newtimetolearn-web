@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { CheckCircle2, Clock3, RefreshCw, XCircle } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, Clock3, Play, RefreshCw, XCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import type { ListedActivity } from "@/modules/activities/types/activityList.types";
@@ -171,6 +172,15 @@ export default function PendingActivitiesPage() {
                 <p className="mt-2 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>
               )}
               <p className="mt-3 text-xs text-muted">Versão {activity.latestVersion?.versionNumber ?? "—"}</p>
+              <Link
+                href={activity.type === "crossword"
+                  ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
+                  : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                <Play size={16} aria-hidden="true" />
+                Testar atividade
+              </Link>
               <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
                 <button type="button" onClick={() => void handleDecision(activity, "approve")} disabled={Boolean(busySlug)} title="Aprovar e publicar" aria-label={`Aprovar ${getActivityName(activity)}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60">
                   <CheckCircle2 size={16} aria-hidden="true" /> Aprovar
