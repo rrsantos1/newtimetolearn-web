@@ -314,7 +314,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
 
                     <FieldArray name={`content.questions.${questionIndex}.options`}>
                       {({ push: pushOption, remove: removeOption }) => (
-                        <fieldset className="mt-5 space-y-3">
+                        <fieldset aria-invalid={Boolean((getIn(errors, `content.questions.${questionIndex}.correctOptionId`) || getIn(errors, `content.questions.${questionIndex}.options`)) && submitCount > 0)} className={`mt-5 space-y-3 rounded-xl ${Boolean((getIn(errors, `content.questions.${questionIndex}.correctOptionId`) || getIn(errors, `content.questions.${questionIndex}.options`)) && submitCount > 0) ? "border border-red-300 p-3" : ""}`}>
                           <legend className="mb-3 text-sm font-semibold text-dark">Alternativas (marque a correta)</legend>
                           {question.options.map((option, optionIndex) => (
                             <div key={option.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
