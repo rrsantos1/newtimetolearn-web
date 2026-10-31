@@ -7,24 +7,20 @@ const imageSchema = Yup.object({
 
 const optionSchema = Yup.object({
   id: Yup.string().required().max(50),
-  text: Yup.string().trim().max(1000).when("images", {
-    is: (images: unknown[]) => !Array.isArray(images) || images.length === 0,
-    then: (schema) => schema.required("Informe o texto ou adicione uma imagem."),
-    otherwise: (schema) => schema.optional(),
-  }),
+  text: Yup.string().trim().max(1000).optional().default(""),
   images: Yup.array().of(imageSchema).max(5).default([]),
 });
 
 const questionSchema = Yup.object({
   id: Yup.string().required().max(50),
-  statement: Yup.string().trim().required("Informe o enunciado.").max(2000),
+  statement: Yup.string().trim().max(2000).optional().default(""),
   images: Yup.array().of(imageSchema).max(5).default([]),
-  options: Yup.array().of(optionSchema).required().min(3, "Adicione pelo menos 3 alternativas.").max(6, "Use no máximo 6 alternativas."),
-  correctOptionId: Yup.string().required("Marque a alternativa correta."),
+  options: Yup.array().of(optionSchema).required().max(6, "Use no máximo 6 alternativas.").default([]),
+  correctOptionId: Yup.string().optional().default(""),
   explanation: Yup.string().trim().max(2000).default(""),
 }).test("correct-option-exists", "A resposta correta deve corresponder a uma alternativa.", (question) => {
-  if (!question?.options) return false;
-  return question.options.some((option) => option?.id === question.correctOptionId);
+  if (!question?.correctOptionId) return true;
+  return question.options?.some((option) => option?.id === question.correctOptionId) ?? false;
 });
 
 export const createQuizSchema = Yup.object({
@@ -33,7 +29,7 @@ export const createQuizSchema = Yup.object({
   difficulty: Yup.string().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
   timeLimitSeconds: Yup.number().nullable().integer().positive().optional(),
   content: Yup.object({
-    questions: Yup.array().of(questionSchema).required().min(1, "Adicione pelo menos uma questão.").max(1000),
+    questions: Yup.array().of(questionSchema).required().max(1000).default([]),
   }).required(),
 });
 
