@@ -192,7 +192,7 @@ export default function VerifyEmailPage() {
           {isSuccess ? (
             <Link
               href="/login"
-              className="mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-dark transition hover:bg-primary-hover"
+              className="mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-dark transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}
             >
               Ir para o login
               <ArrowRight size={18} aria-hidden="true" />
