@@ -36,7 +36,7 @@ export default function NewQuizPage() {
         <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-6 text-center shadow-sm sm:p-8" aria-labelledby="quiz-created-title">
           <CheckCircle2 aria-hidden="true" className="mx-auto mb-4 size-14 text-green-600" />
           <h2 id="quiz-created-title" className="text-2xl font-semibold text-dark">Quiz salvo com sucesso!</h2>
-          <p className="mt-3 text-sm leading-6 text-muted">O Quiz foi salvo como rascunho. A execução e o envio para aprovação serão habilitados nas próximas etapas.</p>
+          <p className="mt-3 text-sm leading-6 text-muted">O Quiz foi salvo como rascunho. Você pode encontrá-lo em Minhas atividades para continuar editando e, quando estiver pronto, enviá-lo para aprovação.</p>
           <Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
             <ClipboardList aria-hidden="true" size={18} /> Ver minhas atividades
           </Link>
