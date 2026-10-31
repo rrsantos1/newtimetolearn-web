@@ -131,6 +131,10 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
     return "Palavras cruzadas";
   }
 
+  if (type === "quiz") {
+    return "Quiz";
+  }
+
   return type.replaceAll("_", " ");
 }
 
@@ -370,7 +374,7 @@ export default function TeacherActivitiesPage() {
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            Crie seu primeiro caça-palavras ou palavras cruzadas para começar a organizar atividades para seus alunos.
+            Crie seu primeiro caça-palavras, palavras cruzadas ou Quiz para começar a organizar atividades para seus alunos.
           </p>
 
           <Link
