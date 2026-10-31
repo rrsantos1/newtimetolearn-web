@@ -4,7 +4,6 @@ import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { Eye, Library, Plus, Search, Trash2, X } from "lucide-react";
 import { uploadQuizImageService } from "@/modules/activities/services/uploadQuizImageService";
 import { mediaLibraryService, type MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
-import api from "@/lib/api";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
 
@@ -149,9 +148,8 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
     <div className="mt-4 space-y-3">
       <label htmlFor={`${idPrefix}-upload`} className="block text-sm font-medium text-dark">{label}</label>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
         <input
-          id={`${idPrefix}-upload`
+          id={`${idPrefix}-upload`}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={(event) => void handleFileChange(event)}
