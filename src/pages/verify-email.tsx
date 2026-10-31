@@ -15,6 +15,7 @@ import {
 
 import api from "@/lib/api";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 
 type VerificationStatus =
   | "loading"
@@ -147,18 +148,7 @@ export default function VerifyEmailPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border bg-white">
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-dark text-primary">
-              <BookOpen size={22} aria-hidden="true" />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-dark">
-              TimeTo<span className="text-amber-500">Learn</span>
-            </span>
-          </Link>
-        </div>
-      </header>
+      <PublicHeader />
 
       <section className="flex flex-1 items-center justify-center px-5 py-12">
         <div className="w-full max-w-lg rounded-3xl border border-border bg-white p-7 text-center shadow-xl shadow-zinc-200/40 sm:p-10">

@@ -19,6 +19,7 @@ import type {
 } from "@/modules/auth/types/auth.types";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { useRouter } from "next/router";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const loginSchema = Yup.object({
   email: Yup.string()
@@ -105,18 +106,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border bg-white">
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-dark text-primary">
-              <BookOpen size={22} aria-hidden="true" />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-dark">
-              TimeTo<span className="text-amber-500">Learn</span>
-            </span>
-          </Link>
-        </div>
-      </header>
+      <PublicHeader />
 
       <section className="flex flex-1 items-center justify-center px-5 py-12">
         <div className="w-full max-w-md">
@@ -251,7 +241,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
-                className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold text-dark transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold text-dark transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:cursor-not-allowed disabled:opacity-60" style={{ color: "var(--primary-foreground)" }}
               >
                 {formik.isSubmitting ? (
                   <>

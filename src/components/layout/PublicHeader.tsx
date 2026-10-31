@@ -9,7 +9,7 @@ export function PublicHeader() {
 
         <Link
           href="/login"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-5 text-sm font-semibold text-white transition hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-5 text-sm font-semibold text-white transition hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500" style={{ color: "var(--primary-foreground)" }}
         >
           Entrar
         </Link>

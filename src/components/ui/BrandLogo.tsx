@@ -12,7 +12,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   return (
     <Link href={href} className="inline-flex items-center gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-dark text-primary">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-dark text-primary" style={{ color: "var(--primary-foreground)" }}>
         <BookOpen size={22} aria-hidden="true" />
       </span>
 

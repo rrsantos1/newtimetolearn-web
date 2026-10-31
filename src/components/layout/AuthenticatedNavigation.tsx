@@ -115,7 +115,7 @@ export function AuthenticatedNavigation() {
           aria-expanded={isMenuOpen}
           aria-controls="authenticated-mobile-menu"
           onClick={() => setIsMenuOpen((current) => !current)}
-          className="flex size-11 items-center justify-center rounded-xl border border-border text-dark transition hover:bg-background"
+          className="flex size-11 items-center justify-center rounded-xl border border-border text-dark transition hover:bg-background" 
         >
           {isMenuOpen ? (
             <X size={21} aria-hidden="true" />

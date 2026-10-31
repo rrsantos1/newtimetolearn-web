@@ -49,7 +49,7 @@ export default function TeacherPage() {
                 <div className="mt-5 flex flex-col gap-2">
                   <Link
                     href="/teacher/activities"
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                   >
                     <ClipboardList size={16} aria-hidden="true" />
                     Ver minhas atividades

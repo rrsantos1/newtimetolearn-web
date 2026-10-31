@@ -73,7 +73,7 @@ export default function NewCrosswordPage() {
             <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href={ACTIVITIES_LIST_ROUTE}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
               >
                 <ClipboardList aria-hidden="true" size={18} />
                 Ver minhas atividades

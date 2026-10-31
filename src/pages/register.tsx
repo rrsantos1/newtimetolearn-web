@@ -20,6 +20,7 @@ import type {
   ApiErrorResponse,
   RegisterResponse,
 } from "@/modules/auth/types/auth.types";
+import { PublicHeader } from "@/components/layout/PublicHeader";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -159,26 +160,7 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="border-b border-border bg-white">
-        <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-dark text-primary">
-              <BookOpen size={22} aria-hidden="true" />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-dark">
-              TimeTo<span className="text-amber-500">Learn</span>
-            </span>
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
-          >
-            <ArrowLeft size={16} aria-hidden="true" />
-            Início
-          </Link>
-        </div>
-      </header>
+      <PublicHeader />
 
       <section className="mx-auto flex max-w-7xl justify-center px-5 py-10 sm:px-8 sm:py-16">
         <div className="w-full max-w-xl">
@@ -414,7 +396,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={formik.isSubmitting}
-                className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold text-dark transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-7 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold text-dark transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:cursor-not-allowed disabled:opacity-60" style={{ color: "var(--primary-foreground)" }}
               >
                 {formik.isSubmitting ? (
                   <>
