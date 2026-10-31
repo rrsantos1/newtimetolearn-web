@@ -12,12 +12,6 @@ interface CreateUploadUrlResponse {
   };
 }
 
-export interface UploadedMediaImage {
-  storageKey: string;
-  publicUrl: string;
-  altText: string;
-}
-
 const extensionByType: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -27,8 +21,17 @@ const extensionByType: Record<string, string> = {
 
 const maxFileSizeBytes = 5 * 1024 * 1024;
 
+export interface UploadedMediaImage {
+  storageKey: string;
+  publicUrl: string;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  altText: string;
+}
+
 export const uploadMediaImageService = {
-  async execute(file: File, altText = ""): Promise<UploadedQuizImage> {
+  async execute(file: File, altText = ""): Promise<UploadedMediaImage> {
     const extension = extensionByType[file.type];
 
     if (!extension) {
@@ -75,6 +78,9 @@ export const uploadMediaImageService = {
     return {
       storageKey,
       publicUrl: registration.data.data.publicUrl,
+      fileName: file.name,
+      contentType: file.type,
+      sizeBytes: file.size,
       altText: altText.trim(),
     };
   },

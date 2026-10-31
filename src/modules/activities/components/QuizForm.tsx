@@ -2,10 +2,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { Eye, Plus, Trash2, X } from "lucide-react";
-import { uploadMediaImageService } from "@/modules/activities/services/uploadMediaImageService";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
+import { uploadMediaImageService } from "../services/uploadMediaImageService";
 
 interface QuizFormProps {
   onSubmit: (values: CreateQuizFormValues) => Promise<void>;
@@ -53,7 +53,7 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
     setError("");
     setUploading(true);
     try {
-      const uploaded = await uploadQuizImageService.execute(file);
+      const uploaded = await uploadMediaImageService.execute(file);
       onChange([...images, uploaded]);
     } catch (uploadError: unknown) {
       setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar a imagem.");
