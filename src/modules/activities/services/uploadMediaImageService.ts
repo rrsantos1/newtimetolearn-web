@@ -57,7 +57,12 @@ export const uploadMediaImageService = {
 
     const registration = await api.post<{
       success: true;
-      data: { storageKey: string; publicUrl: string; altText: string; status: "APPROVED" | "PENDING_REVIEW" | "REJECTED" };
+      data: {
+        storageKey: string;
+        publicUrl: string;
+        altText: string;
+        status: "APPROVED" | "PENDING_REVIEW" | "REJECTED";
+      };
     }>("/activities/media-library", {
       storageKey,
       publicUrl,
@@ -67,12 +72,8 @@ export const uploadMediaImageService = {
       altText: altText.trim(),
     });
 
-    if (registration.data.data.status !== "APPROVED") {
-      throw new Error(
-        registration.data.data.status === "REJECTED"
-          ? "A imagem foi recusada pela validação automática de conteúdo."
-          : "A imagem foi enviada, mas ficará indisponível até a configuração da moderação.",
-      );
+    if (registration.data.data.status === "REJECTED") {
+      throw new Error("A imagem foi recusada pela validação automática de conteúdo.");
     }
 
     return {
