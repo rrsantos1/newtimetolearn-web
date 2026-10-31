@@ -1,11 +1,31 @@
 import Image from "next/image";
 import { useState } from "react";
-import { ErrorMessage, Field, FieldArray, Form, Formik, getIn } from "formik";
+import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Eye, Plus, Trash2, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
 import { uploadMediaImageService } from "../services/uploadMediaImageService";
+
+function ScrollToFirstError() {
+  const { errors, submitCount, isValidating } = useFormikContext<CreateQuizFormValues>();
+  const [handledSubmitCount, setHandledSubmitCount] = useState(0);
+
+  useEffect(() => {
+    if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      invalidField?.focus({ preventScroll: true });
+      setHandledSubmitCount(submitCount);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errors, handledSubmitCount, isValidating, submitCount]);
+
+  return null;
+}
 
 interface QuizFormProps {
   onSubmit: (values: CreateQuizFormValues) => Promise<void>;
@@ -167,7 +187,8 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
         };
 
         return (
-        <Form className="space-y-6">
+        <Form className="space-y-6" noValidate>
+          <ScrollToFirstError />
           <div className="flex justify-end">
             <button type="button" onClick={() => setPreviewOpen(true)}
               className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
