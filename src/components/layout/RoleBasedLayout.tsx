@@ -12,7 +12,7 @@ interface RoleBasedLayoutProps {
   title: string;
   description: string;
   allowedRoles: UserRole[];
-  area: "teacher" | "admin";
+  area: "teacher" | "admin" | "student";
 }
 
 export function RoleBasedLayout({
@@ -24,7 +24,7 @@ export function RoleBasedLayout({
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
 
-  const homeHref = area === "admin" ? "/admin" : "/teacher";
+  const homeHref = area === "admin" ? "/admin" : area === "student" ? "/dashboard" : "/teacher";
 
   return (
     <RoleGuard allowedRoles={allowedRoles}>
