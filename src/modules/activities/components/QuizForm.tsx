@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { Eye, Library, Plus, Search, Trash2, X } from "lucide-react";
-import { uploadQuizImageService } from "@/modules/activities/services/uploadQuizImageService";
+import { uploadQuizImageService } from "@/modules/activities/services/uploadMediaImageService";
 import { mediaLibraryService, type MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
