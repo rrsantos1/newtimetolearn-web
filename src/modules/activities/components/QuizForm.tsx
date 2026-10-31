@@ -1,11 +1,14 @@
+import { useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
-import { Plus, Trash2 } from "lucide-react";
+import { Eye, Plus, Trash2, X } from "lucide-react";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
 
 interface QuizFormProps {
   onSubmit: (values: CreateQuizFormValues) => Promise<void>;
   submitError?: string;
+  initialValues?: CreateQuizFormValues;
+  submitLabel?: string;
 }
 
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
@@ -39,15 +42,63 @@ const initialValues: CreateQuizFormValues = {
   content: { questions: [createQuestion()] },
 };
 
-export function QuizForm({ onSubmit, submitError }: Readonly<QuizFormProps>) {
+export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar Quiz como rascunho" }: Readonly<QuizFormProps>) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const formInitialValues = suppliedInitialValues ?? initialValues;
+
   return (
     <Formik<CreateQuizFormValues>
-      initialValues={initialValues}
+      initialValues={formInitialValues}
+      enableReinitialize
       validationSchema={createQuizSchema}
       onSubmit={onSubmit}
     >
       {({ values, isSubmitting, setFieldValue }) => (
         <Form className="space-y-6">
+          <div className="flex justify-end">
+            <button type="button" onClick={() => setPreviewOpen(true)}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+              <Eye aria-hidden="true" size={17} /> Pré-visualizar Quiz
+            </button>
+          </div>
+          {previewOpen && (
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="quiz-preview-title">
+              <section className="mx-auto my-4 max-w-4xl rounded-2xl bg-surface p-5 shadow-xl sm:my-8 sm:p-8">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">Pré-visualização do professor</p>
+                    <h2 id="quiz-preview-title" className="mt-2 text-2xl font-bold text-dark">{values.name.trim() || "Quiz sem título"}</h2>
+                    {values.description?.trim() && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{values.description}</p>}
+                  </div>
+                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Fechar pré-visualização" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <X aria-hidden="true" size={18} />
+                  </button>
+                </div>
+                <p className="mt-3 text-sm text-muted">{values.content.questions.length} {values.content.questions.length === 1 ? "questão" : "questões"} · {values.timeLimitSeconds === null ? "Sem limite de tempo" : `${Math.floor((values.timeLimitSeconds ?? 900) / 60)} minutos`}</p>
+                <div className="mt-6 space-y-5">
+                  {values.content.questions.map((question, questionIndex) => (
+                    <article key={question.id} className="rounded-xl border border-border p-4 sm:p-5">
+                      <h3 className="text-sm font-semibold text-muted">Questão {questionIndex + 1}</h3>
+                      <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-dark">{question.statement || "Enunciado não preenchido."}</p>
+                      <ol className="mt-4 space-y-2">
+                        {question.options.map((option, optionIndex) => (
+                          <li key={option.id} className={`rounded-xl border p-3 text-sm ${question.correctOptionId === option.id ? "border-green-500 bg-green-50 text-green-900" : "border-border text-dark"}`}>
+                            <span className="mr-2 font-semibold">{String.fromCharCode(65 + optionIndex)}.</span>
+                            {option.text?.trim() || (option.images?.length ? "Alternativa com imagem" : "Alternativa sem conteúdo")}
+                            {question.correctOptionId === option.id && <span className="ml-2 font-semibold">— Resposta correta</span>}
+                          </li>
+                        ))}
+                      </ol>
+                      {question.explanation?.trim() && <p className="mt-4 rounded-lg bg-background p-3 text-sm leading-6 text-muted"><strong>Explicação:</strong> {question.explanation}</p>}
+                    </article>
+                  ))}
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <button type="button" onClick={() => setPreviewOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>Voltar à edição</button>
+                </div>
+              </section>
+            </div>
+          )}
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <h2 className="text-lg font-semibold text-dark">Informações do Quiz</h2>
             <div className="mt-5 grid gap-5">
@@ -169,7 +220,7 @@ export function QuizForm({ onSubmit, submitError }: Readonly<QuizFormProps>) {
             <button type="submit" disabled={isSubmitting}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
               style={{ color: "var(--primary-foreground)" }}>
-              {isSubmitting ? "Salvando Quiz..." : "Salvar Quiz como rascunho"}
+              {isSubmitting ? "Salvando Quiz..." : submitLabel}
             </button>
           </div>
         </Form>
