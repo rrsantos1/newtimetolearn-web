@@ -108,7 +108,7 @@ function getStatusClass(activity: ListedActivity): string {
 
 function canEditActivity(activity: ListedActivity): boolean {
   if (
-    (activity.type !== "word_search" && activity.type !== "crossword") ||
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz") ||
     !activity.latestVersion
   ) {
     return false;
@@ -136,6 +136,14 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   }
 
   return type.replaceAll("_", " ");
+}
+
+
+function getEditHref(activity: ListedActivity): string {
+  const slug = encodeURIComponent(activity.slug);
+  if (activity.type === "quiz") return "/teacher/activities/quiz/" + slug + "/edit";
+  if (activity.type === "crossword") return "/teacher/activities/crossword/" + slug + "/edit";
+  return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
 function formatDate(value: string): string {
@@ -468,7 +476,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {(activity.type === "word_search" || activity.type === "crossword") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
@@ -512,7 +520,7 @@ export default function TeacherActivitiesPage() {
 
                     {canEditActivity(activity) && (
                       <Link
-                        href={`/teacher/activities/${activity.type === "crossword" ? "crossword" : "word-search"}/${encodeURIComponent(activity.slug)}/edit`}
+                        href={getEditHref(activity)}
                         title="Editar atividade"
                         aria-label={`Editar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
