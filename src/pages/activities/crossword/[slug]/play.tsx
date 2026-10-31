@@ -100,8 +100,8 @@ export default function PlayCrosswordPage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
-  const backHref = isTeacher ? "/teacher/activities" : "/dashboard";
-  const backLabel = isTeacher ? "Voltar às atividades" : "Voltar ao painel";
+  const backHref = user?.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
+  const backLabel = user?.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
 
   const [activity, setActivity] = useState<EditableCrosswordActivity | null>(null);
   const [grid, setGrid] = useState<CrosswordGrid>([]);
