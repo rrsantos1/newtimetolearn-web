@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Eye, Plus, Trash2, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
