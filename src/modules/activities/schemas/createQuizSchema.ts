@@ -3,6 +3,7 @@ import * as Yup from "yup";
 const imageSchema = Yup.object({
   storageKey: Yup.string().trim().required().max(500),
   altText: Yup.string().trim().max(250).default(""),
+  publicUrl: Yup.string().url().optional(),
 });
 
 const optionSchema = Yup.object({
