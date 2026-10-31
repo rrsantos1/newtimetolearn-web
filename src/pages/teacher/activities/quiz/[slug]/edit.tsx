@@ -88,6 +88,7 @@ export default function EditQuizPage() {
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [resubmitMessage, setResubmitMessage] = useState("");
+  const [resubmitError, setResubmitError] = useState(false);
   const [resubmitting, setResubmitting] = useState(false);
 
   useEffect(() => {
@@ -153,14 +154,16 @@ export default function EditQuizPage() {
     if (!activity || resubmitting) return;
     setResubmitting(true);
     setResubmitMessage("");
+    setResubmitError(false);
     try {
       await submitActivityVersionService.execute(activity.slug);
       setActivity((current) => current ? {
         ...current,
         version: { ...current.version, status: "PENDING_REVIEW", reviewFeedback: null, submittedAt: new Date().toISOString() },
       } : current);
-      setResubmitMessage("Quiz enviado para aprovação.");
+      setResubmitMessage("Quiz enviado para análise de aprovação. Você pode acompanhar o status em Minhas atividades.");
     } catch (error: unknown) {
+      setResubmitError(true);
       setResubmitMessage(getErrorMessage(error));
     } finally {
       setResubmitting(false);
@@ -198,7 +201,7 @@ export default function EditQuizPage() {
             <section className="mt-6 rounded-2xl border border-border bg-surface p-5 sm:p-6">
               <h2 className="font-semibold text-dark">Pronto para enviar?</h2>
               <p className="mt-1 text-sm leading-6 text-muted">Salve as alterações antes de enviar esta versão para análise administrativa.</p>
-              {resubmitMessage && <p role="status" className="mt-3 text-sm text-dark">{resubmitMessage}</p>}
+              {resubmitMessage && <div role={resubmitError ? "alert" : "status"} className={`mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm ${resubmitError ? "border-red-200 bg-red-50 text-red-800" : "border-green-200 bg-green-50 text-green-800"}`}><CheckCircle2 aria-hidden="true" size={18} className="mt-0.5 shrink-0" /><p>{resubmitMessage}</p></div>}
               <button type="button" onClick={() => void handleResubmit()} disabled={resubmitting} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60">
                 {resubmitting ? "Enviando..." : "Enviar para aprovação"}
               </button>
