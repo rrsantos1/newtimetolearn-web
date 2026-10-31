@@ -40,7 +40,7 @@ export const uploadQuizImageService = {
     }
 
     const response = await api.post<CreateUploadUrlResponse>(
-      "/activities/quiz/images/upload-url",
+      "/activities/media-library/upload-url",
       { contentType: file.type, extension },
     );
 
