@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { CheckCircle2, Clock3, RefreshCw, XCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
@@ -34,34 +34,44 @@ export default function PendingActivitiesPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
-  const loadActivities = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const firstPage = await listActivitiesService.execute(1, 100, "all");
-      const allActivities = [...firstPage.items];
-
-      for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
-        const result = await listActivitiesService.execute(page, 100, "all");
-        allActivities.push(...result.items);
-      }
-
-      setActivities(
-        allActivities.filter(
-          (activity) => activity.latestVersion?.status === "PENDING_REVIEW",
-        ),
-      );
-    } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
+    let cancelled = false;
+
+    async function loadActivities(): Promise<void> {
+      try {
+        const firstPage = await listActivitiesService.execute(1, 100, "all");
+        const allActivities = [...firstPage.items];
+
+        for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+          const result = await listActivitiesService.execute(page, 100, "all");
+          allActivities.push(...result.items);
+        }
+
+        if (!cancelled) {
+          setActivities(
+            allActivities.filter(
+              (activity) => activity.latestVersion?.status === "PENDING_REVIEW",
+            ),
+          );
+          setErrorMessage("");
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setErrorMessage(getErrorMessage(error));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
     void loadActivities();
-  }, [loadActivities, reloadKey]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
 
   async function handleDecision(
     activity: ListedActivity,
@@ -103,6 +113,7 @@ export default function PendingActivitiesPage() {
             : `Foram solicitadas alterações em "${getActivityName(activity)}".`,
         );
       }
+      setIsLoading(true);
       setReloadKey((current) => current + 1);
     } catch (error: unknown) {
       setErrorMessage(getErrorMessage(error));
@@ -138,7 +149,10 @@ export default function PendingActivitiesPage() {
           <CheckCircle2 className="mx-auto text-green-600" size={30} aria-hidden="true" />
           <h2 className="mt-3 font-semibold text-dark">Nenhuma atividade pendente</h2>
           <p className="mt-2 text-sm text-muted">As novas solicitações de aprovação aparecerão aqui.</p>
-          <button type="button" onClick={() => setReloadKey((current) => current + 1)} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">
+          <button type="button" onClick={() => {
+              setIsLoading(true);
+              setReloadKey((current) => current + 1);
+            }} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">
             <RefreshCw size={15} aria-hidden="true" /> Atualizar
           </button>
         </section>
