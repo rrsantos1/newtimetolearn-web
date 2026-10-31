@@ -56,7 +56,7 @@ export function AuthenticatedNavigation() {
     }
 
     if (isActive(href)) {
-      return `${baseClass} bg-primary text-primary-foreground`;
+      return `${baseClass} bg-primary text-white`;
     }
 
     return `${baseClass} text-muted hover:bg-background hover:text-dark`;
