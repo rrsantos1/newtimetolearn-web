@@ -4,7 +4,6 @@ import { useFormik } from "formik";
 import axios from "axios";
 import {
   ArrowRight,
-  BookOpen,
   Eye,
   EyeOff,
   LoaderCircle,

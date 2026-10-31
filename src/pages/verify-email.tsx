@@ -4,7 +4,6 @@ import Link from "next/link";
 import axios from "axios";
 import {
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   LoaderCircle,
   Mail,

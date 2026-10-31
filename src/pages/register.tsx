@@ -4,9 +4,7 @@ import Link from "next/link";
 import { useFormik } from "formik";
 import axios from "axios";
 import {
-  ArrowLeft,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   GraduationCap,
   LoaderCircle,
