@@ -13,16 +13,19 @@ const features = [
     title: "Usuários",
     description: "Prepare a gestão das contas da plataforma.",
     icon: Users,
+    href: undefined,
   },
   {
     title: "Permissões",
     description: "Prepare a gestão dos papéis e acessos.",
     icon: ShieldCheck,
+    href: undefined,
   },
   {
     title: "Configurações",
     description: "Organize as futuras configurações da plataforma.",
     icon: Settings,
+    href: undefined,
   },
 ];
 
