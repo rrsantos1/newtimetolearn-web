@@ -50,25 +50,28 @@ export default function DashboardPage() {
         </h2>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <article className="rounded-2xl border border-border bg-surface p-5">
-            <BookOpen
+            <Link
+              href="/student/activities"
+              className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            >
+              <BookOpen
                 size={23}
                 className="text-primary"
                 aria-hidden="true"
-            />
+              />
 
-            <h3 className="mt-4 font-semibold text-dark">
-                Meus estudos
-            </h3>
+              <h3 className="mt-4 font-semibold text-dark">
+                Atividades
+              </h3>
 
-            <p className="mt-2 text-sm leading-6 text-muted">
-                Aqui ficarão disponíveis os conteúdos e as atividades de inglês.
-            </p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Encontre atividades publicadas e pratique seus conhecimentos.
+              </p>
 
-            <span className="mt-4 inline-block text-xs font-medium text-muted">
-                Em preparação
-            </span>
-            </article>
+              <span className="mt-4 inline-block text-xs font-semibold text-accent">
+                Explorar atividades
+              </span>
+            </Link>
 
             <Link
             href="/profile"
