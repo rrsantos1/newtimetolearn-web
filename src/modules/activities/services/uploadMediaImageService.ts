@@ -12,7 +12,7 @@ interface CreateUploadUrlResponse {
   };
 }
 
-export interface UploadedQuizImage {
+export interface UploadedMediaImage {
   storageKey: string;
   publicUrl: string;
   altText: string;
@@ -27,7 +27,7 @@ const extensionByType: Record<string, string> = {
 
 const maxFileSizeBytes = 5 * 1024 * 1024;
 
-export const uploadQuizImageService = {
+export const uploadMediaImageService = {
   async execute(file: File, altText = ""): Promise<UploadedQuizImage> {
     const extension = extensionByType[file.type];
 
