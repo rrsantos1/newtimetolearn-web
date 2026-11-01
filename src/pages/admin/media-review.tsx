@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 import { CheckCircle2, Clock3, RefreshCw, ShieldAlert, XCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import api from "@/lib/api";
@@ -113,7 +114,7 @@ export default function MediaReviewPage() {
           {items.map((asset) => (
             <article key={asset.id} className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
               <div className="flex aspect-[4/3] items-center justify-center bg-background">
-                {previews[asset.id] ? <img src={previews[asset.id]} alt={asset.altText || `Prévia de ${asset.fileName}`} className="h-full w-full object-contain" /> : <div className="p-4 text-center text-sm text-muted"><ShieldAlert className="mx-auto mb-2" aria-hidden="true" />Prévia indisponível</div>}
+                {previews[asset.id] ? <div className="relative h-full w-full"><Image src={previews[asset.id]} alt={asset.altText || `Prévia de ${asset.fileName}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw" unoptimized className="object-contain" /></div> : <div className="p-4 text-center text-sm text-muted"><ShieldAlert className="mx-auto mb-2" aria-hidden="true" />Prévia indisponível</div>}
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between gap-2">
