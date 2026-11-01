@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardCheck, Settings, ShieldCheck, Users } from "lucide-react";
+import { ClipboardCheck, Settings, ShieldCheck, Users, Images } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 
 const features = [
@@ -8,6 +8,12 @@ const features = [
     description: "Revise as atividades enviadas pelos professores para aprovação.",
     icon: ClipboardCheck,
     href: "/admin/activities",
+  },
+  {
+    title: "Revisão de imagens",
+    description: "Analise imagens em quarentena e aprove ou rejeite o envio para a biblioteca pública.",
+    icon: Images,
+    href: "/admin/media-review",
   },
   {
     title: "Usuários",
@@ -59,7 +65,7 @@ export default function AdminPage() {
                 className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                 style={{ color: "var(--primary-foreground)" }}
               >
-                Revisar atividades
+                {href === "/admin/media-review" ? "Revisar imagens" : "Revisar atividades"}
               </Link>
             ) : (
               <span className="mt-4 inline-block text-xs font-medium text-muted">
