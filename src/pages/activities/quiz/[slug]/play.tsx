@@ -1,0 +1,417 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { ArrowLeft, CheckCircle2, Clock3, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { LogoutButton } from "@/modules/auth/components/LogoutButton";
+import { RoleGuard } from "@/modules/auth/components/RoleGuard";
+import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import { getQuizService, type EditableQuizActivity } from "@/modules/activities/services/getQuizService";
+import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
+
+interface QuizImage {
+  storageKey: string;
+  altText: string;
+  publicUrl?: string;
+}
+interface QuizOption {
+  id: string;
+  text: string;
+  images: QuizImage[];
+}
+interface QuizQuestion {
+  id: string;
+  statement: string;
+  images: QuizImage[];
+  options: QuizOption[];
+  correctOptionId: string;
+  explanation: string;
+}
+type RunMode = "question" | "all";
+type Phase = "setup" | "playing" | "finished" | "abandoned";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function parseImages(value: unknown): QuizImage[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): QuizImage[] => {
+    if (!isRecord(item) || typeof item.storageKey !== "string") return [];
+    return [{
+      storageKey: item.storageKey,
+      altText: typeof item.altText === "string" ? item.altText : "",
+      ...(typeof item.publicUrl === "string" ? { publicUrl: item.publicUrl } : {}),
+    }];
+  });
+}
+function parseQuestions(value: unknown): QuizQuestion[] | null {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  const questions = value.flatMap((item): QuizQuestion[] => {
+    if (!isRecord(item) || typeof item.id !== "string" || typeof item.statement !== "string" ||
+      typeof item.correctOptionId !== "string" || !Array.isArray(item.options)) return [];
+    const options = item.options.flatMap((option): QuizOption[] => {
+      if (!isRecord(option) || typeof option.id !== "string") return [];
+      return [{
+        id: option.id,
+        text: typeof option.text === "string" ? option.text : "",
+        images: parseImages(option.images),
+      }];
+    });
+    if (options.length < 3 || !options.some((option) => option.id === item.correctOptionId)) return [];
+    return [{
+      id: item.id,
+      statement: item.statement,
+      images: parseImages(item.images),
+      options,
+      correctOptionId: item.correctOptionId,
+      explanation: typeof item.explanation === "string" ? item.explanation : "",
+    }];
+  });
+  return questions.length === value.length ? questions : null;
+}
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
+    return data?.error?.message ?? data?.message ?? "Não foi possível carregar o Quiz.";
+  }
+  return "Não foi possível carregar o Quiz.";
+}
+function formatTime(seconds: number | null): string {
+  if (seconds === null) return "Sem limite de tempo";
+  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+}
+function imageUrl(image: QuizImage): string | null {
+  if (image.publicUrl) return image.publicUrl;
+  const base = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  return base ? `${base}/${image.storageKey}` : null;
+}
+function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
+  if (images.length === 0) return null;
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {images.map((image, index) => {
+        const src = imageUrl(image);
+        return src ? (
+          <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
+            <Image src={src} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized className="object-contain" />
+          </div>
+        ) : (
+          <p key={image.storageKey} className="rounded-xl bg-background p-3 text-xs text-muted">Imagem indisponível para visualização.</p>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function PlayQuizPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const isTeacher = user?.roles.includes("TEACHER") ?? false;
+  const backHref = user?.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
+  const backLabel = user?.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
+  const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [phase, setPhase] = useState<Phase>("setup");
+  const [mode, setMode] = useState<RunMode>("question");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [attemptResult, setAttemptResult] = useState<QuizAttemptResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [deadlineReached, setDeadlineReached] = useState(false);
+
+  const timeLimitSeconds = activity?.version.timeLimitSeconds ?? null;
+  const remainingSeconds = timeLimitSeconds === null ? null : Math.max(0, timeLimitSeconds - elapsedSeconds);
+  const correctCount = useMemo(
+    () => questions.filter((question) => answers[question.id] === question.correctOptionId).length,
+    [answers, questions],
+  );
+  const localScore = questions.length === 0 ? 0 : Math.round((correctCount / questions.length) * 100);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const rawSlug = router.query.slug;
+    const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+    let cancelled = false;
+    async function load(): Promise<void> {
+      if (!slug) {
+        setError("Não foi possível identificar o Quiz.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const result = await getQuizService.execute(slug);
+        if (cancelled) return;
+        if (result.type !== "quiz") {
+          setError("Esta atividade não é um Quiz.");
+          return;
+        }
+        const parsedQuestions = parseQuestions(result.version.content.questions);
+        if (!parsedQuestions) {
+          setError("As questões deste Quiz estão indisponíveis ou possuem dados inválidos.");
+          return;
+        }
+        setActivity(result);
+        setQuestions(parsedQuestions);
+      } catch (loadError: unknown) {
+        if (!cancelled) setError(getErrorMessage(loadError));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => { cancelled = true; };
+  }, [router.isReady, router.query.slug]);
+
+  const finishQuiz = useCallback(async (finalAnswers: Record<string, string>, elapsed: number, timedOut = false): Promise<void> => {
+    if (!activity || phase !== "playing" || submitting) return;
+    setPhase("finished");
+    setDeadlineReached(timedOut);
+    setSubmitError("");
+    if (!isStudent) return;
+    setSubmitting(true);
+    try {
+      const selectedOptionIds = questions.flatMap((question) => {
+        const answer = finalAnswers[question.id];
+        return answer ? [answer] : [];
+      });
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsed);
+      setAttemptResult(result);
+    } catch (submitFailure: unknown) {
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+    } finally {
+      setSubmitting(false);
+    }
+  }, [activity, isStudent, phase, questions, submitting]);
+
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const timerId = window.setInterval(() => {
+      setElapsedSeconds((previous) => {
+        const next = previous + 1;
+        if (timeLimitSeconds !== null && next >= timeLimitSeconds) {
+          window.clearTimeout(timerId);
+          window.setTimeout(() => void finishQuiz(answers, timeLimitSeconds, true), 0);
+          return timeLimitSeconds;
+        }
+        return next;
+      });
+    }, 1000);
+    return () => window.clearInterval(timerId);
+  }, [answers, finishQuiz, phase, timeLimitSeconds]);
+
+  function startQuiz(): void {
+    setAnswers({});
+    setCurrentIndex(0);
+    setElapsedSeconds(0);
+    setAttemptResult(null);
+    setSubmitError("");
+    setDeadlineReached(false);
+    setPhase("playing");
+  }
+  function chooseAnswer(questionId: string, optionId: string): void {
+    setAnswers((previous) => ({ ...previous, [questionId]: optionId }));
+  }
+  function abandonQuiz(): void {
+    if (window.confirm("Deseja abandonar o Quiz? O progresso atual não será registrado.")) {
+      setPhase("abandoned");
+    }
+  }
+  function finishFromButton(): void {
+    void finishQuiz(answers, elapsedSeconds);
+  }
+
+  const currentQuestion = questions[currentIndex];
+  const answeredCount = Object.keys(answers).length;
+
+  return (
+    <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-surface">
+          <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
+            <BrandLogo href="/dashboard" />
+            <LogoutButton />
+          </div>
+        </header>
+        <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
+          {loading ? (
+            <div role="status" className="flex min-h-48 items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
+              <LoaderCircle className="size-6 animate-spin" aria-hidden="true" />Carregando Quiz...
+            </div>
+          ) : error ? (
+            <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6">
+              <h1 className="text-lg font-bold text-red-900">Não foi possível abrir o Quiz</h1>
+              <p className="mt-2 text-sm text-red-800">{error}</p>
+              <Link href={backHref} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-900"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
+            </section>
+          ) : activity ? (
+            <>
+              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">Quiz</p>
+                  <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark sm:text-3xl">{activity.version.name}</h1>
+                  {activity.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}
+                </div>
+                <Link href={backHref} className="inline-flex min-h-10 shrink-0 items-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
+              </div>
+
+              {phase === "setup" && (
+                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
+                  <h2 className="mt-4 text-xl font-bold text-dark">Como deseja responder?</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted">Escolha o formato antes de começar. O cronômetro só inicia quando você clicar em iniciar.</p>
+                  <fieldset className="mt-6 grid gap-3 sm:grid-cols-2">
+                    <legend className="mb-3 text-sm font-semibold text-dark">Modo de execução</legend>
+                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                      <input type="radio" name="quiz-mode" value="question" checked={mode === "question"} onChange={() => setMode("question")} className="mr-2 accent-accent" />
+                      <span className="font-semibold text-dark">Questão a questão</span>
+                      <span className="mt-2 block text-sm leading-5 text-muted">Responda e avance uma pergunta por vez. Você poderá revisar tudo no final.</span>
+                    </label>
+                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "all" ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                      <input type="radio" name="quiz-mode" value="all" checked={mode === "all"} onChange={() => setMode("all")} className="mr-2 accent-accent" />
+                      <span className="font-semibold text-dark">Todas as perguntas</span>
+                      <span className="mt-2 block text-sm leading-5 text-muted">Veja todas as questões na mesma tela e escolha as respostas antes de finalizar.</span>
+                    </label>
+                  </fieldset>
+                  <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 text-sm sm:grid-cols-3">
+                    <div><p className="text-muted">Questões</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div>
+                    <div><p className="text-muted">Tempo limite</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimitSeconds)}</p></div>
+                    <div><p className="text-muted">Respostas obrigatórias</p><p className="mt-1 font-semibold text-dark">Todas antes de avançar</p></div>
+                  </div>
+                  <button type="button" onClick={startQuiz} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar Quiz" : "Testar Quiz"}
+                  </button>
+                  {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
+                </section>
+              )}
+
+              {phase === "playing" && (
+                <div className="space-y-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
+                    <p className="text-sm font-semibold text-dark">{mode === "question" ? `Questão ${currentIndex + 1} de ${questions.length}` : `${answeredCount} de ${questions.length} respondidas`}</p>
+                    <div className="flex items-center gap-3">
+                      <p className={`inline-flex items-center gap-2 text-sm font-semibold ${remainingSeconds !== null && remainingSeconds <= 60 ? "text-red-600" : "text-dark"}`} aria-live="polite">
+                        <Clock3 size={17} aria-hidden="true" />{remainingSeconds === null ? formatTime(elapsedSeconds) : formatTime(remainingSeconds)}
+                      </p>
+                      <button type="button" onClick={abandonQuiz} className="min-h-9 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Abandonar Quiz</button>
+                    </div>
+                  </div>
+
+                  {mode === "question" && currentQuestion ? (
+                    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">Questão {currentIndex + 1}</p>
+                      <h2 className="mt-3 whitespace-pre-wrap text-lg font-bold leading-7 text-dark sm:text-xl">{currentQuestion.statement}</h2>
+                      <ImageList images={currentQuestion.images} />
+                      <div className="mt-6 space-y-3">
+                        {currentQuestion.options.map((option, index) => (
+                          <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                            <input type="radio" name={currentQuestion.id} value={option.id} checked={answers[currentQuestion.id] === option.id} onChange={() => chooseAnswer(currentQuestion.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
+                            <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}<ImageList images={option.images} /></span>
+                          </label>
+                        ))}
+                      </div>
+                      <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <button type="button" onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))} disabled={currentIndex === 0} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">Anterior</button>
+                        {currentIndex < questions.length - 1 ? (
+                          <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Responder e avançar</button>
+                        ) : (
+                          <button type="button" onClick={finishFromButton} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Finalizar Quiz</button>
+                        )}
+                      </div>
+                    </section>
+                  ) : (
+                    <div className="space-y-5">
+                      {questions.map((question, questionIndex) => (
+                        <section key={question.id} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+                          <h2 className="text-base font-bold leading-6 text-dark"><span className="mr-2 text-primary">{questionIndex + 1}.</span>{question.statement}</h2>
+                          <ImageList images={question.images} />
+                          <div className="mt-4 space-y-2">
+                            {question.options.map((option, index) => (
+                              <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                                <input type="radio" name={question.id} value={option.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
+                                <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span><ImageList images={option.images} /></span>
+                              </label>
+                            ))}
+                          </div>
+                        </section>
+                      ))}
+                      <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm text-muted">{answeredCount} de {questions.length} questões respondidas.</p>
+                        <button type="button" onClick={finishFromButton} disabled={answeredCount !== questions.length} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Finalizar Quiz</button>
+                      </section>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {phase === "abandoned" && (
+                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                  <h2 className="text-xl font-bold text-dark">Quiz abandonado</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted">Seu progresso não foi registrado. Você pode iniciar novamente quando quiser.</p>
+                  <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover">Voltar à escolha do modo</button>
+                </section>
+              )}
+
+              {phase === "finished" && (
+                <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+                  {submitting ? (
+                    <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />Conferindo respostas e registrando o resultado...</div>
+                  ) : submitError ? (
+                    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                      <p>{submitError}</p>
+                      <button type="button" onClick={() => { setPhase("playing"); window.setTimeout(() => void finishQuiz(answers, elapsedSeconds, deadlineReached), 0); }} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">Tentar registrar novamente</button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                          <p className="mt-1 text-3xl font-bold text-dark">{isStudent && attemptResult ? attemptResult.attempt.score : localScore}<span className="text-lg text-muted">/100 pontos</span></p>
+                          <p className="mt-2 text-sm text-muted">Respostas corretas: {correctCount} de {questions.length}</p>
+                          <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(elapsedSeconds)}</p>
+                          {deadlineReached && <p className="mt-2 text-sm font-semibold text-amber-700">O tempo acabou; o Quiz foi enviado automaticamente.</p>}
+                        </div>
+                        {isStudent && attemptResult && <p className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}><Trophy size={18} aria-hidden="true" />{attemptResult.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>}
+                      </div>
+                      <div className="mt-7 space-y-4">
+                        <h2 className="text-lg font-bold text-dark">Revisão das respostas</h2>
+                        {questions.map((question, index) => {
+                          const isCorrect = answers[question.id] === question.correctOptionId;
+                          const correctOption = question.options.find((option) => option.id === question.correctOptionId);
+                          const chosenOption = question.options.find((option) => option.id === answers[question.id]);
+                          return (
+                            <article key={question.id} className="rounded-xl border border-border p-4">
+                              <div className="flex items-start gap-2">
+                                {isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
+                                <div className="min-w-0">
+                                  <h3 className="font-semibold leading-6 text-dark">{index + 1}. {question.statement}</h3>
+                                  <p className="mt-2 text-sm text-muted">Sua resposta: <span className="font-medium text-dark">{chosenOption?.text ?? "Não respondida"}</span></p>
+                                  {!isCorrect && <p className="mt-1 text-sm text-emerald-700">Resposta correta: {correctOption?.text ?? "Indisponível"}</p>}
+                                  {question.explanation && <p className="mt-2 text-sm leading-6 text-muted">{question.explanation}</p>}
+                                </div>
+                              </div>
+                            </article>
+                          );
+                        })}
+                      </div>
+                      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">Voltar à escolha do modo</button>
+                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover"><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button>
+                      </div>
+                    </>
+                  )}
+                </section>
+              )}
+            </>
+          ) : null}
+        </main>
+      </div>
+    </RoleGuard>
+  );
+}
