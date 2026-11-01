@@ -10,6 +10,7 @@ import { RoleGuard } from "@/modules/auth/components/RoleGuard";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { getQuizService, type EditableQuizActivity } from "@/modules/activities/services/getQuizService";
 import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
+import { getQuizRankingService, type QuizRankingEntry } from "@/modules/activities/services/getQuizRankingService";
 
 interface QuizImage {
   storageKey: string;
@@ -48,6 +49,22 @@ function shuffleQuiz(questions: QuizQuestion[]): QuizQuestion[] {
   }));
 }
 
+function RankingList({ ranking }: Readonly<{ ranking: QuizRankingEntry[] }>) {
+  if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
+  return (
+    <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
+      {ranking.map((entry) => (
+        <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p><p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p></div>
+          </div>
+          <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -138,11 +155,22 @@ export default function PlayQuizPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [attemptResult, setAttemptResult] = useState<QuizAttemptResult | null>(null);
+  const [ranking, setRanking] = useState<QuizRankingEntry[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  const [rankingError, setRankingError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [deadlineReached, setDeadlineReached] = useState(false);
 
   const timeLimitSeconds = activity?.version.timeLimitSeconds ?? null;
+
+  const loadRanking = useCallback(async (slug: string): Promise<void> => {
+    setRankingLoading(true);
+    setRankingError("");
+    try { setRanking(await getQuizRankingService.execute(slug)); }
+    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", "Não foi possível carregar o ranking agora.")); }
+    finally { setRankingLoading(false); }
+  }, []);
   const remainingSeconds = timeLimitSeconds === null ? null : Math.max(0, timeLimitSeconds - elapsedSeconds);
   const correctCount = useMemo(
     () => questions.filter((question) => answers[question.id] === question.correctOptionId).length,
@@ -175,6 +203,7 @@ export default function PlayQuizPage() {
         }
         setActivity(result);
         setQuestions(shuffleQuiz(parsedQuestions));
+        if (user?.roles.includes("STUDENT")) void loadRanking(result.slug);
       } catch (loadError: unknown) {
         if (!cancelled) setError(getErrorMessage(loadError));
       } finally {
@@ -183,7 +212,7 @@ export default function PlayQuizPage() {
     }
     void load();
     return () => { cancelled = true; };
-  }, [router.isReady, router.query.slug]);
+  }, [router.isReady, router.query.slug, user, loadRanking]);
 
   const finishQuiz = useCallback(async (finalAnswers: Record<string, string>, elapsed: number, timedOut = false): Promise<void> => {
     if (!activity || phase !== "playing" || submitting) return;
@@ -199,6 +228,7 @@ export default function PlayQuizPage() {
       });
       const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsed);
       setAttemptResult(result);
+      setRanking(result.ranking);
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
     } finally {
@@ -231,7 +261,9 @@ export default function PlayQuizPage() {
         const answer = answers[question.id];
         return answer ? [answer] : [];
       });
-      setAttemptResult(await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsedSeconds));
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsedSeconds);
+      setAttemptResult(result);
+      setRanking(result.ranking);
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
     } finally {
@@ -295,6 +327,7 @@ export default function PlayQuizPage() {
               </div>
 
               {phase === "setup" && (
+                <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
                 <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                   <h2 className="mt-4 text-xl font-bold text-dark">Como deseja responder?</h2>
@@ -322,6 +355,14 @@ export default function PlayQuizPage() {
                   </button>
                   {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
                 </section>
+                {isStudent && (
+                  <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-7">
+                    <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
+                    <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
+                    {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div> : <RankingList ranking={ranking} /> }
+                  </section>
+                )}
+                </div>
               )}
 
               {phase === "playing" && (
@@ -420,6 +461,12 @@ export default function PlayQuizPage() {
                         </div>
                         {isStudent && attemptResult && <p className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}><Trophy size={18} aria-hidden="true" />{attemptResult.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>}
                       </div>
+                      {isStudent && attemptResult && (
+                        <div className="mt-7">
+                          <div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atualizado — Top 5</h2></div>
+                          <RankingList ranking={ranking} />
+                        </div>
+                      )}
                       <div className="mt-7 space-y-4">
                         <h2 className="text-lg font-bold text-dark">Revisão das respostas</h2>
                         {questions.map((question, index) => {
