@@ -73,7 +73,7 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
 
     if (suggestions.activityType === "word_search") {
       const currentWords = Array.isArray(values.words)
-        ? values.words.filter((word): word is string => typeof word === "string")
+        ? values.words.filter((word): word is string => typeof word === "string" && word.trim().length > 0)
         : [];
       const existing = new Set(currentWords.map((word) => word.trim().toLocaleUpperCase("pt-BR")));
       const additions = selected.map((index) => suggestions.words[index]).filter((word): word is string => Boolean(word))
@@ -84,7 +84,7 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
       const current = Array.isArray(values.words) ? values.words : [];
       const currentEntries = current.filter((entry): entry is { word: string; clue: string } =>
         typeof entry === "object" && entry !== null && "word" in entry && "clue" in entry &&
-        typeof entry.word === "string" && typeof entry.clue === "string");
+        typeof entry.word === "string" && typeof entry.clue === "string" && entry.word.trim().length > 0 && entry.clue.trim().length > 0);
       const existing = new Set(currentEntries.map((entry) => entry.word.trim().toLocaleUpperCase("pt-BR")));
       const additions = selected.map((index) => suggestions.entries[index]).filter((entry): entry is { answer: string; clue: string } => Boolean(entry))
         .filter((entry) => !existing.has(entry.answer.trim().toLocaleUpperCase("pt-BR")))
