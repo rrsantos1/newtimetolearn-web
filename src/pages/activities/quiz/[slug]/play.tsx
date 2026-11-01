@@ -32,6 +32,22 @@ interface QuizQuestion {
 type RunMode = "question" | "all";
 type Phase = "setup" | "playing" | "finished" | "abandoned";
 
+function shuffleArray<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function shuffleQuiz(questions: QuizQuestion[]): QuizQuestion[] {
+  return shuffleArray(questions).map((question) => ({
+    ...question,
+    options: shuffleArray(question.options),
+  }));
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -158,7 +174,7 @@ export default function PlayQuizPage() {
           return;
         }
         setActivity(result);
-        setQuestions(parsedQuestions);
+        setQuestions(shuffleQuiz(parsedQuestions));
       } catch (loadError: unknown) {
         if (!cancelled) setError(getErrorMessage(loadError));
       } finally {
@@ -324,14 +340,20 @@ export default function PlayQuizPage() {
                     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
                       <p className="text-xs font-semibold uppercase tracking-wide text-primary">Questão {currentIndex + 1}</p>
                       <h2 className="mt-3 whitespace-pre-wrap text-lg font-bold leading-7 text-dark sm:text-xl">{currentQuestion.statement}</h2>
-                      <ImageList images={currentQuestion.images} />
-                      <div className="mt-6 space-y-3">
-                        {currentQuestion.options.map((option, index) => (
-                          <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
-                            <input type="radio" name={currentQuestion.id} value={option.id} checked={answers[currentQuestion.id] === option.id} onChange={() => chooseAnswer(currentQuestion.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
-                            <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}<ImageList images={option.images} /></span>
-                          </label>
-                        ))}
+                      <div className={currentQuestion.images.length > 0 ? "mt-5 grid gap-6 lg:grid-cols-2 lg:items-start" : "mt-5"}>
+                        {currentQuestion.images.length > 0 && (
+                          <div className="min-w-0">
+                            <ImageList images={currentQuestion.images} />
+                          </div>
+                        )}
+                        <div className={currentQuestion.images.length > 0 ? "min-w-0 space-y-3" : "grid gap-3 sm:grid-cols-2"}>
+                          {currentQuestion.options.map((option, index) => (
+                            <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                              <input type="radio" name={currentQuestion.id} value={option.id} checked={answers[currentQuestion.id] === option.id} onChange={() => chooseAnswer(currentQuestion.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
+                              <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}<ImageList images={option.images} /></span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
                       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button type="button" onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))} disabled={currentIndex === 0} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">Anterior</button>
@@ -347,14 +369,16 @@ export default function PlayQuizPage() {
                       {questions.map((question, questionIndex) => (
                         <section key={question.id} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
                           <h2 className="text-base font-bold leading-6 text-dark"><span className="mr-2 text-primary">{questionIndex + 1}.</span>{question.statement}</h2>
-                          <ImageList images={question.images} />
-                          <div className="mt-4 space-y-2">
-                            {question.options.map((option, index) => (
-                              <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-                                <input type="radio" name={question.id} value={option.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
-                                <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span><ImageList images={option.images} /></span>
-                              </label>
-                            ))}
+                          <div className={question.images.length > 0 ? "mt-4 grid gap-5 lg:grid-cols-2 lg:items-start" : "mt-4"}>
+                            {question.images.length > 0 && <div className="min-w-0"><ImageList images={question.images} /></div>}
+                            <div className={question.images.length > 0 ? "min-w-0 space-y-2" : "grid gap-2 sm:grid-cols-2"}>
+                              {question.options.map((option, index) => (
+                                <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                                  <input type="radio" name={question.id} value={option.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
+                                  <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span><ImageList images={option.images} /></span>
+                                </label>
+                              ))}
+                            </div>
                           </div>
                         </section>
                       ))}
