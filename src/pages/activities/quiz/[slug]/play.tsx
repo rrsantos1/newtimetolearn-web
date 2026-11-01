@@ -206,6 +206,23 @@ export default function PlayQuizPage() {
     return () => window.clearInterval(timerId);
   }, [answers, finishQuiz, phase, timeLimitSeconds]);
 
+  async function retrySubmission(): Promise<void> {
+    if (!activity || submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const selectedOptionIds = questions.flatMap((question) => {
+        const answer = answers[question.id];
+        return answer ? [answer] : [];
+      });
+      setAttemptResult(await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsedSeconds));
+    } catch (submitFailure: unknown) {
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function startQuiz(): void {
     setAnswers({});
     setCurrentIndex(0);
@@ -365,7 +382,7 @@ export default function PlayQuizPage() {
                   ) : submitError ? (
                     <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                       <p>{submitError}</p>
-                      <button type="button" onClick={() => { setPhase("playing"); window.setTimeout(() => void finishQuiz(answers, elapsedSeconds, deadlineReached), 0); }} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">Tentar registrar novamente</button>
+                      <button type="button" onClick={() => void retrySubmission()} disabled={submitting} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>
                     </div>
                   ) : (
                     <>
