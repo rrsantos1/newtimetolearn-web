@@ -1,3 +1,4 @@
+import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import {
   ErrorMessage,
   Field,
@@ -58,6 +59,7 @@ export function WordSearchForm({
     >
       {({ isSubmitting, values, setFieldValue }) => (
         <Form className="space-y-6">
+          <AiActivitySuggestionsPanel activityType="word_search" />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-dark">
