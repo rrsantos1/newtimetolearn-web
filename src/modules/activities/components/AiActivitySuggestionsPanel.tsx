@@ -10,11 +10,7 @@ type Suggestion =
   | { activityType: "crossword"; entries: { answer: string; clue: string }[] }
   | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] };
 
-interface FormValues {
-  words?: unknown;
-  content?: unknown;
-  difficulty?: unknown;
-}
+type FormValues = Record<string, unknown>;
 
 interface Props {
   activityType: ActivityType;
@@ -54,7 +50,7 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
         difficulty,
         gradeLevel: gradeLevel.trim() || undefined,
         ...(activityType === "quiz" ? { optionCount } : {}),
-      });
+      }, { timeout: 60_000 });
       setSuggestions(response.data.data);
       const itemsCount = response.data.data.activityType === "word_search"
         ? response.data.data.words.length
@@ -99,20 +95,20 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { questions?: unknown } : {};
       const currentQuestions = Array.isArray(content.questions) ? content.questions : [];
-      const additions = selected.map((index) => suggestions.questions[index])
-        .filter((question): question is NonNullable<typeof suggestions.questions[number]> => Boolean(question))
-        .map((question) => {
-          const options = question.options.map((option) => ({ id: createId(), text: option.text, images: [] }));
-          const correctIndex = question.options.findIndex((option) => option.isCorrect);
-          return {
-            id: createId(),
-            statement: question.question,
-            images: [],
-            options,
-            correctOptionId: options[Math.max(correctIndex, 0)]?.id ?? options[0]?.id ?? "",
-            explanation: question.explanation ?? "",
-          };
-        });
+      const additions = selected.flatMap((index) => {
+        const question = suggestions.questions[index];
+        if (!question) return [];
+        const options = question.options.map((option) => ({ id: createId(), text: option.text, images: [] }));
+        const correctIndex = question.options.findIndex((option) => option.isCorrect);
+        return [{
+          id: createId(),
+          statement: question.question,
+          images: [],
+          options,
+          correctOptionId: options[Math.max(correctIndex, 0)]?.id ?? options[0]?.id ?? "",
+          explanation: question.explanation ?? "",
+        }];
+      });
       await setFieldValue("content.questions", [...currentQuestions, ...additions]);
       setNotice(`${additions.length} questão(ões) adicionada(s). Revise enunciados e alternativas antes de salvar.`);
     }
