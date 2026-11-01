@@ -1,3 +1,4 @@
+import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -188,6 +189,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
 
         return (
         <Form className="space-y-6" noValidate>
+          <AiActivitySuggestionsPanel activityType="quiz" />
           <ScrollToFirstError />
           <div className="flex justify-end">
             <button type="button" onClick={() => setPreviewOpen(true)}
