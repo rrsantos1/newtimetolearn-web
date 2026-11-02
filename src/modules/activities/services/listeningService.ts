@@ -270,10 +270,16 @@ export const listeningService = {
     return response.data.data;
   },
 
-  async generateAudio(slug: string, passageId: string, voice: ListeningVoice): Promise<GenerateListeningAudioResponse["data"]> {
+  async generateAudio(
+    slug: string,
+    passageId: string,
+    voice: ListeningVoice,
+    audioBase64?: string,
+  ): Promise<GenerateListeningAudioResponse["data"]> {
     const response = await api.post<GenerateListeningAudioResponse>(
       `/activities/${encodeURIComponent(slug)}/listening/passages/${encodeURIComponent(passageId)}/audio`,
-      { voice },
+      { voice, ...(audioBase64 ? { audioBase64 } : {}) },
+      { timeout: 120_000 },
     );
     return response.data.data;
   },
