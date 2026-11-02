@@ -62,6 +62,7 @@ export default function SentenceCompletionPlayPage() {
   const [selectedWordId, setSelectedWordId] = useState("");
   const [draggedWordId, setDraggedWordId] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [attemptToken, setAttemptToken] = useState("");
   const [result, setResult] = useState<DragDropAttemptResult | null>(null);
   const [ranking, setRanking] = useState<DragDropRankingEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,7 +118,7 @@ export default function SentenceCompletionPlayPage() {
     setSubmitting(true);
     try {
       const answersToSubmit: DragDropAnswer[] = Object.entries(finalAnswers).map(([itemId, selectedId]) => ({ itemId, selectedId }));
-      const submitted = await dragDropActivityService.submit(activity.slug, "sentence-completion", answersToSubmit, elapsed);
+      const submitted = await dragDropActivityService.submit(activity.slug, "sentence-completion", answersToSubmit, elapsed, attemptToken);
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (submitFailure: unknown) {
@@ -125,7 +126,7 @@ export default function SentenceCompletionPlayPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [activity, isStudent, phase, submitting]);
+  }, [activity, attemptToken, isStudent, phase, submitting]);
 
   useEffect(() => {
     if (phase !== "playing" || timeLimit === null || elapsedSeconds < timeLimit) return;
@@ -147,6 +148,7 @@ export default function SentenceCompletionPlayPage() {
   }
 
   function start(): void {
+    setAttemptToken(globalThis.crypto.randomUUID());
     setAnswers({});
     setSelectedWordId("");
     setElapsedSeconds(0);
