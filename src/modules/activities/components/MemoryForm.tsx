@@ -1,9 +1,30 @@
-import { useMemo, useState } from "react";
-import { Field, FieldArray, Form, Formik, getIn } from "formik";
+import { useEffect, useMemo, useState } from "react";
+import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createMemorySchema, type CreateMemoryFormValues, type MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
+
+function ScrollToFirstError() {
+  const { errors, submitCount, isValidating } = useFormikContext<CreateMemoryFormValues>();
+  const [handledSubmitCount, setHandledSubmitCount] = useState(0);
+
+  useEffect(() => {
+    if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?? document.querySelector<HTMLElement>('[name="name"]');
+      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      invalidField?.focus({ preventScroll: true });
+      setHandledSubmitCount(submitCount);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errors, handledSubmitCount, isValidating, submitCount]);
+
+  return null;
+}
 
 interface Props {
   onSubmit: (values: CreateMemoryFormValues) => Promise<void>;
@@ -27,20 +48,20 @@ function emptyPair() {
   return { id: createId(), first: emptyText(), second: emptyText() };
 }
 
-function MemoryItemEditor({ name, value, onChange, title }: Readonly<{
-  name: string; value: MemoryItemValue; title: string; onChange: (item: MemoryItemValue) => void;
+function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
+  name: string; value: MemoryItemValue; title: string; invalid: boolean; onChange: (item: MemoryItemValue) => void;
 }>) {
   const [uploadError, setUploadError] = useState("");
   return (
     <div className="min-w-0 rounded-xl border border-border bg-background p-4">
       <label htmlFor={`${name}-type`} className={labelClass}>{title}</label>
-      <select id={`${name}-type`} value={value.type} onChange={(event) => onChange(event.target.value === "image" ? { type: "image", storageKey: "", altText: "" } : emptyText())} className={inputClass}>
+      <select id={`${name}-type`} value={value.type} aria-invalid={invalid} onChange={(event) => onChange(event.target.value === "image" ? { type: "image", storageKey: "", altText: "" } : emptyText())} className={inputClass}>
         <option value="text">Texto</option><option value="image">Imagem</option>
       </select>
       {value.type === "text" ? (
         <div className="mt-3">
           <label htmlFor={`${name}-text`} className={labelClass}>Texto do par</label>
-          <textarea id={`${name}-text`} value={value.value} maxLength={300} rows={3} onChange={(event) => onChange({ type: "text", value: event.target.value })} className={inputClass} placeholder="Digite um termo, conceito ou resposta" />
+          <textarea id={`${name}-text`} value={value.value} aria-invalid={invalid} maxLength={300} rows={3} onChange={(event) => onChange({ type: "text", value: event.target.value })} className={inputClass} placeholder="Digite um termo, conceito ou resposta" />
         </div>
       ) : (
         <div className="mt-3 space-y-3">
@@ -65,6 +86,7 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
     <Formik<CreateMemoryFormValues> initialValues={initialValues} enableReinitialize validationSchema={createMemorySchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
+          <ScrollToFirstError />
           <AiActivitySuggestionsPanel activityType="memory" open={aiOpen} onClose={() => setAiOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -87,8 +109,8 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
                 {values.content.pairs.map((pair, index) => <fieldset key={pair.id} className="rounded-2xl border border-border p-4 sm:p-5">
                   <legend className="px-1 text-sm font-semibold text-dark">Par {index + 1}</legend>
                   <div className="grid gap-4 md:grid-cols-2">
-                    <MemoryItemEditor name={`pair-${index}-first`} title="Primeiro lado" value={pair.first} onChange={(item) => void setFieldValue(`content.pairs.${index}.first`, item)} />
-                    <MemoryItemEditor name={`pair-${index}-second`} title="Segundo lado" value={pair.second} onChange={(item) => void setFieldValue(`content.pairs.${index}.second`, item)} />
+                    <MemoryItemEditor name={`pair-${index}-first`} title="Primeiro lado" value={pair.first} invalid={Boolean(getIn(errors, `content.pairs.${index}.first`) && submitCount > 0)} onChange={(item) => void setFieldValue(`content.pairs.${index}.first`, item)} />
+                    <MemoryItemEditor name={`pair-${index}-second`} title="Segundo lado" value={pair.second} invalid={Boolean(getIn(errors, `content.pairs.${index}.second`) && submitCount > 0)} onChange={(item) => void setFieldValue(`content.pairs.${index}.second`, item)} />
                   </div>
                   {([pair.first, pair.second].some((item) => item.type === "text" && !item.value.trim()) || [pair.first, pair.second].some((item) => item.type === "image" && !item.storageKey)) && submitCount > 0 && <p role="alert" className="mt-3 text-sm text-red-600">Preencha os dois lados deste par.</p>}
                   <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} className="mt-3 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40"><Trash2 aria-hidden="true" size={15} /> Remover par</button>
