@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormikContext } from "formik";
-import { Sparkles } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 
 type ActivityType = "word_search" | "crossword" | "quiz";
@@ -14,6 +14,8 @@ type FormValues = Record<string, unknown>;
 
 interface Props {
   activityType: ActivityType;
+  open: boolean;
+  onClose: () => void;
 }
 
 const fieldClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
@@ -22,7 +24,7 @@ function createId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `ai-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
+export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Readonly<Props>) {
   const { values, setFieldValue } = useFormikContext<FormValues>();
   const [topic, setTopic] = useState("");
   const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : 10);
@@ -126,9 +128,13 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
     ? suggestions.words.length : suggestions.activityType === "crossword"
       ? suggestions.entries.length : suggestions.questions.length;
 
+  if (!open) return null;
+
   return (
-    <section aria-labelledby="ai-suggestions-title" className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 shadow-sm sm:p-7">
-      <div className="mb-5 flex items-start gap-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="ai-suggestions-title">
+      <section className="mx-auto my-4 max-h-[calc(100dvh-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-xl sm:my-8 sm:p-7">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-start gap-3">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-yellow-300 text-gray-900">
           <Sparkles aria-hidden="true" size={20} />
         </span>
@@ -136,6 +142,9 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
           <h2 id="ai-suggestions-title" className="text-lg font-semibold text-dark">{title}</h2>
           <p className="mt-1 text-sm leading-6 text-muted">Opcional: gere ideias, selecione o que deseja aproveitar e revise os campos. Nada é salvo automaticamente.</p>
         </div>
+        <button type="button" onClick={onClose} aria-label="Fechar sugestões com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-amber-300 text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
+          <X aria-hidden="true" size={18} />
+        </button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -201,6 +210,7 @@ export function AiActivitySuggestionsPanel({ activityType }: Readonly<Props>) {
           </button>
         </div>
       )}
-    </section>
+      </section>
+    </div>
   );
 }
