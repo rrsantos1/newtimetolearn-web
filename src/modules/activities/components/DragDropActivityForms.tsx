@@ -15,6 +15,8 @@ import {
 interface CommonProps<T> {
   onSubmit: (values: T) => Promise<void>;
   submitError?: string;
+  initialValues?: T;
+  submitLabel?: string;
 }
 
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
@@ -52,14 +54,15 @@ function ActivityDetailsFields() {
   );
 }
 
-export function WordMatchingForm({ onSubmit, submitError }: Readonly<CommonProps<CreateWordMatchingFormValues>>) {
-  const initialValues: CreateWordMatchingFormValues = {
+export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateWordMatchingFormValues>>) {
+  const defaultInitialValues: CreateWordMatchingFormValues = {
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: "", target: "" })) },
   };
 
+  const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
-    <Formik initialValues={initialValues} validationSchema={createWordMatchingSchema} onSubmit={onSubmit}>
+    <Formik enableReinitialize initialValues={initialValues} validationSchema={createWordMatchingSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting }) => (
         <Form noValidate className="space-y-6">
           <ActivityDetailsFields />
@@ -93,15 +96,15 @@ export function WordMatchingForm({ onSubmit, submitError }: Readonly<CommonProps
             </FieldArray>
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : "Salvar como rascunho"}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button></div>
         </Form>
       )}
     </Formik>
   );
 }
 
-export function SentenceCompletionForm({ onSubmit, submitError }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
-  const initialValues: CreateSentenceCompletionFormValues = {
+export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
+  const defaultInitialValues: CreateSentenceCompletionFormValues = {
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: {
       words: [
@@ -119,8 +122,9 @@ export function SentenceCompletionForm({ onSubmit, submitError }: Readonly<Commo
     },
   };
 
+  const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
-    <Formik initialValues={initialValues} validationSchema={createSentenceCompletionSchema} onSubmit={onSubmit}>
+    <Formik enableReinitialize initialValues={initialValues} validationSchema={createSentenceCompletionSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ActivityDetailsFields />
@@ -183,7 +187,7 @@ export function SentenceCompletionForm({ onSubmit, submitError }: Readonly<Commo
             </FieldArray>
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : "Salvar como rascunho"}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button></div>
         </Form>
       )}
     </Formik>
