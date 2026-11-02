@@ -215,7 +215,7 @@ export default function EditListeningPage() {
 
       const updated = await listeningService.get(slug);
       setPassages(updated.version.content.passages);
-      setAudioPreviews({});
+      if (previewErrors.length === 0) setAudioPreviews({});
       if (previewErrors.length > 0) {
         setError(`Alterações salvas, mas não foi possível persistir o áudio de: ${previewErrors.join(", ")}. Gere novamente ou crie outra prévia.`);
       }
@@ -266,7 +266,8 @@ export default function EditListeningPage() {
         audioBase64,
       );
       updatePassage(passage.id, (current) => ({ ...current, audio: result.audio }));
-      setNotice(`Áudio gerado para “${passage.title.trim() || "Texto sem título"}”.`);
+      setAudioPreviews((current) => { const next = { ...current }; delete next[passage.id]; return next; });
+      setNotice(`Áudio salvo para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
       setError(getErrorMessage(caught));
     } finally {
