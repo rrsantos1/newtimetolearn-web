@@ -21,6 +21,7 @@ export interface DragDropAttemptResult {
     speedPoints: number;
     totalItems: number;
     correctCount: number;
+    corrections: Array<{ itemId: string; selectedId: string | null; expectedId: string; isCorrect: boolean }>;
     elapsedSeconds: number;
     createdAt: string;
   };
