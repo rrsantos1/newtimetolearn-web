@@ -15,6 +15,17 @@ export const createMemoryService = {
       ...input,
       name: input.name.trim(),
       description: input.description.trim() || null,
+      content: {
+        pairs: input.content.pairs.map((pair) => ({
+          id: pair.id,
+          first: pair.first.type === "text"
+            ? { type: "text", value: pair.first.value.trim() }
+            : { type: "image", storageKey: pair.first.storageKey, altText: pair.first.altText.trim() },
+          second: pair.second.type === "text"
+            ? { type: "text", value: pair.second.value.trim() }
+            : { type: "image", storageKey: pair.second.storageKey, altText: pair.second.altText.trim() },
+        })),
+      },
     });
     return response.data.data;
   },
