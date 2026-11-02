@@ -3,7 +3,7 @@ import type { ChangeEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, Plus, Save, Sparkles, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
@@ -51,6 +51,7 @@ export default function EditListeningPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const textareas = useRef<Record<string, HTMLTextAreaElement | null>>({});
@@ -220,9 +221,10 @@ export default function EditListeningPage() {
               <div className="md:col-span-2"><label htmlFor="listening-instructions" className="block text-sm font-medium text-dark">Instruções</label><textarea id="listening-instructions" value={instructions} onChange={(event) => setInstructions(event.target.value)} rows={2} maxLength={2000} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-dark" /></div>
             </div>
           </section>
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione um trecho no texto para transformá-lo em lacuna.</p></div><button type="button" onClick={() => setPassages((current) => [...current, createPassage()])} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button></div>
-          <ListeningAiTextGenerator onApply={(title, text) => {
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione um trecho no texto para transformá-lo em lacuna.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setIsAiModalOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={17} /> Criar texto com IA</button><button type="button" onClick={() => setPassages((current) => [...current, createPassage()])} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button></div></div>
+          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text) => {
             setPassages((current) => [...current, { ...createPassage(), title, text }]);
+            setNotice("Texto adicionado à atividade. Revise o conteúdo e selecione os trechos que deseja transformar em lacunas.");
           }} />
           {passages.map((passage, index) => (
             <article key={passage.id} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
