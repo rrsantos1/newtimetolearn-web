@@ -487,13 +487,15 @@ export default function TeacherActivitiesPage() {
                       </Link>
                     )}
 
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory") && (
                       <Link
                         href={activity.type === "quiz"
                           ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
                           : activity.type === "crossword"
                             ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
-                            : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                            : activity.type === "memory"
+                              ? `/activities/memory/${encodeURIComponent(activity.slug)}`
+                              : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
