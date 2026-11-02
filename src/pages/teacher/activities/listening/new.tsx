@@ -82,7 +82,7 @@ export default function NewListeningPage() {
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
-  const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string }>>({});
+  const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -168,7 +168,42 @@ export default function NewListeningPage() {
         },
       });
       setSavedSlug(result.activity.slug);
-      setNotice("Rascunho salvo. Agora você pode gerar e ouvir o áudio de cada texto.");
+
+      let savedPreviewCount = 0;
+      const previewErrors: string[] = [];
+
+      for (const passage of passages) {
+        const preview = audioPreviews[passage.id];
+        if (!preview) continue;
+
+        const audioBase64 = preview.url.split(",")[1];
+        if (!audioBase64) {
+          previewErrors.push(passage.title.trim() || "Texto sem título");
+          continue;
+        }
+
+        try {
+          const audioResult = await listeningService.generateAudio(
+            result.activity.slug,
+            passage.id,
+            preview.voice,
+            audioBase64,
+          );
+          updatePassage(passage.id, (current) => ({ ...current, audio: audioResult.audio }));
+          savedPreviewCount += 1;
+        } catch {
+          previewErrors.push(passage.title.trim() || "Texto sem título");
+        }
+      }
+
+      if (previewErrors.length > 0) {
+        setError(`O rascunho foi salvo, mas não foi possível persistir o áudio de: ${previewErrors.join(", ")}. Você pode tentar novamente sem gerar outra prévia.`);
+        setNotice(`Rascunho salvo. ${savedPreviewCount} prévia(s) salva(s) como áudio definitivo.`);
+      } else if (savedPreviewCount > 0) {
+        setNotice(`Rascunho salvo e ${savedPreviewCount} áudio(s) de prévia armazenado(s) como versão definitiva.`);
+      } else {
+        setNotice("Rascunho salvo. Gere uma prévia para cada texto ou gere o áudio definitivo depois.");
+      }
     } catch (caught: unknown) {
       setError(errorMessage(caught));
     } finally {
@@ -184,7 +219,7 @@ export default function NewListeningPage() {
       const result = await listeningService.generateAudioPreview(passage.text, voice, "pt-BR");
       setAudioPreviews((current) => ({
         ...current,
-        [passage.id]: { url: result.audioDataUrl, disclosure: result.disclosure },
+        [passage.id]: { url: result.audioDataUrl, disclosure: result.disclosure, voice },
       }));
       setNotice(`Prévia gerada para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
