@@ -339,7 +339,13 @@ export default function NewListeningPage() {
                   <button type="button" onMouseDown={ignoreSelection} onClick={() => addSelectedBlank(passage)} disabled={!passage.text} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><CirclePlus aria-hidden="true" size={17} /> Adicionar lacuna da seleção</button>
                   <span className="text-xs text-muted">A narração inclui também as palavras ocultas.</span>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                  <div>
+                    <label htmlFor={`preview-voice-${passage.id}`} className="block text-xs font-medium text-muted">Voz da prévia</label>
+                    <select id={`preview-voice-${passage.id}`} value={voice} onChange={(event) => { setVoice(event.target.value as ListeningVoice); setAudioPreviews({}); }} className="mt-1 min-h-10 w-full rounded-lg border border-border bg-white px-3 text-sm text-dark sm:w-auto">
+                      {voices.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                    </select>
+                  </div>
                   <button type="button" onClick={() => void handlePreviewAudio(passage)} disabled={Boolean(previewingId) || !passage.text.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                     <AudioLines aria-hidden="true" size={16} /> {previewingId === passage.id ? "Gerando prévia..." : "Ouvir prévia do áudio"}
                   </button>
