@@ -120,9 +120,9 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
       sentences: [{
         id: createDragDropId("sentence"),
         parts: [
-          { id: createDragDropId("text"), type: "text", value: "A resposta correta é " },
+          { id: createDragDropId("text"), type: "text", value: "" },
           { id: createDragDropId("blank"), type: "blank", expectedWordId: "" },
-          { id: createDragDropId("text"), type: "text", value: "." },
+          { id: createDragDropId("text"), type: "text", value: "" },
         ],
       }],
     },
