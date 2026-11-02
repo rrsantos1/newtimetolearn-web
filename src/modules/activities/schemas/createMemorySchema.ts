@@ -22,7 +22,7 @@ export const createMemorySchema = Yup.object({
   name: Yup.string().trim().required("Informe o nome da atividade.").max(120),
   description: Yup.string().max(2000),
   difficulty: Yup.mixed<"EASY" | "MEDIUM" | "HARD">().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
-  timeLimitSeconds: Yup.number().nullable().integer().positive().required(),
+  timeLimitSeconds: Yup.number().nullable().integer().positive().defined(),
   content: Yup.object({
     pairs: Yup.array().of(Yup.object({
       id: Yup.string().required(),
