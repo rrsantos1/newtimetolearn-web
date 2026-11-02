@@ -34,7 +34,9 @@ function ScrollToFirstError() {
     if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
 
     const timeoutId = window.setTimeout(() => {
-      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?? document.querySelector<HTMLElement>('[name="content.pairs.0.source"]')
+        ?? document.querySelector<HTMLElement>('[name="name"]');
       invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
       invalidField?.focus({ preventScroll: true });
       setHandledSubmitCount(submitCount);
@@ -107,12 +109,12 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                       <legend className="px-1 text-sm font-semibold text-dark">Par {index + 1}</legend>
                       <div>
                         <label htmlFor={`source-${index}`} className={labelClass}>Palavra / origem *</label>
-                        <Field id={`source-${index}`} name={`content.pairs.${index}.source`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0))} />
+                        <Field id={`source-${index}`} name={`content.pairs.${index}.source`} maxLength={500} className={inputClass} aria-invalid={Boolean((getIn(errors, `content.pairs.${index}.source`) || getIn(errors, "content.pairs")) && submitCount > 0)} />
                         {getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.source`))}</p>}
                       </div>
                       <div>
                         <label htmlFor={`target-${index}`} className={labelClass}>Correspondência *</label>
-                        <Field id={`target-${index}`} name={`content.pairs.${index}.target`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0))} />
+                        <Field id={`target-${index}`} name={`content.pairs.${index}.target`} maxLength={500} className={inputClass} aria-invalid={Boolean((getIn(errors, `content.pairs.${index}.target`) || getIn(errors, "content.pairs")) && submitCount > 0)} />
                         {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
                       </div>
                       <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`Remover par ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
