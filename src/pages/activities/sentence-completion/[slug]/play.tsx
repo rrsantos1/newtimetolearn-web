@@ -169,7 +169,7 @@ export default function SentenceCompletionPlayPage() {
           type="button"
           onDragOver={(event) => event.preventDefault()}
           onDrop={(event) => { event.preventDefault(); const wordId = draggedWordId || selectedWordId; if (wordId) assign(blankId, wordId); setDraggedWordId(""); }}
-          onClick={() => { if (selectedWordId) assign(blankId, selectedWordId); }}
+          onClick={() => { if (selectedWordId) assign(blankId, selectedWordId); else if (assignedWordId) setAnswers((previous) => { const next = { ...previous }; delete next[blankId]; return next; }); }}
           aria-label={`Lacuna ${index + 1}${assignedWord ? `: ${assignedWord.text}` : ", vazia"}`}
           className={`mx-1 inline-flex min-h-10 min-w-28 items-center justify-center rounded-lg border-2 border-dashed px-3 py-1 align-middle text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${assignedWord ? "border-primary bg-primary/10 text-dark" : "border-border bg-background text-muted"}`}
         >
