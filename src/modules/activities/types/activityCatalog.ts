@@ -38,6 +38,8 @@ export const activityCatalog: readonly ActivityCatalogItem[] = [
     available: true,
   },
   { type: "memory", label: "Jogo da memória", description: "Combine pares de texto e imagens para praticar conteúdos.", createHref: "/teacher/activities/memory/new", available: true },
+  { type: "word_matching", label: "Associação de palavras", description: "Arraste cada palavra até sua correspondência correta.", createHref: "/teacher/activities/word-matching/new", available: true },
+  { type: "sentence_completion", label: "Complete as frases", description: "Preencha lacunas arrastando palavras do banco.", createHref: "/teacher/activities/sentence-completion/new", available: true },
   { type: "cloze", label: "Texto lacunado", description: "Complete um texto com termos que faltam.", available: false },
   { type: "multiple_choice", label: "Múltipla escolha", description: "Escolha a resposta correta entre alternativas.", available: false },
   { type: "fill_in_the_blank", label: "Complete a lacuna", description: "Digite a resposta que completa uma frase.", available: false },
