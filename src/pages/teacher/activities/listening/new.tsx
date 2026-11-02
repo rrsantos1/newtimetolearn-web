@@ -5,6 +5,7 @@ import axios from "axios";
 import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
+import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
 import type { ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
 
 interface PassageDraft extends ListeningPassageInput {
@@ -264,6 +265,10 @@ export default function NewListeningPage() {
             <div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione uma palavra ou trecho no texto e clique em “Adicionar lacuna”.</p></div>
             <button type="button" onClick={addPassage} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button>
           </div>
+
+          <ListeningAiTextGenerator onApply={(title, text) => {
+            setPassages((current) => [...current, { ...newPassage(), title, text }]);
+          }} />
 
           {passages.map((passage, index) => (
             <article key={passage.id} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
