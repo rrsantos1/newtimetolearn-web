@@ -3,12 +3,12 @@ import { useFormikContext } from "formik";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 
-type ActivityType = "word_search" | "crossword" | "quiz";
+type ActivityType = "word_search" | "crossword" | "quiz" | "memory";
 type Difficulty = "easy" | "medium" | "hard";
 type Suggestion =
   | { activityType: "word_search"; words: string[] }
   | { activityType: "crossword"; entries: { answer: string; clue: string }[] }
-  | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] };
+  | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] }\n  | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] };
 
 type FormValues = Record<string, unknown>;
 
@@ -27,7 +27,7 @@ function createId(): string {
 export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Readonly<Props>) {
   const { values, setFieldValue } = useFormikContext<FormValues>();
   const [topic, setTopic] = useState("");
-  const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : 10);
+  const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : activityType === "memory" ? 6 : 10);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [gradeLevel, setGradeLevel] = useState("");
   const [optionCount, setOptionCount] = useState(4);
@@ -51,14 +51,14 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         quantity,
         difficulty,
         gradeLevel: gradeLevel.trim() || undefined,
-        ...(activityType === "quiz" ? { optionCount } : {}),
+        ...(activityType === "quiz" ? { optionCount } : {}),\n        ...(activityType === "memory" ? { pairFormat: "mixed" } : {}),
       }, { timeout: 60_000 });
       setSuggestions(response.data.data);
       const itemsCount = response.data.data.activityType === "word_search"
         ? response.data.data.words.length
         : response.data.data.activityType === "crossword"
           ? response.data.data.entries.length
-          : response.data.data.questions.length;
+          : response.data.data.activityType === "memory" ? response.data.data.pairs.length : response.data.data.questions.length;
       setSelected(Array.from({ length: itemsCount }, (_, index) => index));
     } catch (cause: unknown) {
       const message = typeof cause === "object" && cause !== null && "response" in cause
@@ -122,7 +122,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
   const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : 10;
   const minQuantity = activityType === "quiz" ? 1 : 3;
   const title = activityType === "word_search" ? "Sugerir palavras com IA"
-    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : "Criar questões com IA";
+    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : "Criar questões com IA";
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
