@@ -346,7 +346,7 @@ export default function ExploreActivitiesPage() {
                       Executar
                     </Link>
                   ) : activity.type === "memory" ? (
-                    <Link href={`/activities/memory/${encodeURIComponent(activity.slug)}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                    <Link href={`/activities/memory/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                       <Gamepad2 size={16} aria-hidden="true" /> Executar
                     </Link>
                   ) : (
