@@ -15,6 +15,12 @@ export interface GenerateListeningTextInput {
 export interface GenerateListeningTextResult {
   title: string;
   text: string;
+  suggestedBlanks: string[];
+}
+
+export interface GenerateListeningAudioPreviewResult {
+  audioDataUrl: string;
+  disclosure: string;
 }
 
 interface GenerateListeningTextResponse {
