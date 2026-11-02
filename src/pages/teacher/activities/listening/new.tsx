@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ChangeEvent, MouseEvent } from "react";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Sparkles, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
@@ -60,6 +60,7 @@ export default function NewListeningPage() {
   const [savedSlug, setSavedSlug] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const textareas = useRef<Record<string, HTMLTextAreaElement | null>>({});
@@ -263,11 +264,15 @@ export default function NewListeningPage() {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione uma palavra ou trecho no texto e clique em “Adicionar lacuna”.</p></div>
-            <button type="button" onClick={addPassage} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => setIsAiModalOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={17} /> Criar texto com IA</button>
+              <button type="button" onClick={addPassage} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button>
+            </div>
           </div>
 
-          <ListeningAiTextGenerator onApply={(title, text) => {
+          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text) => {
             setPassages((current) => [...current, { ...newPassage(), title, text }]);
+            setNotice("Texto adicionado à atividade. Revise o conteúdo e selecione os trechos que deseja transformar em lacunas.");
           }} />
 
           {passages.map((passage, index) => (
