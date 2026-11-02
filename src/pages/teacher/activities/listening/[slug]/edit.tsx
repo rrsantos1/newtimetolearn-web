@@ -57,26 +57,53 @@ export default function EditListeningPage() {
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
+
     let cancelled = false;
-    setLoading(true);
-    listeningService.get(slug).then((activity) => {
-      if (cancelled) return;
-      if (activity.type !== "listening") {
-        setError("A atividade informada não é do tipo Listening.");
-        return;
+
+    async function loadActivity(): Promise<void> {
+      try {
+        const activity = await listeningService.get(slug);
+
+        if (cancelled) return;
+
+        if (activity.type !== "listening") {
+          setError("A atividade informada não é do tipo Listening.");
+          return;
+        }
+
+        setName(activity.version.name);
+        setDescription(activity.version.description ?? "");
+        setDifficulty(activity.version.difficulty);
+        setTimeLimitMinutes(
+          activity.version.timeLimitSeconds == null
+            ? ""
+            : String(Math.floor(activity.version.timeLimitSeconds / 60)),
+        );
+        setInstructions(activity.version.content.instructions ?? "");
+        setLanguage(activity.version.content.language ?? "pt-BR");
+        setPassages(
+          activity.version.content.passages.map((passage) => ({
+            ...passage,
+            blanks: passage.blanks ?? [],
+          })),
+        );
+        setError("");
+      } catch (caught: unknown) {
+        if (!cancelled) {
+          setError(getErrorMessage(caught));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-      setName(activity.version.name);
-      setDescription(activity.version.description ?? "");
-      setDifficulty(activity.version.difficulty);
-      setTimeLimitMinutes(activity.version.timeLimitSeconds == null ? "" : String(Math.floor(activity.version.timeLimitSeconds / 60)));
-      setInstructions(activity.version.content.instructions ?? "");
-      setLanguage(activity.version.content.language ?? "pt-BR");
-      setPassages(activity.version.content.passages.map((passage) => ({ ...passage, blanks: passage.blanks ?? [] })));
-      setError("");
-    }).catch((caught: unknown) => setError(getErrorMessage(caught))).finally(() => {
-      if (!cancelled) setLoading(false);
-    });
-    return () => { cancelled = true; };
+    }
+
+    void loadActivity();
+
+    return () => {
+      cancelled = true;
+    };
   }, [router.isReady, slug]);
 
   function updatePassage(id: string, update: (passage: PassageDraft) => PassageDraft): void {
