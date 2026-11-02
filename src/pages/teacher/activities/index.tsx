@@ -494,7 +494,7 @@ export default function TeacherActivitiesPage() {
                           : activity.type === "crossword"
                             ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
                             : activity.type === "memory"
-                              ? `/activities/memory/${encodeURIComponent(activity.slug)}`
+                              ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
                               : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
