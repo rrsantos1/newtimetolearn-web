@@ -122,6 +122,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                 </div>
               )}
             </FieldArray>
+            {typeof getIn(errors, "content.pairs") === "string" && submitCount > 0 && <p role="alert" className="mt-3 text-sm text-red-600">{String(getIn(errors, "content.pairs"))}</p>}
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
           <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button></div>
