@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -24,16 +24,38 @@ interface CommonProps<T> {
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
 const labelClass = "mb-2 block text-sm font-medium text-dark";
 
+function ScrollToFirstError() {
+  const { errors, submitCount, isValidating } = useFormikContext<
+    CreateWordMatchingFormValues | CreateSentenceCompletionFormValues
+  >();
+  const [handledSubmitCount, setHandledSubmitCount] = useState(0);
+
+  useEffect(() => {
+    if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      invalidField?.focus({ preventScroll: true });
+      setHandledSubmitCount(submitCount);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errors, handledSubmitCount, isValidating, submitCount]);
+
+  return null;
+}
+
 function ActivityDetailsFields() {
-  const { values, setFieldValue } = useFormikContext<DragDropBaseValues>();
+  const { values, errors, submitCount, setFieldValue } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
       <div className="mt-5 grid gap-5">
         <div>
           <label htmlFor="name" className={labelClass}>Nome da atividade *</label>
-          <Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" />
-          <p className="mt-1 text-xs text-muted">O campo é obrigatório.</p>
+          <Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} />
+          {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p> : <p className="mt-1 text-xs text-muted">O campo é obrigatório.</p>}
         </div>
         <div>
           <label htmlFor="description" className={labelClass}>Descrição e instruções</label>
@@ -68,6 +90,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
     <Formik enableReinitialize initialValues={initialValues} validationSchema={createWordMatchingSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting }) => (
         <Form noValidate className="space-y-6">
+          <ScrollToFirstError />
           <AiActivitySuggestionsPanel activityType="word_matching" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
@@ -133,6 +156,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
     <Formik enableReinitialize initialValues={initialValues} validationSchema={createSentenceCompletionSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
+          <ScrollToFirstError />
           <AiActivitySuggestionsPanel activityType="sentence_completion" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
@@ -142,7 +166,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
                 <div className="space-y-3">
                   {values.content.words.map((word, index) => (
                     <div key={word.id} className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                      <div><label htmlFor={`word-${index}`} className={labelClass}>Palavra {index + 1} *</label><Field id={`word-${index}`} name={`content.words.${index}.text`} maxLength={150} className={inputClass} /></div>
+                      <div><label htmlFor={`word-${index}`} className={labelClass}>Palavra {index + 1} *</label><Field id={`word-${index}`} name={`content.words.${index}.text`} maxLength={150} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.words.${index}.text`) && submitCount > 0)} />{getIn(errors, `content.words.${index}.text`) && submitCount > 0 && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.words.${index}.text`))}</p>}</div>
                       <button type="button" onClick={() => remove(index)} disabled={values.content.words.length <= 1} aria-label={`Remover palavra ${index + 1}`} className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
                     </div>
                   ))}
