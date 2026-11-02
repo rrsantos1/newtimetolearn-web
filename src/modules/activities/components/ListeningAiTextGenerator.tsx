@@ -138,7 +138,7 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
           </div>
         </div>
 
-        <button type="button" onClick={() => void handleGenerate()} disabled={loading || audioLoading || topic.trim().length < 2 || objective.trim().length < 2 || !Number.isInteger(wordCount) || wordCount < 50 || wordCount > 600} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" onClick={() => void handleGenerate()} disabled={loading || topic.trim().length < 2 || objective.trim().length < 2 || !Number.isInteger(wordCount) || wordCount < 50 || wordCount > 600} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50">
           {loading ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Sparkles size={17} aria-hidden="true" />}
           {loading ? "Gerando texto e lacunas..." : "Gerar texto e sugerir lacunas"}
         </button>
