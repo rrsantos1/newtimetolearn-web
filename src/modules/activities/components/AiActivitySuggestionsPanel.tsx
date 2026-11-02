@@ -134,7 +134,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const currentWords = Array.isArray(content.words) ? content.words : [];
       const currentSentences = Array.isArray(content.sentences) ? content.sentences : [];
       const wordsAreBlank = currentWords.length > 0 && currentWords.every((entry) => typeof entry === "object" && entry !== null && "text" in entry && typeof entry.text === "string" && entry.text.trim().length === 0);
-      const sentencesAreBlank = currentSentences.length > 0 && currentSentences.every((entry) => typeof entry === "object" && entry !== null && "parts" in entry && Array.isArray(entry.parts) && entry.parts.every((part) => typeof part === "object" && part !== null && "type" in part && (part.type === "blank" ? "expectedWordId" in part && part.expectedWordId === "" : "value" in part && typeof part.value === "string" && part.value.trim().length === 0)));
+      const sentencesAreBlank = currentSentences.length > 0 && currentSentences.every((entry) => typeof entry === "object" && entry !== null && "parts" in entry && Array.isArray(entry.parts) && entry.parts.every((part: unknown) => typeof part === "object" && part !== null && "type" in part && (part.type === "blank" ? "expectedWordId" in part && part.expectedWordId === "" : "value" in part && typeof part.value === "string" && part.value.trim().length === 0)));
       const existingWords = wordsAreBlank ? [] : currentWords;
       const existingSentences = sentencesAreBlank ? [] : currentSentences;
       const additions = selected.flatMap((index) => {
