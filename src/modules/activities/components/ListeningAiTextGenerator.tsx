@@ -91,7 +91,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
           <h3 id="listening-ai-title" className="text-base font-semibold text-dark">Criar texto com auxílio da IA</h3>
           <p className="mt-1 text-sm leading-6 text-muted">Informe o tema, o tamanho aproximado e o objetivo pedagógico. O texto gerado poderá ser revisado antes de criar o áudio.</p>
         </div>
-        </div>
         <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading} aria-label="Fechar janela de geração com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
           <X size={20} aria-hidden="true" />
         </button>
