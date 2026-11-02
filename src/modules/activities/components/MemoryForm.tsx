@@ -8,6 +8,8 @@ import { createMemorySchema, type CreateMemoryFormValues, type MemoryItemValue }
 interface Props {
   onSubmit: (values: CreateMemoryFormValues) => Promise<void>;
   submitError?: string;
+  initialValues?: CreateMemoryFormValues;
+  submitLabel?: string;
 }
 
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
@@ -52,14 +54,15 @@ function MemoryItemEditor({ name, value, onChange, title }: Readonly<{
   );
 }
 
-export function MemoryForm({ onSubmit, submitError }: Readonly<Props>) {
+export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar jogo da memória como rascunho" }: Readonly<Props>) {
   const [aiOpen, setAiOpen] = useState(false);
-  const initialValues: CreateMemoryFormValues = {
+  const defaultInitialValues: CreateMemoryFormValues = {
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: { pairs: Array.from({ length: 6 }, () => emptyPair()) },
   };
+  const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
-    <Formik<CreateMemoryFormValues> initialValues={initialValues} validationSchema={createMemorySchema} onSubmit={onSubmit}>
+    <Formik<CreateMemoryFormValues> initialValues={initialValues} enableReinitialize validationSchema={createMemorySchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <AiActivitySuggestionsPanel activityType="memory" open={aiOpen} onClose={() => setAiOpen(false)} />
@@ -95,7 +98,7 @@ export function MemoryForm({ onSubmit, submitError }: Readonly<Props>) {
             </FieldArray>
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando jogo..." : "Salvar jogo da memória como rascunho"}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando jogo..." : submitLabel}</button></div>
         </Form>
       )}
     </Formik>
