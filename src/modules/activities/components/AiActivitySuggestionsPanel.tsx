@@ -8,7 +8,8 @@ type Difficulty = "easy" | "medium" | "hard";
 type Suggestion =
   | { activityType: "word_search"; words: string[] }
   | { activityType: "crossword"; entries: { answer: string; clue: string }[] }
-  | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] }\n  | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] };
+  | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] }
+  | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] };
 
 type FormValues = Record<string, unknown>;
 
@@ -51,7 +52,8 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         quantity,
         difficulty,
         gradeLevel: gradeLevel.trim() || undefined,
-        ...(activityType === "quiz" ? { optionCount } : {}),\n        ...(activityType === "memory" ? { pairFormat: "mixed" } : {}),
+        ...(activityType === "quiz" ? { optionCount } : {}),
+        ...(activityType === "memory" ? { pairFormat: "mixed" } : {}),
       }, { timeout: 60_000 });
       setSuggestions(response.data.data);
       const itemsCount = response.data.data.activityType === "word_search"
@@ -93,6 +95,17 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         .map((entry) => ({ word: entry.answer, clue: entry.clue }));
       await setFieldValue("words", [...currentEntries, ...additions]);
       setNotice(`${additions.length} par(es) de resposta e pista adicionado(s). Revise antes de salvar.`);
+    } else if (suggestions.activityType === "memory") {
+      const rawContent = values.content;
+      const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
+      const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
+      const additions = selected.flatMap((index) => {
+        const pair = suggestions.pairs[index];
+        if (!pair) return [];
+        return [{ id: createId(), first: { type: "text" as const, value: pair.firstText }, second: { type: "text" as const, value: pair.secondText } }];
+      });
+      await setFieldValue("content.pairs", [...currentPairs, ...additions]);
+      setNotice(`${additions.length} par(es) adicionado(s). Revise os pares antes de salvar.`);
     } else {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { questions?: unknown } : {};
@@ -119,14 +132,14 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
     setSelected([]);
   }
 
-  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : 10;
+  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" ? 50 : 10;
   const minQuantity = activityType === "quiz" ? 1 : 3;
   const title = activityType === "word_search" ? "Sugerir palavras com IA"
     : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : "Criar questões com IA";
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
-      ? suggestions.entries.length : suggestions.questions.length;
+      ? suggestions.entries.length : suggestions.activityType === "memory" ? suggestions.pairs.length : suggestions.questions.length;
 
   if (!open) return null;
 
@@ -198,6 +211,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
             {Array.from({ length: itemCount }, (_, index) => {
               const label = suggestions.activityType === "word_search" ? suggestions.words[index]
                 : suggestions.activityType === "crossword" ? `${suggestions.entries[index]?.answer}: ${suggestions.entries[index]?.clue}`
+                  : suggestions.activityType === "memory" ? `${suggestions.pairs[index]?.firstText} ↔ ${suggestions.pairs[index]?.secondText}`
                   : `${suggestions.questions[index]?.question} — ${suggestions.questions[index]?.options.map((option) => `${option.isCorrect ? "✓ " : ""}${option.text}`).join(" | ")}`;
               return <label key={index} className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-white p-3 text-sm text-dark">
                 <input type="checkbox" checked={selected.includes(index)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, index] : current.filter((item) => item !== index))} className="mt-1 size-4 shrink-0 accent-yellow-500" />
