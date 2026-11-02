@@ -205,9 +205,26 @@ export const listeningService = {
       { activityType: "listening", ...input },
       { timeout: 60_000 },
     );
-    return { title: response.data.data.title, text: response.data.data.text };
+    return {
+      title: response.data.data.title,
+      text: response.data.data.text,
+      suggestedBlanks: response.data.data.suggestedBlanks,
+    };
   },
 
+
+  async generateAudioPreview(
+    text: string,
+    voice: ListeningVoice,
+    language = "pt-BR",
+  ): Promise<GenerateListeningAudioPreviewResult> {
+    const response = await api.post<{ success: true; data: GenerateListeningAudioPreviewResult }>(
+      "/activities/ai/listening-audio",
+      { text, voice, language },
+      { timeout: 100_000 },
+    );
+    return response.data.data;
+  },
 
   async create(input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
     const response = await api.post<ListeningActivityResponse>("/activities/listening", input);
