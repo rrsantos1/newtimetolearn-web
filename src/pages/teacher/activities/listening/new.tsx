@@ -318,8 +318,39 @@ export default function NewListeningPage() {
 
           <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text, suggestedBlanks) => {
             const blanks = makeSuggestedBlanks(text, suggestedBlanks);
-            setPassages((current) => [...current, { ...newPassage(), title, text, blanks }]);
-            setNotice(`Texto adicionado à atividade com ${blanks.length} lacuna(s) sugerida(s). Revise as lacunas antes de salvar.`);
+            const newDraft = {
+              ...newPassage(),
+              title,
+              text,
+              blanks,
+            };
+
+            setPassages((current) => {
+              const emptyPassageIndex = current.findIndex((passage) => !passage.text.trim());
+              if (emptyPassageIndex === -1) return [...current, newDraft];
+
+              return current.map((passage, index) => index === emptyPassageIndex
+                ? {
+                    ...passage,
+                    title,
+                    text,
+                    blanks,
+                    audio: {
+                      storageKey: null,
+                      publicUrl: null,
+                      disclosure: null,
+                      status: "PENDING" as const,
+                      model: null,
+                      voice: null,
+                      textHash: null,
+                      durationSeconds: null,
+                    },
+                  }
+                : passage);
+            });
+            setAudioPreviews({});
+            setError("");
+            setNotice(`Texto adicionado ao formulário com ${blanks.length} lacuna(s) sugerida(s). Revise as lacunas antes de salvar.`);
           }} />
 
           {passages.map((passage, index) => (
