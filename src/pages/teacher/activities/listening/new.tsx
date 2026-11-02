@@ -339,6 +339,12 @@ export default function NewListeningPage() {
                   <button type="button" onMouseDown={ignoreSelection} onClick={() => addSelectedBlank(passage)} disabled={!passage.text} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><CirclePlus aria-hidden="true" size={17} /> Adicionar lacuna da seleção</button>
                   <span className="text-xs text-muted">A narração inclui também as palavras ocultas.</span>
                 </div>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <button type="button" onClick={() => void handlePreviewAudio(passage)} disabled={Boolean(previewingId) || !passage.text.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-white px-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <AudioLines aria-hidden="true" size={16} /> {previewingId === passage.id ? "Gerando prévia..." : "Ouvir prévia do áudio"}
+                  </button>
+                  {audioPreviews[passage.id] && <div className="w-full rounded-xl border border-blue-200 bg-blue-50 p-3"><audio controls preload="none" src={audioPreviews[passage.id].url} className="min-h-10 w-full" aria-label={`Prévia do áudio de ${passage.title || "texto"}`} /><p className="mt-2 text-xs text-blue-900">{audioPreviews[passage.id].disclosure}</p></div>}
+                </div>
               </div>
               {passage.blanks.length > 0 && (
                 <div className="mt-5 space-y-3">
