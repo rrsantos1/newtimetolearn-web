@@ -108,7 +108,7 @@ function getStatusClass(activity: ListedActivity): string {
 
 function canEditActivity(activity: ListedActivity): boolean {
   if (
-    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz") ||
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory") ||
     !activity.latestVersion
   ) {
     return false;
@@ -135,6 +135,10 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
     return "Quiz";
   }
 
+  if (type === "memory") {
+    return "Jogo da memória";
+  }
+
   return type.replaceAll("_", " ");
 }
 
@@ -143,6 +147,7 @@ function getEditHref(activity: ListedActivity): string {
   const slug = encodeURIComponent(activity.slug);
   if (activity.type === "quiz") return "/teacher/activities/quiz/" + slug + "/edit";
   if (activity.type === "crossword") return "/teacher/activities/crossword/" + slug + "/edit";
+  if (activity.type === "memory") return "/teacher/activities/memory/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
