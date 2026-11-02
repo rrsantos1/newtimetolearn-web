@@ -50,7 +50,8 @@ function emptyPair() {
   return { id: createId(), first: emptyText(), second: emptyText() };
 }
 
-function resolveImageUrl(storageKey: string): string | undefined {
+function resolveImageUrl(storageKey: string, publicUrl?: string): string | undefined {
+  if (publicUrl) return publicUrl;
   const publicBaseUrl = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
   return publicBaseUrl ? `${publicBaseUrl}/${storageKey}` : undefined;
 }
@@ -70,7 +71,7 @@ function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
     setUploading(true);
     try {
       const uploaded = await uploadMediaImageService.execute(file);
-      onChange({ type: "image", storageKey: uploaded.storageKey, altText: uploaded.altText });
+      onChange({ type: "image", storageKey: uploaded.storageKey, altText: uploaded.altText, publicUrl: uploaded.publicUrl });
     } catch (error: unknown) {
       setUploadError(error instanceof Error ? error.message : "Não foi possível enviar a imagem.");
     } finally {
@@ -78,7 +79,7 @@ function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
     }
   }
 
-  const imageUrl = value.type === "image" && value.storageKey ? resolveImageUrl(value.storageKey) : undefined;
+  const imageUrl = value.type === "image" && value.storageKey ? resolveImageUrl(value.storageKey, value.type === "image" ? value.publicUrl : undefined) : undefined;
 
   return (
     <div className="min-w-0 rounded-xl border border-border bg-background p-4">
@@ -108,7 +109,7 @@ function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
             <MediaLibraryPicker
               disabled={uploading}
               onSelect={(asset) => {
-                onChange({ type: "image", storageKey: asset.storageKey, altText: asset.altText });
+                onChange({ type: "image", storageKey: asset.storageKey, altText: asset.altText, publicUrl: asset.publicUrl });
                 setUploadError("");
               }}
             />
@@ -125,7 +126,7 @@ function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
                 <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">Configure NEXT_PUBLIC_B2_PUBLIC_BASE_URL para visualizar a imagem.</p>
               )}
               <label htmlFor={`${name}-alt-text`} className={labelClass}>Texto alternativo</label>
-              <input id={`${name}-alt-text`} value={value.altText} maxLength={250} onChange={(event) => onChange({ type: "image", storageKey: value.storageKey, altText: event.target.value })} className={inputClass} placeholder="Descreva a imagem" />
+              <input id={`${name}-alt-text`} value={value.altText} maxLength={250} onChange={(event) => onChange({ type: "image", storageKey: value.storageKey, altText: event.target.value, publicUrl: value.publicUrl })} className={inputClass} placeholder="Descreva a imagem" />
               <button type="button" onClick={() => onChange({ type: "image", storageKey: "", altText: "" })} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                 <Trash2 aria-hidden="true" size={15} /> Remover imagem
               </button>
