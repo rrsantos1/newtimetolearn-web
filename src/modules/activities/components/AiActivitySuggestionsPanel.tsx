@@ -3,13 +3,15 @@ import { useFormikContext } from "formik";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 
-type ActivityType = "word_search" | "crossword" | "quiz" | "memory";
+type ActivityType = "word_search" | "crossword" | "quiz" | "memory" | "word_matching" | "sentence_completion";
 type Difficulty = "easy" | "medium" | "hard";
 type Suggestion =
   | { activityType: "word_search"; words: string[] }
   | { activityType: "crossword"; entries: { answer: string; clue: string }[] }
   | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] }
-  | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] };
+  | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] }
+  | { activityType: "word_matching"; pairs: { sourceText: string; targetText: string }[] }
+  | { activityType: "sentence_completion"; sentences: { beforeText: string; answer: string; afterText: string }[]; distractors: string[] };
 
 type FormValues = Record<string, unknown>;
 
@@ -60,7 +62,11 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         ? response.data.data.words.length
         : response.data.data.activityType === "crossword"
           ? response.data.data.entries.length
-          : response.data.data.activityType === "memory" ? response.data.data.pairs.length : response.data.data.questions.length;
+          : response.data.data.activityType === "memory" || response.data.data.activityType === "word_matching"
+            ? response.data.data.pairs.length
+            : response.data.data.activityType === "sentence_completion"
+              ? response.data.data.sentences.length
+              : response.data.data.questions.length;
       setSelected(Array.from({ length: itemsCount }, (_, index) => index));
     } catch (cause: unknown) {
       const message = typeof cause === "object" && cause !== null && "response" in cause
@@ -139,10 +145,10 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
     setSelected([]);
   }
 
-  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" ? 50 : 10;
-  const minQuantity = activityType === "quiz" ? 1 : 3;
+  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" || activityType === "word_matching" ? 50 : activityType === "sentence_completion" ? 20 : 10;
+  const minQuantity = activityType === "quiz" || activityType === "sentence_completion" ? 1 : 3;
   const title = activityType === "word_search" ? "Sugerir palavras com IA"
-    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : "Criar questões com IA";
+    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : activityType === "word_matching" ? "Sugerir associações com IA" : activityType === "sentence_completion" ? "Sugerir frases com lacunas com IA" : "Criar questões com IA";
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
@@ -219,6 +225,8 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
               const label = suggestions.activityType === "word_search" ? suggestions.words[index]
                 : suggestions.activityType === "crossword" ? `${suggestions.entries[index]?.answer}: ${suggestions.entries[index]?.clue}`
                   : suggestions.activityType === "memory" ? `${suggestions.pairs[index]?.firstText} ↔ ${suggestions.pairs[index]?.secondText}`
+                  : suggestions.activityType === "word_matching" ? `${suggestions.pairs[index]?.sourceText} ↔ ${suggestions.pairs[index]?.targetText}`
+                    : suggestions.activityType === "sentence_completion" ? `${suggestions.sentences[index]?.beforeText} [${suggestions.sentences[index]?.answer}] ${suggestions.sentences[index]?.afterText}`
                   : `${suggestions.questions[index]?.question} — ${suggestions.questions[index]?.options.map((option) => `${option.isCorrect ? "✓ " : ""}${option.text}`).join(" | ")}`;
               return <label key={index} className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-white p-3 text-sm text-dark">
                 <input type="checkbox" checked={selected.includes(index)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, index] : current.filter((item) => item !== index))} className="mt-1 size-4 shrink-0 accent-yellow-500" />
