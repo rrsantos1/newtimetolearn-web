@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { AudioLines, LoaderCircle, Sparkles, X } from "lucide-react";
+import { LoaderCircle, Sparkles, X } from "lucide-react";
 import { listeningService } from "@/modules/activities/services/listeningService";
-import type { ListeningVoice } from "@/modules/activities/services/listeningService";
 
 interface Props {
   open: boolean;
@@ -11,16 +10,6 @@ interface Props {
 }
 
 type Difficulty = "easy" | "medium" | "hard";
-
-const voices: Array<{ value: ListeningVoice; label: string }> = [
-  { value: "coral", label: "Coral — natural" },
-  { value: "alloy", label: "Alloy — equilibrada" },
-  { value: "ash", label: "Ash — clara" },
-  { value: "nova", label: "Nova — expressiva" },
-  { value: "shimmer", label: "Shimmer — suave" },
-  { value: "onyx", label: "Onyx — grave" },
-  { value: "sage", label: "Sage — serena" },
-];
 
 const fieldClass = "mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring";
 
@@ -39,13 +28,9 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
   const [wordCount, setWordCount] = useState(180);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [gradeLevel, setGradeLevel] = useState("");
-  const [voice, setVoice] = useState<ListeningVoice>("coral");
   const [generated, setGenerated] = useState<{ title: string; text: string; suggestedBlanks: string[] } | null>(null);
   const [selectedBlanks, setSelectedBlanks] = useState<string[]>([]);
-  const [audioDataUrl, setAudioDataUrl] = useState("");
-  const [audioDisclosure, setAudioDisclosure] = useState("");
   const [loading, setLoading] = useState(false);
-  const [audioLoading, setAudioLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -54,12 +39,12 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
     closeButtonRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent): void {
-      if (event.key === "Escape" && !loading && !audioLoading) onClose();
+      if (event.key === "Escape" && !loading) onClose();
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose, loading, audioLoading]);
+  }, [open, onClose, loading]);
 
   async function handleGenerate(): Promise<void> {
     setLoading(true);
@@ -67,8 +52,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
     setNotice("");
     setGenerated(null);
     setSelectedBlanks([]);
-    setAudioDataUrl("");
-    setAudioDisclosure("");
     try {
       const result = await listeningService.generateText({
         topic: topic.trim(),
@@ -86,23 +69,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
     }
   }
 
-  async function handleGenerateAudio(): Promise<void> {
-    if (!generated) return;
-    setAudioLoading(true);
-    setError("");
-    setNotice("");
-    setAudioDataUrl("");
-    try {
-      const result = await listeningService.generateAudioPreview(generated.text, voice);
-      setAudioDataUrl(result.audioDataUrl);
-      setAudioDisclosure(result.disclosure);
-      setNotice("Prévia de áudio gerada para o texto atual.");
-    } catch (caught: unknown) {
-      setError(getErrorMessage(caught));
-    } finally {
-      setAudioLoading(false);
-    }
-  }
 
   function toggleBlank(blank: string): void {
     setSelectedBlanks((current) => current.includes(blank)
@@ -115,7 +81,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
     onApply(generated.title, generated.text, selectedBlanks);
     setGenerated(null);
     setSelectedBlanks([]);
-    setAudioDataUrl("");
     setError("");
     setNotice("");
     onClose();
@@ -130,7 +95,7 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
       aria-modal="true"
       aria-labelledby="listening-ai-title"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !loading && !audioLoading) onClose();
+        if (event.target === event.currentTarget && !loading) onClose();
       }}
     >
       <section className="mx-auto my-4 max-h-[calc(100dvh-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-xl sm:my-8 sm:p-7">
@@ -140,9 +105,9 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
           </span>
           <div className="min-w-0 flex-1">
             <h3 id="listening-ai-title" className="text-base font-semibold text-dark">Criar texto com auxílio da IA</h3>
-            <p className="mt-1 text-sm leading-6 text-muted">Gere um texto, revise as sugestões de lacunas e escute uma prévia da narração antes de adicionar à atividade.</p>
+            <p className="mt-1 text-sm leading-6 text-muted">Gere um texto e revise as sugestões de lacunas antes de adicionar à atividade. A prévia do áudio fica no formulário da atividade.</p>
           </div>
-          <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading || audioLoading} aria-label="Fechar janela de geração com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
+          <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading} aria-label="Fechar janela de geração com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
             <X size={20} aria-hidden="true" />
           </button>
         </div>
@@ -201,24 +166,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
               {selectedBlanks.length === 0 && <p className="mt-2 text-xs text-amber-800">Selecione ao menos uma sugestão; você também poderá editar as lacunas depois.</p>}
             </fieldset>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-              <div>
-                <label htmlFor="listening-ai-voice" className="block text-sm font-medium text-dark">Voz para a prévia</label>
-                <select id="listening-ai-voice" value={voice} onChange={(event) => { setVoice(event.target.value as ListeningVoice); setAudioDataUrl(""); }} className={fieldClass}>
-                  {voices.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-                </select>
-              </div>
-              <button type="button" onClick={() => void handleGenerateAudio()} disabled={audioLoading || loading || !generated.text.trim()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold text-dark hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50">
-                {audioLoading ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <AudioLines size={17} aria-hidden="true" />}
-                {audioLoading ? "Gerando áudio..." : audioDataUrl ? "Gerar áudio novamente" : "Gerar áudio"}
-              </button>
-            </div>
-            {audioDataUrl && (
-              <div className="mt-3 rounded-xl border border-green-200 bg-green-50 p-3">
-                <audio controls preload="none" src={audioDataUrl} className="min-h-11 w-full" aria-label="Prévia do áudio gerado para o texto" />
-                <p className="mt-2 text-xs leading-5 text-green-900">{audioDisclosure}</p>
-              </div>
-            )}
             <button type="button" onClick={handleApply} disabled={selectedBlanks.length === 0} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50">
               Adicionar texto e lacunas à atividade
             </button>
