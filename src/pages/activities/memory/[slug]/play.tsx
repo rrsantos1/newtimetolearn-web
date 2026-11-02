@@ -169,9 +169,13 @@ export default function MemoryGamePage() {
   }, [activity, isStudent, matchedIds, phase, seconds, timeLimit, wrongAttempts]);
 
   useEffect(() => {
-    if (phase === "playing" && timeLimit !== null && seconds >= timeLimit) {
+    if (phase !== "playing" || timeLimit === null || seconds < timeLimit) return;
+
+    const timeout = window.setTimeout(() => {
       void finishGame(matchedIds, wrongAttempts);
-    }
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, [finishGame, matchedIds, phase, seconds, timeLimit, wrongAttempts]);
 
   function startGame(): void {
