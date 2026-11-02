@@ -43,8 +43,10 @@ function newPassage(id: string = crypto.randomUUID()): PassageDraft {
 
 function makeSuggestedBlanks(text: string, suggestions: string[]): ListeningBlankInput[] {
   const blanks: ListeningBlankInput[] = [];
+  const normalizedText = text.toLocaleLowerCase("pt-BR");
   for (const suggestion of suggestions) {
-    const startOffset = text.indexOf(suggestion);
+    const normalizedSuggestion = suggestion.toLocaleLowerCase("pt-BR");
+    const startOffset = normalizedText.indexOf(normalizedSuggestion);
     if (startOffset < 0) continue;
     const endOffset = startOffset + suggestion.length;
     if (blanks.some((blank) => startOffset < blank.endOffset && endOffset > blank.startOffset)) continue;
