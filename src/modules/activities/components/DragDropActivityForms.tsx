@@ -1,8 +1,9 @@
-import { Field, FieldArray, Form, Formik, getIn } from "formik";
+import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Trash2 } from "lucide-react";
 import type {
   CreateSentenceCompletionFormValues,
   CreateWordMatchingFormValues,
+  DragDropBaseValues,
   SentencePartValue,
 } from "@/modules/activities/schemas/createDragDropSchemas";
 import {
@@ -20,6 +21,7 @@ const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface p
 const labelClass = "mb-2 block text-sm font-medium text-dark";
 
 function ActivityDetailsFields() {
+  const { values, setFieldValue } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
@@ -42,9 +44,7 @@ function ActivityDetailsFields() {
           </div>
           <div>
             <label htmlFor="timeLimitSeconds" className={labelClass}>Tempo limite</label>
-            <Field as="select" id="timeLimitSeconds" name="timeLimitSeconds" className={inputClass} parse={(value: string) => value === "" ? null : Number(value)}>
-              <option value={900}>15 minutos</option><option value={300}>5 minutos</option><option value={600}>10 minutos</option><option value={1200}>20 minutos</option><option value={1800}>30 minutos</option><option value="">Sem limite</option>
-            </Field>
+            <select id="timeLimitSeconds" value={values.timeLimitSeconds === null ? "" : String(values.timeLimitSeconds)} onChange={(event) => void setFieldValue("timeLimitSeconds", event.target.value === "" ? null : Number(event.target.value))} className={inputClass}><option value={900}>15 minutos</option><option value={300}>5 minutos</option><option value={600}>10 minutos</option><option value={1200}>20 minutos</option><option value={1800}>30 minutos</option><option value="">Sem limite</option></select>
           </div>
         </div>
       </div>
