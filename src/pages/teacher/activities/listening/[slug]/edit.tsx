@@ -3,7 +3,7 @@ import type { ChangeEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, Plus, Save, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import type { CreateListeningInput, ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
@@ -128,6 +128,7 @@ export default function EditListeningPage() {
       setError("Cada texto precisa ter conteúdo e pelo menos uma lacuna."); return;
     }
     if (passages.some((passage) => passage.text.length > 4096)) { setError("Cada texto pode ter no máximo 4.096 caracteres."); return; }
+    if (timeLimitMinutes.trim() && (!Number.isInteger(Number(timeLimitMinutes)) || Number(timeLimitMinutes) < 1 || Number(timeLimitMinutes) > 240)) { setError("O tempo limite deve estar entre 1 e 240 minutos ou ficar vazio."); return; }
     setSaving(true);
     try {
       await listeningService.edit(slug, {
