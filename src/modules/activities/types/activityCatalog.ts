@@ -30,7 +30,7 @@ export const activityCatalog: readonly ActivityCatalogItem[] = [
     createHref: "/teacher/activities/quiz/new",
     available: true,
   },
-  { type: "memory", label: "Jogo da memória", description: "Combine pares para praticar conteúdos.", available: false },
+  { type: "memory", label: "Jogo da memória", description: "Combine pares de texto e imagens para praticar conteúdos.", createHref: "/teacher/activities/memory/new", available: true },
   { type: "cloze", label: "Texto lacunado", description: "Complete um texto com termos que faltam.", available: false },
   { type: "multiple_choice", label: "Múltipla escolha", description: "Escolha a resposta correta entre alternativas.", available: false },
   { type: "fill_in_the_blank", label: "Complete a lacuna", description: "Digite a resposta que completa uma frase.", available: false },
