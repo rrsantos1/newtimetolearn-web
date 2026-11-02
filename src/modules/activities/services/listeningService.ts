@@ -50,6 +50,27 @@ export interface ListeningActivityResponse {
   };
 }
 
+export interface ListeningActivityDetailsResponse {
+  success: true;
+  data: {
+    slug: string;
+    type: string;
+    status: string;
+    version: {
+      name: string;
+      description: string | null;
+      difficulty: "EASY" | "MEDIUM" | "HARD";
+      timeLimitSeconds: number | null;
+      status: string;
+      content: {
+        language: string;
+        instructions: string;
+        passages: ListeningPassageInput[];
+      };
+    };
+  };
+}
+
 export interface GenerateListeningAudioResponse {
   success: true;
   data: {
@@ -70,6 +91,16 @@ export interface GenerateListeningAudioResponse {
 export const listeningService = {
   async create(input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
     const response = await api.post<ListeningActivityResponse>("/activities/listening", input);
+    return response.data.data;
+  },
+
+  async get(slug: string): Promise<ListeningActivityDetailsResponse["data"]> {
+    const response = await api.get<ListeningActivityDetailsResponse>(`/activities/${encodeURIComponent(slug)}`);
+    return response.data.data;
+  },
+
+  async edit(slug: string, input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
+    const response = await api.patch<ListeningActivityResponse>(`/activities/${encodeURIComponent(slug)}/listening`, input);
     return response.data.data;
   },
 
