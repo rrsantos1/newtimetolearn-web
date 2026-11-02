@@ -497,7 +497,7 @@ export default function TeacherActivitiesPage() {
                       </Link>
                     )}
 
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening") && (
                       <Link
                         href={activity.type === "quiz"
                           ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
