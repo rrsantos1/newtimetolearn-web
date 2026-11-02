@@ -178,8 +178,10 @@ export default function PendingActivitiesPage() {
                   : activity.type === "crossword"
                     ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
                     : activity.type === "memory"
-                      ? `/activities/memory/${encodeURIComponent(activity.slug)}`
-                      : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                      ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
+                      : activity.type === "listening"
+                        ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
+                        : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                 className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <Play size={16} aria-hidden="true" />
