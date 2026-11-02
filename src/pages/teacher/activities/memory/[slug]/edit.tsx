@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { ArrowLeft, CheckCircle2, ClipboardList, LoaderCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, LoaderCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { MemoryForm } from "@/modules/activities/components/MemoryForm";
 import { getMemoryService, type EditableMemoryActivity } from "@/modules/activities/services/getMemoryService";
