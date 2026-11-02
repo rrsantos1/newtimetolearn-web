@@ -2,7 +2,7 @@ import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiAc
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
-import { Eye, Plus, Trash2, X } from "lucide-react";
+import { Eye, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
@@ -169,6 +169,7 @@ const initialValues: CreateQuizFormValues = {
 
 export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar Quiz como rascunho" }: Readonly<QuizFormProps>) {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
   const formInitialValues = suppliedInitialValues ?? initialValues;
 
   return (
@@ -189,7 +190,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
 
         return (
         <Form className="space-y-6" noValidate>
-          <AiActivitySuggestionsPanel activityType="quiz" />
+          <AiActivitySuggestionsPanel activityType="quiz" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <ScrollToFirstError />
           <div className="flex justify-end">
             <button type="button" onClick={() => setPreviewOpen(true)}
@@ -244,7 +245,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
             </div>
           )}
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-            <h2 className="text-lg font-semibold text-dark">Informações do Quiz</h2>
+            <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-dark">Informações do Quiz</h2><button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button></div>
             <div className="mt-5 grid gap-5">
               <div>
                 <label htmlFor="name" className={labelClassName}>Nome do Quiz *</label>
