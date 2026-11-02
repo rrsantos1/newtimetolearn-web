@@ -235,7 +235,14 @@ export default function NewListeningPage() {
     setNotice("");
     setGeneratingId(passage.id);
     try {
-      const result = await listeningService.generateAudio(savedSlug, passage.id, voice);
+      const preview = audioPreviews[passage.id];
+      const audioBase64 = preview?.url.split(",")[1];
+      const result = await listeningService.generateAudio(
+        savedSlug,
+        passage.id,
+        preview?.voice ?? voice,
+        audioBase64,
+      );
       updatePassage(passage.id, (current) => ({ ...current, audio: result.audio }));
       setNotice(`Áudio gerado para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
