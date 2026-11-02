@@ -1,16 +1,38 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ErrorMessage,
   Field,
   FieldArray,
   Form,
   Formik,
+  getIn,
+  useFormikContext,
 } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import type { CreateWordSearchFormValues } from "@/modules/activities/schemas/createWordSearchSchema";
 import { createWordSearchSchema } from "@/modules/activities/schemas/createWordSearchSchema";
 import type { ActivityDifficulty } from "@/modules/activities/types/activities.types";
+
+function ScrollToFirstError() {
+  const { errors, submitCount, isValidating } = useFormikContext<CreateWordSearchFormValues>();
+  const [handledSubmitCount, setHandledSubmitCount] = useState(0);
+
+  useEffect(() => {
+    if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      invalidField?.focus({ preventScroll: true });
+      setHandledSubmitCount(submitCount);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [errors, handledSubmitCount, isValidating, submitCount]);
+
+  return null;
+}
 
 interface WordSearchFormProps {
   onSubmit: (values: CreateWordSearchFormValues) => Promise<void>;
