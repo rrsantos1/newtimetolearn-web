@@ -10,6 +10,7 @@ export type ActivityVersionStatus =
 export type ActivityVisibility = "AUTHENTICATED" | "PUBLIC";
 
 export type ActivityType =
+  | "listening"
   | "quiz"
   | "word_search"
   | "crossword"
