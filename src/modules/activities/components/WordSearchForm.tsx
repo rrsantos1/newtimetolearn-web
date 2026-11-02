@@ -81,8 +81,9 @@ export function WordSearchForm({
       validationSchema={createWordSearchSchema}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, values, setFieldValue }) => (
-        <Form className="space-y-6">
+      {({ isSubmitting, values, errors, submitCount, setFieldValue }) => (
+        <Form noValidate className="space-y-6">
+          <ScrollToFirstError />
           <AiActivitySuggestionsPanel activityType="word_search" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
@@ -111,6 +112,7 @@ export function WordSearchForm({
                   placeholder="Ex.: Animals and Pets"
                   className={inputClassName}
                   aria-required="true"
+                  aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
                 />
 
                 <ErrorMessage
@@ -265,6 +267,7 @@ export function WordSearchForm({
                           placeholder={`Palavra ${index + 1}`}
                           className={inputClassName}
                           aria-label={`Palavra ${index + 1}`}
+                          aria-invalid={Boolean(getIn(errors, `words.${index}`) && submitCount > 0)}
                         />
 
                         <ErrorMessage
