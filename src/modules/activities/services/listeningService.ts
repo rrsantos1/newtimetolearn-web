@@ -88,6 +88,87 @@ export interface GenerateListeningAudioResponse {
   };
 }
 
+export interface ListeningExecutionBlank {
+  id: string;
+  startOffset: number;
+  endOffset: number;
+  grammarCategory?: string | null;
+}
+
+export interface ListeningExecutionPassage {
+  id: string;
+  title: string;
+  text: string;
+  blanks: ListeningExecutionBlank[];
+  audio: {
+    storageKey: string | null;
+    publicUrl: string | null;
+    disclosure: string | null;
+    status: "PENDING" | "READY" | "STALE" | "FAILED";
+    durationSeconds: number | null;
+  };
+}
+
+export interface ListeningExecutionActivity {
+  slug: string;
+  type: string;
+  status: string;
+  version: {
+    name: string;
+    description: string | null;
+    timeLimitSeconds: number | null;
+    content: {
+      language: string;
+      instructions: string;
+      passages: ListeningExecutionPassage[];
+    };
+  };
+}
+
+export interface ListeningAttemptAnswerInput {
+  passageId: string;
+  blankId: string;
+  answer: string;
+}
+
+export interface ListeningAttemptReview {
+  passageId: string;
+  blankId: string;
+  answer: string;
+  expectedAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface ListeningAttemptResult {
+  attempt: {
+    id: string;
+    score: number;
+    totalBlanks: number;
+    correctBlanks: number;
+    elapsedSeconds: number;
+    createdAt: string;
+  };
+  review: ListeningAttemptReview[];
+  ranking: Array<{
+    position: number;
+    studentName: string;
+    score: number;
+    elapsedSeconds: number;
+    createdAt: string;
+  }>;
+  isInRanking: boolean;
+}
+
+interface ListeningExecutionResponse {
+  success: true;
+  data: ListeningExecutionActivity;
+}
+
+interface ListeningAttemptResponse {
+  success: true;
+  data: ListeningAttemptResult;
+}
+
 export const listeningService = {
   async create(input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
     const response = await api.post<ListeningActivityResponse>("/activities/listening", input);
@@ -101,6 +182,23 @@ export const listeningService = {
 
   async edit(slug: string, input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
     const response = await api.patch<ListeningActivityResponse>(`/activities/${encodeURIComponent(slug)}/listening`, input);
+    return response.data.data;
+  },
+
+  async getExecution(slug: string): Promise<ListeningExecutionActivity> {
+    const response = await api.get<ListeningExecutionResponse>(`/activities/${encodeURIComponent(slug)}`);
+    return response.data.data;
+  },
+
+  async submitAttempt(
+    slug: string,
+    answers: ListeningAttemptAnswerInput[],
+    elapsedSeconds: number,
+  ): Promise<ListeningAttemptResult> {
+    const response = await api.post<ListeningAttemptResponse>(
+      `/activities/${encodeURIComponent(slug)}/listening/attempts`,
+      { answers, elapsedSeconds },
+    );
     return response.data.data;
   },
 
