@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ChangeEvent, MouseEvent } from "react";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Trash2, Volume2 } from "lucide-react";
+import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, FileAudio, Plus, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import type { ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
@@ -27,9 +27,9 @@ const voices: Array<{ value: ListeningVoice; label: string }> = [
   { value: "cedar", label: "Cedar — natural" },
 ];
 
-function newPassage(): PassageDraft {
+function newPassage(id: string = crypto.randomUUID()): PassageDraft {
   return {
-    id: crypto.randomUUID(),
+    id,
     title: "",
     text: "",
     blanks: [],
@@ -54,7 +54,7 @@ export default function NewListeningPage() {
   const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("MEDIUM");
   const [timeLimitMinutes, setTimeLimitMinutes] = useState("15");
   const [instructions, setInstructions] = useState("Ouça o áudio e preencha as lacunas.");
-  const [passages, setPassages] = useState<PassageDraft[]>([newPassage()]);
+  const [passages, setPassages] = useState<PassageDraft[]>([newPassage("passage-1")]);
   const [voice, setVoice] = useState<ListeningVoice>("coral");
   const [savedSlug, setSavedSlug] = useState("");
   const [saving, setSaving] = useState(false);
@@ -74,7 +74,7 @@ export default function NewListeningPage() {
     updatePassage(id, (passage) => ({
       ...passage,
       text,
-      blanks: passage.blanks.filter((blank) => text.slice(blank.startOffset, blank.endOffset).toLocaleLowerCase("pt-BR") === blank.expectedAnswer.toLocaleLowerCase("pt-BR")),
+      blanks: [],
       audio: { storageKey: null, publicUrl: null, disclosure: null, status: "PENDING", model: null, voice: null, textHash: null, durationSeconds: null },
     }));
   }
