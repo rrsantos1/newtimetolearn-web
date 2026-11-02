@@ -119,6 +119,35 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       }).slice(0, Math.max(0, 50 - existingPairs.length));
       await setFieldValue("content.pairs", [...existingPairs, ...additions]);
       setNotice(`${additions.length} par(es) adicionado(s). Revise os pares antes de salvar.`);
+    } else if (suggestions.activityType === "word_matching") {
+      const rawContent = values.content;
+      const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
+      const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
+      const isBlankPair = (entry: unknown): boolean => typeof entry === "object" && entry !== null && "source" in entry && "target" in entry && typeof entry.source === "string" && typeof entry.target === "string" && entry.source.trim().length === 0 && entry.target.trim().length === 0;
+      const existingPairs = currentPairs.length > 0 && currentPairs.every(isBlankPair) ? [] : currentPairs;
+      const additions = selected.flatMap((index) => { const pair = suggestions.pairs[index]; return pair ? [{ id: createId(), source: pair.sourceText, target: pair.targetText }] : []; }).slice(0, Math.max(0, 50 - existingPairs.length));
+      await setFieldValue("content.pairs", [...existingPairs, ...additions]);
+      setNotice(additions.length + " associação(ões) adicionada(s). Revise antes de salvar.");
+    } else if (suggestions.activityType === "sentence_completion") {
+      const rawContent = values.content;
+      const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { words?: unknown; sentences?: unknown } : {};
+      const currentWords = Array.isArray(content.words) ? content.words : [];
+      const currentSentences = Array.isArray(content.sentences) ? content.sentences : [];
+      const wordsAreBlank = currentWords.length > 0 && currentWords.every((entry) => typeof entry === "object" && entry !== null && "text" in entry && typeof entry.text === "string" && entry.text.trim().length === 0);
+      const sentencesAreBlank = currentSentences.length > 0 && currentSentences.every((entry) => typeof entry === "object" && entry !== null && "parts" in entry && Array.isArray(entry.parts) && entry.parts.every((part) => typeof part === "object" && part !== null && "type" in part && (part.type === "blank" ? "expectedWordId" in part && part.expectedWordId === "" : "value" in part && typeof part.value === "string" && part.value.trim().length === 0)));
+      const existingWords = wordsAreBlank ? [] : currentWords;
+      const existingSentences = sentencesAreBlank ? [] : currentSentences;
+      const additions = selected.flatMap((index) => {
+        const item = suggestions.sentences[index];
+        if (!item) return [];
+        const wordId = createId();
+        return [{ word: { id: wordId, text: item.answer }, sentence: { id: createId(), parts: [{ id: createId(), type: "text" as const, value: item.beforeText }, { id: createId(), type: "blank" as const, expectedWordId: wordId }, { id: createId(), type: "text" as const, value: item.afterText }] } }];
+      });
+      const additionsWords = additions.map((item) => item.word);
+      const distractors = suggestions.distractors.map((text) => ({ id: createId(), text }));
+      await setFieldValue("content.words", [...existingWords, ...additionsWords, ...distractors].slice(0, 200));
+      await setFieldValue("content.sentences", [...existingSentences, ...additions.map((item) => item.sentence)].slice(0, 100));
+      setNotice(additions.length + " frase(s) adicionada(s). Revise respostas e distratores antes de salvar.");
     } else {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { questions?: unknown } : {};
