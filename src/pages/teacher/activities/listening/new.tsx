@@ -200,7 +200,8 @@ export default function NewListeningPage() {
         setError(`O rascunho foi salvo, mas não foi possível persistir o áudio de: ${previewErrors.join(", ")}. Você pode tentar novamente sem gerar outra prévia.`);
         setNotice(`Rascunho salvo. ${savedPreviewCount} prévia(s) salva(s) como áudio definitivo.`);
       } else if (savedPreviewCount > 0) {
-        setNotice(`Rascunho salvo e ${savedPreviewCount} áudio(s) de prévia armazenado(s) como versão definitiva.`);
+        setAudioPreviews({});
+        setNotice(`Rascunho salvo e ${savedPreviewCount} áudio(s) armazenado(s) como versão definitiva.`);
       } else {
         setNotice("Rascunho salvo. Gere uma prévia para cada texto ou gere o áudio definitivo depois.");
       }
@@ -244,7 +245,8 @@ export default function NewListeningPage() {
         audioBase64,
       );
       updatePassage(passage.id, (current) => ({ ...current, audio: result.audio }));
-      setNotice(`Áudio gerado para “${passage.title.trim() || "Texto sem título"}”.`);
+      setAudioPreviews((current) => { const next = { ...current }; delete next[passage.id]; return next; });
+      setNotice(`Áudio salvo para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
       setError(errorMessage(caught));
     } finally {
