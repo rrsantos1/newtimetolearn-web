@@ -59,8 +59,16 @@ export const createWordMatchingSchema = Yup.object({
       })
       .test("unique-sources-and-targets", "As palavras de origem e as correspondências precisam ser únicas.", (pairs) => {
         if (!pairs) return false;
-        const sources = pairs.map((pair) => pair?.source.trim().toLocaleLowerCase("pt-BR"));
-        const targets = pairs.map((pair) => pair?.target.trim().toLocaleLowerCase("pt-BR"));
+        const sources = pairs.flatMap((pair) =>
+          typeof pair?.source === "string" && pair.source.trim().length > 0
+            ? [pair.source.trim().toLocaleLowerCase("pt-BR")]
+            : [],
+        );
+        const targets = pairs.flatMap((pair) =>
+          typeof pair?.target === "string" && pair.target.trim().length > 0
+            ? [pair.target.trim().toLocaleLowerCase("pt-BR")]
+            : [],
+        );
         return new Set(sources).size === sources.length && new Set(targets).size === targets.length;
       }),
   }).required(),
