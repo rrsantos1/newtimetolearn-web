@@ -170,8 +170,8 @@ export default function PlayListeningPage() {
     };
   }, [router.isReady, slug]);
 
-  const finishAttempt = useCallback(async (timedOut = false): Promise<void> => {
-    if (phase !== "playing" || submittedRef.current || !activity) return;
+  const finishAttempt = useCallback(async (timedOut = false, retry = false): Promise<void> => {
+    if ((phase !== "playing" && !(retry && phase === "finished")) || submittedRef.current || !activity) return;
     submittedRef.current = true;
     setPhase("finished");
     setSubmitting(isStudent);
@@ -314,7 +314,7 @@ export default function PlayListeningPage() {
                 ) : submitError ? (
                   <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                     <p>{submitError}</p>
-                    <button type="button" onClick={() => { setPhase("playing"); void finishAttempt(false); }} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">Tentar registrar novamente</button>
+                    <button type="button" onClick={() => void finishAttempt(false, true)} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">Tentar registrar novamente</button>
                   </div>
                 ) : (
                   <>
