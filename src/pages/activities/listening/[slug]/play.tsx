@@ -18,7 +18,7 @@ type Phase = "ready" | "playing" | "finished";
 type Answers = Record<string, string>;
 
 function answerKey(passageId: string, blankId: string): string {
-  return `${passageId}:${blankId}`;
+  return JSON.stringify([passageId, blankId]);
 }
 
 function formatTime(seconds: number | null): string {
