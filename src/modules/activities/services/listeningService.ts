@@ -4,6 +4,28 @@ export type ListeningVoice =
   | "alloy" | "ash" | "ballad" | "coral" | "echo" | "fable"
   | "nova" | "onyx" | "sage" | "shimmer" | "verse" | "marin" | "cedar";
 
+export interface GenerateListeningTextInput {
+  topic: string;
+  wordCount: number;
+  objective: string;
+  difficulty: "easy" | "medium" | "hard";
+  gradeLevel?: string;
+}
+
+export interface GenerateListeningTextResult {
+  title: string;
+  text: string;
+}
+
+interface GenerateListeningTextResponse {
+  success: true;
+  data: {
+    activityType: "listening";
+    title: string;
+    text: string;
+  };
+}
+
 export interface ListeningBlankInput {
   id: string;
   startOffset: number;
@@ -170,6 +192,16 @@ interface ListeningAttemptResponse {
 }
 
 export const listeningService = {
+  async generateText(input: GenerateListeningTextInput): Promise<GenerateListeningTextResult> {
+    const response = await api.post<GenerateListeningTextResponse>(
+      "/activities/ai/suggestions",
+      { activityType: "listening", ...input },
+      { timeout: 60_000 },
+    );
+    return { title: response.data.data.title, text: response.data.data.text };
+  },
+
+
   async create(input: CreateListeningInput): Promise<ListeningActivityResponse["data"]> {
     const response = await api.post<ListeningActivityResponse>("/activities/listening", input);
     return response.data.data;
