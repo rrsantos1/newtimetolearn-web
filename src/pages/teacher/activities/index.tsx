@@ -506,7 +506,7 @@ export default function TeacherActivitiesPage() {
                     )}
 
                     {activity.latestVersion?.status === "DRAFT" &&
-                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz") && (
+                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory") && (
                         <button
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
