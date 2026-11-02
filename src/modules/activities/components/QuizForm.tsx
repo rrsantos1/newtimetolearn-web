@@ -16,9 +16,13 @@ function ScrollToFirstError() {
     if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
 
     const timeoutId = window.setTimeout(() => {
-      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]');
-      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
-      invalidField?.focus({ preventScroll: true });
+      const invalidField = document.querySelector<HTMLElement>(
+        'input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"], button[aria-invalid="true"]',
+      );
+      const invalidGroup = document.querySelector<HTMLElement>('fieldset[aria-invalid="true"]');
+      const target = invalidField ?? invalidGroup?.querySelector<HTMLElement>("input, textarea, select, button");
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.focus({ preventScroll: true });
       setHandledSubmitCount(submitCount);
     }, 0);
 
