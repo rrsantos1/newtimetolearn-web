@@ -73,7 +73,7 @@ export default function EditListeningPage() {
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
-  const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string }>>({});
+  const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -192,9 +192,36 @@ export default function EditListeningPage() {
           passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })),
         },
       });
-      setNotice("Alterações salvas. Gere novamente o áudio dos textos cujo conteúdo foi alterado.");
+      let savedPreviewCount = 0;
+      const previewErrors: string[] = [];
+
+      for (const passage of passages) {
+        const preview = audioPreviews[passage.id];
+        if (!preview) continue;
+
+        const audioBase64 = preview.url.split(",")[1];
+        if (!audioBase64) {
+          previewErrors.push(passage.title.trim() || "Texto sem título");
+          continue;
+        }
+
+        try {
+          await listeningService.generateAudio(slug, passage.id, preview.voice, audioBase64);
+          savedPreviewCount += 1;
+        } catch {
+          previewErrors.push(passage.title.trim() || "Texto sem título");
+        }
+      }
+
       const updated = await listeningService.get(slug);
       setPassages(updated.version.content.passages);
+      setAudioPreviews({});
+      if (previewErrors.length > 0) {
+        setError(`Alterações salvas, mas não foi possível persistir o áudio de: ${previewErrors.join(", ")}. Gere novamente ou crie outra prévia.`);
+      }
+      setNotice(savedPreviewCount > 0
+        ? `Alterações salvas e ${savedPreviewCount} prévia(s) armazenada(s) como áudio definitivo.`
+        : "Alterações salvas.");
     } catch (caught: unknown) {
       setError(getErrorMessage(caught));
     } finally {
@@ -210,7 +237,7 @@ export default function EditListeningPage() {
       const result = await listeningService.generateAudioPreview(passage.text, voice, language);
       setAudioPreviews((current) => ({
         ...current,
-        [passage.id]: { url: result.audioDataUrl, disclosure: result.disclosure },
+        [passage.id]: { url: result.audioDataUrl, disclosure: result.disclosure, voice },
       }));
       setNotice(`Prévia gerada para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
@@ -230,7 +257,14 @@ export default function EditListeningPage() {
         timeLimitSeconds: timeLimitMinutes.trim() ? Math.round(Number(timeLimitMinutes) * 60) : null,
         content: { language, instructions: instructions.trim(), passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })) },
       });
-      const result = await listeningService.generateAudio(slug, passage.id, voice);
+      const preview = audioPreviews[passage.id];
+      const audioBase64 = preview?.url.split(",")[1];
+      const result = await listeningService.generateAudio(
+        slug,
+        passage.id,
+        preview?.voice ?? voice,
+        audioBase64,
+      );
       updatePassage(passage.id, (current) => ({ ...current, audio: result.audio }));
       setNotice(`Áudio gerado para “${passage.title.trim() || "Texto sem título"}”.`);
     } catch (caught: unknown) {
