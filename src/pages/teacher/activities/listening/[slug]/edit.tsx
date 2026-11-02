@@ -29,6 +29,25 @@ function createPassage(): PassageDraft {
   };
 }
 
+function makeSuggestedBlanks(text: string, suggestions: string[]): ListeningBlankInput[] {
+  const blanks: ListeningBlankInput[] = [];
+  for (const suggestion of suggestions) {
+    const startOffset = text.indexOf(suggestion);
+    if (startOffset < 0) continue;
+    const endOffset = startOffset + suggestion.length;
+    if (blanks.some((blank) => startOffset < blank.endOffset && endOffset > blank.startOffset)) continue;
+    blanks.push({
+      id: crypto.randomUUID(),
+      startOffset,
+      endOffset,
+      expectedAnswer: text.slice(startOffset, endOffset),
+      alternatives: [],
+      grammarCategory: null,
+    });
+  }
+  return blanks.sort((first, second) => first.startOffset - second.startOffset);
+}
+
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
@@ -222,9 +241,10 @@ export default function EditListeningPage() {
             </div>
           </section>
           <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione um trecho no texto para transformá-lo em lacuna.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setIsAiModalOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={17} /> Criar texto com IA</button><button type="button" onClick={() => setPassages((current) => [...current, createPassage()])} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button></div></div>
-          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text) => {
-            setPassages((current) => [...current, { ...createPassage(), title, text }]);
-            setNotice("Texto adicionado à atividade. Revise o conteúdo e selecione os trechos que deseja transformar em lacunas.");
+          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text, suggestedBlanks) => {
+            const blanks = makeSuggestedBlanks(text, suggestedBlanks);
+            setPassages((current) => [...current, { ...createPassage(), title, text, blanks }]);
+            setNotice(`Texto adicionado à atividade com ${blanks.length} lacuna(s) sugerida(s). Revise as lacunas antes de salvar.`);
           }} />
           {passages.map((passage, index) => (
             <article key={passage.id} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
