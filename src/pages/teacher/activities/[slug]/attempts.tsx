@@ -168,7 +168,7 @@ export default function ActivityAttemptsPage() {
                   <tr>
                     <th scope="col" className="px-5 py-4 font-semibold">Aluno</th>
                     <th scope="col" className="px-5 py-4 font-semibold">Pontuação</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Palavras</th>
+                    <th scope="col" className="px-5 py-4 font-semibold">{result.activityType === "listening" ? "Lacunas" : "Palavras"}</th>
                     <th scope="col" className="px-5 py-4 font-semibold">Tempo</th>
                     <th scope="col" className="px-5 py-4 font-semibold">Data</th>
                   </tr>
@@ -186,7 +186,9 @@ export default function ActivityAttemptsPage() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-dark">
-                        {attempt.wordsFound.length} de {attempt.totalWords}
+                        {result.activityType === "listening"
+                          ? `${attempt.correctBlanks ?? 0} de ${attempt.totalBlanks ?? 0}`
+                          : `${attempt.wordsFound?.length ?? 0} de ${attempt.totalWords ?? 0}`}
                       </td>
                       <td className="px-5 py-4 text-dark">
                         <span className="inline-flex items-center gap-1.5">
