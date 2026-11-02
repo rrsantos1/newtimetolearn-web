@@ -81,6 +81,8 @@ export default function NewListeningPage() {
   const [savedSlug, setSavedSlug] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
+  const [previewingId, setPreviewingId] = useState("");
+  const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string }>>({});
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -94,6 +96,7 @@ export default function NewListeningPage() {
 
   function handleTextChange(id: string, event: ChangeEvent<HTMLTextAreaElement>): void {
     const text = event.target.value;
+    setAudioPreviews((current) => { const next = { ...current }; delete next[id]; return next; });
     updatePassage(id, (passage) => ({
       ...passage,
       text,
@@ -173,6 +176,24 @@ export default function NewListeningPage() {
     }
   }
 
+  async function handlePreviewAudio(passage: PassageDraft): Promise<void> {
+    setError("");
+    setNotice("");
+    setPreviewingId(passage.id);
+    try {
+      const result = await listeningService.generateAudioPreview(passage.text, voice, "pt-BR");
+      setAudioPreviews((current) => ({
+        ...current,
+        [passage.id]: { url: result.audioDataUrl, disclosure: result.disclosure },
+      }));
+      setNotice(`Prévia gerada para “${passage.title.trim() || "Texto sem título"}”.`);
+    } catch (caught: unknown) {
+      setError(errorMessage(caught));
+    } finally {
+      setPreviewingId("");
+    }
+  }
+
   async function handleGenerateAudio(passage: PassageDraft): Promise<void> {
     if (!savedSlug) return;
     setError("");
@@ -230,7 +251,7 @@ export default function NewListeningPage() {
           </div>
           <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <label htmlFor="listening-voice" className="block text-sm font-medium text-dark">Voz da narração</label>
-            <select id="listening-voice" value={voice} onChange={(event) => setVoice(event.target.value as ListeningVoice)} className="mt-2 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark sm:max-w-md">
+            <select id="listening-voice" value={voice} onChange={(event) => { setVoice(event.target.value as ListeningVoice); setAudioPreviews({}); }} className="mt-2 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark sm:max-w-md">
               {voices.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </div>
@@ -243,10 +264,14 @@ export default function NewListeningPage() {
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">{passage.text}</p>
               <p className="mt-2 text-sm text-muted">{passage.blanks.length} lacuna(s)</p>
               <div className="mt-4 flex flex-wrap gap-3">
+                <button type="button" onClick={() => void handlePreviewAudio(passage)} disabled={Boolean(previewingId) || !passage.text.trim()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                  <AudioLines aria-hidden="true" size={17} /> {previewingId === passage.id ? "Gerando prévia..." : "Ouvir prévia"}
+                </button>
                 <button type="button" onClick={() => void handleGenerateAudio(passage)} disabled={Boolean(generatingId)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                   <AudioLines aria-hidden="true" size={17} /> {generatingId === passage.id ? "Gerando áudio..." : passage.audio?.status === "READY" ? "Gerar novamente" : "Gerar áudio"}
                 </button>
                 {passage.audio?.publicUrl && <audio controls preload="none" src={passage.audio.publicUrl} className="min-h-11 max-w-full" aria-label={`Ouvir narração de ${passage.title || "texto"}`} />}
+                {audioPreviews[passage.id] && <div className="w-full rounded-xl border border-blue-200 bg-blue-50 p-3"><audio controls preload="none" src={audioPreviews[passage.id].url} className="min-h-11 w-full" aria-label={`Prévia de áudio de ${passage.title || "texto"}`} /><p className="mt-2 text-xs text-blue-900">{audioPreviews[passage.id].disclosure}</p></div>}
               </div>
               {passage.audio?.disclosure && <p className="mt-3 text-xs text-muted">{passage.audio.disclosure}</p>}
             </article>
