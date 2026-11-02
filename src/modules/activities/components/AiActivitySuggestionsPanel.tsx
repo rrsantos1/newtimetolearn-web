@@ -181,7 +181,8 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
-      ? suggestions.entries.length : suggestions.activityType === "memory" ? suggestions.pairs.length : suggestions.questions.length;
+      ? suggestions.entries.length : suggestions.activityType === "memory" || suggestions.activityType === "word_matching" ? suggestions.pairs.length
+        : suggestions.activityType === "sentence_completion" ? suggestions.sentences.length : suggestions.questions.length;
 
   if (!open) return null;
 
