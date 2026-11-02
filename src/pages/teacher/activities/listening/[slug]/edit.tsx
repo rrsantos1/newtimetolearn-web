@@ -6,6 +6,7 @@ import axios from "axios";
 import { ArrowLeft, AudioLines, CheckCircle2, CirclePlus, Plus, Save, Trash2 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
+import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
 import type { CreateListeningInput, ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
 
 type Difficulty = CreateListeningInput["difficulty"];
@@ -220,6 +221,9 @@ export default function EditListeningPage() {
             </div>
           </section>
           <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Textos e lacunas</h2><p className="mt-1 text-sm text-muted">Selecione um trecho no texto para transformá-lo em lacuna.</p></div><button type="button" onClick={() => setPassages((current) => [...current, createPassage()])} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Plus aria-hidden="true" size={17} /> Adicionar texto</button></div>
+          <ListeningAiTextGenerator onApply={(title, text) => {
+            setPassages((current) => [...current, { ...createPassage(), title, text }]);
+          }} />
           {passages.map((passage, index) => (
             <article key={passage.id} className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
               <div className="mb-4 flex items-center justify-between gap-3"><h3 className="font-semibold text-dark">Texto {index + 1}</h3>{passages.length > 1 && <button type="button" onClick={() => setPassages((current) => current.filter((item) => item.id !== passage.id))} className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Trash2 aria-hidden="true" size={16} /> Remover</button>}</div>
