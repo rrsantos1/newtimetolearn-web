@@ -1,4 +1,5 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
+import { useState } from "react";
 import {
   ErrorMessage,
   Field,
@@ -6,7 +7,7 @@ import {
   Form,
   Formik,
 } from "formik";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
 import type { CreateWordSearchFormValues } from "@/modules/activities/schemas/createWordSearchSchema";
 import { createWordSearchSchema } from "@/modules/activities/schemas/createWordSearchSchema";
 import type { ActivityDifficulty } from "@/modules/activities/types/activities.types";
@@ -49,6 +50,7 @@ export function WordSearchForm({
   mode = "create",
 }: Readonly<WordSearchFormProps>) {
   const isEditing = mode === "edit";
+  const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
   return (
     <Formik<CreateWordSearchFormValues>
@@ -59,12 +61,13 @@ export function WordSearchForm({
     >
       {({ isSubmitting, values, setFieldValue }) => (
         <Form className="space-y-6">
-          <AiActivitySuggestionsPanel activityType="word_search" />
+          <AiActivitySuggestionsPanel activityType="word_search" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-dark">
-                Informações da atividade
-              </h2>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
+                <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
+              </div>
 
               <p className="mt-1 text-sm leading-6 text-muted">
                 Defina o título, a dificuldade e o tempo disponível para os
