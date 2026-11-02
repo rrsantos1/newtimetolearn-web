@@ -1,9 +1,11 @@
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createMemorySchema, type CreateMemoryFormValues, type MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
+import { uploadMediaImageService } from "@/modules/activities/services/uploadMediaImageService";
 
 function ScrollToFirstError() {
   const { errors, submitCount, isValidating } = useFormikContext<CreateMemoryFormValues>();
@@ -48,10 +50,36 @@ function emptyPair() {
   return { id: createId(), first: emptyText(), second: emptyText() };
 }
 
+function resolveImageUrl(storageKey: string): string | undefined {
+  const publicBaseUrl = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  return publicBaseUrl ? `${publicBaseUrl}/${storageKey}` : undefined;
+}
+
 function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
   name: string; value: MemoryItemValue; title: string; invalid: boolean; onChange: (item: MemoryItemValue) => void;
 }>) {
+  const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    setUploadError("");
+    setUploading(true);
+    try {
+      const uploaded = await uploadMediaImageService.execute(file);
+      onChange({ type: "image", storageKey: uploaded.storageKey, altText: uploaded.altText });
+    } catch (error: unknown) {
+      setUploadError(error instanceof Error ? error.message : "Não foi possível enviar a imagem.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const imageUrl = value.type === "image" && value.storageKey ? resolveImageUrl(value.storageKey) : undefined;
+
   return (
     <div className="min-w-0 rounded-xl border border-border bg-background p-4">
       <label htmlFor={`${name}-type`} className={labelClass}>{title}</label>
@@ -65,10 +93,44 @@ function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
         </div>
       ) : (
         <div className="mt-3 space-y-3">
-          <p className="text-sm text-muted">Escolha uma imagem aprovada na biblioteca.</p>
-          <MediaLibraryPicker disabled={false} onSelect={(asset) => { onChange({ type: "image", storageKey: asset.storageKey, altText: asset.altText }); setUploadError(""); }} />
-          {value.storageKey ? <p className="break-all text-xs text-green-700" role="status">Imagem selecionada: {value.altText || value.storageKey}</p> : <p className="text-xs text-muted">Nenhuma imagem selecionada.</p>}
-          {uploadError && <p role="alert" className="text-sm text-red-600">{uploadError}</p>}
+          <label htmlFor={`${name}-upload`} className={labelClass}>Enviar imagem do computador</label>
+          <input
+            id={`${name}-upload`}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={(event) => void handleFileChange(event)}
+            disabled={uploading}
+            className="block min-h-11 w-full min-w-0 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark file:mr-3 file:rounded-lg file:border-0 file:bg-background file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60"
+            aria-describedby={uploadError ? `${name}-upload-error` : undefined}
+          />
+          <p className="text-xs text-muted">JPEG, PNG, WebP ou GIF · máximo de 5 MB.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <MediaLibraryPicker
+              disabled={uploading}
+              onSelect={(asset) => {
+                onChange({ type: "image", storageKey: asset.storageKey, altText: asset.altText });
+                setUploadError("");
+              }}
+            />
+            {uploading && <span role="status" className="text-sm text-muted">Enviando imagem...</span>}
+          </div>
+          {uploadError && <p id={`${name}-upload-error`} role="alert" className="text-sm text-red-600">{uploadError}</p>}
+          {value.storageKey ? (
+            <div className="rounded-xl border border-border bg-surface p-3">
+              {imageUrl ? (
+                <div className="relative mb-3 aspect-video overflow-hidden rounded-lg bg-background">
+                  <Image src={imageUrl} alt={value.altText || "Pré-visualização da imagem selecionada"} fill sizes="(max-width: 768px) 100vw, 40vw" unoptimized className="object-contain" />
+                </div>
+              ) : (
+                <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">Configure NEXT_PUBLIC_B2_PUBLIC_BASE_URL para visualizar a imagem.</p>
+              )}
+              <label htmlFor={`${name}-alt-text`} className={labelClass}>Texto alternativo</label>
+              <input id={`${name}-alt-text`} value={value.altText} maxLength={250} onChange={(event) => onChange({ type: "image", storageKey: value.storageKey, altText: event.target.value })} className={inputClass} placeholder="Descreva a imagem" />
+              <button type="button" onClick={() => onChange({ type: "image", storageKey: "", altText: "" })} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                <Trash2 aria-hidden="true" size={15} /> Remover imagem
+              </button>
+            </div>
+          ) : <p className="text-xs text-muted">Nenhuma imagem selecionada.</p>}
         </div>
       )}
     </div>
