@@ -476,7 +476,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
