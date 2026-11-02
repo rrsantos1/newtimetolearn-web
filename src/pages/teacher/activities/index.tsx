@@ -486,7 +486,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
@@ -505,7 +505,9 @@ export default function TeacherActivitiesPage() {
                             ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
                             : activity.type === "memory"
                               ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
-                              : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                              : activity.type === "listening"
+                                ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
+                                : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
