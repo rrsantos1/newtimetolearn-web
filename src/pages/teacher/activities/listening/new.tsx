@@ -41,6 +41,25 @@ function newPassage(id: string = crypto.randomUUID()): PassageDraft {
   };
 }
 
+function makeSuggestedBlanks(text: string, suggestions: string[]): ListeningBlankInput[] {
+  const blanks: ListeningBlankInput[] = [];
+  for (const suggestion of suggestions) {
+    const startOffset = text.indexOf(suggestion);
+    if (startOffset < 0) continue;
+    const endOffset = startOffset + suggestion.length;
+    if (blanks.some((blank) => startOffset < blank.endOffset && endOffset > blank.startOffset)) continue;
+    blanks.push({
+      id: crypto.randomUUID(),
+      startOffset,
+      endOffset,
+      expectedAnswer: text.slice(startOffset, endOffset),
+      alternatives: [],
+      grammarCategory: null,
+    });
+  }
+  return blanks.sort((first, second) => first.startOffset - second.startOffset);
+}
+
 function errorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
@@ -270,9 +289,10 @@ export default function NewListeningPage() {
             </div>
           </div>
 
-          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text) => {
-            setPassages((current) => [...current, { ...newPassage(), title, text }]);
-            setNotice("Texto adicionado à atividade. Revise o conteúdo e selecione os trechos que deseja transformar em lacunas.");
+          <ListeningAiTextGenerator open={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} onApply={(title, text, suggestedBlanks) => {
+            const blanks = makeSuggestedBlanks(text, suggestedBlanks);
+            setPassages((current) => [...current, { ...newPassage(), title, text, blanks }]);
+            setNotice(`Texto adicionado à atividade com ${blanks.length} lacuna(s) sugerida(s). Revise as lacunas antes de salvar.`);
           }} />
 
           {passages.map((passage, index) => (
