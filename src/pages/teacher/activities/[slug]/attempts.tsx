@@ -163,7 +163,7 @@ export default function ActivityAttemptsPage() {
 
           <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[680px] border-collapse text-left text-sm">
+              <table className="w-full min-w-170 border-collapse text-left text-sm">
                 <thead className="bg-background text-xs uppercase tracking-wide text-muted">
                   <tr>
                     <th scope="col" className="px-5 py-4 font-semibold">Aluno</th>
