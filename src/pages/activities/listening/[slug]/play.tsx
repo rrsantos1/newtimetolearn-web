@@ -127,7 +127,10 @@ export default function PlayListeningPage() {
   const [previewNotice, setPreviewNotice] = useState("");
   const submittedRef = useRef(false);
 
-  const passages = activity?.version.content.passages ?? [];
+  const passages = useMemo(
+    () => activity?.version.content.passages ?? [],
+    [activity],
+  );
   const totalBlanks = useMemo(
     () => passages.reduce((total, passage) => total + passage.blanks.length, 0),
     [passages],
