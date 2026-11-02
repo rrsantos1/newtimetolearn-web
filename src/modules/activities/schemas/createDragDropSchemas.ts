@@ -56,6 +56,12 @@ export const createWordMatchingSchema = Yup.object({
       .test("unique-pair-ids", "Cada associação precisa ter um identificador único.", (pairs) => {
         if (!pairs) return false;
         return new Set(pairs.map((pair) => pair?.id)).size === pairs.length;
+      })
+      .test("unique-sources-and-targets", "As palavras de origem e as correspondências precisam ser únicas.", (pairs) => {
+        if (!pairs) return false;
+        const sources = pairs.map((pair) => pair?.source.trim().toLocaleLowerCase("pt-BR"));
+        const targets = pairs.map((pair) => pair?.target.trim().toLocaleLowerCase("pt-BR"));
+        return new Set(sources).size === sources.length && new Set(targets).size === targets.length;
       }),
   }).required(),
 });
@@ -73,7 +79,14 @@ export const createSentenceCompletionSchema = Yup.object({
         .test("has-blank", "Cada frase precisa ter pelo menos uma lacuna.", (parts) => parts?.some((part) => part.type === "blank") ?? false)
         .test("valid-blanks", "Selecione uma palavra para cada lacuna.", (parts) => parts?.every((part) => part.type !== "blank" || Boolean(part.expectedWordId)) ?? false),
     }).required()).min(1, "Adicione pelo menos uma frase.").max(100, "O limite é de 100 frases.").required(),
-  }).required(),
+  }).required().test("valid-word-usage", "Cada palavra correta deve existir no banco e só pode ser usada uma vez.", (content) => {
+    if (!content?.words || !content.sentences) return false;
+    const wordIds = new Set(content.words.map((word) => word.id));
+    const expectedIds = content.sentences.flatMap((sentence) => sentence.parts
+      .filter((part): part is Extract<SentencePartValue, { type: "blank" }> => part.type === "blank")
+      .map((part) => part.expectedWordId));
+    return expectedIds.every((id) => wordIds.has(id)) && new Set(expectedIds).size === expectedIds.length;
+  }),
 });
 
 export function createDragDropId(prefix: string): string {
