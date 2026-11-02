@@ -142,6 +142,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
           <h2 id="ai-suggestions-title" className="text-lg font-semibold text-dark">{title}</h2>
           <p className="mt-1 text-sm leading-6 text-muted">Opcional: gere ideias, selecione o que deseja aproveitar e revise os campos. Nada é salvo automaticamente.</p>
         </div>
+        </div>
         <button type="button" onClick={onClose} aria-label="Fechar sugestões com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-amber-300 text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
           <X aria-hidden="true" size={18} />
         </button>
