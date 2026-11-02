@@ -36,13 +36,6 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (!open) {
-      setGenerated(null);
-      setError("");
-      setNotice("");
-    }
-  }, [open]);
   const [topic, setTopic] = useState("");
   const [objective, setObjective] = useState("");
   const [wordCount, setWordCount] = useState(180);
