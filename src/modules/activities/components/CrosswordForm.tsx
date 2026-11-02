@@ -81,8 +81,9 @@ export function CrosswordForm({
       validationSchema={createCrosswordSchema}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, values, errors, setFieldValue }) => (
-        <Form className="space-y-6">
+      {({ isSubmitting, values, errors, submitCount, setFieldValue }) => (
+        <Form noValidate className="space-y-6">
+          <ScrollToFirstError />
           <AiActivitySuggestionsPanel activityType="crossword" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
@@ -108,6 +109,7 @@ export function CrosswordForm({
                   placeholder="Ex.: Partes do corpo humano"
                   className={inputClassName}
                   aria-required="true"
+                  aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
                 />
                 <ErrorMessage name="name" component="p" className={errorClassName} />
               </div>
@@ -216,6 +218,7 @@ export function CrosswordForm({
                             placeholder="Ex.: Sistema solar"
                             className={inputClassName}
                             aria-required="true"
+                            aria-invalid={Boolean(getIn(errors, `words.${index}.word`) && submitCount > 0)}
                           />
                           <ErrorMessage name={`words.${index}.word`} component="p" className={errorClassName} />
                         </div>
@@ -231,6 +234,7 @@ export function CrosswordForm({
                             placeholder="Ex.: Conjunto formado pelo Sol e os corpos que orbitam ao seu redor"
                             className={inputClassName}
                             aria-required="true"
+                            aria-invalid={Boolean(getIn(errors, `words.${index}.clue`) && submitCount > 0)}
                           />
                           <ErrorMessage name={`words.${index}.clue`} component="p" className={errorClassName} />
                         </div>
