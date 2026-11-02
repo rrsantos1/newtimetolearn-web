@@ -23,6 +23,8 @@ export type ActivityType =
   | "roulette"
   | "hangman"
   | "memory"
+  | "word_matching"
+  | "sentence_completion"
   | "fill_in_blanks"
   | "mole_hit";
 
