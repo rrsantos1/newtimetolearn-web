@@ -99,12 +99,19 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
       const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
+      const isBlankPair = (entry: unknown): boolean => {
+        if (typeof entry !== "object" || entry === null || !("first" in entry) || !("second" in entry)) return false;
+        return [entry.first, entry.second].every((item) =>
+          typeof item === "object" && item !== null && "type" in item && item.type === "text" &&
+          "value" in item && typeof item.value === "string" && item.value.trim().length === 0);
+      };
+      const existingPairs = currentPairs.length > 0 && currentPairs.every(isBlankPair) ? [] : currentPairs;
       const additions = selected.flatMap((index) => {
         const pair = suggestions.pairs[index];
         if (!pair) return [];
         return [{ id: createId(), first: { type: "text" as const, value: pair.firstText }, second: { type: "text" as const, value: pair.secondText } }];
-      });
-      await setFieldValue("content.pairs", [...currentPairs, ...additions]);
+      }).slice(0, Math.max(0, 50 - existingPairs.length));
+      await setFieldValue("content.pairs", [...existingPairs, ...additions]);
       setNotice(`${additions.length} par(es) adicionado(s). Revise os pares antes de salvar.`);
     } else {
       const rawContent = values.content;
