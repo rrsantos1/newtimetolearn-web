@@ -10,6 +10,13 @@ export interface ActivityCatalogItem {
 
 export const activityCatalog: readonly ActivityCatalogItem[] = [
   {
+    type: "listening",
+    label: "Listening",
+    description: "Crie textos com lacunas e narração para treinar compreensão auditiva.",
+    createHref: "/teacher/activities/listening/new",
+    available: true,
+  },
+  {
     type: "word_search",
     label: "Caça-palavras",
     description: "Encontre palavras escondidas em uma grade de letras.",
