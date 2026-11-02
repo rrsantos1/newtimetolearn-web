@@ -29,6 +29,7 @@ interface GenerateListeningTextResponse {
     activityType: "listening";
     title: string;
     text: string;
+    suggestedBlanks: string[];
   };
 }
 
