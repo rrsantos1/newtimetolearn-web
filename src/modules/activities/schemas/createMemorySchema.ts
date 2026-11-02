@@ -2,7 +2,7 @@ import * as Yup from "yup";
 
 export type MemoryItemValue =
   | { type: "text"; value: string }
-  | { type: "image"; storageKey: string; altText: string };
+  | { type: "image"; storageKey: string; altText: string; publicUrl?: string };
 
 export interface MemoryPairValue {
   id: string;
