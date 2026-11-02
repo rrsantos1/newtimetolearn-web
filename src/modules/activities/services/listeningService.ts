@@ -205,10 +205,22 @@ export const listeningService = {
       { activityType: "listening", ...input },
       { timeout: 60_000 },
     );
+    const data = response.data.data;
+    if (
+      typeof data.title !== "string"
+      || typeof data.text !== "string"
+      || !Array.isArray(data.suggestedBlanks)
+      || !data.suggestedBlanks.every((blank: unknown) => typeof blank === "string")
+    ) {
+      throw new Error(
+        "A API gerou o texto, mas não retornou as sugestões de lacunas. Atualize e reinicie o backend do TimeToLearn e tente novamente.",
+      );
+    }
+
     return {
-      title: response.data.data.title,
-      text: response.data.data.text,
-      suggestedBlanks: response.data.data.suggestedBlanks,
+      title: data.title,
+      text: data.text,
+      suggestedBlanks: data.suggestedBlanks,
     };
   },
 
