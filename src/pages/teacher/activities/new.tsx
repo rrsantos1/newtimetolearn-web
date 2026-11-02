@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   ArrowLeft,
+  AudioLines,
   BookOpen,
   Brain,
   CircleHelp,
@@ -21,6 +22,7 @@ import { activityCatalog } from "@/modules/activities/types/activityCatalog";
 import type { ActivityType } from "@/modules/activities/types/activityList.types";
 
 const activityIcons: Record<ActivityType, LucideIcon> = {
+  listening: AudioLines,
   word_search: Search,
   crossword: Puzzle,
   quiz: CircleHelp,
@@ -63,7 +65,7 @@ export default function NewActivityPage() {
           <div>
             <h2 className="font-semibold text-dark">Biblioteca de formatos</h2>
             <p className="mt-1 text-sm leading-6 text-muted">
-              A plataforma terá vários formatos de atividade. Neste momento, você pode criar caça-palavras e palavras cruzadas; os demais formatos serão habilitados conforme forem implementados.
+              A plataforma reúne formatos para diferentes objetivos pedagógicos. Selecione um formato disponível para começar a montar sua atividade.
             </p>
           </div>
         </div>
