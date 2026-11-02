@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -58,10 +58,10 @@ function ActivityDetailsFields() {
 
 export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateWordMatchingFormValues>>) {
   const [aiOpen, setAiOpen] = useState(false);
-  const defaultInitialValues: CreateWordMatchingFormValues = {
+  const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: "", target: "" })) },
-  };
+  }), []);
 
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
@@ -110,7 +110,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
 
 export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
   const [aiOpen, setAiOpen] = useState(false);
-  const defaultInitialValues: CreateSentenceCompletionFormValues = {
+  const defaultInitialValues = useMemo<CreateSentenceCompletionFormValues>(() => ({
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: {
       words: [
@@ -126,7 +126,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
         ],
       }],
     },
-  };
+  }), []);
 
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
