@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -56,10 +56,10 @@ function MemoryItemEditor({ name, value, onChange, title }: Readonly<{
 
 export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar jogo da memória como rascunho" }: Readonly<Props>) {
   const [aiOpen, setAiOpen] = useState(false);
-  const defaultInitialValues: CreateMemoryFormValues = {
+  const defaultInitialValues = useMemo<CreateMemoryFormValues>(() => ({
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: { pairs: Array.from({ length: 6 }, () => emptyPair()) },
-  };
+  }), []);
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
     <Formik<CreateMemoryFormValues> initialValues={initialValues} enableReinitialize validationSchema={createMemorySchema} onSubmit={onSubmit}>
