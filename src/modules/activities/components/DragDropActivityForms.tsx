@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2 } from "lucide-react";
+import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import type {
   CreateSentenceCompletionFormValues,
   CreateWordMatchingFormValues,
@@ -55,6 +57,7 @@ function ActivityDetailsFields() {
 }
 
 export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateWordMatchingFormValues>>) {
+  const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues: CreateWordMatchingFormValues = {
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: "", target: "" })) },
@@ -65,10 +68,12 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
     <Formik enableReinitialize initialValues={initialValues} validationSchema={createWordMatchingSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting }) => (
         <Form noValidate className="space-y-6">
+          <AiActivitySuggestionsPanel activityType="word_matching" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
               <div><h2 className="text-lg font-semibold text-dark">Associações</h2><p className="mt-1 text-sm text-muted">Cada item da coluna esquerda será associado a um único item da direita.</p></div>
+              <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> Criar com IA</button>
               <span className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-dark">{values.content.pairs.length}/50</span>
             </div>
             <FieldArray name="content.pairs">
@@ -104,6 +109,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
 }
 
 export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
+  const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues: CreateSentenceCompletionFormValues = {
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
     content: {
@@ -127,9 +133,10 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
     <Formik enableReinitialize initialValues={initialValues} validationSchema={createSentenceCompletionSchema} onSubmit={onSubmit}>
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
+          <AiActivitySuggestionsPanel activityType="sentence_completion" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-            <div className="mb-5"><h2 className="text-lg font-semibold text-dark">Banco de palavras</h2><p className="mt-1 text-sm text-muted">Inclua as respostas corretas e, se quiser, palavras distratoras.</p></div>
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Banco de palavras</h2><p className="mt-1 text-sm text-muted">Inclua as respostas corretas e, se quiser, palavras distratoras.</p></div><button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> Criar com IA</button></div>
             <FieldArray name="content.words">
               {({ push, remove }) => (
                 <div className="space-y-3">
