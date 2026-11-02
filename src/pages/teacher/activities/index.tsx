@@ -108,7 +108,7 @@ function getStatusClass(activity: ListedActivity): string {
 
 function canEditActivity(activity: ListedActivity): boolean {
   if (
-    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening") ||
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion") ||
     !activity.latestVersion
   ) {
     return false;
@@ -143,6 +143,9 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
     return "Listening";
   }
 
+  if (type === "word_matching") return "Associação de palavras";
+  if (type === "sentence_completion") return "Complete as frases";
+
   return type.replaceAll("_", " ");
 }
 
@@ -153,6 +156,8 @@ function getEditHref(activity: ListedActivity): string {
   if (activity.type === "crossword") return "/teacher/activities/crossword/" + slug + "/edit";
   if (activity.type === "memory") return "/teacher/activities/memory/" + slug + "/edit";
   if (activity.type === "listening") return "/teacher/activities/listening/" + slug + "/edit";
+  if (activity.type === "word_matching") return "/teacher/activities/word-matching/" + slug + "/edit";
+  if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
@@ -486,7 +491,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
@@ -497,7 +502,7 @@ export default function TeacherActivitiesPage() {
                       </Link>
                     )}
 
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion") && (
                       <Link
                         href={activity.type === "quiz"
                           ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
@@ -507,7 +512,11 @@ export default function TeacherActivitiesPage() {
                               ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
                               : activity.type === "listening"
                                 ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
-                                : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                                : activity.type === "word_matching"
+                                  ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
+                                  : activity.type === "sentence_completion"
+                                    ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
+                                    : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
@@ -518,7 +527,7 @@ export default function TeacherActivitiesPage() {
                     )}
 
                     {activity.latestVersion?.status === "DRAFT" &&
-                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening") && (
+                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion") && (
                         <button
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
