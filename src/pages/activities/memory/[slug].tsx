@@ -48,7 +48,6 @@ export default function MemoryGamePage() {
   useEffect(() => {
     if (!slug) return;
     let active = true;
-    setLoading(true);
     void (async () => {
       try {
         const response = await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`);
