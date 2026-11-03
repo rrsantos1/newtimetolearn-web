@@ -12,6 +12,8 @@ import { ListeningAiTextGenerator } from "@/modules/activities/components/Listen
 import type { CreateListeningInput, ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
 
 type Difficulty = CreateListeningInput["difficulty"];
+type CoverGenerationState = "idle" | "generating" | "awaiting_selection" | "failed";
+
 type PassageDraft = ListeningPassageInput;
 
 const voices: Array<{ value: ListeningVoice; label: string }> = [
@@ -74,6 +76,7 @@ export default function EditListeningPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [cover, setCover] = useState<ActivityCoverSelection | null>(null);
+  const [coverGenerationState, setCoverGenerationState] = useState<CoverGenerationState>("idle");
   const [coverChanged, setCoverChanged] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
@@ -181,6 +184,14 @@ export default function EditListeningPage() {
   }
 
   async function handleSave(): Promise<void> {
+    if (coverGenerationState !== "idle") {
+      setError(coverGenerationState === "generating"
+        ? "Aguarde a geração da capa terminar antes de salvar."
+        : coverGenerationState === "awaiting_selection"
+          ? "Escolha usar ou descartar a capa gerada antes de salvar."
+          : "A geração da capa falhou. Tente novamente ou descarte a tentativa antes de salvar.");
+      return;
+    }
     setError("");
     setNotice("");
     if (!name.trim()) { setError("Informe o nome da atividade."); return; }
@@ -296,7 +307,7 @@ export default function EditListeningPage() {
         <div className="space-y-6">
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
-          <ActivityCoverSelector value={cover} onChange={(value) => { setCover(value); setCoverChanged(true); }} disabled={saving} />
+          <ActivityCoverSelector value={cover} onChange={(value) => { setCover(value); setCoverChanged(true); }} onGenerationStateChange={setCoverGenerationState} disabled={saving} />
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
