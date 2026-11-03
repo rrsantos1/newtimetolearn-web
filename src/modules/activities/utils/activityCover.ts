@@ -14,5 +14,5 @@ export function getActivityCoverImage(
   type: ActivityType,
   coverImageUrl?: string | null,
 ): string {
-  return coverImageUrl || defaultCovers[type] || "/images/activities/default-cover.jpg";
+  return coverImageUrl ?? defaultCovers[type] ?? "/images/activities/default-cover.jpg";
 }
