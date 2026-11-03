@@ -219,26 +219,28 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
                       <FieldArray name={`content.sentences.${sentenceIndex}.parts`}>
                         {({ push: pushPart, remove: removePart, insert }) => (
                           <div className="space-y-3">
-                            {sentence.parts.map((part, partIndex) => part.type === "text" ? (
-                              <div key={part.id} className="rounded-xl bg-background p-3">
-                                <label htmlFor={`sentence-${sentenceIndex}-part-${partIndex}`} className={labelClass}>Trecho de texto</label>
-                                <Field as="textarea" id={`sentence-${sentenceIndex}-part-${partIndex}`} name={`content.sentences.${sentenceIndex}.parts.${partIndex}.value`} rows={2} maxLength={2000} className={inputClass} />
-                                <button type="button" onClick={() => insert(partIndex + 1, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" } satisfies SentencePartValue)} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-dark"><Plus size={14} aria-hidden="true" /> Inserir lacuna após este trecho</button>
-                                <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="ml-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> Remover trecho</button>
-                              </div>
-                            ) : (
-                              <div key={part.id} className="grid gap-3 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:grid-cols-[1fr_auto]">
-                                <div>
-                                  <label htmlFor={`sentence-${sentenceIndex}-blank-${partIndex}`} className={labelClass}>Resposta da lacuna *</label>
+                            <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+                              {sentence.parts.map((part, partIndex) => part.type === "text" ? (
+                                <div key={part.id} className="min-w-0 flex-[1_1_0%] rounded-xl border border-sky-200 bg-sky-50/60 p-3">
+                                  <label htmlFor={`sentence-${sentenceIndex}-part-${partIndex}`} className={labelClass}>Trecho {partIndex + 1}</label>
+                                  <Field as="textarea" id={`sentence-${sentenceIndex}-part-${partIndex}`} name={`content.sentences.${sentenceIndex}.parts.${partIndex}.value`} rows={2} maxLength={2000} className={inputClass} />
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => insert(partIndex + 1, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" } satisfies SentencePartValue)} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-800"><Plus size={14} aria-hidden="true" /> Inserir lacuna após</button>
+                                    <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> Remover trecho</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div key={part.id} className="min-w-0 flex-[0_1_13rem] rounded-xl border border-dashed border-amber-400 bg-amber-50 p-3 lg:w-52">
+                                  <label htmlFor={`sentence-${sentenceIndex}-blank-${partIndex}`} className={labelClass}>Palavra *</label>
                                   <select id={`sentence-${sentenceIndex}-blank-${partIndex}`} value={part.expectedWordId} onChange={(event) => void setFieldValue(`content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`, event.target.value)} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`) && (getIn(touched, `content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`) || submitCount > 0))}>
-                                    <option value="">Selecione uma palavra</option>
+                                    <option value="">Selecione...</option>
                                     {values.content.words.filter((word) => word.text.trim()).map((word) => <option key={word.id} value={word.id}>{word.text}</option>)}
                                   </select>
+                                  <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> Remover lacuna</button>
                                 </div>
-                                <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover lacuna</button>
-                              </div>
-                            ))}
-                            <button type="button" onClick={() => pushPart({ id: createDragDropId("text"), type: "text", value: "" })} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-dark"><Plus size={14} aria-hidden="true" /> Adicionar trecho</button>
+                              ))}
+                            </div>
+                            <button type="button" onClick={() => pushPart({ id: createDragDropId("text"), type: "text", value: "" })} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-dark"><Plus size={14} aria-hidden="true" /> Adicionar trecho</button>
                           </div>
                         )}
                       </FieldArray>
