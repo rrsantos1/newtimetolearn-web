@@ -27,6 +27,7 @@ export interface CrosswordPreview {
 
 export interface CrosswordActivity {
   id: string;
+  slug: string;
   name: string;
   type: string;
   status: string;

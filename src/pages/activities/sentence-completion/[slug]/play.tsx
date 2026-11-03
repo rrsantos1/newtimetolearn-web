@@ -67,6 +67,7 @@ export default function SentenceCompletionPlayPage() {
   const [ranking, setRanking] = useState<DragDropRankingEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [rankingLoading, setRankingLoading] = useState(false);
+  const [rankingError, setRankingError] = useState("");
   const [error, setError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -78,8 +79,9 @@ export default function SentenceCompletionPlayPage() {
   const loadRanking = useCallback(async (activitySlug: string) => {
     if (!isStudent) return;
     setRankingLoading(true);
+    setRankingError("");
     try { setRanking(await dragDropActivityService.getRanking(activitySlug, "sentence-completion")); }
-    catch (loadError: unknown) { setSubmitError(getErrorMessage(loadError, "Não foi possível carregar o ranking.")); }
+    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError, "Não foi possível carregar o ranking.")); }
     finally { setRankingLoading(false); }
   }, [isStudent]);
 

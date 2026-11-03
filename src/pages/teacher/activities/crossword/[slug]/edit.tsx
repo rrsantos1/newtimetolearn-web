@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -122,6 +123,8 @@ export default function EditCrosswordPage() {
         timeLimitSeconds: values.timeLimitSeconds,
         words: values.words,
       });
+      const coverId = (values as CreateCrosswordFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId !== undefined) await activityCoverService.update(activity.slug, coverId);
 
       setActivity((current) => current ? {
         ...current,

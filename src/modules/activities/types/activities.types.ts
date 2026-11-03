@@ -15,6 +15,7 @@ export interface WordSearchPreview {
 
 export interface CreatedActivity {
   id: string;
+  slug: string;
   name: string;
   type: string;
   status: string;

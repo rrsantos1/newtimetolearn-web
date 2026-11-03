@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -88,7 +89,12 @@ export default function EditSentenceCompletionPage() {
 
   async function handleSubmit(values: CreateSentenceCompletionFormValues): Promise<void> {
     setSubmitError("");
-    try { await createDragDropActivityService.updateSentenceCompletion(slug, values); setSuccess(true); }
+    try {
+      await createDragDropActivityService.updateSentenceCompletion(slug, values);
+      const coverId = (values as CreateSentenceCompletionFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId !== undefined) await activityCoverService.update(slug, coverId);
+      setSuccess(true);
+    }
     catch (updateError: unknown) { setSubmitError(errorMessage(updateError)); }
   }
 

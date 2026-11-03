@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -129,6 +130,8 @@ export default function EditQuizPage() {
     setSuccessMessage("");
     try {
       const result = await updateQuizService.execute(activity.slug, values);
+      const coverId = (values as CreateQuizFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId !== undefined) await activityCoverService.update(activity.slug, coverId);
       setActivity((current) => current ? {
         ...current,
         version: {

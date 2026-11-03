@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import axios from "axios";
 import Link from "next/link";
 import { CheckCircle2, Clock3, Play, RefreshCw, XCircle } from "lucide-react";
@@ -161,6 +162,7 @@ export default function PendingActivitiesPage() {
         <section aria-label="Atividades aguardando aprovação" className="grid gap-4 lg:grid-cols-2">
           {activities.map((activity) => (
             <article key={activity.slug} className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+              <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="mb-4" />
               <div className="flex items-start justify-between gap-3">
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted">{getActivityTypeLabel(activity.type)}</span>
                 <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">

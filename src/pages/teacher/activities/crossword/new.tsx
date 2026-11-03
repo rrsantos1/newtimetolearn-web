@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, ClipboardList } from "lucide-react";
@@ -31,13 +32,15 @@ export default function NewCrosswordPage() {
     setSubmitError("");
 
     try {
-      await createCrosswordService.execute({
+      const result = await createCrosswordService.execute({
         name: values.name,
         description: values.description,
         difficulty: values.difficulty,
         timeLimitSeconds: values.timeLimitSeconds,
         words: values.words,
       });
+      const coverId = (values as CreateCrosswordFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error));

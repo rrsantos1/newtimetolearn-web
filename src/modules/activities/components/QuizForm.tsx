@@ -1,4 +1,5 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
+import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -196,6 +197,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
         <Form className="space-y-6" noValidate>
           <AiActivitySuggestionsPanel activityType="quiz" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <ScrollToFirstError />
+          <ActivityCoverField />
           <div className="flex justify-end">
             <button type="button" onClick={() => setPreviewOpen(true)}
               className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">

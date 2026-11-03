@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import Link from "next/link";
 import axios from "axios";
 import {
@@ -275,6 +276,7 @@ export default function ExploreActivitiesPage() {
                 key={activity.slug}
                 className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:border-accent/40 hover:shadow-md sm:p-6"
               >
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="mb-4" />
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">

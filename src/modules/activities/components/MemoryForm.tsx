@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useMemo, useState } from "react";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
@@ -150,6 +151,7 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ActivityCoverField />
           <AiActivitySuggestionsPanel activityType="memory" open={aiOpen} onClose={() => setAiOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="flex flex-wrap items-start justify-between gap-3">

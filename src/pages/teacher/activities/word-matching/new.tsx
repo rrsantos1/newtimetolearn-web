@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, ClipboardList } from "lucide-react";
@@ -21,7 +22,9 @@ export default function NewWordMatchingPage() {
   async function handleSubmit(values: CreateWordMatchingFormValues): Promise<void> {
     setSubmitError("");
     try {
-      await createDragDropActivityService.createWordMatching(values);
+      const result = await createDragDropActivityService.createWordMatching(values);
+      const coverId = (values as CreateWordMatchingFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     } catch (error: unknown) {
       setSubmitError(errorMessage(error));

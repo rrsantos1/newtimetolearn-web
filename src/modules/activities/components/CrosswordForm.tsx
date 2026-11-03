@@ -1,4 +1,5 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
+import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useState } from "react";
 import {
   ErrorMessage,
@@ -84,6 +85,7 @@ export function CrosswordForm({
       {({ isSubmitting, values, errors, submitCount, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ActivityCoverField />
           <AiActivitySuggestionsPanel activityType="crossword" open={aiSuggestionsOpen} onClose={() => setAiSuggestionsOpen(false)} />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">

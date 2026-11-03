@@ -20,6 +20,7 @@ import {
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { deleteActivityService } from "@/modules/activities/services/deleteActivityService";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
+import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
 import type {
   ActivityListData,
@@ -431,6 +432,7 @@ export default function TeacherActivitiesPage() {
                 key={activity.slug}
                 className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
               >
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="mb-4 sm:max-w-sm" />
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">

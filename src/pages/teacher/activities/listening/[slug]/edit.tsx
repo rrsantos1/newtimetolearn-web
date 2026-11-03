@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ActivityCoverSelector, type ActivityCoverSelection } from "@/modules/activities/components/ActivityCoverSelector";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import type { ChangeEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -71,6 +73,7 @@ export default function EditListeningPage() {
   const [voice, setVoice] = useState<ListeningVoice>("coral");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [cover, setCover] = useState<ActivityCoverSelection | null>(null);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
   const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
@@ -192,6 +195,7 @@ export default function EditListeningPage() {
           passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })),
         },
       });
+      if (cover) await activityCoverService.update(slug, cover.id);
       let savedPreviewCount = 0;
       const previewErrors: string[] = [];
 
@@ -288,6 +292,7 @@ export default function EditListeningPage() {
         <div className="space-y-6">
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
+          <ActivityCoverSelector value={cover} onChange={setCover} disabled={saving} />
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">

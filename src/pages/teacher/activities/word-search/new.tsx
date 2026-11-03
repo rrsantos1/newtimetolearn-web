@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, ClipboardList } from "lucide-react";
@@ -38,7 +39,9 @@ export default function NewWordSearchPage() {
     setSubmitError("");
 
     try {
-      await createWordSearchService.execute(values);
+      const result = await createWordSearchService.execute(values);
+      const coverId = (values as CreateWordSearchFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error));
