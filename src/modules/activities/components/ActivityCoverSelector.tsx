@@ -22,6 +22,7 @@ const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 roun
 
 export function ActivityCoverSelector({ value, onChange, disabled = false }: Readonly<Props>) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pendingGeneratedCover, setPendingGeneratedCover] = useState<ActivityCoverSelection | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
@@ -54,7 +55,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
     setError("");
     try {
       const generated = await generateActivityCoverService.execute(prompt);
-      select({ id: generated.id, publicUrl: generated.publicUrl, altText: generated.altText });
+      setPendingGeneratedCover({ id: generated.id, publicUrl: generated.publicUrl, altText: generated.altText });
       setIsAiModalOpen(false);
       setPrompt("");
     } catch (generationError: unknown) {
@@ -70,6 +71,18 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
         <h2 className="text-lg font-semibold text-dark">Imagem de capa <span className="text-sm font-normal text-muted">(opcional)</span></h2>
         <p className="mt-1 text-sm leading-6 text-muted">Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade.</p>
       </div>
+      {pendingGeneratedCover && (
+        <div className="mb-4 max-w-xl rounded-xl border border-accent/30 bg-background p-4">
+          <p className="mb-2 text-sm font-semibold text-dark">Sua capa gerada está pronta</p>
+          <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border">
+            <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
+            <button type="button" onClick={() => setPendingGeneratedCover(null)} disabled={disabled} className={buttonClass}>Descartar</button>
+          </div>
+        </div>
+      )}
       {value && (
         <div className="mb-4 max-w-xl">
           <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-background">
