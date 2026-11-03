@@ -16,11 +16,12 @@ interface Props {
   value: ActivityCoverSelection | null;
   onChange: (value: ActivityCoverSelection | null) => void;
   disabled?: boolean;
+  onGenerationStateChange?: (state: "idle" | "generating" | "awaiting_selection" | "failed") => void;
 }
 
 const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50";
 
-export function ActivityCoverSelector({ value, onChange, disabled = false }: Readonly<Props>) {
+export function ActivityCoverSelector({ value, onChange, disabled = false, onGenerationStateChange }: Readonly<Props>) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingGeneratedCover, setPendingGeneratedCover] = useState<ActivityCoverSelection | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -52,13 +53,16 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
   async function handleGenerate(): Promise<void> {
     if (prompt.trim().length < 5 || isGenerating) return;
     setIsGenerating(true);
+    onGenerationStateChange?.("generating");
     setError("");
     try {
       const generated = await generateActivityCoverService.execute(prompt);
       setPendingGeneratedCover({ id: generated.id, publicUrl: generated.publicUrl, altText: generated.altText });
+      onGenerationStateChange?.("awaiting_selection");
       setIsAiModalOpen(false);
       setPrompt("");
     } catch (generationError: unknown) {
+      onGenerationStateChange?.("failed");
       setError(generationError instanceof Error ? generationError.message : "Não foi possível gerar a imagem.");
     } finally {
       setIsGenerating(false);
@@ -78,8 +82,8 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
-            <button type="button" onClick={() => setPendingGeneratedCover(null)} disabled={disabled} className={buttonClass}>Descartar</button>
+            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
+            <button type="button" onClick={() => { setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className={buttonClass}>Descartar</button>
           </div>
         </div>
       )}
@@ -103,7 +107,8 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
           <Sparkles size={16} aria-hidden="true" /> {isGenerating ? "Gerando em segundo plano..." : "Gerar com IA"}
         </button>
       </div>
-      {isGenerating && <p role="status" className="mt-3 text-sm text-muted">A imagem está sendo gerada e validada em segundo plano. Você pode fechar esta janela e continuar trabalhando.</p>}
+      {isGenerating && <p role="status" className="mt-3 text-sm text-muted">Geração da capa em andamento. Você pode continuar preenchendo a atividade; o salvamento ficará disponível quando a imagem estiver pronta.</p>}
+      {error && <button type="button" onClick={() => { setError(""); onGenerationStateChange?.("idle"); }} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
@@ -112,6 +117,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
               <div>
                 <h3 id="activity-cover-selector-ai-title" className="text-lg font-semibold text-dark">Gerar capa com IA</h3>
                 <p className="mt-1 text-sm leading-6 text-muted">Descreva a ilustração. A imagem será validada e armazenada na biblioteca de mídia.</p>
+                {isGenerating && <p role="status" className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">A imagem está sendo gerada e validada. Você pode fechar este modal e continuar preenchendo a atividade; o salvamento ficará bloqueado até a imagem estar pronta.</p>}
               </div>
               <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
             </div>
@@ -120,7 +126,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
             <p className="mt-1 text-right text-xs text-muted">{prompt.length}/1000</p>
             {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
             <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setIsAiModalOpen(false)} disabled={isGenerating} className={buttonClass}>Cancelar</button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} className={buttonClass}>Fechar</button>
               <button type="button" onClick={() => void handleGenerate()} disabled={isGenerating || prompt.trim().length < 5} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
                 <ImagePlus size={16} aria-hidden="true" /> {isGenerating ? "Gerando imagem..." : "Gerar imagem"}
               </button>
