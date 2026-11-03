@@ -54,6 +54,9 @@ export default function EditWordMatchingPage() {
         const activity = response.data.data;
         if (activity.type !== "word_matching") throw new Error("Esta atividade não é uma Associação de Palavras.");
         setInitialValues({
+          coverMediaAssetId: activity.coverMediaAssetId,
+          coverImageUrl: activity.coverImageUrl,
+          coverAltText: activity.coverAltText,
           name: activity.version.name,
           description: activity.version.description ?? "",
           difficulty: activity.version.difficulty,
