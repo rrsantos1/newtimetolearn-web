@@ -86,10 +86,11 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
           <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void handleUpload(event)} disabled={disabled} className="sr-only" aria-label="Enviar imagem de capa" />
         </label>
         <MediaLibraryPicker disabled={disabled} onSelect={selectLibraryAsset} />
-        <button type="button" onClick={() => setIsAiModalOpen(true)} disabled={disabled} className={buttonClass}>
-          <Sparkles size={16} aria-hidden="true" /> Gerar com IA
+        <button type="button" onClick={() => setIsAiModalOpen(true)} disabled={disabled || isGenerating} className={buttonClass}>
+          <Sparkles size={16} aria-hidden="true" /> {isGenerating ? "Gerando em segundo plano..." : "Gerar com IA"}
         </button>
       </div>
+      {isGenerating && <p role="status" className="mt-3 text-sm text-muted">A imagem está sendo gerada e validada em segundo plano. Você pode fechar esta janela e continuar trabalhando.</p>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
@@ -99,7 +100,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false }: Rea
                 <h3 id="activity-cover-selector-ai-title" className="text-lg font-semibold text-dark">Gerar capa com IA</h3>
                 <p className="mt-1 text-sm leading-6 text-muted">Descreva a ilustração. A imagem será validada e armazenada na biblioteca de mídia.</p>
               </div>
-              <button type="button" onClick={() => setIsAiModalOpen(false)} disabled={isGenerating} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
             </div>
             <label htmlFor="activity-cover-selector-prompt" className="mt-5 block text-sm font-medium text-dark">Descrição da imagem</label>
             <textarea id="activity-cover-selector-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder="Ex.: uma ilustração alegre sobre o sistema solar, com planetas coloridos e fundo espacial..." className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
