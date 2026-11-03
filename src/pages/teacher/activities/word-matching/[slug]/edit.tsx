@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -67,7 +68,12 @@ export default function EditWordMatchingPage() {
 
   async function handleSubmit(values: CreateWordMatchingFormValues): Promise<void> {
     setSubmitError("");
-    try { await createDragDropActivityService.updateWordMatching(slug, values); setSuccess(true); }
+    try {
+      await createDragDropActivityService.updateWordMatching(slug, values);
+      const coverId = (values as CreateWordMatchingFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId !== undefined) await activityCoverService.update(slug, coverId);
+      setSuccess(true);
+    }
     catch (updateError: unknown) { setSubmitError(errorMessage(updateError)); }
   }
 
