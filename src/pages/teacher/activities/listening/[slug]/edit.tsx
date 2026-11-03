@@ -335,7 +335,7 @@ export default function EditListeningPage() {
               {passage.audio?.disclosure && <p className="mt-2 text-xs text-muted">{passage.audio.disclosure}</p>}
             </article>
           ))}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p><button type="button" onClick={() => void handleSave()} disabled={saving} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Save aria-hidden="true" size={18} />{saving ? "Salvando..." : "Salvar alterações"}</button></div>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p><button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Save aria-hidden="true" size={18} />{saving ? "Salvando..." : "Salvar alterações"}</button></div>
         </div>
       )}
     </RoleBasedLayout>
