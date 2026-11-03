@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import axios from "axios";
 import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
@@ -280,7 +281,8 @@ export default function MemoryGamePage() {
 
           {phase === "finished" && (
             <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-              <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
+              <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalPairs > 0 && result.attempt.matchedPairs === result.attempt.totalPairs} />
+                      <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
               {result ? (
                 <>
                   <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
