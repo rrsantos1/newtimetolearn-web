@@ -23,7 +23,7 @@ import type {
 } from "@/modules/activities/types/activityList.types";
 import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 9;
 
 const difficultyLabels: Record<ActivityDifficulty, string> = {
   EASY: "Fácil",
@@ -269,14 +269,33 @@ export default function ExploreActivitiesPage() {
 
           <section
             aria-label="Atividades disponíveis"
-            className="grid gap-4 lg:grid-cols-2"
+            className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
           >
             {result.items.map((activity) => (
               <article
                 key={activity.slug}
                 className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:border-accent/40 hover:shadow-md sm:p-6"
               >
-                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="mb-4" />
+                <div className="mb-4 flex items-start gap-4">
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
+                  {activity.latestVersion && (
+                    <span>
+                      Dificuldade:{" "}
+                      <strong className="font-semibold text-dark">
+                        {difficultyLabels[activity.latestVersion.difficulty]}
+                      </strong>
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock3 size={14} aria-hidden="true" />
+                    {activity.latestVersion?.timeLimitSeconds == null
+                      ? "Sem limite de tempo"
+                      : `${Math.floor(activity.latestVersion.timeLimitSeconds / 60)} min`}
+                  </span>
+                  <span>Publicada em {formatDate(activity.createdAt)}</span>
+                </div>
+              </div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
@@ -296,24 +315,6 @@ export default function ExploreActivitiesPage() {
                       {activity.latestVersion.description}
                     </p>
                   )}
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-4 text-xs text-muted">
-                  {activity.latestVersion && (
-                    <span>
-                      Dificuldade:{" "}
-                      <strong className="font-semibold text-dark">
-                        {difficultyLabels[activity.latestVersion.difficulty]}
-                      </strong>
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock3 size={14} aria-hidden="true" />
-                    {activity.latestVersion?.timeLimitSeconds == null
-                      ? "Sem limite de tempo"
-                      : `${Math.floor(activity.latestVersion.timeLimitSeconds / 60)} min`}
-                  </span>
-                  <span>Publicada em {formatDate(activity.createdAt)}</span>
                 </div>
 
                 <div className="mt-5 flex items-center justify-between gap-3">
