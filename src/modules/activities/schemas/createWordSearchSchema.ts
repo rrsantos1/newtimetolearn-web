@@ -13,6 +13,9 @@ function normalizeWord(word: unknown): string {
 }
 
 export const createWordSearchSchema = Yup.object({
+  coverMediaAssetId: Yup.string().uuid().nullable().optional(),
+  coverImageUrl: Yup.string().url().nullable().optional(),
+  coverAltText: Yup.string().nullable().optional(),
   name: Yup.string()
     .trim()
     .required("Informe o nome da atividade.")
