@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -82,6 +83,8 @@ export default function EditMemoryPage() {
     setSubmitError(""); setMessage("");
     try {
       const result = await updateMemoryService.execute(activity.slug, values);
+      const coverId = (values as CreateMemoryFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId !== undefined) await activityCoverService.update(activity.slug, coverId);
       setActivity((current) => current ? { ...current, version: { ...current.version, name: values.name, description: values.description.trim() || null, difficulty: values.difficulty, timeLimitSeconds: values.timeLimitSeconds, status: result.version.status, revision: result.version.revision, content: values.content, reviewFeedback: null } } : current);
       setInitialValues(values);
       setMessage("Alterações salvas. A versão continua como rascunho até ser enviada para aprovação.");
