@@ -1,6 +1,9 @@
 import * as Yup from "yup";
 
 export interface DragDropBaseValues {
+  coverMediaAssetId?: string | null;
+  coverImageUrl?: string | null;
+  coverAltText?: string | null;
   name: string;
   description: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
