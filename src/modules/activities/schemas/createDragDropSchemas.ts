@@ -40,7 +40,7 @@ export interface CreateSentenceCompletionFormValues extends DragDropBaseValues {
 
 const baseFields = {
   name: Yup.string().trim().required("Informe o nome da atividade.").max(120),
-  description: Yup.string().max(2000).defined(),
+  description: Yup.string().max(2000).default("").defined(),
   difficulty: Yup.mixed<DragDropBaseValues["difficulty"]>().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
   timeLimitSeconds: Yup.number().nullable().integer().min(60).max(14400).defined(),
 };
