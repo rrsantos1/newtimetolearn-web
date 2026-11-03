@@ -85,6 +85,9 @@ export interface ListeningActivityDetailsResponse {
     slug: string;
     type: string;
     status: string;
+    coverMediaAssetId: string | null;
+    coverImageUrl: string | null;
+    coverAltText: string | null;
     version: {
       name: string;
       description: string | null;
