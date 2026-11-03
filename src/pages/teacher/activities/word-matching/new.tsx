@@ -35,7 +35,7 @@ export default function NewWordMatchingPage() {
           <CheckCircle2 aria-hidden="true" className="mx-auto mb-4 size-14 text-green-600" />
           <h2 id="created-title" className="text-2xl font-semibold text-dark">Atividade salva com sucesso!</h2>
           <p className="mt-3 text-sm leading-6 text-muted">A atividade foi salva como rascunho. Você poderá revisá-la em Minhas atividades e enviá-la para aprovação quando estiver pronta.</p>
-          <Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ClipboardList aria-hidden="true" size={18} /> Ver minhas atividades</Link>
+          <Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><ClipboardList aria-hidden="true" size={18} /> Ver minhas atividades</Link>
         </section>
       ) : (
         <>
