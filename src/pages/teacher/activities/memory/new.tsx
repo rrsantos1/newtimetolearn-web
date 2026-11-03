@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, ClipboardList } from "lucide-react";
@@ -20,7 +21,12 @@ export default function NewMemoryPage() {
   const [submitError, setSubmitError] = useState("");
   async function handleSubmit(values: CreateMemoryFormValues): Promise<void> {
     setSubmitError("");
-    try { await createMemoryService.execute(values); setSuccess(true); }
+    try {
+      const result = await createMemoryService.execute(values);
+      const coverId = (values as CreateMemoryFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+      if (coverId) await activityCoverService.update(result.activity.slug, coverId);
+      setSuccess(true);
+    }
     catch (error: unknown) { setSubmitError(getErrorMessage(error)); }
   }
   return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Criar jogo da memória" description="Combine conceitos, palavras e imagens em uma atividade pedagógica.">
