@@ -38,6 +38,9 @@ export interface CreateWordSearchResponse {
 }
 
 export interface EditableWordSearchActivity {
+  coverMediaAssetId: string | null;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
   slug: string;
   type: string;
   status: string;
