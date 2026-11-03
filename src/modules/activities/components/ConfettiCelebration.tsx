@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 
 interface Props {
   active: boolean;
@@ -68,7 +69,7 @@ export function ConfettiCelebration({ active }: Readonly<Props>) {
             backgroundColor: ["#FACC15", "#111827", "#16A34A", "#38BDF8", "#F97316", "#A78BFA"][particle.id % 6],
             "--drift": particle.drift,
             "--rotation": particle.rotation,
-          } as React.CSSProperties}
+          } as CSSProperties}
         />
       ))}
       <p className="sr-only" role="status">Parabéns! Você concluiu a atividade com todas as respostas corretas.</p>
