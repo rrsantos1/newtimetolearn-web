@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -322,6 +323,7 @@ export default function PlayListeningPage() {
                 ) : (
                   <>
                     <div>
+                      <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalBlanks > 0 && result.attempt.correctBlanks === result.attempt.totalBlanks} />
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
                       {result ? (
                         <>
