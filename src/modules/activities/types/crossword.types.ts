@@ -52,6 +52,9 @@ export interface CreateCrosswordResponse {
 export type UpdateCrosswordResponse = CreateCrosswordResponse;
 
 export interface EditableCrosswordActivity {
+  coverMediaAssetId: string | null;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
   slug: string;
   type: string;
   status: string;
