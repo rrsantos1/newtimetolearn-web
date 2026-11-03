@@ -2,6 +2,9 @@ import api from "@/lib/api";
 import type { ActivityDifficulty } from "@/modules/activities/types/activities.types";
 
 export interface EditableQuizActivity {
+  coverMediaAssetId: string | null;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
   slug: string;
   type: string;
   status: string;
