@@ -22,7 +22,7 @@ export function ActivityCoverImage({
         alt={altText?.trim() ?? ""}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
-        className="object-cover"
+        className="object-contain"
       />
     </div>
   );
