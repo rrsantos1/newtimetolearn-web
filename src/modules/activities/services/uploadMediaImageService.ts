@@ -4,6 +4,7 @@ const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gi
 const maxFileSizeBytes = 5 * 1024 * 1024;
 
 export interface UploadedMediaImage {
+  id: string;
   storageKey: string;
   publicUrl: string;
   fileName: string;
@@ -46,6 +47,7 @@ export const uploadMediaImageService = {
     }
 
     return {
+      id: response.data.data.id,
       storageKey: response.data.data.storageKey,
       publicUrl: response.data.data.publicUrl,
       fileName: file.name,
