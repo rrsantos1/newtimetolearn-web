@@ -43,6 +43,11 @@ function getActivityName(activity: ListedActivity): string {
 function getActivityTypeLabel(type: ListedActivity["type"]): string {
   if (type === "word_search") return "Caça-palavras";
   if (type === "crossword") return "Palavras cruzadas";
+  if (type === "memory") return "Jogo da memória";
+  if (type === "quiz") return "Quiz";
+  if (type === "listening") return "Compreensão auditiva";
+  if (type === "word_matching") return "Associação de palavras";
+  if (type === "sentence_completion") return "Preenchimento de lacunas";
   return type;
 }
 
@@ -221,7 +226,11 @@ export default function PendingActivitiesPage() {
                       ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
                       : activity.type === "listening"
                         ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
-                        : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                        : activity.type === "word_matching"
+                          ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
+                          : activity.type === "sentence_completion"
+                            ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
+                            : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                 className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <Play size={16} aria-hidden="true" />
