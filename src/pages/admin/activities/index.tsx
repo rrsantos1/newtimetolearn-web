@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import axios from "axios";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Play, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, Play, RefreshCw, XCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
-import type { ListedActivity } from "@/modules/activities/types/activityList.types";
+import type { ActivityDifficulty, ListedActivity } from "@/modules/activities/types/activityList.types";
 import api from "@/lib/api";
 
 function getErrorMessage(error: unknown): string {
@@ -16,6 +16,24 @@ function getErrorMessage(error: unknown): string {
     return responseData?.error?.message ?? responseData?.message ?? "Não foi possível concluir a operação.";
   }
   return "Ocorreu um erro inesperado.";
+}
+
+const PAGE_SIZE = 9;
+
+const difficultyLabels: Record<ActivityDifficulty, string> = {
+  EASY: "Fácil",
+  MEDIUM: "Média",
+  HARD: "Difícil",
+};
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Data indisponível";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
 function getActivityName(activity: ListedActivity): string {
@@ -30,11 +48,15 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
 
 export default function PendingActivitiesPage() {
   const [activities, setActivities] = useState<ListedActivity[]>([]);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+
+  const totalPages = Math.max(1, Math.ceil(activities.length / PAGE_SIZE));
+  const visibleActivities = activities.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,11 +72,8 @@ export default function PendingActivitiesPage() {
         }
 
         if (!cancelled) {
-          setActivities(
-            allActivities.filter(
-              (activity) => activity.latestVersion?.status === "PENDING_REVIEW",
-            ),
-          );
+          setActivities(allActivities.filter((activity) => activity.latestVersion?.status === "PENDING_REVIEW"));
+          setPage(1);
           setErrorMessage("");
         }
       } catch (error: unknown) {
@@ -159,10 +178,29 @@ export default function PendingActivitiesPage() {
           </button>
         </section>
       ) : (
-        <section aria-label="Atividades aguardando aprovação" className="grid gap-4 lg:grid-cols-2">
-          {activities.map((activity) => (
+        <section aria-label="Atividades aguardando aprovação" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {visibleActivities.map((activity) => (
             <article key={activity.slug} className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-              <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="mb-4" />
+<div className="mb-4 flex items-start gap-4">
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
+                  {activity.latestVersion && (
+                    <span>
+                      Dificuldade:{" "}
+                      <strong className="font-semibold text-dark">
+                        {difficultyLabels[activity.latestVersion.difficulty]}
+                      </strong>
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock3 size={14} aria-hidden="true" />
+                    {activity.latestVersion?.timeLimitSeconds == null
+                      ? "Sem limite de tempo"
+                      : `${Math.floor(activity.latestVersion.timeLimitSeconds / 60)} min`}
+                  </span>
+                  <span>Criada em {formatDate(activity.createdAt)}</span>
+                </div>
+              </div>
               <div className="flex items-start justify-between gap-3">
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted">{getActivityTypeLabel(activity.type)}</span>
                 <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
@@ -204,6 +242,27 @@ export default function PendingActivitiesPage() {
             </article>
           ))}
         </section>
+      )}
+      {!isLoading && activities.length > PAGE_SIZE && (
+        <nav aria-label="Paginação das atividades pendentes" className="mt-8 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            disabled={page <= 1}
+            className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronLeft size={17} aria-hidden="true" /> Anterior
+          </button>
+          <span className="text-sm text-muted">Página {page} de {totalPages}</span>
+          <button
+            type="button"
+            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+            disabled={page >= totalPages}
+            className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Próxima <ChevronRight size={17} aria-hidden="true" />
+          </button>
+        </nav>
       )}
     </RoleBasedLayout>
   );
