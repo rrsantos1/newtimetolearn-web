@@ -1,4 +1,6 @@
 import { useMemo, useRef, useState } from "react";
+import { ActivityCoverSelector, type ActivityCoverSelection } from "@/modules/activities/components/ActivityCoverSelector";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import type { ChangeEvent, MouseEvent } from "react";
 import Link from "next/link";
 import axios from "axios";
@@ -80,6 +82,7 @@ export default function NewListeningPage() {
   const [voice, setVoice] = useState<ListeningVoice>("coral");
   const [savedSlug, setSavedSlug] = useState("");
   const [saving, setSaving] = useState(false);
+  const [cover, setCover] = useState<ActivityCoverSelection | null>(null);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
   const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
@@ -167,6 +170,7 @@ export default function NewListeningPage() {
           passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })),
         },
       });
+      if (cover) await activityCoverService.update(result.activity.slug, cover.id);
       setSavedSlug(result.activity.slug);
 
       let savedPreviewCount = 0;
@@ -323,6 +327,7 @@ export default function NewListeningPage() {
         </section>
       ) : (
         <div className="space-y-6">
+          <ActivityCoverSelector value={cover} onChange={setCover} disabled={saving} />
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
