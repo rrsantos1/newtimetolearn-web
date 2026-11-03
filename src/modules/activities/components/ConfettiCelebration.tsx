@@ -19,7 +19,7 @@ export function ConfettiCelebration({ active }: Readonly<Props>) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[100] overflow-hidden"
+      className="pointer-events-none fixed inset-0 z-100 overflow-hidden"
     >
       <style jsx>{`
         @keyframes timetolearn-confetti-fall {

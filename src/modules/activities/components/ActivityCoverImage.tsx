@@ -16,7 +16,7 @@ export function ActivityCoverImage({
   className = "",
 }: Readonly<Props>) {
   return (
-    <div className={`relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-background ${className}`}>
+    <div className={`relative aspect-video w-full overflow-hidden rounded-xl bg-background ${className}`}>
       <Image
         src={getActivityCoverImage(type, coverImageUrl)}
         alt={altText?.trim() ?? ""}

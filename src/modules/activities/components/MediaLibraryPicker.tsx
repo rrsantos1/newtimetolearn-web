@@ -45,7 +45,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
         <Library aria-hidden="true" size={16} /> Biblioteca
       </button>
       {open && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="media-library-title">
+        <div className="fixed inset-0 z-60 overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="media-library-title">
           <section className="mx-auto my-4 max-w-5xl rounded-2xl bg-surface p-5 shadow-xl sm:my-8 sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>

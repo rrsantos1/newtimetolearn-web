@@ -81,7 +81,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
       {pendingGeneratedCover && (
         <div className="mb-4 max-w-xl rounded-xl border border-accent/30 bg-background p-4">
           <p className="mb-2 text-sm font-semibold text-dark">Sua capa gerada está pronta</p>
-          <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border">
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-border">
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -92,7 +92,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
       )}
       {value && (
         <div className="mb-4 max-w-xl">
-          <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-background">
+          <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
             <Image src={value.publicUrl} alt={value.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={() => onChange(null)} disabled={disabled} className={`${buttonClass} mt-3 text-red-700`}>
