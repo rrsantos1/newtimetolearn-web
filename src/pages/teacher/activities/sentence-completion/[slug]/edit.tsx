@@ -72,6 +72,9 @@ export default function EditSentenceCompletionPage() {
         const activity = response.data.data;
         if (activity.type !== "sentence_completion") throw new Error("Esta atividade não é do tipo Complete as Frases.");
         setInitialValues({
+          coverMediaAssetId: activity.coverMediaAssetId,
+          coverImageUrl: activity.coverImageUrl,
+          coverAltText: activity.coverAltText,
           name: activity.version.name,
           description: activity.version.description ?? "",
           difficulty: activity.version.difficulty,
