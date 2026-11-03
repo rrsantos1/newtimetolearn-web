@@ -99,6 +99,9 @@ export default function EditListeningPage() {
           return;
         }
 
+        setCover(activity.coverMediaAssetId && activity.coverImageUrl
+          ? { id: activity.coverMediaAssetId, publicUrl: activity.coverImageUrl, altText: activity.coverAltText ?? "" }
+          : null);
         setName(activity.version.name);
         setDescription(activity.version.description ?? "");
         setDifficulty(activity.version.difficulty);
