@@ -34,11 +34,12 @@ function ScrollToFirstError() {
     if (submitCount <= handledSubmitCount || isValidating || Object.keys(errors).length === 0) return;
 
     const timeoutId = window.setTimeout(() => {
-      const invalidField = document.querySelector<HTMLElement>('[aria-invalid="true"]')
-        ?? document.querySelector<HTMLElement>('[name="content.pairs.0.source"]')
-        ?? document.querySelector<HTMLElement>('[name="name"]');
-      invalidField?.scrollIntoView({ behavior: "smooth", block: "center" });
-      invalidField?.focus({ preventScroll: true });
+      const invalidField = document.querySelector<HTMLElement>(
+        'input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"], button[aria-invalid="true"]',
+      );
+      const target = invalidField ?? document.querySelector<HTMLElement>('[name="name"]');
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.focus({ preventScroll: true });
       setHandledSubmitCount(submitCount);
     }, 0);
 
@@ -46,6 +47,33 @@ function ScrollToFirstError() {
   }, [errors, handledSubmitCount, isValidating, submitCount]);
 
   return null;
+}
+
+function ValidationErrorSummary() {
+  const { errors, submitCount, isValidating } = useFormikContext<
+    CreateWordMatchingFormValues | CreateSentenceCompletionFormValues
+  >();
+
+  function collectMessages(value: unknown): string[] {
+    if (typeof value === "string") return [value];
+    if (Array.isArray(value)) return value.flatMap(collectMessages);
+    if (value !== null && typeof value === "object") {
+      return Object.values(value).flatMap(collectMessages);
+    }
+    return [];
+  }
+
+  const messages = collectMessages(errors);
+  if (submitCount === 0 || isValidating || messages.length === 0) return null;
+
+  return (
+    <section role="alert" aria-labelledby="validation-summary-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+      <h2 id="validation-summary-title" className="font-semibold">Revise os campos da atividade</h2>
+      <ul className="mt-2 list-disc space-y-1 pl-5">
+        {[...new Set(messages)].map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
+      </ul>
+    </section>
+  );
 }
 
 function ActivityDetailsFields() {
@@ -93,6 +121,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
       {({ values, errors, touched, submitCount, isSubmitting }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ValidationErrorSummary />
           <AiActivitySuggestionsPanel activityType="word_matching" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
@@ -160,6 +189,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ValidationErrorSummary />
           <AiActivitySuggestionsPanel activityType="sentence_completion" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
