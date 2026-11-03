@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
 interface Props {
@@ -12,24 +11,10 @@ const PARTICLES = Array.from({ length: 42 }, (_, index) => ({
   duration: `${2.2 + (index % 5) * 0.25}s`,
   rotation: `${(index * 47) % 360}deg`,
   drift: `${((index % 7) - 3) * 28}px`,
-  shape: index % 3,
 }));
 
 export function ConfettiCelebration({ active }: Readonly<Props>) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!active) {
-      setVisible(false);
-      return;
-    }
-
-    setVisible(true);
-    const timeout = window.setTimeout(() => setVisible(false), 4200);
-    return () => window.clearTimeout(timeout);
-  }, [active]);
-
-  if (!visible) return null;
+  if (!active) return null;
 
   return (
     <div
@@ -72,7 +57,6 @@ export function ConfettiCelebration({ active }: Readonly<Props>) {
           } as CSSProperties}
         />
       ))}
-      <p className="sr-only" role="status">Parabéns! Você concluiu a atividade com todas as respostas corretas.</p>
     </div>
   );
 }
