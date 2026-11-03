@@ -29,6 +29,7 @@ export function ActivityCoverField() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
+  const [generationFailed, setGenerationFailed] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const generationStateRef = useRef<"idle" | "generating" | "awaiting_selection" | "failed">("idle");
 
@@ -54,6 +55,7 @@ export function ActivityCoverField() {
 
   function updateGenerationState(state: "idle" | "generating" | "awaiting_selection" | "failed"): void {
     generationStateRef.current = state;
+    setGenerationFailed(state === "failed");
   }
 
   function selectCover(asset: SelectedCover): void {
@@ -170,7 +172,7 @@ export function ActivityCoverField() {
       </div>
 
       {isGenerating && <p role="status" className="mt-3 text-sm text-muted">Geração da capa em andamento. Você pode continuar preenchendo a atividade; o salvamento ficará disponível quando a imagem estiver pronta.</p>}
-      {generationStateRef.current === "failed" && <button type="button" onClick={discardGeneration} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
+      {generationFailed && <button type="button" onClick={discardGeneration} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       {isAiModalOpen && (
