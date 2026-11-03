@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -290,7 +291,8 @@ export default function PlayCrosswordPage() {
                     <>
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
-                          <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                          <ConfettiCelebration active={attemptResult.attempt.wordsFound.length === attemptResult.attempt.totalWords} />
+                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
                           <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Palavras corretas: {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
                           <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(attemptResult.attempt.elapsedSeconds)}</p>
