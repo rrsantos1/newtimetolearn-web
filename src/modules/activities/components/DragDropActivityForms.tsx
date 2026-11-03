@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -121,6 +122,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
       {({ values, errors, touched, submitCount, isSubmitting }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ActivityCoverField />
           <ValidationErrorSummary />
           <AiActivitySuggestionsPanel activityType="word_matching" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
@@ -189,6 +191,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
+          <ActivityCoverField />
           <ValidationErrorSummary />
           <AiActivitySuggestionsPanel activityType="sentence_completion" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
