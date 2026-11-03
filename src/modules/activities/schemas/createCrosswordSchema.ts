@@ -9,6 +9,9 @@ function normalizeAnswer(value: string): string {
 }
 
 export const createCrosswordSchema = Yup.object({
+  coverMediaAssetId: Yup.string().uuid().nullable().optional(),
+  coverImageUrl: Yup.string().url().nullable().optional(),
+  coverAltText: Yup.string().nullable().optional(),
   name: Yup.string()
     .trim()
     .required("Informe o nome da atividade.")
