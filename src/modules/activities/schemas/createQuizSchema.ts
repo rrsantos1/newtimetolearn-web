@@ -41,6 +41,9 @@ const questionSchema = Yup.object({
 );
 
 export const createQuizSchema = Yup.object({
+  coverMediaAssetId: Yup.string().uuid().nullable().optional(),
+  coverImageUrl: Yup.string().url().nullable().optional(),
+  coverAltText: Yup.string().nullable().optional(),
   name: Yup.string().trim().required("Informe o nome do Quiz.").max(120, "O nome deve ter no máximo 120 caracteres."),
   description: Yup.string().trim().max(2000).optional(),
   difficulty: Yup.string().oneOf(["EASY", "MEDIUM", "HARD"]).required("Selecione a dificuldade."),
