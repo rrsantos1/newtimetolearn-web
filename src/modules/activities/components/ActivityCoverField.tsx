@@ -15,12 +15,14 @@ interface SelectedCover {
 
 interface CoverFormValues {
   coverMediaAssetId?: string | null;
+  coverImageUrl?: string | null;
+  coverAltText?: string | null;
 }
 
 const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50";
 
 export function ActivityCoverField() {
-  const { setFieldValue, isSubmitting } = useFormikContext<CoverFormValues>();
+  const { values, setFieldValue, isSubmitting } = useFormikContext<CoverFormValues>();
   const [cover, setCover] = useState<SelectedCover | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -31,6 +33,8 @@ export function ActivityCoverField() {
     setCover(asset);
     setError("");
     void setFieldValue("coverMediaAssetId", asset.id);
+    void setFieldValue("coverImageUrl", asset.publicUrl);
+    void setFieldValue("coverAltText", asset.altText);
   }
 
   function selectLibraryAsset(asset: MediaLibraryAsset): void {
@@ -72,7 +76,13 @@ export function ActivityCoverField() {
     setCover(null);
     setError("");
     void setFieldValue("coverMediaAssetId", null);
+    void setFieldValue("coverImageUrl", null);
+    void setFieldValue("coverAltText", null);
   }
+
+  const visibleCover = cover ?? (values.coverMediaAssetId && values.coverImageUrl
+    ? { id: values.coverMediaAssetId, publicUrl: values.coverImageUrl, altText: values.coverAltText ?? "" }
+    : null);
 
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
@@ -81,10 +91,10 @@ export function ActivityCoverField() {
         <p className="mt-1 text-sm leading-6 text-muted">Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade.</p>
       </div>
 
-      {cover && (
+      {visibleCover && (
         <div className="mb-4 max-w-xl">
           <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-background">
-            <Image src={cover.publicUrl} alt={cover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
+            <Image src={visibleCover.publicUrl} alt={visibleCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={clearCover} disabled={isSubmitting} className={`${buttonClass} mt-3 text-red-700`}>
             <Trash2 size={16} aria-hidden="true" /> Remover capa
@@ -106,7 +116,7 @@ export function ActivityCoverField() {
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget && !isGenerating) setIsAiModalOpen(false); }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
           <section role="dialog" aria-modal="true" aria-labelledby="activity-cover-ai-title" className="w-full max-w-xl rounded-2xl border border-border bg-surface p-5 shadow-xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
