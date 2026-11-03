@@ -50,6 +50,9 @@ function toFormValues(
     : [];
 
   return {
+    coverMediaAssetId: activity.coverMediaAssetId,
+    coverImageUrl: activity.coverImageUrl,
+    coverAltText: activity.coverAltText,
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
