@@ -74,6 +74,7 @@ export default function EditListeningPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [cover, setCover] = useState<ActivityCoverSelection | null>(null);
+  const [coverChanged, setCoverChanged] = useState(false);
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
   const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
@@ -198,7 +199,7 @@ export default function EditListeningPage() {
           passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })),
         },
       });
-      if (cover) await activityCoverService.update(slug, cover.id);
+      if (coverChanged) await activityCoverService.update(slug, cover?.id ?? null);
       let savedPreviewCount = 0;
       const previewErrors: string[] = [];
 
@@ -295,7 +296,7 @@ export default function EditListeningPage() {
         <div className="space-y-6">
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
-          <ActivityCoverSelector value={cover} onChange={setCover} disabled={saving} />
+          <ActivityCoverSelector value={cover} onChange={(value) => { setCover(value); setCoverChanged(true); }} disabled={saving} />
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
