@@ -10,6 +10,8 @@ import { listeningService } from "@/modules/activities/services/listeningService
 import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
 import type { ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
 
+type CoverGenerationState = "idle" | "generating" | "awaiting_selection" | "failed";
+
 interface PassageDraft extends ListeningPassageInput {
   audio?: ListeningPassageInput["audio"];
 }
@@ -83,6 +85,7 @@ export default function NewListeningPage() {
   const [savedSlug, setSavedSlug] = useState("");
   const [saving, setSaving] = useState(false);
   const [cover, setCover] = useState<ActivityCoverSelection | null>(null);
+  const [coverGenerationState, setCoverGenerationState] = useState<CoverGenerationState>("idle");
   const [generatingId, setGeneratingId] = useState("");
   const [previewingId, setPreviewingId] = useState("");
   const [audioPreviews, setAudioPreviews] = useState<Record<string, { url: string; disclosure: string; voice: ListeningVoice }>>({});
@@ -143,6 +146,14 @@ export default function NewListeningPage() {
   }
 
   async function handleSave(): Promise<void> {
+    if (coverGenerationState !== "idle") {
+      setError(coverGenerationState === "generating"
+        ? "Aguarde a geração da capa terminar antes de salvar."
+        : coverGenerationState === "awaiting_selection"
+          ? "Escolha usar ou descartar a capa gerada antes de salvar."
+          : "A geração da capa falhou. Tente novamente ou descarte a tentativa antes de salvar.");
+      return;
+    }
     setError("");
     setNotice("");
     if (!name.trim()) {
@@ -327,7 +338,7 @@ export default function NewListeningPage() {
         </section>
       ) : (
         <div className="space-y-6">
-          <ActivityCoverSelector value={cover} onChange={setCover} disabled={saving} />
+          <ActivityCoverSelector value={cover} onChange={setCover} onGenerationStateChange={setCoverGenerationState} disabled={saving} />
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -454,7 +465,7 @@ export default function NewListeningPage() {
           {notice && <p role="status" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p>
-            <button type="button" onClick={() => void handleSave()} disabled={saving} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+            <button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
               <FileAudio aria-hidden="true" size={18} /> {saving ? "Salvando rascunho..." : "Salvar rascunho"}
             </button>
           </div>
