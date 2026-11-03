@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useFormikContext } from "formik";
-import { ImagePlus, Library, Sparkles, Trash2, Upload, X } from "lucide-react";
+import { ImagePlus, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import type { MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
 import { uploadMediaImageService } from "@/modules/activities/services/uploadMediaImageService";
