@@ -15,6 +15,9 @@ interface Response {
   data: {
     slug: string;
     type: string;
+    coverMediaAssetId: string | null;
+    coverImageUrl: string | null;
+    coverAltText: string | null;
     version: {
       name: string;
       description: string | null;
