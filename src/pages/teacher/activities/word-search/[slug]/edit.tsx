@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -144,6 +145,8 @@ export default function EditWordSearchPage() {
             words: values.words,
             },
         );
+        const coverId = (values as CreateWordSearchFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
+        if (coverId !== undefined) await activityCoverService.update(activity.slug, coverId);
 
         setActivity((current) => {
             if (!current) {
