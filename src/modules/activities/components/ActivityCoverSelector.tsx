@@ -27,6 +27,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState("");
+  const [generationFailed, setGenerationFailed] = useState(false);
 
   function select(asset: ActivityCoverSelection): void {
     onChange(asset);
@@ -54,6 +55,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
     if (prompt.trim().length < 5 || isGenerating) return;
     setIsGenerating(true);
     onGenerationStateChange?.("generating");
+    setGenerationFailed(false);
     setError("");
     try {
       const generated = await generateActivityCoverService.execute(prompt);
@@ -63,6 +65,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
       setPrompt("");
     } catch (generationError: unknown) {
       onGenerationStateChange?.("failed");
+      setGenerationFailed(true);
       setError(generationError instanceof Error ? generationError.message : "Não foi possível gerar a imagem.");
     } finally {
       setIsGenerating(false);
@@ -82,7 +85,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
+            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); setGenerationFailed(false); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
             <button type="button" onClick={() => { setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className={buttonClass}>Descartar</button>
           </div>
         </div>
@@ -108,7 +111,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
         </button>
       </div>
       {isGenerating && <p role="status" className="mt-3 text-sm text-muted">Geração da capa em andamento. Você pode continuar preenchendo a atividade; o salvamento ficará disponível quando a imagem estiver pronta.</p>}
-      {error && <button type="button" onClick={() => { setError(""); onGenerationStateChange?.("idle"); }} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
+      {generationFailed && <button type="button" onClick={() => { setError(""); setGenerationFailed(false); onGenerationStateChange?.("idle"); }} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
