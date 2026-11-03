@@ -31,6 +31,9 @@ function toFormValues(activity: EditableMemoryActivity): CreateMemoryFormValues 
     second: { type: "text" as const, value: "" },
   }));
   const candidate: CreateMemoryFormValues = {
+    coverMediaAssetId: activity.coverMediaAssetId,
+    coverImageUrl: activity.coverImageUrl,
+    coverAltText: activity.coverAltText,
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
