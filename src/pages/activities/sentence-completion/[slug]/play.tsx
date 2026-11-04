@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
@@ -125,6 +126,13 @@ export default function SentenceCompletionPlayPage() {
       const submitted = await dragDropActivityService.submit(activity.slug, "sentence-completion", answersToSubmit, elapsed, attemptToken);
       setResult(submitted);
       setRanking(submitted.ranking);
+      if (submitted.attempt.totalItems > 0 && submitted.attempt.correctCount === submitted.attempt.totalItems) {
+        playActivitySound("applause");
+      } else if (submitted.attempt.correctCount > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure, "Não foi possível registrar o resultado."));
     } finally {
