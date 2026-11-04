@@ -46,7 +46,8 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   if (type === "memory") return "Jogo da memória";
   if (type === "quiz") return "Quiz";
   if (type === "listening") return "Compreensão auditiva";
-  if (type === "word_matching") return "Associação de palavras";\n  if (type === "multiple_choice") return "Múltipla escolha";
+  if (type === "word_matching") return "Associação de palavras";
+  if (type === "multiple_choice") return "Múltipla escolha";
   if (type === "sentence_completion") return "Preenchimento de lacunas";
   return type;
 }
@@ -226,7 +227,9 @@ export default function PendingActivitiesPage() {
                       ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
                       : activity.type === "listening"
                         ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
-                        : activity.type === "multiple_choice"\n                          ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`\n                          : activity.type === "word_matching"
+                        : activity.type === "multiple_choice"
+                          ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`
+                          : activity.type === "word_matching"
                           ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
                           : activity.type === "sentence_completion"
                             ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
