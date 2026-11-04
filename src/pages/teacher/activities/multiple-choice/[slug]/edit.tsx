@@ -52,7 +52,7 @@ export default function EditWordMatchingPage() {
         const response = await api.get<Response>(`/activities/${encodeURIComponent(slug)}`);
         if (!active) return;
         const activity = response.data.data;
-        if (activity.type !== "word_matching") throw new Error("Esta atividade não é uma atividade de Múltipla Escolha.");
+        if (activity.type !== "multiple_choice") throw new Error("Esta atividade não é uma atividade de Múltipla Escolha.");
         setInitialValues({
           coverMediaAssetId: activity.coverMediaAssetId,
           coverImageUrl: activity.coverImageUrl,
