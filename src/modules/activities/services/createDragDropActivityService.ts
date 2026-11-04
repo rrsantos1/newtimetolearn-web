@@ -3,6 +3,7 @@ import type {
   CreateSentenceCompletionFormValues,
   CreateWordMatchingFormValues,
 } from "@/modules/activities/schemas/createDragDropSchemas";
+import type { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
 
 interface DragDropMutationResponse {
   success: true;
@@ -10,6 +11,13 @@ interface DragDropMutationResponse {
     activity: { id: string; slug: string; type: string; status: string };
     version: { id: string; versionNumber: number; status: string };
   };
+}
+
+
+function normalizeMatchingItem(item: MemoryItemValue): MemoryItemValue {
+  return item.type === "text"
+    ? { type: "text", value: item.value.trim() }
+    : { type: "image", storageKey: item.storageKey.trim(), altText: item.altText.trim() };
 }
 
 function normalizeBase(input: CreateWordMatchingFormValues | CreateSentenceCompletionFormValues) {
@@ -28,8 +36,8 @@ export const createDragDropActivityService = {
       content: {
         pairs: input.content.pairs.map((pair) => ({
           id: pair.id,
-          source: { type: "text", value: pair.source.trim() },
-          target: { type: "text", value: pair.target.trim() },
+          source: normalizeMatchingItem(pair.source),
+          target: normalizeMatchingItem(pair.target),
         })),
       },
     });
