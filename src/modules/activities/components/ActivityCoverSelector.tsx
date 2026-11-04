@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
-import { ImagePlus, Sparkles, Trash2, Upload, X } from "lucide-react";
+import { ImagePlus, LoaderCircle, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import type { MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
 import { uploadMediaImageService } from "@/modules/activities/services/uploadMediaImageService";
@@ -23,6 +23,7 @@ const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 roun
 
 export function ActivityCoverSelector({ value, onChange, disabled = false, onGenerationStateChange }: Readonly<Props>) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStatus, setGenerationStatus] = useState<"PENDING" | "PROCESSING">("PENDING");
   const [pendingGeneratedCover, setPendingGeneratedCover] = useState<ActivityCoverSelection | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -54,11 +55,12 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
   async function handleGenerate(): Promise<void> {
     if (prompt.trim().length < 5 || isGenerating) return;
     setIsGenerating(true);
+    setGenerationStatus("PENDING");
     onGenerationStateChange?.("generating");
     setGenerationFailed(false);
     setError("");
     try {
-      const generated = await generateActivityCoverService.execute(prompt);
+      const generated = await generateActivityCoverService.execute(prompt, setGenerationStatus);
       setPendingGeneratedCover({ id: generated.id, publicUrl: generated.publicUrl, altText: generated.altText });
       onGenerationStateChange?.("awaiting_selection");
       setIsAiModalOpen(false);
@@ -110,7 +112,21 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
           <Sparkles size={16} aria-hidden="true" /> {isGenerating ? "Gerando em segundo plano..." : "Gerar com IA"}
         </button>
       </div>
-      {isGenerating && <p role="status" className="mt-3 text-sm text-muted">Geração da capa em andamento. Você pode continuar preenchendo a atividade; o salvamento ficará disponível quando a imagem estiver pronta.</p>}
+      {isGenerating && (
+        <div role="status" aria-live="polite" className="mt-4 max-w-xl rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-950">
+          <div className="flex items-center gap-3">
+            <LoaderCircle size={22} className="shrink-0 animate-spin text-blue-700" aria-hidden="true" />
+            <div>
+              <p className="text-sm font-semibold">{generationStatus === "PENDING" ? "Preparando sua solicitação..." : "A IA está criando sua capa..."}</p>
+              <p className="mt-1 text-sm text-blue-800">{generationStatus === "PENDING" ? "Sua solicitação entrou na fila e será processada em instantes." : "A imagem está sendo gerada e validada. Esse processo pode levar alguns minutos."}</p>
+            </div>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-200">
+            <div className="h-full w-2/5 animate-pulse rounded-full bg-blue-700" />
+          </div>
+          <p className="mt-2 text-xs text-blue-800">Você pode continuar preenchendo a atividade. Avisaremos aqui quando a prévia estiver pronta.</p>
+        </div>
+      )}
       {generationFailed && <button type="button" onClick={() => { setError(""); setGenerationFailed(false); onGenerationStateChange?.("idle"); }} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
       {isAiModalOpen && (
