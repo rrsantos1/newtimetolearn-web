@@ -109,7 +109,7 @@ function ActivityDetailsFields() {
   );
 }
 
-export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateWordMatchingFormValues>>) {
+export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho", activityMode = "word_matching" }: Readonly<CommonProps<CreateWordMatchingFormValues> & { activityMode?: "word_matching" | "multiple_choice" }>) {
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
@@ -128,7 +128,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-              <div><h2 className="text-lg font-semibold text-dark">Associações</h2><p className="mt-1 text-sm text-muted">Cada item da coluna esquerda será associado a um único item da direita.</p></div>
+              <div><h2 className="text-lg font-semibold text-dark">{activityMode === "multiple_choice" ? "Questões e correspondências" : "Associações"}</h2><p className="mt-1 text-sm text-muted">{activityMode === "multiple_choice" ? "Cada item de origem será apresentado individualmente, com todas as correspondências disponíveis para escolha." : "Cada item da coluna esquerda será associado a um único item da direita."}</p></div>
               <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> Criar com IA</button>
               <span className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-dark">{values.content.pairs.length}/50</span>
             </div>
@@ -137,7 +137,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                 <div className="space-y-4">
                   {values.content.pairs.map((pair, index) => (
                     <fieldset key={pair.id} className="grid gap-4 rounded-xl border border-border p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                      <legend className="px-1 text-sm font-semibold text-dark">Par {index + 1}</legend>
+                      <legend className="px-1 text-sm font-semibold text-dark">{activityMode === "multiple_choice" ? `Questão ${index + 1}` : `Par ${index + 1}`}</legend>
                       <div>
                         <label htmlFor={`source-${index}`} className={labelClass}>Palavra / origem *</label>
                         <Field id={`source-${index}`} name={`content.pairs.${index}.source`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && submitCount > 0)} />
@@ -148,7 +148,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                         <Field id={`target-${index}`} name={`content.pairs.${index}.target`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && submitCount > 0)} />
                         {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
                       </div>
-                      <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`Remover par ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
+                      <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? "Remover questão" : "Remover par"} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
                     </fieldset>
                   ))}
                   <button type="button" onClick={() => push({ id: createDragDropId("pair"), source: "", target: "" })} disabled={values.content.pairs.length >= 50} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> Adicionar associação</button>
