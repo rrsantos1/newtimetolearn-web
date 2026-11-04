@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -302,7 +303,10 @@ export default function PlayQuizPage() {
         <header className="border-b border-border bg-surface">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/dashboard" />
-            <LogoutButton />
+            <div className="flex items-center gap-2">
+              <ActivitySoundToggle />
+              <LogoutButton />
+            </div>
           </div>
         </header>
         <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
