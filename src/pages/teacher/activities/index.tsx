@@ -109,7 +109,7 @@ function getStatusClass(activity: ListedActivity): string {
 
 function canEditActivity(activity: ListedActivity): boolean {
   if (
-    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion") ||
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion" && activity.type !== "multiple_choice") ||
     !activity.latestVersion
   ) {
     return false;
@@ -145,7 +145,7 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   }
 
   if (type === "word_matching") return "Associação de palavras";
-  if (type === "sentence_completion") return "Complete as frases";
+  if (type === "sentence_completion") return "Complete as frases";\n  if (type === "multiple_choice") return "Múltipla escolha";
 
   return type.replaceAll("_", " ");
 }
@@ -158,7 +158,7 @@ function getEditHref(activity: ListedActivity): string {
   if (activity.type === "memory") return "/teacher/activities/memory/" + slug + "/edit";
   if (activity.type === "listening") return "/teacher/activities/listening/" + slug + "/edit";
   if (activity.type === "word_matching") return "/teacher/activities/word-matching/" + slug + "/edit";
-  if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";
+  if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";\n  if (activity.type === "multiple_choice") return "/teacher/activities/multiple-choice/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
