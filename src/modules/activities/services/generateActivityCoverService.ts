@@ -35,12 +35,16 @@ function wait(milliseconds: number): Promise<void> {
 }
 
 export const generateActivityCoverService = {
-  async execute(prompt: string): Promise<GeneratedActivityCover> {
+  async execute(
+    prompt: string,
+    onStatusChange?: (status: "PENDING" | "PROCESSING") => void,
+  ): Promise<GeneratedActivityCover> {
     const created = await api.post<CreateGenerationResponse>(
       "/activities/ai/activity-cover",
       { prompt: prompt.trim() },
     );
     const { jobId } = created.data.data;
+    onStatusChange?.("PENDING");
 
     for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
       await wait(POLL_INTERVAL_MS);
@@ -48,6 +52,8 @@ export const generateActivityCoverService = {
         `/activities/ai/activity-cover/${jobId}`,
       );
       const job = response.data.data;
+      if (job.status === "PROCESSING") onStatusChange?.("PROCESSING");
+      else if (job.status === "PENDING") onStatusChange?.("PENDING");
 
       if (job.status === "COMPLETED" && job.asset) return job.asset;
 
