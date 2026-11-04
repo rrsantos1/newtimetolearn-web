@@ -260,7 +260,7 @@ export default function PlayWordSearchPage() {
 
               {phase === "ready" && (
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
-                  <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                  <section className="rounded-2xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm sm:p-8">
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                       <Play size={24} aria-hidden="true" />
                     </div>
@@ -268,7 +268,7 @@ export default function PlayWordSearchPage() {
                     <p className="mt-2 text-sm leading-6 text-muted">
                       Encontre todas as palavras escondidas na grade. O cronômetro só começa quando você iniciar.
                     </p>
-                    <div className="mt-5 rounded-xl bg-background p-4">
+                    <div className="mt-5 rounded-xl bg-sky-100/70 p-4">
                       <p className="text-sm font-semibold text-dark">Tempo disponível</p>
                       <p className="mt-1 text-sm text-muted">
                         {activity.version.timeLimitSeconds
@@ -290,7 +290,7 @@ export default function PlayWordSearchPage() {
                   </section>
 
                   {isStudent && (
-                    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-7">
+                    <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-7">
                       <div className="flex items-center gap-2">
                         <Trophy size={21} className="text-primary" aria-hidden="true" />
                         <h2 className="text-lg font-bold text-dark">Record atual — Top 5</h2>
@@ -337,7 +337,7 @@ export default function PlayWordSearchPage() {
               )}
 
               {phase === "finished" && !isStudent && (
-                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Teste concluído</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">
                     Você terminou a prévia desta atividade. Testes de professor não são registrados no ranking dos alunos.
@@ -352,7 +352,7 @@ export default function PlayWordSearchPage() {
               )}
 
               {phase === "finished" && attemptResult && isStudent && (
-                <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+                <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <ConfettiCelebration active={attemptResult.attempt.wordsFound.length === attemptResult.attempt.totalWords} />
