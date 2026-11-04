@@ -284,7 +284,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
                       document.getElementById(`crossword-cell-${clue.row}-${clue.col}`)?.focus();
                     }}
                     aria-pressed={selected}
-                    className={`flex min-h-10 w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selected ? "bg-primary/10 text-dark ring-1 ring-primary/30" : "text-muted hover:bg-background hover:text-dark"}`}
+                    className={`flex min-h-10 w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selected ? "bg-violet-100 text-violet-950 ring-1 ring-violet-300" : "text-muted hover:bg-background hover:text-dark"}`}
                   >
                     <span className="shrink-0 font-bold">{clue.number}.</span><span>{clue.clue}</span>
                   </button>
@@ -309,11 +309,11 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
 
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)]">
-      <div className="min-w-0 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-4">
+      <div className="min-w-0 rounded-2xl border border-violet-200 bg-violet-50/40 p-3 shadow-sm sm:p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-dark">Preencha as letras nas casas</p>
           <div className="flex items-center gap-2">
-            <p role="timer" aria-live="off" className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-background text-dark"}`}>
+            <p role="timer" aria-live="off" className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-sky-100 text-sky-900"}`}>
               {timeLimitSeconds === null ? `Tempo: ${formatTime(elapsedSeconds)}` : `Restante: ${formatTime(Math.max(0, timeLimitSeconds - elapsedSeconds))}`}
             </p>
             <p className="text-xs text-muted">Setas para navegar</p>
@@ -375,9 +375,9 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
           </div>
         </div>
       </div>
-      <aside className="min-w-0 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+      <aside className="min-w-0 rounded-2xl border border-sky-200 bg-sky-50/50 p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2"><Check size={18} className="text-primary" aria-hidden="true" /><h2 className="text-base font-bold text-dark">Pistas</h2></div>
-        {activeClue && <div className="mb-4 rounded-xl bg-background p-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted">{activeDirection === "across" ? "Horizontal" : "Vertical"} · {activeClue.number}</p><p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p></div>}
+        {activeClue && <div className="mb-4 rounded-xl border border-violet-200 bg-violet-100/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted">{activeDirection === "across" ? "Horizontal" : "Vertical"} · {activeClue.number}</p><p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p></div>}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
           {renderClueList(acrossClues, "across")}
           {renderClueList(downClues, "down")}
