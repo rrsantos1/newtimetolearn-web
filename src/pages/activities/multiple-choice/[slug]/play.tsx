@@ -124,6 +124,7 @@ export default function MultipleChoicePlayPage() {
       setResult(submitted);
       setRanking(submitted.ranking);
       if (submitted.attempt.correctCount > 0 && submitted.attempt.correctCount < submitted.attempt.totalItems) playActivitySound("success");
+      else if (submitted.attempt.correctCount === 0) playActivitySound("error");
       else playActivitySound("error");
     } catch (submitFailure: unknown) {
       setSubmitError(message(submitFailure));
