@@ -123,9 +123,15 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
       const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
-      const isBlankPair = (entry: unknown): boolean => typeof entry === "object" && entry !== null && "source" in entry && "target" in entry && typeof entry.source === "string" && typeof entry.target === "string" && entry.source.trim().length === 0 && entry.target.trim().length === 0;
+      const isBlankPair = (entry: unknown): boolean => {
+        if (typeof entry !== "object" || entry === null || !("source" in entry) || !("target" in entry)) return false;
+        return [entry.source, entry.target].every((item) => typeof item === "object" && item !== null && "type" in item && item.type === "text" && "value" in item && typeof item.value === "string" && item.value.trim().length === 0);
+      };
       const existingPairs = currentPairs.length > 0 && currentPairs.every(isBlankPair) ? [] : currentPairs;
-      const additions = selected.flatMap((index) => { const pair = suggestions.pairs[index]; return pair ? [{ id: createId(), source: pair.sourceText, target: pair.targetText }] : []; }).slice(0, Math.max(0, 50 - existingPairs.length));
+      const additions = selected.flatMap((index) => {
+        const pair = suggestions.pairs[index];
+        return pair ? [{ id: createId(), source: { type: "text" as const, value: pair.sourceText }, target: { type: "text" as const, value: pair.targetText } }] : [];
+      }).slice(0, Math.max(0, 50 - existingPairs.length));
       await setFieldValue("content.pairs", [...existingPairs, ...additions]);
       setNotice(additions.length + " associação(ões) adicionada(s). Revise antes de salvar.");
     } else if (suggestions.activityType === "sentence_completion") {
