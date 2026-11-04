@@ -114,7 +114,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
     name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
-    content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: "", target: "" })) },
+    content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: { type: "text", value: "" }, target: { type: "text", value: "" } })) },
   }), []);
 
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
@@ -162,7 +162,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                       <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? "Remover questão" : "Remover par"} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
                     </fieldset>
                   ))}
-                  <button type="button" onClick={() => push({ id: createDragDropId("pair"), source: "", target: "" })} disabled={values.content.pairs.length >= 50} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> Adicionar associação</button>
+                  <button type="button" onClick={() => push({ id: createDragDropId("pair"), source: { type: "text", value: "" }, target: { type: "text", value: "" } })} disabled={values.content.pairs.length >= 50} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> Adicionar associação</button>
                 </div>
               )}
             </FieldArray>
