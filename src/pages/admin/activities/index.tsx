@@ -226,7 +226,7 @@ export default function PendingActivitiesPage() {
                       ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
                       : activity.type === "listening"
                         ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
-                        : activity.type === "word_matching"
+                        : activity.type === "multiple_choice"\n                          ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`\n                          : activity.type === "word_matching"
                           ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
                           : activity.type === "sentence_completion"
                             ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
