@@ -41,7 +41,7 @@ export const activityCatalog: readonly ActivityCatalogItem[] = [
   { type: "word_matching", label: "Associação de palavras", description: "Arraste cada palavra até sua correspondência correta.", createHref: "/teacher/activities/word-matching/new", available: true },
   { type: "sentence_completion", label: "Complete as frases", description: "Preencha lacunas arrastando palavras do banco.", createHref: "/teacher/activities/sentence-completion/new", available: true },
   { type: "cloze", label: "Texto lacunado", description: "Complete um texto com termos que faltam.", available: false },
-  { type: "multiple_choice", label: "Múltipla escolha", description: "Escolha a resposta correta entre alternativas.", available: false },
+  { type: "multiple_choice", label: "Múltipla escolha", description: "Veja um item por vez e escolha sua correspondência entre todas as opções.", createHref: "/teacher/activities/multiple-choice/new", available: true },
   { type: "fill_in_the_blank", label: "Complete a lacuna", description: "Digite a resposta que completa uma frase.", available: false },
   { type: "drag_drop", label: "Arrastar e soltar", description: "Associe elementos arrastando-os para os lugares corretos.", available: false },
   { type: "sentence_order", label: "Ordenar frases", description: "Organize palavras ou trechos na sequência correta.", available: false },
