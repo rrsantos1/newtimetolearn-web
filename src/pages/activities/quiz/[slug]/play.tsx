@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import Image from "next/image";
@@ -231,6 +232,14 @@ export default function PlayQuizPage() {
       const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsed);
       setAttemptResult(result);
       setRanking(result.ranking);
+      const correctAnswers = questions.filter((question) => finalAnswers[question.id] === question.correctOptionId).length;
+      if (correctAnswers === questions.length && questions.length > 0) {
+        playActivitySound("applause");
+      } else if (correctAnswers > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
     } finally {
@@ -266,6 +275,14 @@ export default function PlayQuizPage() {
       const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsedSeconds);
       setAttemptResult(result);
       setRanking(result.ranking);
+      const correctAnswers = questions.filter((question) => answers[question.id] === question.correctOptionId).length;
+      if (correctAnswers === questions.length && questions.length > 0) {
+        playActivitySound("applause");
+      } else if (correctAnswers > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
     } finally {
