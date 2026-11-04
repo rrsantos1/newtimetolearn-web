@@ -8,6 +8,7 @@ import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { WordMatchingForm } from "@/modules/activities/components/DragDropActivityForms";
 import { createDragDropActivityService } from "@/modules/activities/services/createDragDropActivityService";
 import { createDragDropId, type CreateWordMatchingFormValues } from "@/modules/activities/schemas/createDragDropSchemas";
+import type { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
 import api from "@/lib/api";
 
 interface Response {
@@ -23,7 +24,7 @@ interface Response {
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
       timeLimitSeconds: number | null;
-      content: { pairs: Array<{ id: string; source: { type: "text"; value: string }; target: { type: "text"; value: string } }> };
+      content: { pairs: Array<{ id: string; source: MemoryItemValue; target: MemoryItemValue }> };
     };
   };
 }
@@ -61,7 +62,7 @@ export default function EditWordMatchingPage() {
           description: activity.version.description ?? "",
           difficulty: activity.version.difficulty,
           timeLimitSeconds: activity.version.timeLimitSeconds,
-          content: { pairs: activity.version.content.pairs.map((pair) => ({ id: pair.id || createDragDropId("pair"), source: pair.source.value, target: pair.target.value })) },
+          content: { pairs: activity.version.content.pairs.map((pair) => ({ id: pair.id || createDragDropId("pair"), source: pair.source, target: pair.target })) },
         });
       } catch (loadError: unknown) {
         if (active) setError(errorMessage(loadError));
