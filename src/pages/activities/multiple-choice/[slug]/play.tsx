@@ -12,7 +12,7 @@ import { dragDropActivityService, type DragDropAnswer, type DragDropAttemptResul
 import api from "@/lib/api";
 
 type Item = { id: string; type: "text"; value: string } | { id: string; type: "image"; storageKey: string; altText: string; publicUrl?: string };
-interface Pair { source: Item; target: Item }
+interface Pair { id?: string; source: Item; target: Item }
 interface ActivityResponse { success: true; data: { slug: string; type: string; version: { name: string; description: string | null; timeLimitSeconds: number | null; content: { pairs: Pair[] } } } }
 type Phase = "ready" | "playing" | "finished";
 
