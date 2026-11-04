@@ -123,8 +123,7 @@ export default function MultipleChoicePlayPage() {
       const submitted = await dragDropActivityService.submit(activity.slug, "multiple-choice", payload, seconds, attemptToken);
       setResult(submitted);
       setRanking(submitted.ranking);
-      if (submitted.attempt.totalItems > 0 && submitted.attempt.correctCount === submitted.attempt.totalItems) playActivitySound("applause");
-      else if (submitted.attempt.correctCount > 0) playActivitySound("success");
+      if (submitted.attempt.correctCount > 0 && submitted.attempt.correctCount < submitted.attempt.totalItems) playActivitySound("success");
       else playActivitySound("error");
     } catch (submitFailure: unknown) {
       setSubmitError(message(submitFailure));
