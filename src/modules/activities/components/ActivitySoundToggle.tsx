@@ -6,7 +6,10 @@ export function ActivitySoundToggle() {
   const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
-    setEnabled(areActivitySoundsEnabled());
+    const timeoutId = window.setTimeout(() => {
+      setEnabled(areActivitySoundsEnabled());
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   function toggleSounds(): void {
