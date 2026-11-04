@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
@@ -137,6 +138,13 @@ export default function WordMatchingPlayPage() {
       const submitted = await dragDropActivityService.submit(activity.slug, "word-matching", answersToSubmit, elapsed, attemptToken);
       setResult(submitted);
       setRanking(submitted.ranking);
+      if (submitted.attempt.totalItems > 0 && submitted.attempt.correctCount === submitted.attempt.totalItems) {
+        playActivitySound("applause");
+      } else if (submitted.attempt.correctCount > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
     } catch (submitFailure: unknown) {
       setSubmitError(getErrorMessage(submitFailure, "Não foi possível registrar o resultado."));
     } finally {
