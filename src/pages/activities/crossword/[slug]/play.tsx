@@ -242,11 +242,11 @@ export default function PlayCrosswordPage() {
 
               {phase === "ready" && (
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
-                  <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                  <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-8">
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">Complete as palavras usando as pistas horizontais e verticais. O cronômetro começa somente quando você iniciar.</p>
-                    <div className="mt-5 rounded-xl bg-background p-4">
+                    <div className="mt-5 rounded-xl bg-violet-100/70 p-4">
                       <p className="text-sm font-semibold text-dark">Tempo disponível</p>
                       <p className="mt-1 text-sm text-muted">{formatTime(activity.version.timeLimitSeconds)}</p>
                     </div>
@@ -257,7 +257,7 @@ export default function PlayCrosswordPage() {
                   </section>
 
                   {isStudent && (
-                    <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-7">
+                    <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-7">
                       <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Record atual — Top 5</h2></div>
                       <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                       {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando recorde...</div> : rankingError ? (
@@ -271,7 +271,7 @@ export default function PlayCrosswordPage() {
               {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues} timeLimitSeconds={activity.version.timeLimitSeconds} onComplete={handleComplete} canAutoFill={!isStudent} />}
 
               {phase === "finished" && !isStudent && (
-                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Teste concluído</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">A prévia foi encerrada. Tentativas de professor não são registradas no recorde dos alunos.</p>
                   <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white hover:bg-primary-hover"><Play size={17} aria-hidden="true" />Testar novamente</button>
@@ -279,7 +279,7 @@ export default function PlayCrosswordPage() {
               )}
 
               {phase === "finished" && isStudent && (
-                <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+                <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
                   {submittingAttempt ? (
                     <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />Conferindo respostas e registrando sua pontuação...</div>
                   ) : attemptError ? (
