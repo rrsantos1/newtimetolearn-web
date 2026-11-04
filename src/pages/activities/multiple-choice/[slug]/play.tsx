@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { ArrowLeft, CheckCircle2, LoaderCircle, Play, Trophy } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
@@ -41,7 +41,7 @@ function imageUrl(item: Extract<Item, { type: "image" }>): string | null {
   return base ? `${base}/${item.storageKey}` : null;
 }
 function ItemView({ item }: Readonly<{ item: Item }>) {
-  if (item.type === "text") return <span className="break-words text-base font-semibold text-dark">{item.value}</span>;
+  if (item.type === "text") return <span className="wrap-break-word text-base font-semibold text-dark">{item.value}</span>;
   const src = imageUrl(item);
   return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || "Imagem da opção"} fill sizes="(max-width: 640px) 90vw, 40vw" unoptimized className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
 }

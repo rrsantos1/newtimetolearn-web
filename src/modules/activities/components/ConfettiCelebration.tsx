@@ -1,6 +1,4 @@
-import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 
 interface Props {
   active: boolean;
@@ -9,21 +7,22 @@ interface Props {
 const PARTICLES = Array.from({ length: 42 }, (_, index) => ({
   id: index,
   left: `${(index * 37) % 100}%`,
-  delay: `${(index % 9) * 0.08}s`,
-  duration: `${2.2 + (index % 5) * 0.25}s`,
+  delay: `${(index % 9) * 0.12}s`,
+  duration: `${5 + (index % 5) * 0.25}s`,
   rotation: `${(index * 47) % 360}deg`,
   drift: `${((index % 7) - 3) * 28}px`,
 }));
 
+const COLORS = [
+  "#FACC15",
+  "#111827",
+  "#16A34A",
+  "#38BDF8",
+  "#F97316",
+  "#A78BFA",
+];
+
 export function ConfettiCelebration({ active }: Readonly<Props>) {
-  const playedRef = useRef(false);
-
-  useEffect(() => {
-    if (!active || playedRef.current) return;
-    playedRef.current = true;
-    playActivitySound("applause");
-  }, [active]);
-
   if (!active) return null;
 
   return (
@@ -33,10 +32,26 @@ export function ConfettiCelebration({ active }: Readonly<Props>) {
     >
       <style jsx>{`
         @keyframes timetolearn-confetti-fall {
-          0% { transform: translate3d(0, -12vh, 0) rotate(0deg); opacity: 0; }
-          10% { opacity: 1; }
-          100% { transform: translate3d(var(--drift), 110vh, 0) rotate(var(--rotation)); opacity: 0; }
+          0% {
+            transform: translate3d(0, -12vh, 0) rotate(0deg);
+            opacity: 0;
+          }
+
+          10% {
+            opacity: 1;
+          }
+
+          85% {
+            opacity: 1;
+          }
+
+          100% {
+            transform: translate3d(var(--drift), 110vh, 0)
+              rotate(var(--rotation));
+            opacity: 0;
+          }
         }
+
         .timetolearn-confetti {
           position: absolute;
           top: -18px;
@@ -44,27 +59,42 @@ export function ConfettiCelebration({ active }: Readonly<Props>) {
           height: 14px;
           border-radius: 2px;
           animation-name: timetolearn-confetti-fall;
-          animation-timing-function: cubic-bezier(.2,.7,.3,1);
+          animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
           animation-fill-mode: both;
         }
-        .timetolearn-confetti:nth-child(3n) { border-radius: 50%; width: 10px; height: 10px; }
-        .timetolearn-confetti:nth-child(3n + 1) { width: 6px; height: 16px; }
+
+        .timetolearn-confetti:nth-child(3n) {
+          border-radius: 50%;
+          width: 10px;
+          height: 10px;
+        }
+
+        .timetolearn-confetti:nth-child(3n + 1) {
+          width: 6px;
+          height: 16px;
+        }
+
         @media (prefers-reduced-motion: reduce) {
-          .timetolearn-confetti { animation-duration: 0.01ms !important; }
+          .timetolearn-confetti {
+            animation-duration: 0.01ms !important;
+          }
         }
       `}</style>
+
       {PARTICLES.map((particle) => (
         <span
           key={particle.id}
           className="timetolearn-confetti"
-          style={{
-            left: particle.left,
-            animationDelay: particle.delay,
-            animationDuration: particle.duration,
-            backgroundColor: ["#FACC15", "#111827", "#16A34A", "#38BDF8", "#F97316", "#A78BFA"][particle.id % 6],
-            "--drift": particle.drift,
-            "--rotation": particle.rotation,
-          } as CSSProperties}
+          style={
+            {
+              left: particle.left,
+              animationDelay: particle.delay,
+              animationDuration: particle.duration,
+              backgroundColor: COLORS[particle.id % COLORS.length],
+              "--drift": particle.drift,
+              "--rotation": particle.rotation,
+            } as CSSProperties
+          }
         />
       ))}
     </div>

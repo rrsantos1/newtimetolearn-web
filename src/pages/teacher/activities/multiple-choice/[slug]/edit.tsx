@@ -9,6 +9,7 @@ import { WordMatchingForm } from "@/modules/activities/components/DragDropActivi
 import { createDragDropActivityService } from "@/modules/activities/services/createDragDropActivityService";
 import { createDragDropId, type CreateWordMatchingFormValues } from "@/modules/activities/schemas/createDragDropSchemas";
 import api from "@/lib/api";
+import { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
 
 interface Response {
   success: true;

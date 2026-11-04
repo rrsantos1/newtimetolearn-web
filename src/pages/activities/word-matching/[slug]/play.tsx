@@ -52,7 +52,7 @@ function imageUrl(item: Extract<DragItem, { type: "image" }>): string | null {
   return base ? `${base}/${item.storageKey}` : null;
 }
 function ItemView({ item }: Readonly<{ item: DragItem }>) {
-  if (item.type === "text") return <span className="break-words text-sm font-semibold text-dark sm:text-base">{item.value}</span>;
+  if (item.type === "text") return <span className="wrap-break-word text-sm font-semibold text-dark sm:text-base">{item.value}</span>;
   const src = imageUrl(item);
   return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || "Imagem da associação"} fill sizes="(max-width: 640px) 80vw, 30vw" unoptimized className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
 }
