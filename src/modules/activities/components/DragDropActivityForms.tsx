@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
+import { MemoryItemEditor } from "@/modules/activities/components/MemoryForm";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -119,7 +120,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
   return (
     <Formik enableReinitialize initialValues={initialValues} validationSchema={createWordMatchingSchema} onSubmit={onSubmit}>
-      {({ values, errors, touched, submitCount, isSubmitting }) => (
+      {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
           <ActivityCoverField />
@@ -139,13 +140,23 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                     <fieldset key={pair.id} className="grid gap-4 rounded-xl border border-border p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                       <legend className="px-1 text-sm font-semibold text-dark">{activityMode === "multiple_choice" ? `Questão ${index + 1}` : `Par ${index + 1}`}</legend>
                       <div>
-                        <label htmlFor={`source-${index}`} className={labelClass}>{activityMode === "multiple_choice" ? "Item apresentado *" : "Palavra / origem *"}</label>
-                        <Field id={`source-${index}`} name={`content.pairs.${index}.source`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && submitCount > 0)} />
+                        <MemoryItemEditor
+                          name={`content-pairs-${index}-source`}
+                          title={activityMode === "multiple_choice" ? "Item apresentado *" : "Palavra / origem *"}
+                          value={pair.source}
+                          invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0))}
+                          onChange={(item) => void setFieldValue(`content.pairs.${index}.source`, item)}
+                        />
                         {getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.source`))}</p>}
                       </div>
                       <div>
-                        <label htmlFor={`target-${index}`} className={labelClass}>{activityMode === "multiple_choice" ? "Opção correta *" : "Correspondência *"}</label>
-                        <Field id={`target-${index}`} name={`content.pairs.${index}.target`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && submitCount > 0)} />
+                        <MemoryItemEditor
+                          name={`content-pairs-${index}-target`}
+                          title={activityMode === "multiple_choice" ? "Opção correta *" : "Correspondência *"}
+                          value={pair.target}
+                          invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0))}
+                          onChange={(item) => void setFieldValue(`content.pairs.${index}.target`, item)}
+                        />
                         {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
                       </div>
                       <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? "Remover questão" : "Remover par"} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
