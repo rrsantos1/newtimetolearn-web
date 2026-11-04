@@ -57,7 +57,7 @@ function resolveImageUrl(storageKey: string, publicUrl?: string): string | undef
   return publicBaseUrl ? `${publicBaseUrl}/${storageKey}` : undefined;
 }
 
-function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
+export function MemoryItemEditor({ name, value, onChange, title, invalid }: Readonly<{
   name: string; value: MemoryItemValue; title: string; invalid: boolean; onChange: (item: MemoryItemValue) => void;
 }>) {
   const [uploading, setUploading] = useState(false);
