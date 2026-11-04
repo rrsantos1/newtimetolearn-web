@@ -37,9 +37,10 @@ function ScrollToFirstError() {
 
     const timeoutId = window.setTimeout(() => {
       const invalidField = document.querySelector<HTMLElement>(
-        'input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"], button[aria-invalid="true"]',
+        'input[aria-invalid="true"], textarea[aria-invalid="true"], select[aria-invalid="true"]',
       );
-      const target = invalidField ?? document.querySelector<HTMLElement>('[name="name"]');
+      const errorSummary = document.getElementById("drag-drop-validation-summary");
+      const target = invalidField ?? errorSummary ?? document.querySelector<HTMLElement>('[name="name"]');
       target?.scrollIntoView({ behavior: "smooth", block: "center" });
       target?.focus({ preventScroll: true });
       setHandledSubmitCount(submitCount);
@@ -69,7 +70,7 @@ function ValidationErrorSummary() {
   if (submitCount === 0 || isValidating || messages.length === 0) return null;
 
   return (
-    <section role="alert" aria-labelledby="validation-summary-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    <section id="drag-drop-validation-summary" role="alert" tabIndex={-1} aria-labelledby="validation-summary-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
       <h2 id="validation-summary-title" className="font-semibold">Revise os campos da atividade</h2>
       <ul className="mt-2 list-disc space-y-1 pl-5">
         {[...new Set(messages)].map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
