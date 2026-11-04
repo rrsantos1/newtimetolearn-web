@@ -356,7 +356,7 @@ export default function ExploreActivitiesPage() {
                     <Link href={`/activities/listening/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                       <Gamepad2 size={16} aria-hidden="true" /> Executar
                     </Link>
-                  ) : activity.type === "word_matching" ? (
+                  ) : activity.type === "multiple_choice" ? (\n                    <Link href={`/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>\n                      <Gamepad2 size={16} aria-hidden="true" /> Executar\n                    </Link>\n                  ) : activity.type === "word_matching" ? (
                     <Link href={`/activities/word-matching/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                       <Gamepad2 size={16} aria-hidden="true" /> Executar
                     </Link>
