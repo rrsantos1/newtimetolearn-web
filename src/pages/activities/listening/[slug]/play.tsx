@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import type { ReactNode } from "react";
@@ -200,6 +201,13 @@ export default function PlayListeningPage() {
     try {
       const attemptResult = await listeningService.submitAttempt(activity.slug, submittedAnswers, elapsedSeconds);
       setResult(attemptResult);
+      if (attemptResult.attempt.totalBlanks > 0 && attemptResult.attempt.correctBlanks === attemptResult.attempt.totalBlanks) {
+        playActivitySound("applause");
+      } else if (attemptResult.attempt.correctBlanks > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
     } catch (caught: unknown) {
       setSubmitError(getErrorMessage(caught, "Não foi possível registrar suas respostas. Tente novamente."));
       submittedRef.current = false;
