@@ -9,6 +9,8 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMemoryAttemptService, type MemoryAttemptResult } from "@/modules/activities/services/submitMemoryAttemptService";
 import { getMemoryRankingService, type MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
 import type { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 
 interface Pair {
   id: string;
@@ -202,6 +204,7 @@ export default function MemoryGamePage() {
     if (selectedCards.length === 2 && selectedCards[0].pairId === selectedCards[1].pairId) {
       const nextMatched = [...matchedIds, selectedCards[0].pairId];
       setMatchedIds(nextMatched);
+      playActivitySound("success");
       window.setTimeout(() => setOpenIds([]), 500);
       if (nextMatched.length === (activity?.version.content.pairs.length ?? 0)) {
         void finishGame(nextMatched, wrongAttempts);
@@ -210,6 +213,7 @@ export default function MemoryGamePage() {
     }
 
     setWrongAttempts((current) => current + 1);
+    playActivitySound("error");
     window.setTimeout(() => setOpenIds([]), 900);
   }
 
@@ -222,10 +226,11 @@ export default function MemoryGamePage() {
         <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
       ) : activity ? (
         <div className="space-y-5">
-          <header className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+          <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">Jogo da memória</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark">{activity.version.name}</h1>
             {activity.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}
+            <ActivitySoundToggle />
           </header>
 
           {phase === "ready" && (
