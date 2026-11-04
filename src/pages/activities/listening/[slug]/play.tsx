@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -246,9 +247,12 @@ export default function PlayListeningPage() {
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark sm:text-3xl">{activity?.version.name ?? "Atividade de Listening"}</h1>
             {activity?.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}
           </div>
-          <Link href={backHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+          <div className="flex items-center gap-2">
+            <ActivitySoundToggle />
+            <Link href={backHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
             <ArrowLeft size={16} aria-hidden="true" />{backLabel}
-          </Link>
+            </Link>
+          </div>
         </div>
 
         {loading ? (
