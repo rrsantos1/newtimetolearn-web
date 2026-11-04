@@ -230,7 +230,7 @@ export default function MemoryGamePage() {
 
           {phase === "ready" && (
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
-              <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+              <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                 <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                 <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas. O cronômetro só começa quando você clicar em iniciar.</p>
@@ -245,7 +245,7 @@ export default function MemoryGamePage() {
               </section>
 
               {isStudent && (
-                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-7">
+                <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-7">
                   <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
                   <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                   {rankingLoading ? (
@@ -270,7 +270,7 @@ export default function MemoryGamePage() {
                 {cards.map((card) => {
                   const visible = visibleIds.has(card.id);
                   return (
-                    <button type="button" key={card.id} onClick={() => selectCard(card)} disabled={matchedIds.includes(card.pairId) || (openIds.length >= 2 && !openIds.includes(card.id))} aria-label={visible ? (card.item.type === "text" ? card.item.value : card.item.altText || "Imagem") : "Revelar carta"} className={`flex min-h-32 items-center justify-center overflow-hidden rounded-2xl border p-3 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:min-h-40 ${visible ? "border-yellow-400 bg-yellow-50 text-dark" : "border-border bg-dark text-white hover:bg-gray-700"}`}>
+                    <button type="button" key={card.id} onClick={() => selectCard(card)} disabled={matchedIds.includes(card.pairId) || (openIds.length >= 2 && !openIds.includes(card.id))} aria-label={visible ? (card.item.type === "text" ? card.item.value : card.item.altText || "Imagem") : "Revelar carta"} className={`flex min-h-32 items-center justify-center overflow-hidden rounded-2xl border p-3 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:min-h-40 ${visible ? "border-amber-400 bg-amber-100 text-amber-950" : "border-slate-300 bg-violet-700 text-white hover:bg-violet-800"}`}>
                       {visible ? card.item.type === "text" ? <span className="wrap-break-word text-sm font-semibold sm:text-base">{card.item.value}</span> : imageUrl(card.item) ? <span className="relative block h-24 w-full sm:h-32"><Image src={imageUrl(card.item)!} alt={card.item.altText} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw" unoptimized className="object-contain" /></span> : <span className="text-xs text-red-700">Imagem indisponível</span> : <span aria-hidden="true" className="text-3xl font-bold">?</span>}
                     </button>
                   );
@@ -280,7 +280,7 @@ export default function MemoryGamePage() {
           )}
 
           {phase === "finished" && (
-            <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+            <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalPairs > 0 && result.attempt.matchedPairs === result.attempt.totalPairs} />
                       <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
               {result ? (
