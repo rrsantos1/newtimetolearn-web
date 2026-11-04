@@ -50,8 +50,8 @@ export const createDragDropActivityService = {
       ...normalizeBase(input),
       content: { pairs: input.content.pairs.map((pair) => ({
         id: pair.id,
-        source: { type: "text", value: pair.source.trim() },
-        target: { type: "text", value: pair.target.trim() },
+        source: normalizeMatchingItem(pair.source),
+        target: normalizeMatchingItem(pair.target),
       })) },
     });
     return response.data.data;
@@ -62,8 +62,8 @@ export const createDragDropActivityService = {
       ...normalizeBase(input),
       content: { pairs: input.content.pairs.map((pair) => ({
         id: pair.id,
-        source: { type: "text", value: pair.source.trim() },
-        target: { type: "text", value: pair.target.trim() },
+        source: normalizeMatchingItem(pair.source),
+        target: normalizeMatchingItem(pair.target),
       })) },
     });
     return response.data.data;
@@ -92,8 +92,8 @@ export const createDragDropActivityService = {
       content: {
         pairs: input.content.pairs.map((pair) => ({
           id: pair.id,
-          source: { type: "text", value: pair.source.trim() },
-          target: { type: "text", value: pair.target.trim() },
+          source: normalizeMatchingItem(pair.source),
+          target: normalizeMatchingItem(pair.target),
         })),
       },
     });
