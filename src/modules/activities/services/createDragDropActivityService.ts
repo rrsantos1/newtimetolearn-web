@@ -36,6 +36,31 @@ export const createDragDropActivityService = {
     return response.data.data;
   },
 
+
+  async createMultipleChoice(input: CreateWordMatchingFormValues): Promise<DragDropMutationResponse["data"]> {
+    const response = await api.post<DragDropMutationResponse>("/activities/multiple-choice", {
+      ...normalizeBase(input),
+      content: { pairs: input.content.pairs.map((pair) => ({
+        id: pair.id,
+        source: { type: "text", value: pair.source.trim() },
+        target: { type: "text", value: pair.target.trim() },
+      })) },
+    });
+    return response.data.data;
+  },
+
+  async updateMultipleChoice(slug: string, input: CreateWordMatchingFormValues): Promise<DragDropMutationResponse["data"]> {
+    const response = await api.patch<DragDropMutationResponse>(`/activities/${encodeURIComponent(slug)}/multiple-choice`, {
+      ...normalizeBase(input),
+      content: { pairs: input.content.pairs.map((pair) => ({
+        id: pair.id,
+        source: { type: "text", value: pair.source.trim() },
+        target: { type: "text", value: pair.target.trim() },
+      })) },
+    });
+    return response.data.data;
+  },
+
   async createSentenceCompletion(input: CreateSentenceCompletionFormValues): Promise<DragDropMutationResponse["data"]> {
     const words = input.content.words.map((word) => ({ id: word.id, text: word.text.trim() }));
     const sentences = input.content.sentences.map((sentence) => {
