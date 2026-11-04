@@ -139,12 +139,12 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                     <fieldset key={pair.id} className="grid gap-4 rounded-xl border border-border p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                       <legend className="px-1 text-sm font-semibold text-dark">{activityMode === "multiple_choice" ? `Questão ${index + 1}` : `Par ${index + 1}`}</legend>
                       <div>
-                        <label htmlFor={`source-${index}`} className={labelClass}>Palavra / origem *</label>
+                        <label htmlFor={`source-${index}`} className={labelClass}>{activityMode === "multiple_choice" ? "Item apresentado *" : "Palavra / origem *"}</label>
                         <Field id={`source-${index}`} name={`content.pairs.${index}.source`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && submitCount > 0)} />
                         {getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.source`))}</p>}
                       </div>
                       <div>
-                        <label htmlFor={`target-${index}`} className={labelClass}>Correspondência *</label>
+                        <label htmlFor={`target-${index}`} className={labelClass}>{activityMode === "multiple_choice" ? "Opção correta *" : "Correspondência *"}</label>
                         <Field id={`target-${index}`} name={`content.pairs.${index}.target`} maxLength={500} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && submitCount > 0)} />
                         {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
                       </div>
