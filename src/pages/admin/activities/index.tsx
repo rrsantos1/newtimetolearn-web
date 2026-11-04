@@ -46,7 +46,7 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   if (type === "memory") return "Jogo da memória";
   if (type === "quiz") return "Quiz";
   if (type === "listening") return "Compreensão auditiva";
-  if (type === "word_matching") return "Associação de palavras";
+  if (type === "word_matching") return "Associação de palavras";\n  if (type === "multiple_choice") return "Múltipla escolha";
   if (type === "sentence_completion") return "Preenchimento de lacunas";
   return type;
 }
