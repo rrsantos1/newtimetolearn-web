@@ -13,6 +13,7 @@ import { getWordSearchActivityService } from "@/modules/activities/services/word
 import { getWordSearchRankingService, type WordSearchRankingEntry } from "@/modules/activities/services/wordSearch/getWordSearchRankingService";
 import type { EditableWordSearchActivity } from "@/modules/activities/types/activities.types";
 import { submitWordSearchAttemptService, type WordSearchAttemptResult } from "@/modules/activities/services/wordSearch/submitWordSearchAttemptService";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 
 interface GeneratedData {
   grid?: unknown;
@@ -230,7 +231,7 @@ export default function PlayWordSearchPage() {
         <header className="border-b border-border bg-surface">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/dashboard" />
-            <LogoutButton />
+            <div className="flex items-center gap-2"><ActivitySoundToggle /><LogoutButton /></div>
           </div>
         </header>
 
