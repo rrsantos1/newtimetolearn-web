@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 
 interface Props {
   active: boolean;
@@ -14,6 +16,14 @@ const PARTICLES = Array.from({ length: 42 }, (_, index) => ({
 }));
 
 export function ConfettiCelebration({ active }: Readonly<Props>) {
+  const playedRef = useRef(false);
+
+  useEffect(() => {
+    if (!active || playedRef.current) return;
+    playedRef.current = true;
+    playActivitySound("applause");
+  }, [active]);
+
   if (!active) return null;
 
   return (
