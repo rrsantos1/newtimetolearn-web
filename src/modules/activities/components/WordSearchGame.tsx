@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 
 export interface WordSearchPosition {
   word: string;
@@ -255,6 +256,7 @@ export function WordSearchGame({
         (word) => word.normalized === match.word,
       )?.original ?? match.word;
       setMessage(`Boa! Você encontrou: ${original}.`);
+      playActivitySound("success");
 
       if (nextFoundWords.length === words.length && !finishedRef.current) {
         finishedRef.current = true;
@@ -262,6 +264,7 @@ export function WordSearchGame({
       }
     } else {
       setMessage("Essa seleção não corresponde a uma palavra da lista.");
+      playActivitySound("error");
     }
 
     setSelectionStart(null);
