@@ -90,8 +90,12 @@ export default function MultipleChoicePlayPage() {
         const loaded = response.data.data;
         if (loaded.type !== "multiple_choice") throw new Error("Esta atividade não é de Múltipla Escolha.");
         setActivity(loaded);
-        setQuestions(loaded.version.content.pairs);
-        setOptions(shuffle(loaded.version.content.pairs.map((pair) => pair.target)));
+        const normalized = loaded.version.content.pairs.map((pair, index) => ({
+          source: { ...pair.source, id: pair.source.id || `preview-source-${pair.id ?? index}` } as Item,
+          target: { ...pair.target, id: pair.target.id || `preview-target-${pair.id ?? index}` } as Item,
+        }));
+        setQuestions(shuffle(normalized));
+        setOptions(shuffle(normalized.map((pair) => pair.target)));
         if (isStudent) void loadRanking(loaded.slug);
       } catch (loadError: unknown) {
         if (active) setError(message(loadError));
