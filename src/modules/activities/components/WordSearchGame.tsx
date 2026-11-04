@@ -302,7 +302,7 @@ export function WordSearchGame({
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
-      <section className="min-w-0 rounded-2xl border border-border bg-surface p-3 shadow-sm sm:p-5">
+      <section className="min-w-0 rounded-2xl border border-sky-200 bg-sky-50/50 p-3 shadow-sm sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-dark">Encontre as palavras</p>
@@ -314,13 +314,13 @@ export function WordSearchGame({
             <span className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-background text-dark"}`}>
               Tempo: {formatTime(Math.min(elapsedSeconds, timeLimit))}
             </span>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-dark">
+            <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-900">
               {foundWords.length} de {words.length}
             </span>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-border bg-background p-2 sm:p-4">
+        <div className="overflow-x-auto rounded-xl border border-sky-200 bg-white p-2 shadow-inner sm:p-4">
           <div
             role="group"
             aria-label="Grade interativa do caça-palavras"
@@ -348,7 +348,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-yellow-300 text-gray-950" : "bg-white text-gray-800 hover:bg-yellow-50"}`}
+                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
                   >
                     {letter}
                   </button>
@@ -397,7 +397,7 @@ export function WordSearchGame({
         )}
       </section>
 
-      <aside className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
+      <aside className="rounded-2xl border border-violet-200 bg-violet-50/50 p-5 shadow-sm">
         <div className="flex items-center gap-2">
           <CircleHelp size={19} className="text-primary" aria-hidden="true" />
           <h2 className="font-semibold text-dark">Lista de palavras</h2>
