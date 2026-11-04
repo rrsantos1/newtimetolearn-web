@@ -40,7 +40,7 @@ export interface DragDropAnswer {
 }
 
 export const dragDropActivityService = {
-  async getRanking(slug: string, kind: "word-matching" | "sentence-completion"): Promise<DragDropRankingEntry[]> {
+  async getRanking(slug: string, kind: "word-matching" | "sentence-completion" | "multiple-choice"): Promise<DragDropRankingEntry[]> {
     const response = await api.get<RankingResponse>(`/activities/${encodeURIComponent(slug)}/${kind}/ranking`);
     return response.data.data.ranking;
   },
