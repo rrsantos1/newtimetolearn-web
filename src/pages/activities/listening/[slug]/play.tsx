@@ -260,7 +260,7 @@ export default function PlayListeningPage() {
         ) : activity ? (
           <>
             {phase === "ready" && (
-              <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+              <section className="rounded-2xl border border-cyan-200 bg-cyan-50/50 p-5 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Headphones size={24} aria-hidden="true" /></div>
                 <h2 className="mt-4 text-xl font-bold text-dark">Ouça com atenção e complete os textos</h2>
                 <p className="mt-2 text-sm leading-6 text-muted">{activity.version.content.instructions || "Ouça o áudio e preencha as lacunas."}</p>
@@ -288,7 +288,7 @@ export default function PlayListeningPage() {
                 {passages.map((passage, passageIndex) => {
                   const audioUrl = getAudioUrl(passage);
                   return (
-                    <article key={passage.id} className="space-y-4 rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
+                    <article key={passage.id} className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
                       <div>
                         <h2 className="text-lg font-bold text-dark">{passage.title || `Texto ${passageIndex + 1}`}</h2>
                         {passage.audio.disclosure && <p className="mt-1 text-xs text-muted">{passage.audio.disclosure}</p>}
@@ -312,7 +312,7 @@ export default function PlayListeningPage() {
             )}
 
             {phase === "finished" && (
-              <section className="space-y-6 rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+              <section className="space-y-6 rounded-2xl border border-cyan-200 bg-cyan-50/50 p-5 shadow-sm sm:p-8">
                 {submitting ? (
                   <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />Corrigindo as respostas e registrando o resultado...</div>
                 ) : submitError ? (
@@ -330,7 +330,7 @@ export default function PlayListeningPage() {
                           <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Respostas corretas: {result.attempt.correctBlanks} de {result.attempt.totalBlanks}</p>
                           <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(result.attempt.elapsedSeconds)}</p>
-                          <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
+                          <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
                         </>
                       ) : (
                         <p className="mt-2 text-sm text-muted">{previewNotice || "Prévia concluída."} Tempo utilizado: {formatTime(elapsedSeconds)}.</p>
@@ -346,7 +346,7 @@ export default function PlayListeningPage() {
                         <div className="space-y-3">
                           <h2 className="text-lg font-bold text-dark">Revisão das respostas</h2>
                           {result.review.map((item, index) => (
-                            <article key={answerKey(item.passageId, item.blankId)} className="rounded-xl border border-border p-4">
+                            <article key={answerKey(item.passageId, item.blankId)} className="rounded-xl border border-cyan-200 bg-cyan-50/40 p-4">
                               <div className="flex items-start gap-2">
                                 {item.isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
