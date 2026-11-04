@@ -329,18 +329,18 @@ export default function PlayQuizPage() {
 
               {phase === "setup" && (
                 <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
-                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                   <h2 className="mt-4 text-xl font-bold text-dark">Como deseja responder?</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">Escolha o formato antes de começar. O cronômetro só inicia quando você clicar em iniciar.</p>
                   <fieldset className="mt-6 grid gap-3 sm:grid-cols-2">
                     <legend className="mb-3 text-sm font-semibold text-dark">Modo de execução</legend>
-                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                       <input type="radio" name="quiz-mode" value="question" checked={mode === "question"} onChange={() => setMode("question")} className="mr-2 accent-accent" />
                       <span className="font-semibold text-dark">Questão a questão</span>
                       <span className="mt-2 block text-sm leading-5 text-muted">Responda e avance uma pergunta por vez. Você poderá revisar tudo no final.</span>
                     </label>
-                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "all" ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                    <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "all" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                       <input type="radio" name="quiz-mode" value="all" checked={mode === "all"} onChange={() => setMode("all")} className="mr-2 accent-accent" />
                       <span className="font-semibold text-dark">Todas as perguntas</span>
                       <span className="mt-2 block text-sm leading-5 text-muted">Veja todas as questões na mesma tela e escolha as respostas antes de finalizar.</span>
@@ -357,7 +357,7 @@ export default function PlayQuizPage() {
                   {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
                 </section>
                 {isStudent && (
-                  <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-7">
+                  <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-7">
                     <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
                     <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                     {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div> : <RankingList ranking={ranking} /> }
@@ -379,7 +379,7 @@ export default function PlayQuizPage() {
                   </div>
 
                   {mode === "question" && currentQuestion ? (
-                    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+                    <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-8">
                       <p className="text-xs font-semibold uppercase tracking-wide text-primary">Questão {currentIndex + 1}</p>
                       <h2 className="mt-3 whitespace-pre-wrap text-lg font-bold leading-7 text-dark sm:text-xl">{currentQuestion.statement}</h2>
                       <div className={currentQuestion.images.length > 0 ? "mt-5 grid gap-6 lg:grid-cols-2 lg:items-start" : "mt-5"}>
@@ -390,7 +390,7 @@ export default function PlayQuizPage() {
                         )}
                         <div className={currentQuestion.images.length > 0 ? "min-w-0 space-y-3" : "grid gap-3 sm:grid-cols-2"}>
                           {currentQuestion.options.map((option, index) => (
-                            <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-primary bg-primary/5 ring-2 ring-primary/20" : "border-border hover:border-primary/50"}`}>
+                            <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                               <input type="radio" name={currentQuestion.id} value={option.id} checked={answers[currentQuestion.id] === option.id} onChange={() => chooseAnswer(currentQuestion.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
                               <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}<ImageList images={option.images} /></span>
                             </label>
@@ -415,7 +415,7 @@ export default function PlayQuizPage() {
                             {question.images.length > 0 && <div className="min-w-0"><ImageList images={question.images} /></div>}
                             <div className={question.images.length > 0 ? "min-w-0 space-y-2" : "grid gap-2 sm:grid-cols-2"}>
                               {question.options.map((option, index) => (
-                                <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                                <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                                   <input type="radio" name={question.id} value={option.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
                                   <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span><ImageList images={option.images} /></span>
                                 </label>
@@ -434,7 +434,7 @@ export default function PlayQuizPage() {
               )}
 
               {phase === "abandoned" && (
-                <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Quiz abandonado</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">Seu progresso não foi registrado. Você pode iniciar novamente quando quiser.</p>
                   <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover">Voltar à escolha do modo</button>
@@ -442,7 +442,7 @@ export default function PlayQuizPage() {
               )}
 
               {phase === "finished" && (
-                <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-8">
                   {submitting ? (
                     <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />Conferindo respostas e registrando o resultado...</div>
                   ) : submitError ? (
