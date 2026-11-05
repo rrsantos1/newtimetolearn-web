@@ -466,10 +466,6 @@ export function NotebookWorkspace({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <span className="sr-only">Ferramentas do caderno</span>
-      </div>
-
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
 
       <div className={showNotes ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]" : "grid"}>
