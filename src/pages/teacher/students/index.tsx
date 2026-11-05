@@ -49,8 +49,25 @@ export default function TeacherStudentsPage() {
   }, []);
 
   useEffect(() => {
-    void loadRelationships();
-  }, [loadRelationships]);
+    let isMounted = true;
+
+    async function fetchRelationships(): Promise<void> {
+      try {
+        const data = await listTeacherRelationships();
+        if (isMounted) setRelationships(data);
+      } catch (error: unknown) {
+        if (isMounted) setNotice(getErrorMessage(error));
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    void fetchRelationships();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   async function handleInvite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
