@@ -108,7 +108,7 @@ export default function Home() {
               aria-hidden="true"
               className="absolute -inset-4 rounded-[2rem] bg-[#244a7c]/10 blur-2xl"
             />
-            <div className="relative overflow-hidden w-full rounded-[1.5rem] border border-[#244a7c]/10 bg-white p-2 shadow-2xl shadow-[#142b4a]/15 sm:p-3">
+            <div className="relative w-full overflow-hidden rounded-[1.5rem] border border-[#244a7c]/10 bg-white p-2 shadow-2xl shadow-[#142b4a]/15 sm:p-3">
               <Image
                 src="/images/home-hero.webp"
                 alt="Imagem de apresentação do TimeToLearn"
@@ -116,9 +116,9 @@ export default function Home() {
                 height={900}
                 priority
                 sizes="(max-width: 1024px) 100vw, 56vw"
-                className="aspect-[1.5/1] h-auto w-full rounded-[1.25rem] object-cover"
+                className="block h-auto w-full rounded-[1.1rem] object-contain"
               />
-              <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/70 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-5 sm:left-5 sm:right-5 sm:p-4">
+              <div className="mx-2 mb-2 mt-3 rounded-xl border border-[#244a7c]/10 bg-white p-4 sm:mx-3 sm:mb-3 sm:mt-4 sm:p-5">
                 <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-accent">
                   Uma jornada de conhecimento
                 </p>
