@@ -600,15 +600,7 @@ export function NotebookWorkspace({
                                 {renderNotebookText(entry.content)}
                               </div>
                             )}
-                            {dateEntry?.entryId === entry.id && (
-                              <div className="mt-2 flex flex-wrap items-end gap-2 border-t border-[#d8c9a9] p-2">
-                                <label className="text-xs font-semibold text-[#66583e]">Nova data
-                                  <input type="date" value={dateEntry.date} onChange={(event) => setDateEntry({ entryId: entry.id, date: event.target.value })} className="mt-1 min-h-9 rounded-lg border border-[#c8b994] bg-white px-2 text-sm" />
-                                </label>
-                                <button type="button" onClick={() => void handleSaveEntryDate(entry)} disabled={isSavingEdit || !dateEntry.date} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar data</button>
-                                <button type="button" onClick={() => setDateEntry(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]">Cancelar</button>
-                              </div>
-                            )}
+
                           </div>
                         );
                       })}
@@ -720,6 +712,46 @@ export function NotebookWorkspace({
           </aside>
         )}
       </div>
+      {mode === "teacher" && dateEntry && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notebook-date-title"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const entry = days.flatMap((day) => day.entries).find((item) => item.id === dateEntry.entryId);
+              if (entry) void handleSaveEntryDate(entry);
+            }}
+            className="w-full max-w-sm rounded-2xl border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-xl"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="notebook-date-title" className="text-lg font-semibold text-[#51452f]">Alterar data do conteúdo</h3>
+              <button type="button" onClick={() => setDateEntry(null)} disabled={isSavingEdit} aria-label="Fechar janela" className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
+                <X size={17} aria-hidden="true" />
+              </button>
+            </div>
+            <label className="mt-4 block text-sm font-medium text-[#51452f]">
+              Nova data
+              <input
+                type="date"
+                required
+                autoFocus
+                value={dateEntry.date}
+                onChange={(event) => setDateEntry((current) => current ? { ...current, date: event.target.value } : current)}
+                className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm"
+              />
+            </label>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setDateEntry(null)} disabled={isSavingEdit} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">Cancelar</button>
+              <button type="submit" disabled={isSavingEdit || !dateEntry.date} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : "Salvar data"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {mode === "teacher" && editingLink && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <form
