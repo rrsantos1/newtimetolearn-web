@@ -243,7 +243,7 @@ export default function MemoryGamePage() {
                   <div><p className="text-sm text-muted">Quantidade de pares</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
                   <div><p className="text-sm text-muted">Tempo disponível</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimit)}</p></div>
                 </div>
-                <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>
+                <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo da memória" : "Testar jogo da memória"}
                 </button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no ranking dos alunos.</p>}
@@ -298,7 +298,7 @@ export default function MemoryGamePage() {
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "Jogar novamente" : "Testar novamente"}</button>
+                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "Jogar novamente" : "Testar novamente"}</button>
               </div>
             </section>
           )}
