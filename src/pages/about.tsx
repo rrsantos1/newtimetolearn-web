@@ -74,7 +74,7 @@ export default function AboutPage() {
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">
             Conhecimento que ganha vida na prática.
           </h2>
-          <p className="mt-5 text-base leading-8 text-muted">
+          <p className="mt-5 text-base leading-8 text-[#475569]">
             A plataforma oferece diferentes formatos de atividades para
             estimular a prática do inglês. Jogos de palavras, desafios,
             exercícios de compreensão e atividades de escuta criam
@@ -108,14 +108,14 @@ export default function AboutPage() {
               preparação de materiais e amplia as formas de praticar o idioma.
             </p>
           </div>
-          <div className="relative order-1 overflow-hidden rounded-3xl border border-border bg-background p-2 shadow-xl shadow-[#142b4a]/10 md:order-2">
+          <div className="relative order-1 mx-auto w-full max-w-sm overflow-hidden rounded-3xl border border-border bg-white p-2 shadow-lg shadow-[#142b4a]/10 md:order-2">
             <Image
               src="/images/teacher.jpg"
               alt="Imagem que representa professores e o ensino"
-              width={1000}
-              height={760}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="h-auto w-full rounded-2xl object-cover"
+              width={700}
+              height={1000}
+              sizes="(max-width: 768px) 85vw, 380px"
+              className="mx-auto h-auto max-h-[500px] w-full rounded-2xl object-contain"
             />
           </div>
         </div>
