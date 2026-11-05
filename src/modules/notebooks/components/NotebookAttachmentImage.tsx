@@ -92,8 +92,8 @@ export function NotebookAttachmentImage({
       </div>
 
       {canResize && onSaveWidth && (
-        <div className="mt-2 flex w-full flex-wrap items-center gap-2 rounded-lg border border-[#d8c9a9] bg-white/90 p-2">
-          <label className="flex min-w-0 flex-1 items-center gap-2 text-xs font-medium text-[#66583e]">
+        <div className="mt-2 grid w-full min-w-0 grid-cols-1 gap-2 rounded-lg border border-[#d8c9a9] bg-white/90 p-2">
+          <label className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_2.5rem] items-center gap-2 text-xs font-medium text-[#66583e]">
             <span className="shrink-0">Tamanho</span>
             <input
               type="range"
@@ -106,11 +106,11 @@ export function NotebookAttachmentImage({
                 setSaveError("");
               }}
               aria-label="Largura da imagem"
-              className="min-w-0 flex-1 accent-[#8b6b2e]"
+              className="block h-6 w-full min-w-0 cursor-pointer touch-pan-x accent-[#8b6b2e]"
             />
-            <span className="w-10 shrink-0 text-right tabular-nums">{draftWidth}%</span>
+            <span className="w-10 text-right tabular-nums">{draftWidth}%</span>
           </label>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex w-full items-center justify-end gap-1">
             <button
               type="button"
               onClick={cancelWidthChanges}
