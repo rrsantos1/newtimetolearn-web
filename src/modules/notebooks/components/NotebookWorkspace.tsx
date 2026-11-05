@@ -177,6 +177,8 @@ export function NotebookWorkspace({
   const [editingDocument, setEditingDocument] = useState<JSONContent | null>(null);
   const [newDocument, setNewDocument] = useState<JSONContent | null>(null);
   const [isCreatingText, setIsCreatingText] = useState(false);
+  const [isCreatingNewDay, setIsCreatingNewDay] = useState(false);
+  const [creatingTextPageIndex, setCreatingTextPageIndex] = useState<number | null>(null);
   const [editingLink, setEditingLink] = useState<{ id: string | null; title: string; url: string } | null>(null);
   const [dateEntry, setDateEntry] = useState<{ entryId: string; date: string } | null>(null);
   const [resizingImageEntryId, setResizingImageEntryId] = useState<string | null>(null);
@@ -187,7 +189,8 @@ export function NotebookWorkspace({
   const [noteText, setNoteText] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(true);
-  const [twoPages, setTwoPages] = useState(true);
+  const [twoPages, setTwoPages] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(true);
   const [currentSpreadIndex, setCurrentSpreadIndex] = useState(0);
   const [dateLookup, setDateLookup] = useState("");
   const [pageLookup, setPageLookup] = useState("1");
@@ -214,6 +217,20 @@ export function NotebookWorkspace({
       setIsLoading(false);
     }
   }, [relationshipId]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateScreenMode = (event: MediaQueryList | MediaQueryListEvent) => {
+      const isSmall = event.matches;
+      setIsSmallScreen(isSmall);
+      setTwoPages(!isSmall);
+      setCurrentSpreadIndex(0);
+    };
+
+    updateScreenMode(mediaQuery);
+    mediaQuery.addEventListener("change", updateScreenMode);
+    return () => mediaQuery.removeEventListener("change", updateScreenMode);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -363,6 +380,8 @@ export function NotebookWorkspace({
       setEditingDocument(null);
       setNewDocument(null);
       setIsCreatingText(false);
+      setIsCreatingNewDay(false);
+      setCreatingTextPageIndex(null);
       await loadContent();
     } catch {
       setError("Não foi possível salvar o texto no caderno.");
@@ -447,24 +466,37 @@ export function NotebookWorkspace({
 
   const orderedDays = [...days].reverse();
   const entriesPerPage = 4;
-  const allPageItems = orderedDays.flatMap((day) => {
-    if (day.entries.length === 0) {
-      return [{ day, entries: [], entryOffset: 0 }];
-    }
+  const today = new Date().toLocaleDateString("en-CA");
+  const hasTodayPage = orderedDays.some((day) => day.dayDate.slice(0, 10) === today);
+  const draftDay: NotebookDay = {
+    id: "__new-notebook-day__",
+    relationshipId,
+    dayDate: today,
+    entries: [],
+  };
+  const allPageItems = [
+    ...(isCreatingText && isCreatingNewDay && !hasTodayPage
+      ? [{ day: draftDay, entries: [] as NotebookDay["entries"], entryOffset: 0 }]
+      : []),
+    ...orderedDays.flatMap((day) => {
+      if (day.entries.length === 0) {
+        return [{ day, entries: [], entryOffset: 0 }];
+      }
 
-    return Array.from(
-      { length: Math.ceil(day.entries.length / entriesPerPage) },
-      (_, pageIndex) => {
-        const entryOffset = pageIndex * entriesPerPage;
-        return {
-          day,
-          entries: day.entries.slice(entryOffset, entryOffset + entriesPerPage),
-          entryOffset,
-        };
-      },
-    );
-  });
-  const pagesPerSpread = twoPages ? 2 : 1;
+      return Array.from(
+        { length: Math.ceil(day.entries.length / entriesPerPage) },
+        (_, pageIndex) => {
+          const entryOffset = pageIndex * entriesPerPage;
+          return {
+            day,
+            entries: day.entries.slice(entryOffset, entryOffset + entriesPerPage),
+            entryOffset,
+          };
+        },
+      );
+    }),
+  ];
+  const pagesPerSpread = twoPages && !isSmallScreen ? 2 : 1;
   const totalSpreads = Math.max(1, Math.ceil(allPageItems.length / pagesPerSpread));
   const safeSpreadIndex = Math.min(currentSpreadIndex, totalSpreads - 1);
   const pageItems = allPageItems.slice(
@@ -479,7 +511,7 @@ export function NotebookWorkspace({
       <div className={showNotes ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]" : "grid"}>
         <section className="min-w-0">
           <div className="flex items-start gap-3"><div className="relative min-w-0 flex-1 rounded-2xl border border-[#d5c7a8] bg-[#e8dfcb] p-3 shadow-inner sm:p-5">
-            <div className={twoPages ? "grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
+            <div className={pagesPerSpread === 2 ? "grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
               {pageItems.length === 0 ? (
                 <article className="h-170 min-h-120 max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:col-start-1 md:row-start-1">
                   <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
@@ -491,7 +523,7 @@ export function NotebookWorkspace({
                       <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar na folha</button>
-                        <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                        <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
                       </div>
                     </div>
                   ) : (
@@ -502,7 +534,7 @@ export function NotebookWorkspace({
                 </article>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
-                  <article key={`${day.id}-${index}`} className={"h-170 min-h-120 max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:row-start-1 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
+                  <article key={`${day.id}-${index}`} className={"h-170 min-h-120 max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:row-start-1 " + (pagesPerSpread === 2 && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -600,7 +632,7 @@ export function NotebookWorkspace({
                           </div>
                         );
                       })}
-                      {mode === "teacher" && isCreatingText && index === pageItems.length - 1 && (
+                      {mode === "teacher" && isCreatingText && safeSpreadIndex * pagesPerSpread + index === creatingTextPageIndex && (
                         <div className="mt-4 space-y-3 border-t border-[#d8c9a9] pt-4">
                           <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                           <div className="flex flex-wrap gap-2">
@@ -613,13 +645,13 @@ export function NotebookWorkspace({
                   </article>
                 ))
               )}
-              {twoPages && pageItems.length < 2 && (
+              {pagesPerSpread === 2 && pageItems.length < 2 && (
                 <article
                   aria-hidden="true"
                   className="hidden h-170 min-h-120 max-h-[75vh] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] shadow-sm md:col-start-3 md:row-start-1 md:block"
                 />
               )}
-              {twoPages && (
+              {pagesPerSpread === 2 && (
                 <div className="hidden items-center justify-center md:col-start-2 md:row-start-1 md:flex" aria-hidden="true">
                   <div className="flex h-170 min-h-120 flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
                     {Array.from({ length: 13 }, (_, index) => (
@@ -629,12 +661,27 @@ export function NotebookWorkspace({
                 </div>
               )}
             </div>
-            {twoPages && <div className="mt-3 text-center text-xs text-[#76694f] md:hidden">A visualização em duas páginas fica disponível em telas maiores.</div>}
+            
           </div>
           <div className="sticky top-4 flex shrink-0 flex-col gap-2 pt-2" aria-label="Ferramentas do caderno">
             {mode === "teacher" && (
               <>
-                <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); setEditingLink(null); setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); }} aria-label="Escrever na folha" title="Escrever na folha" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
+                <button type="button" onClick={() => {
+                  const todayDate = new Date().toLocaleDateString("en-CA");
+                  const todayPageIndexes = allPageItems
+                    .map((item, index) => item.day.dayDate.slice(0, 10) === todayDate ? index : -1)
+                    .filter((index) => index >= 0);
+                  const targetPageIndex = todayPageIndexes.length > 0 ? todayPageIndexes[todayPageIndexes.length - 1] : 0;
+                  setIsCreatingNewDay(todayPageIndexes.length === 0);
+                  setCreatingTextPageIndex(targetPageIndex);
+                  setCurrentSpreadIndex(Math.floor(targetPageIndex / pagesPerSpread));
+                  setPageLookup(String(targetPageIndex + 1));
+                  setEditingEntryId(null);
+                  setEditingDocument(null);
+                  setEditingLink(null);
+                  setIsCreatingText(true);
+                  setNewDocument({ type: "doc", content: [{ type: "paragraph" }] });
+                }} aria-label="Escrever na folha" title="Escrever na folha" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
                   <Pencil size={18} aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setShowAttachmentModal(true)} aria-label="Anexar material" title="Anexar material" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
@@ -658,6 +705,7 @@ export function NotebookWorkspace({
                 <ListOrdered size={18} aria-hidden="true" />
               </button>
             )}
+{!isSmallScreen && (
             <button
               type="button"
               onClick={() => { setCurrentSpreadIndex(0); setTwoPages((value) => !value); setPageLookup("1"); }}
@@ -668,6 +716,7 @@ export function NotebookWorkspace({
             >
               <BookOpen size={18} aria-hidden="true" />
             </button>
+            )}
             <button
               type="button"
               onClick={() => setShowNotes((value) => !value)}
