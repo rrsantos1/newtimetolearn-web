@@ -74,6 +74,8 @@ export function NotificationBell() {
       const readAt = new Date().toISOString();
       setNotifications((current) => current.map((item) => ({ ...item, readAt })));
       setUnreadCount(0);
+    } catch {
+      // Mantém o estado atual quando a API não confirma a atualização.
     } finally {
       setIsUpdating(false);
     }
