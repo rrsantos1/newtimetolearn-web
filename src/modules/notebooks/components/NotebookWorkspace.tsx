@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp, Bold, BookOpen, Download, ExternalLink, FileText, Italic, ListOrdered, MessageCircle, Paperclip, Send, SplitSquareHorizontal, Underline } from "lucide-react";
+import type { JSONContent } from "@tiptap/core";
+import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Plus, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
   createNotebookEntry,
+  updateNotebookEntry,
+  deleteNotebookEntry,
   downloadNotebookAttachment,
   createNotebookNote,
   getNotebook,
@@ -32,32 +36,89 @@ function contentText(value: unknown): string {
 }
 
 function renderFormattedText(value: string): ReactNode[] {
-  const pattern = /\*\*[\s\S]+?\*\*|__[\s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(?:12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
+  const pattern = /\\*\\*[\\s\\S]+?\\*\\*|__[\\s\\S]+?__|\\/\\/[\\s\\S]+?\\/\\/|\\[size=(?:12|14|16|18|20|24)\\][\\s\\S]+?\\[\\/size\\]/g;
   const nodes: ReactNode[] = [];
   let cursor = 0;
   let index = 0;
 
   for (const match of value.matchAll(pattern)) {
     const token = match[0];
-    const start = match.index ?? 0;
-    if (start > cursor) nodes.push(value.slice(cursor, start));
-
-    if (token.startsWith("**")) {
-      nodes.push(<strong key={index}>{token.slice(2, -2)}</strong>);
-    } else if (token.startsWith("__")) {
-      nodes.push(<u key={index}>{token.slice(2, -2)}</u>);
-    } else if (token.startsWith("//")) {
-      nodes.push(<em key={index}>{token.slice(2, -2)}</em>);
-    } else {
-      const size = token.match(/^\[size=(12|14|16|18|20|24)\]/)?.[1] ?? "16";
-      nodes.push(<span key={index} style={{ fontSize: Number(size) }}>{token.replace(/^\[size=\d+\]/, "").replace(/\[\/size\]$/, "")}</span>);
+    const position = match.index ?? 0;
+    if (position > cursor) nodes.push(value.slice(cursor, position));
+    if (token.startsWith("**")) nodes.push(<strong key={index}>{token.slice(2, -2)}</strong>);
+    else if (token.startsWith("__")) nodes.push(<u key={index}>{token.slice(2, -2)}</u>);
+    else if (token.startsWith("//")) nodes.push(<em key={index}>{token.slice(2, -2)}</em>);
+    else {
+      const size = token.match(/^\\[size=(12|14|16|18|20|24)\\]/)?.[1] ?? "16";
+      nodes.push(<span key={index} style={{ fontSize: Number(size) }}>{token.replace(/^\\[size=\\d+\\]/, "").replace(/\\[\\/size\\]$/, "")}</span>);
     }
-    cursor = start + token.length;
+    cursor = position + token.length;
     index += 1;
   }
-
   if (cursor < value.length) nodes.push(value.slice(cursor));
   return nodes;
+}
+
+function isJsonContent(value: unknown): value is JSONContent {
+  return typeof value === "object" && value !== null && !Array.isArray(value) &&
+    "type" in value && (value as { type?: unknown }).type === "doc";
+}
+
+function notebookDocument(content: Record<string, unknown>): JSONContent {
+  if (isJsonContent(content.document)) return content.document;
+  const text = contentText(content.text);
+  return {
+    type: "doc",
+    content: text.split("\\n").map((line) => ({
+      type: "paragraph",
+      content: line ? [{ type: "text", text: line }] : [],
+    })),
+  };
+}
+
+function renderDocumentNode(node: JSONContent, key: string): ReactNode {
+  if (node.type === "text") {
+    let rendered: ReactNode = node.text ?? "";
+    for (const mark of node.marks ?? []) {
+      if (mark.type === "bold") rendered = <strong key={key}>{rendered}</strong>;
+      else if (mark.type === "italic") rendered = <em key={key}>{rendered}</em>;
+      else if (mark.type === "underline") rendered = <u key={key}>{rendered}</u>;
+      else if (mark.type === "strike") rendered = <s key={key}>{rendered}</s>;
+      else if (mark.type === "link") {
+        const href = mark.attrs?.href;
+        if (typeof href === "string" && /^https?:\\/\\//i.test(href)) {
+          rendered = <a key={key} href={href} target="_blank" rel="noreferrer" className="text-blue-700 underline">{rendered}</a>;
+        }
+      } else if (mark.type === "textStyle") {
+        const fontSize = mark.attrs?.fontSize;
+        if (typeof fontSize === "string" && /^(12|14|16|18|20|24)px$/.test(fontSize)) {
+          rendered = <span key={key} style={{ fontSize }}>{rendered}</span>;
+        }
+      }
+    }
+    return rendered;
+  }
+
+  const children = (node.content ?? []).map((child, index) =>
+    renderDocumentNode(child, `${key}-${index}`)
+  );
+  switch (node.type) {
+    case "doc": return <>{children}</>;
+    case "paragraph": return <p key={key} className="whitespace-pre-wrap">{children}</p>;
+    case "heading": return <h4 key={key} className="font-bold">{children}</h4>;
+    case "bulletList": return <ul key={key} className="list-disc pl-6">{children}</ul>;
+    case "orderedList": return <ol key={key} className="list-decimal pl-6">{children}</ol>;
+    case "listItem": return <li key={key}>{children}</li>;
+    case "blockquote": return <blockquote key={key} className="border-l-2 border-[#c8b994] pl-3 italic">{children}</blockquote>;
+    case "hardBreak": return <br key={key} />;
+    default: return <>{children}</>;
+  }
+}
+
+function renderNotebookText(content: Record<string, unknown>): ReactNode {
+  return isJsonContent(content.document)
+    ? renderDocumentNode(content.document, "document")
+    : renderFormattedText(contentText(content.text));
 }
 
 export function NotebookWorkspace({
@@ -68,13 +129,16 @@ export function NotebookWorkspace({
   const { user } = useAuth();
   const [days, setDays] = useState<NotebookDay[]>([]);
   const [notes, setNotes] = useState<NotebookNote[]>([]);
-  const [entryText, setEntryText] = useState("");
-  const entryEditorRef = useRef<HTMLTextAreaElement | null>(null);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editingDocument, setEditingDocument] = useState<JSONContent | null>(null);
+  const [newDocument, setNewDocument] = useState<JSONContent | null>(null);
+  const [isCreatingText, setIsCreatingText] = useState(false);
+  const [editingLink, setEditingLink] = useState<{ id: string | null; title: string; url: string } | null>(null);
+  const [dateEntry, setDateEntry] = useState<{ entryId: string; date: string } | null>(null);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [entryKind, setEntryKind] = useState<"TEXT" | "ACTIVITY_LINK">("TEXT");
-  const [linkTitle, setLinkTitle] = useState("");
-  const [linkUrl, setLinkUrl] = useState("");
+
   const [noteText, setNoteText] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(true);
@@ -134,24 +198,6 @@ export function NotebookWorkspace({
     };
   }, [relationshipId]);
 
-  function applyTextFormat(prefix: string, suffix = prefix): void {
-    const editor = entryEditorRef.current;
-    if (!editor) return;
-
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const selectedText = entryText.slice(start, end);
-    const replacement = `${prefix}${selectedText}${suffix}`;
-    const updatedText = `${entryText.slice(0, start)}${replacement}${entryText.slice(end)}`;
-    setEntryText(updatedText);
-
-    requestAnimationFrame(() => {
-      editor.focus();
-      const selectionStart = start + prefix.length;
-      const selectionEnd = selectionStart + selectedText.length;
-      editor.setSelectionRange(selectionStart, selectionEnd);
-    });
-  }
 
   async function moveEntry(day: NotebookDay, entryIndex: number, direction: -1 | 1): Promise<void> {
     const targetIndex = entryIndex + direction;
@@ -233,27 +279,90 @@ export function NotebookWorkspace({
     }
   }
 
-  async function handleAddEntry(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function startTextEdit(entry: NotebookDay["entries"][number]): void {
+    setEditingEntryId(entry.id);
+    setEditingDocument(notebookDocument(entry.content));
+    setEditingLink(null);
+  }
+
+  function startLinkEdit(entry: NotebookDay["entries"][number]): void {
+    setEditingLink({
+      id: entry.id,
+      title: contentText(entry.content.title),
+      url: contentText(entry.content.url),
+    });
+    setEditingEntryId(null);
+  }
+
+  async function handleSaveText(entryId: string | null): Promise<void> {
+    const document = entryId ? editingDocument : newDocument;
+    if (!document) return;
+    setIsSavingEdit(true);
     setError("");
-    setIsSavingEntry(true);
     try {
-      if (entryKind === "TEXT") {
-        await createNotebookEntry(relationshipId, "TEXT", { text: entryText.trim() });
-        setEntryText("");
+      if (entryId) {
+        await updateNotebookEntry(relationshipId, entryId, "TEXT", { document });
       } else {
-        await createNotebookEntry(relationshipId, "ACTIVITY_LINK", {
-          title: linkTitle.trim(),
-          url: linkUrl.trim(),
-        });
-        setLinkTitle("");
-        setLinkUrl("");
+        await createNotebookEntry(relationshipId, "TEXT", { document });
       }
+      setEditingEntryId(null);
+      setEditingDocument(null);
+      setNewDocument(null);
+      setIsCreatingText(false);
       await loadContent();
     } catch {
-      setError("Não foi possível publicar o conteúdo no caderno.");
+      setError("Não foi possível salvar o texto no caderno.");
     } finally {
-      setIsSavingEntry(false);
+      setIsSavingEdit(false);
+    }
+  }
+
+  async function handleSaveLink(): Promise<void> {
+    if (!editingLink || !editingLink.title.trim() || !editingLink.url.trim()) return;
+    setIsSavingEdit(true);
+    setError("");
+    try {
+      const content = { title: editingLink.title.trim(), url: editingLink.url.trim() };
+      if (editingLink.id) {
+        await updateNotebookEntry(relationshipId, editingLink.id, "ACTIVITY_LINK", content);
+      } else {
+        await createNotebookEntry(relationshipId, "ACTIVITY_LINK", content);
+      }
+      setEditingLink(null);
+      await loadContent();
+    } catch {
+      setError("Não foi possível salvar o link no caderno.");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }
+
+  async function handleSaveEntryDate(entry: NotebookDay["entries"][number]): Promise<void> {
+    if (!dateEntry || dateEntry.entryId !== entry.id || !dateEntry.date) return;
+    setIsSavingEdit(true);
+    setError("");
+    try {
+      await updateNotebookEntry(relationshipId, entry.id, entry.kind, undefined, dateEntry.date);
+      setDateEntry(null);
+      await loadContent();
+    } catch {
+      setError("Não foi possível alterar a data deste conteúdo.");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }
+
+  async function handleDeleteEntry(entryId: string): Promise<void> {
+    if (!window.confirm("Deseja remover este conteúdo do caderno?")) return;
+    setIsSavingEdit(true);
+    setError("");
+    try {
+      await deleteNotebookEntry(relationshipId, entryId);
+      await loadContent();
+    } catch {
+      setError("Não foi possível remover este conteúdo.");
+    } finally {
+      setIsSavingEdit(false);
     }
   }
 
@@ -349,42 +458,86 @@ export function NotebookWorkspace({
                     </div>
                     <div className="space-y-4">
                       {day.entries.map((entry, entryIndex) => {
-                        if (entry.kind === "IMAGE" || entry.kind === "FILE") {
-                          const fileName = contentText(entry.content.fileName) || "Anexo";
-                          return (
-                            <div key={entry.id} className="rounded-lg border border-[#d8c9a9] bg-white/75 p-3">
-                              {isReordering && renderOrderControls(day, entryIndex)}
-                              <div className="flex items-center gap-3">
+                        const isEditingText = editingEntryId === entry.id && entry.kind === "TEXT";
+                        const isEditingLink = editingLink?.id === entry.id;
+                        return (
+                          <div key={entry.id} className="rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2">
+                            {isReordering && renderOrderControls(day, entryIndex)}
+                            {mode === "teacher" && (
+                              <div className="mb-2 flex flex-wrap items-center justify-end gap-1">
+                                {entry.kind === "TEXT" && (
+                                  <button type="button" onClick={() => startTextEdit(entry)} aria-label="Editar texto" title="Editar texto" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
+                                    <Pencil size={15} aria-hidden="true" />
+                                  </button>
+                                )}
+                                {entry.kind === "ACTIVITY_LINK" && (
+                                  <button type="button" onClick={() => startLinkEdit(entry)} aria-label="Editar link" title="Editar link" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
+                                    <Pencil size={15} aria-hidden="true" />
+                                  </button>
+                                )}
+                                <button type="button" onClick={() => setDateEntry({ entryId: entry.id, date: day.dayDate.slice(0, 10) })} aria-label="Alterar data" title="Alterar data" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
+                                  <CalendarDays size={15} aria-hidden="true" />
+                                </button>
+                                <button type="button" onClick={() => void handleDeleteEntry(entry.id)} disabled={isSavingEdit} aria-label="Remover conteúdo" title="Remover conteúdo" className="inline-flex size-8 items-center justify-center rounded-lg border border-red-200 bg-white text-red-700 hover:bg-red-50 disabled:opacity-40">
+                                  <Trash2 size={15} aria-hidden="true" />
+                                </button>
+                              </div>
+                            )}
+                            {entry.kind === "IMAGE" || entry.kind === "FILE" ? (
+                              <div className="flex items-center gap-3 p-2">
                                 <FileText size={22} className="shrink-0 text-[#8b7b60]" aria-hidden="true" />
                                 <div className="min-w-0 flex-1">
-                                  <p className="truncate text-sm font-semibold text-[#51452f]">{fileName}</p>
+                                  <p className="truncate text-sm font-semibold text-[#51452f]">{contentText(entry.content.fileName) || "Anexo"}</p>
                                   <p className="text-xs text-[#76694f]">{entry.kind === "IMAGE" ? "Imagem" : "Arquivo anexado"}</p>
                                 </div>
-                                <button type="button" onClick={() => void handleAttachmentDownload(entry.id, fileName)} aria-label={`Baixar ${fileName}`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f] hover:bg-[#f5efdf]">
+                                <button type="button" onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo")} aria-label={`Baixar ${contentText(entry.content.fileName) || "anexo"}`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f] hover:bg-[#f5efdf]">
                                   <Download size={15} aria-hidden="true" /> Baixar
                                 </button>
                               </div>
-                            </div>
-                          );
-                        }
-                        if (entry.kind === "ACTIVITY_LINK") {
-                          const url = contentText(entry.content.url);
-                          return (
-                            <div key={entry.id} className="rounded-lg border border-[#d8c9a9] bg-white/70 p-3">
-                              {isReordering && renderOrderControls(day, entryIndex)}
-                              <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
-                              <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
-                                Abrir atividade <ExternalLink size={14} aria-hidden="true" />
-                              </a>
-                            </div>
-                          );
-                        }
-                        return (
-                          <div key={entry.id}>
-                            {isReordering && renderOrderControls(day, entryIndex)}
-                            <p className="whitespace-pre-wrap text-sm leading-7 text-[#51452f]">
-                              {renderFormattedText(contentText(entry.content.text))}
-                            </p>
+                            ) : entry.kind === "ACTIVITY_LINK" ? (
+                              isEditingLink ? (
+                                <div className="space-y-2 p-2">
+                                  <label className="block text-xs font-semibold text-[#66583e]">Nome da atividade
+                                    <input value={editingLink.title} onChange={(event) => setEditingLink((current) => current ? { ...current, title: event.target.value } : current)} className="mt-1 min-h-10 w-full rounded-lg border border-[#c8b994] bg-white px-3 text-sm" />
+                                  </label>
+                                  <label className="block text-xs font-semibold text-[#66583e]">Endereço do link
+                                    <input type="url" value={editingLink.url} onChange={(event) => setEditingLink((current) => current ? { ...current, url: event.target.value } : current)} className="mt-1 min-h-10 w-full rounded-lg border border-[#c8b994] bg-white px-3 text-sm" />
+                                  </label>
+                                  <div className="flex gap-2">
+                                    <button type="button" onClick={() => void handleSaveLink()} disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar</button>
+                                    <button type="button" onClick={() => setEditingLink(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="p-2">
+                                  <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
+                                  <a href={contentText(entry.content.url)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
+                                    Abrir atividade <ExternalLink size={14} aria-hidden="true" />
+                                  </a>
+                                </div>
+                              )
+                            ) : isEditingText ? (
+                              <div className="space-y-2 p-2">
+                                <NotebookRichTextEditor initialContent={editingDocument ?? undefined} onChange={setEditingDocument} />
+                                <div className="flex flex-wrap gap-2">
+                                  <button type="button" onClick={() => void handleSaveText(entry.id)} disabled={isSavingEdit || !editingDocument} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar alterações</button>
+                                  <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); }} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="p-2 text-sm leading-7 text-[#51452f]">
+                                {renderNotebookText(entry.content)}
+                              </div>
+                            )}
+                            {dateEntry?.entryId === entry.id && (
+                              <div className="mt-2 flex flex-wrap items-end gap-2 border-t border-[#d8c9a9] p-2">
+                                <label className="text-xs font-semibold text-[#66583e]">Nova data
+                                  <input type="date" value={dateEntry.date} onChange={(event) => setDateEntry({ entryId: entry.id, date: event.target.value })} className="mt-1 min-h-9 rounded-lg border border-[#c8b994] bg-white px-2 text-sm" />
+                                </label>
+                                <button type="button" onClick={() => void handleSaveEntryDate(entry)} disabled={isSavingEdit || !dateEntry.date} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar data</button>
+                                <button type="button" onClick={() => setDateEntry(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]">Cancelar</button>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -399,40 +552,45 @@ export function NotebookWorkspace({
           {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
 
           {mode === "teacher" && (
-            <form onSubmit={(event) => void handleAddEntry(event)} className="mt-5 rounded-2xl border border-border bg-surface p-4 sm:p-5">
-              <h3 className="font-semibold text-dark">Adicionar conteúdo</h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setEntryKind("TEXT")} aria-pressed={entryKind === "TEXT"} className={entryKind === "TEXT" ? "rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white" : "rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark"}>Texto</button>
-                <button type="button" onClick={() => setEntryKind("ACTIVITY_LINK")} aria-pressed={entryKind === "ACTIVITY_LINK"} className={entryKind === "ACTIVITY_LINK" ? "rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white" : "rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark"}>Link de atividade</button>
-              </div>
-              {entryKind === "TEXT" ? (
-                <label className="mt-3 block text-sm font-medium text-dark">
-                  Texto
-                  <div className="mt-2 flex flex-wrap items-center gap-1 rounded-t-xl border border-b-0 border-border bg-background p-2">
-                    <button type="button" onClick={() => applyTextFormat("**")} aria-label="Aplicar negrito" title="Negrito" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Bold size={17} aria-hidden="true" /></button>
-                    <button type="button" onClick={() => applyTextFormat("//")} aria-label="Aplicar itálico" title="Itálico" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Italic size={17} aria-hidden="true" /></button>
-                    <button type="button" onClick={() => applyTextFormat("__")} aria-label="Aplicar sublinhado" title="Sublinhado" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Underline size={17} aria-hidden="true" /></button>
-                    <span className="mx-1 h-6 border-l border-border" aria-hidden="true" />
-                    <span className="px-1 text-xs font-medium text-muted">Fonte</span>
-                    {[12, 14, 16, 18, 20, 24].map((size) => (
-                      <button key={size} type="button" onClick={() => applyTextFormat(`[size=${size}]`, "[/size]")} aria-label={`Aplicar tamanho de fonte ${size}`} title={`${size}px`} className="min-h-9 min-w-9 rounded-lg border border-border bg-white px-2 text-xs font-semibold text-dark hover:bg-primary/10">{size}</button>
-                    ))}
-                  </div>
-                  <textarea ref={entryEditorRef} required value={entryText} onChange={(event) => setEntryText(event.target.value)} rows={5} className="w-full rounded-b-xl border border-border bg-white p-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Escreva o conteúdo da aula..." />
-                  <span className="mt-1 block text-xs font-normal text-muted">Selecione um trecho e use a barra para formatar. A formatação será mantida para o aluno.</span>
-                </label>
-              ) : (
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <label className="text-sm font-medium text-dark">Nome da atividade<input required value={linkTitle} onChange={(event) => setLinkTitle(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary" /></label>
-                  <label className="text-sm font-medium text-dark">Endereço do link<input required type="url" value={linkUrl} onChange={(event) => setLinkUrl(event.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary" placeholder="https://..." /></label>
+            <div className="mt-4 space-y-3">
+              {!isCreatingText && (
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => { setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); setEditingLink(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white">
+                    <Plus size={16} aria-hidden="true" /> Escrever na folha
+                  </button>
+                  <button type="button" onClick={() => setEditingLink({ id: null, title: "", url: "" })} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-dark">
+                    <Link2 size={16} aria-hidden="true" /> Adicionar link
+                  </button>
                 </div>
               )}
-              <button type="submit" disabled={isSavingEntry || (entryKind === "TEXT" ? !entryText.trim() : !linkTitle.trim() || !linkUrl.trim())} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Send size={16} aria-hidden="true" />
-                {isSavingEntry ? "Publicando..." : "Publicar no caderno"}
-              </button>
-              <p className="mt-2 text-xs text-muted">A data de hoje será criada automaticamente quando este for o primeiro conteúdo do dia.</p>
-            </form>
+              {isCreatingText && (
+                <div className="rounded-xl border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-4 shadow-sm">
+                  <p className="mb-3 text-sm font-semibold text-[#66583e]">Escreva diretamente na folha</p>
+                  <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !newDocument} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Salvar na folha</button>
+                    <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-4 text-sm font-semibold text-[#51452f]"><X size={15} aria-hidden="true" /> Cancelar</button>
+                  </div>
+                </div>
+              )}
+              {editingLink?.id === null && (
+                <div className="rounded-xl border border-[#d8c9a9] bg-[#fffdf5] p-4">
+                  <h3 className="font-semibold text-[#51452f]">Novo link de atividade</h3>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <label className="text-sm font-medium text-[#51452f]">Nome da atividade
+                      <input value={editingLink.title} onChange={(event) => setEditingLink((current) => current ? { ...current, title: event.target.value } : current)} className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm" />
+                    </label>
+                    <label className="text-sm font-medium text-[#51452f]">Endereço do link
+                      <input type="url" value={editingLink.url} onChange={(event) => setEditingLink((current) => current ? { ...current, url: event.target.value } : current)} className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm" placeholder="https://..." />
+                    </label>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button type="button" onClick={() => void handleSaveLink()} disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Publicar link</button>
+                    <button type="button" onClick={() => setEditingLink(null)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-4 text-sm font-semibold text-[#51452f]">Cancelar</button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {mode === "teacher" && (
