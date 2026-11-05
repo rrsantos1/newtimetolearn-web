@@ -61,7 +61,7 @@ export function AuthenticatedNavigation() {
 
   return (
     <nav aria-label="Navegação principal">
-      <div className="hidden items-center gap-2 md:flex">
+      <div className="flex items-center gap-2">
         {navigationItems.map(({ label, href, icon: Icon, disabled }) => (
           <Link
             key={href}
@@ -91,11 +91,11 @@ export function AuthenticatedNavigation() {
             Meus professores
           </Link>
         )}
-        <NotificationBell />
       </div>
 
-      <div className="flex items-center justify-end gap-2 md:hidden">
-        <NotificationBell />
+      <NotificationBell />
+
+      <div className="ml-auto flex items-center justify-end gap-2 md:hidden">
         <button
           type="button"
           aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
