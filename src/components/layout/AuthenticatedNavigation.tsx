@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { BookOpen, LayoutDashboard, UserRound, Menu, X, Users, GraduationCap } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { hasAnyRole } from "@/modules/auth/utils/hasAnyRole";
 
 interface NavigationItem {
@@ -90,9 +91,11 @@ export function AuthenticatedNavigation() {
             Meus professores
           </Link>
         )}
+        <NotificationBell />
       </div>
 
-      <div className="md:hidden">
+      <div className="flex items-center justify-end gap-2 md:hidden">
+        <NotificationBell />
         <button
           type="button"
           aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
