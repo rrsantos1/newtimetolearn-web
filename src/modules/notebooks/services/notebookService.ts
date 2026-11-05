@@ -22,6 +22,24 @@ export async function createNotebookEntry(
   await api.post<NotebookEntryResponse>(`/notebooks/${relationshipId}/entries`, { kind, content });
 }
 
+export async function updateNotebookEntry(
+  relationshipId: string,
+  entryId: string,
+  kind: NotebookEntryKind,
+  content?: Record<string, unknown>,
+  dayDate?: string,
+): Promise<void> {
+  await api.patch(`/notebooks/${relationshipId}/entries/${entryId}`, {
+    kind,
+    ...(content ? { content } : {}),
+    ...(dayDate ? { dayDate } : {}),
+  });
+}
+
+export async function deleteNotebookEntry(relationshipId: string, entryId: string): Promise<void> {
+  await api.delete(`/notebooks/${relationshipId}/entries/${entryId}`);
+}
+
 export async function reorderNotebookEntries(
   relationshipId: string,
   dayId: string,
