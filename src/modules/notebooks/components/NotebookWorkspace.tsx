@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
@@ -19,93 +18,7 @@ import {
 import type { NotebookDay, NotebookNote } from "../types/notebook.types";
 
 
-interface NotebookAttachmentImageProps {
-  relationshipId: string;
-  entryId: string;
-  fileName: string;
-}
-
-function NotebookAttachmentImage({ relationshipId, entryId, fileName }: NotebookAttachmentImageProps) {
-  const [src, setSrc] = useState<string | null>(null);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    let isMounted = true;
-    let objectUrl: string | null = null;
-
-    void downloadNotebookAttachment(relationshipId, entryId)
-      .then((blob) => {
-        if (!isMounted) return;
-        objectUrl = URL.createObjectURL(blob);
-        setSrc(objectUrl);
-      })
-      .catch(() => {
-        if (isMounted) setHasError(true);
-      });
-
-    return () => {
-      isMounted = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [entryId, relationshipId]);
-
-  if (hasError) {
-    return <p className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
-  }
-
-  if (!src) {
-    return <div className="aspect-video w-full animate-pulse rounded-lg bg-[#eee5d3]" aria-label="Carregando imagem" />;
-  }
-
-  return (
-    <div className="relative mx-auto aspect-video max-h-72 w-full overflow-hidden rounded-lg">
-      <Image src={src} alt={fileName} fill unoptimized sizes="(max-width: 768px) 90vw, 40vw" className="object-contain" />
-
-      {mode === "teacher" && showAttachmentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => {
-          if (event.target === event.currentTarget && !isUploadingAttachment) {
-            setShowAttachmentModal(false);
-            setSelectedFile(null);
-          }
-        }}>
-          <form
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="notebook-attachment-title"
-            onSubmit={(event) => void handleAddAttachment(event)}
-            className="w-full max-w-md rounded-2xl border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-xl"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <h3 id="notebook-attachment-title" className="text-lg font-semibold text-[#51452f]">Anexar material</h3>
-              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} aria-label="Fechar janela" className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
-                <X size={17} aria-hidden="true" />
-              </button>
-            </div>
-            <p className="mt-2 text-sm text-[#76694f]">Imagens até 5 MB, documentos até 20 MB e vídeos até 50 MB.</p>
-            <input
-              ref={fileInputRef}
-              id="notebook-attachment"
-              type="file"
-              accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.mp4,.webm,.mov"
-              onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
-              className="sr-only"
-            />
-            <button type="button" onClick={() => fileInputRef.current?.click()} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b9a77f] bg-white px-3 text-sm font-semibold text-[#51452f] hover:bg-[#f5efdf]">
-              <Paperclip size={17} aria-hidden="true" /> {selectedFile ? "Escolher outro arquivo" : "Selecionar arquivo"}
-            </button>
-            {selectedFile && <p className="mt-3 break-all text-sm text-[#66583e]">Selecionado: {selectedFile.name}</p>}
-            <div className="mt-5 flex justify-end gap-2">
-              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">Cancelar</button>
-              <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Paperclip size={15} aria-hidden="true" /> {isUploadingAttachment ? "Enviando..." : "Anexar"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
-}
+import { NotebookAttachmentImage } from "./NotebookAttachmentImage";
 
 interface NotebookWorkspaceProps {
   relationshipId: string;
@@ -617,7 +530,7 @@ export function NotebookWorkspace({
                 </div>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
-                  <article key={day.id} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && visibleDays.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
+                  <article key={`${day.id}-${index}`} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -808,6 +721,44 @@ export function NotebookWorkspace({
           </aside>
         )}
       </div>
+      {mode === "teacher" && showAttachmentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notebook-attachment-title"
+            onSubmit={(event) => void handleAddAttachment(event)}
+            className="w-full max-w-md rounded-2xl border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-xl"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="notebook-attachment-title" className="text-lg font-semibold text-[#51452f]">Anexar material</h3>
+              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} aria-label="Fechar janela" className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
+                <X size={17} aria-hidden="true" />
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-[#76694f]">Imagens até 5 MB, documentos até 20 MB e vídeos até 50 MB.</p>
+            <input
+              ref={fileInputRef}
+              id="notebook-attachment"
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.mp4,.webm,.mov"
+              onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
+              className="sr-only"
+            />
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b9a77f] bg-white px-3 text-sm font-semibold text-[#51452f] hover:bg-[#f5efdf]">
+              <Paperclip size={17} aria-hidden="true" /> {selectedFile ? "Escolher outro arquivo" : "Selecionar arquivo"}
+            </button>
+            {selectedFile && <p className="mt-3 break-all text-sm text-[#66583e]">Selecionado: {selectedFile.name}</p>}
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">Cancelar</button>
+              <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <Paperclip size={15} aria-hidden="true" /> {isUploadingAttachment ? "Enviando..." : "Anexar"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 }
