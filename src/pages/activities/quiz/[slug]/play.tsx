@@ -372,13 +372,13 @@ export default function PlayQuizPage() {
                     <div><p className="text-muted">Tempo limite</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimitSeconds)}</p></div>
                     <div><p className="text-muted">Respostas obrigatórias</p><p className="mt-1 font-semibold text-dark">Todas antes de avançar</p></div>
                   </div>
-                  <button type="button" onClick={startQuiz} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                  <button type="button" onClick={startQuiz} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>
                     <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar Quiz" : "Testar Quiz"}
                   </button>
                   {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
                 </section>
                 {isStudent && (
-                  <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-7">
+                  <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-7">
                     <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
                     <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                     {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div> : <RankingList ranking={ranking} /> }
@@ -421,9 +421,9 @@ export default function PlayQuizPage() {
                       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button type="button" onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))} disabled={currentIndex === 0} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">Anterior</button>
                         {currentIndex < questions.length - 1 ? (
-                          <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Responder e avançar</button>
+                          <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>Responder e avançar</button>
                         ) : (
-                          <button type="button" onClick={finishFromButton} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Finalizar Quiz</button>
+                          <button type="button" onClick={finishFromButton} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>Finalizar Quiz</button>
                         )}
                       </div>
                     </section>
@@ -447,7 +447,7 @@ export default function PlayQuizPage() {
                       ))}
                       <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-sm text-muted">{answeredCount} de {questions.length} questões respondidas.</p>
-                        <button type="button" onClick={finishFromButton} disabled={answeredCount !== questions.length} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40">Finalizar Quiz</button>
+                        <button type="button" onClick={finishFromButton} disabled={answeredCount !== questions.length} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>Finalizar Quiz</button>
                       </section>
                     </div>
                   )}
@@ -458,7 +458,7 @@ export default function PlayQuizPage() {
                 <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Quiz abandonado</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">Seu progresso não foi registrado. Você pode iniciar novamente quando quiser.</p>
-                  <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover">Voltar à escolha do modo</button>
+                  <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>Voltar à escolha do modo</button>
                 </section>
               )}
 
@@ -513,7 +513,7 @@ export default function PlayQuizPage() {
                       </div>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                         <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">Voltar à escolha do modo</button>
-                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover"><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button>
+                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button>
                       </div>
                     </>
                   )}
