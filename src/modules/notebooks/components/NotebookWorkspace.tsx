@@ -710,12 +710,6 @@ export function NotebookWorkspace({
                 </button>
               </form>
 
-              <span className="min-w-24 text-center text-xs font-semibold text-[#66583e] sm:min-w-32 sm:text-sm" aria-live="polite">
-                {twoPages
-                  ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
-                  : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
-              </span>
-
               <button
                 type="button"
                 onClick={() => {
@@ -730,6 +724,12 @@ export function NotebookWorkspace({
               >
                 <ChevronRight size={18} aria-hidden="true" />
               </button>
+
+              <span className="min-w-24 text-center text-xs font-semibold text-[#66583e] sm:min-w-32 sm:text-sm" aria-live="polite">
+                {twoPages
+                  ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
+                  : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
+              </span>
 
               <button
                 type="button"
