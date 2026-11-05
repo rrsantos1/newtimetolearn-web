@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { Check, Clock, GraduationCap, X } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import {
@@ -161,6 +162,13 @@ export default function StudentTeachersPage() {
                   <h3 className="font-semibold text-green-900">{relationship.teacher.name}</h3>
                   <p className="mt-1 text-sm text-green-800">{relationship.teacher.email}</p>
                   <span className="mt-3 inline-block rounded-full bg-white px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
+                  <Link
+                    href="/student/notebook"
+                    className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90"
+                    style={{ color: "var(--primary-foreground)" }}
+                  >
+                    Abrir meu caderno
+                  </Link>
                 </article>
               ))
             )}
