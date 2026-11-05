@@ -46,8 +46,25 @@ export default function StudentTeachersPage() {
   }, []);
 
   useEffect(() => {
-    void loadRelationships();
-  }, [loadRelationships]);
+    let isMounted = true;
+
+    async function fetchRelationships(): Promise<void> {
+      try {
+        const data = await listStudentRelationships();
+        if (isMounted) setRelationships(data);
+      } catch (error: unknown) {
+        if (isMounted) setNotice(getErrorMessage(error));
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    void fetchRelationships();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   async function handleResponse(relationshipId: string, accept: boolean) {
     setBusyId(relationshipId);
