@@ -40,7 +40,7 @@ export default function TeacherNotebookPage() {
       backLinkPlacement="title"
     >
       {router.isReady && relationshipId ? (
-        <NotebookWorkspace relationshipId={relationshipId} mode="teacher" studentName={studentName} />
+        <NotebookWorkspace relationshipId={relationshipId} mode="teacher" />
       ) : (
         <p className="text-sm text-muted">Carregando caderno...</p>
       )}
