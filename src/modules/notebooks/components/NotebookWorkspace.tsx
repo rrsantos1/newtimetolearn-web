@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
-import { BookOpen, ExternalLink, MessageCircle, Send, SplitSquareHorizontal } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { ArrowDown, ArrowUp, Bold, BookOpen, ExternalLink, Italic, ListOrdered, MessageCircle, Send, SplitSquareHorizontal, Underline } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookEntry,
   createNotebookNote,
   getNotebook,
   listNotebookNotes,
+  reorderNotebookEntries,
 } from "../services/notebookService";
 import type { NotebookDay, NotebookNote } from "../types/notebook.types";
 
@@ -27,6 +29,35 @@ function contentText(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+function renderFormattedText(value: string): ReactNode[] {
+  const pattern = /\\*\\*[\\s\\S]+?\\*\\*|__[\\s\\S]+?__|\\/\\/[\\s\\S]+?\\/\\/|\\[size=(?:12|14|16|18|20|24)\\][\\s\\S]+?\\[\\/size\\]/g;
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let index = 0;
+
+  for (const match of value.matchAll(pattern)) {
+    const token = match[0];
+    const start = match.index ?? 0;
+    if (start > cursor) nodes.push(value.slice(cursor, start));
+
+    if (token.startsWith("**")) {
+      nodes.push(<strong key={index}>{token.slice(2, -2)}</strong>);
+    } else if (token.startsWith("__")) {
+      nodes.push(<u key={index}>{token.slice(2, -2)}</u>);
+    } else if (token.startsWith("//")) {
+      nodes.push(<em key={index}>{token.slice(2, -2)}</em>);
+    } else {
+      const size = token.match(/^\\[size=(12|14|16|18|20|24)\\]/)?.[1] ?? "16";
+      nodes.push(<span key={index} style={{ fontSize: `${size}px` }}>{token.replace(/^\\[size=\\d+\\]/, "").replace(/\\[\\/size\\]$/, "")}</span>);
+    }
+    cursor = start + token.length;
+    index += 1;
+  }
+
+  if (cursor < value.length) nodes.push(value.slice(cursor));
+  return nodes;
+}
+
 export function NotebookWorkspace({
   relationshipId,
   mode,
@@ -36,6 +67,8 @@ export function NotebookWorkspace({
   const [days, setDays] = useState<NotebookDay[]>([]);
   const [notes, setNotes] = useState<NotebookNote[]>([]);
   const [entryText, setEntryText] = useState("");
+  const entryEditorRef = useRef<HTMLTextAreaElement | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
   const [entryKind, setEntryKind] = useState<"TEXT" | "ACTIVITY_LINK">("TEXT");
   const [linkTitle, setLinkTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -96,6 +129,57 @@ export function NotebookWorkspace({
     };
   }, [relationshipId]);
 
+  function applyTextFormat(prefix: string, suffix = prefix): void {
+    const editor = entryEditorRef.current;
+    if (!editor) return;
+
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const selectedText = entryText.slice(start, end);
+    const replacement = `${prefix}${selectedText}${suffix}`;
+    const updatedText = `${entryText.slice(0, start)}${replacement}${entryText.slice(end)}`;
+    setEntryText(updatedText);
+
+    requestAnimationFrame(() => {
+      editor.focus();
+      const selectionStart = start + prefix.length;
+      const selectionEnd = selectionStart + selectedText.length;
+      editor.setSelectionRange(selectionStart, selectionEnd);
+    });
+  }
+
+  async function moveEntry(day: NotebookDay, entryIndex: number, direction: -1 | 1): Promise<void> {
+    const targetIndex = entryIndex + direction;
+    if (targetIndex < 0 || targetIndex >= day.entries.length) return;
+
+    const reorderedEntries = [...day.entries];
+    const [movedEntry] = reorderedEntries.splice(entryIndex, 1);
+    reorderedEntries.splice(targetIndex, 0, movedEntry);
+
+    try {
+      await reorderNotebookEntries(relationshipId, day.id, reorderedEntries.map((entry) => entry.id));
+      setDays((currentDays) => currentDays.map((currentDay) => (
+        currentDay.id === day.id ? { ...currentDay, entries: reorderedEntries } : currentDay
+      )));
+    } catch {
+      setError("Não foi possível salvar a nova ordem dos itens.");
+    }
+  }
+
+  function renderOrderControls(day: NotebookDay, entryIndex: number): ReactNode {
+    return (
+      <div className="mb-2 flex items-center justify-end gap-1">
+        <span className="mr-auto text-[11px] font-semibold text-[#76694f]">Posição {entryIndex + 1}</span>
+        <button type="button" disabled={entryIndex === 0} onClick={() => void moveEntry(day, entryIndex, -1)} aria-label="Mover item para cima" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
+          <ArrowUp size={15} aria-hidden="true" />
+        </button>
+        <button type="button" disabled={entryIndex === day.entries.length - 1} onClick={() => void moveEntry(day, entryIndex, 1)} aria-label="Mover item para baixo" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
+          <ArrowDown size={15} aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
+
   async function handleAddEntry(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -148,9 +232,20 @@ export function NotebookWorkspace({
           <h2 className="text-xl font-bold text-dark">{mode === "student" && studentName ? `Professor: ${studentName}` : studentName ?? "Caderno virtual"}</h2>
         </div>
         <div className="flex flex-wrap gap-2">
+          {mode === "teacher" && (
+            <button
+              type="button"
+              onClick={() => setIsReordering((value) => !value)}
+              aria-pressed={isReordering}
+              className={isReordering ? "inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-3 text-sm font-semibold text-white" : "inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background"}
+            >
+              <ListOrdered size={16} aria-hidden="true" />
+              {isReordering ? "Concluir organização" : "Organizar itens"}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setTwoPages((value) => !value)}
+            onClick={() => setTwoPages((value) => !value)
             aria-pressed={twoPages}
             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
@@ -200,11 +295,12 @@ export function NotebookWorkspace({
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
                     </div>
                     <div className="space-y-4">
-                      {day.entries.map((entry) => {
+                      {day.entries.map((entry, entryIndex) => {
                         if (entry.kind === "ACTIVITY_LINK") {
                           const url = contentText(entry.content.url);
                           return (
                             <div key={entry.id} className="rounded-lg border border-[#d8c9a9] bg-white/70 p-3">
+                              {isReordering && renderOrderControls(day, entryIndex)}
                               <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
                               <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
                                 Abrir atividade <ExternalLink size={14} aria-hidden="true" />
@@ -213,9 +309,12 @@ export function NotebookWorkspace({
                           );
                         }
                         return (
-                          <p key={entry.id} className="whitespace-pre-wrap text-sm leading-7 text-[#51452f]">
-                            {contentText(entry.content.text)}
-                          </p>
+                          <div key={entry.id}>
+                            {isReordering && renderOrderControls(day, entryIndex)}
+                            <p className="whitespace-pre-wrap text-sm leading-7 text-[#51452f]">
+                              {renderFormattedText(contentText(entry.content.text))}
+                            </p>
+                          </div>
                         );
                       })}
                     </div>
@@ -238,7 +337,18 @@ export function NotebookWorkspace({
               {entryKind === "TEXT" ? (
                 <label className="mt-3 block text-sm font-medium text-dark">
                   Texto
-                  <textarea required value={entryText} onChange={(event) => setEntryText(event.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-border bg-white p-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Escreva o conteúdo da aula..." />
+                  <div className="mt-2 flex flex-wrap items-center gap-1 rounded-t-xl border border-b-0 border-border bg-background p-2">
+                    <button type="button" onClick={() => applyTextFormat("**")} aria-label="Aplicar negrito" title="Negrito" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Bold size={17} aria-hidden="true" /></button>
+                    <button type="button" onClick={() => applyTextFormat("//")} aria-label="Aplicar itálico" title="Itálico" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Italic size={17} aria-hidden="true" /></button>
+                    <button type="button" onClick={() => applyTextFormat("__")} aria-label="Aplicar sublinhado" title="Sublinhado" className="inline-flex size-9 items-center justify-center rounded-lg border border-border bg-white text-dark hover:bg-primary/10"><Underline size={17} aria-hidden="true" /></button>
+                    <span className="mx-1 h-6 border-l border-border" aria-hidden="true" />
+                    <span className="px-1 text-xs font-medium text-muted">Fonte</span>
+                    {[12, 14, 16, 18, 20, 24].map((size) => (
+                      <button key={size} type="button" onClick={() => applyTextFormat(`[size=${size}]`, "[/size]")} aria-label={`Aplicar tamanho de fonte ${size}`} title={`${size}px`} className="min-h-9 min-w-9 rounded-lg border border-border bg-white px-2 text-xs font-semibold text-dark hover:bg-primary/10">{size}</button>
+                    ))}
+                  </div>
+                  <textarea ref={entryEditorRef} required value={entryText} onChange={(event) => setEntryText(event.target.value)} rows={5} className="w-full rounded-b-xl border border-border bg-white p-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder="Escreva o conteúdo da aula..." />
+                  <span className="mt-1 block text-xs font-normal text-muted">Selecione um trecho e use a barra para formatar. A formatação será mantida para o aluno.</span>
                 </label>
               ) : (
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
