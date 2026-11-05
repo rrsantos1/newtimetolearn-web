@@ -54,26 +54,26 @@ export default function Home() {
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[0.94fr_1.06fr] lg:gap-16 lg:px-10 lg:py-24">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-10 lg:py-16">
           <div className="relative z-10">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/[0.06] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
               Aprender inglês pode ser uma experiência
             </span>
 
-            <h1 className="mt-7 max-w-2xl text-4xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-5xl lg:text-[3.65rem]">
+            <h1 className="mt-7 max-w-2xl text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.65rem] lg:text-[3.1rem]">
               Aprenda, pratique
               <span className="block text-accent">e evolua com o</span>
               TimeToLearn.
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-8 text-muted sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted sm:text-[1.05rem]">
               Um ambiente de aprendizagem de inglês que aproxima professores
               e alunos por meio de atividades interativas, prática constante e
               experiências que tornam o aprendizado mais envolvente.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-semibold text-white shadow-lg shadow-accent/15 transition hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
@@ -90,7 +90,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="mt-9 flex flex-wrap gap-2">
+            <div className="mt-7 flex flex-wrap gap-2">
               {activityTypes.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
@@ -103,12 +103,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-2xl">
+          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center">
             <div
               aria-hidden="true"
               className="absolute -inset-4 rounded-[2rem] bg-[#244a7c]/10 blur-2xl"
             />
-            <div className="relative overflow-hidden rounded-[1.75rem] border border-[#244a7c]/10 bg-white p-2 shadow-2xl shadow-[#142b4a]/15 sm:p-3">
+            <div className="relative overflow-hidden w-full rounded-[1.5rem] border border-[#244a7c]/10 bg-white p-2 shadow-2xl shadow-[#142b4a]/15 sm:p-3">
               <Image
                 src="/images/home-hero.webp"
                 alt="Imagem de apresentação do TimeToLearn"
@@ -116,13 +116,13 @@ export default function Home() {
                 height={900}
                 priority
                 sizes="(max-width: 1024px) 100vw, 56vw"
-                className="h-auto w-full rounded-[1.25rem] object-cover"
+                className="aspect-[1.5/1] h-auto w-full rounded-[1.25rem] object-cover"
               />
-              <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/70 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-7 sm:left-7 sm:right-7 sm:p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
+              <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/70 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-5 sm:left-5 sm:right-5 sm:p-4">
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-accent">
                   Uma jornada de conhecimento
                 </p>
-                <p className="mt-1 text-base font-bold text-dark sm:text-lg">
+                <p className="mt-1 text-sm font-bold text-dark sm:text-base">
                   Pratique no seu ritmo. Aprenda todos os dias.
                 </p>
               </div>
