@@ -47,10 +47,6 @@ export default function Home() {
       <section className="relative isolate overflow-hidden bg-white">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] bg-[#244a7c]/[0.045] lg:block"
-        />
-        <div
-          aria-hidden="true"
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
@@ -103,12 +99,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center">
-            <div
-              aria-hidden="true"
-              className="absolute -inset-4 rounded-[2rem] bg-[#244a7c]/10 blur-2xl"
-            />
-            <div className="relative w-full overflow-hidden rounded-[1.5rem] border border-[#244a7c]/10 bg-white p-2 shadow-2xl shadow-[#142b4a]/15 sm:p-3">
+          <div className="relative mx-auto flex w-full max-w-xl items-center justify-center rounded-[1.75rem] bg-[#f1f5fa] p-4 sm:p-6">
+            <div className="w-full overflow-hidden rounded-2xl border border-[#244a7c]/10 bg-white p-2 shadow-lg shadow-[#142b4a]/10 sm:p-3">
               <Image
                 src="/images/home-hero.webp"
                 alt="Imagem de apresentação do TimeToLearn"
@@ -116,9 +108,9 @@ export default function Home() {
                 height={900}
                 priority
                 sizes="(max-width: 1024px) 100vw, 56vw"
-                className="block h-auto w-full rounded-[1.1rem] object-contain"
+                className="block h-auto w-full rounded-xl object-contain"
               />
-              <div className="mx-2 mb-2 mt-3 rounded-xl border border-[#244a7c]/10 bg-white p-4 sm:mx-3 sm:mb-3 sm:mt-4 sm:p-5">
+              <div className="mx-1 mb-1 mt-3 rounded-xl border border-[#244a7c]/10 bg-white p-4 sm:p-5">
                 <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-accent">
                   Uma jornada de conhecimento
                 </p>
