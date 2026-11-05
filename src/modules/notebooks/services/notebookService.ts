@@ -54,6 +54,8 @@ export async function createNotebookAttachment(relationshipId: string, file: Fil
       "Content-Type": file.type,
       "x-file-name": encodeURIComponent(file.name),
     },
+    // Vídeos podem levar mais de 30 segundos para serem recebidos e enviados ao Backblaze.
+    timeout: file.type.startsWith("video/") ? 360_000 : 60_000,
   });
 }
 
