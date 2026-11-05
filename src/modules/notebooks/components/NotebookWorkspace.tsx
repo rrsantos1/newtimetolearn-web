@@ -571,7 +571,7 @@ export function NotebookWorkspace({
                                 <FileText size={22} className="shrink-0 text-[#8b7b60]" aria-hidden="true" />
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate text-sm font-semibold text-[#51452f]">{contentText(entry.content.fileName) || "Anexo"}</p>
-                                  <p className="text-xs text-[#76694f]">{entry.kind === "IMAGE" ? "Imagem" : "Arquivo anexado"}</p>
+                                  <p className="text-xs text-[#76694f]">Arquivo anexado</p>
                                 </div>
                                 <button type="button" onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo")} aria-label={`Baixar ${contentText(entry.content.fileName) || "anexo"}`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f] hover:bg-[#f5efdf]">
                                   <Download size={15} aria-hidden="true" /> Baixar
