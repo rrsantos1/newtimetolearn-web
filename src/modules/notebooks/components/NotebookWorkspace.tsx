@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { BookOpen, ExternalLink, MessageCircle, Send, SplitSquareHorizontal } from "lucide-react";
+import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookEntry,
   createNotebookNote,
@@ -31,6 +32,7 @@ export function NotebookWorkspace({
   mode,
   studentName,
 }: NotebookWorkspaceProps) {
+  const { user } = useAuth();
   const [days, setDays] = useState<NotebookDay[]>([]);
   const [notes, setNotes] = useState<NotebookNote[]>([]);
   const [entryText, setEntryText] = useState("");
@@ -115,7 +117,7 @@ export function NotebookWorkspace({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm text-muted">{mode === "teacher" ? "Caderno do aluno" : "Seu caderno de estudos"}</p>
-          <h2 className="text-xl font-bold text-dark">{studentName ?? "Caderno virtual"}</h2>
+          <h2 className="text-xl font-bold text-dark">{mode === "student" && studentName ? `Professor: ${studentName}` : studentName ?? "Caderno virtual"}</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -146,7 +148,7 @@ export function NotebookWorkspace({
           <div className="relative rounded-2xl border border-[#d5c7a8] bg-[#e8dfcb] p-3 shadow-inner sm:p-5">
             <div className={twoPages ? "grid gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
               {twoPages && (
-                <div className="hidden items-center justify-center md:flex" aria-hidden="true">
+                <div className="hidden items-center justify-center md:col-start-2 md:flex" aria-hidden="true">
                   <div className="flex h-full min-h-80 flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
                     {Array.from({ length: 13 }, (_, index) => (
                       <span key={index} className="size-3 rounded-full border-2 border-[#8b7b60] bg-[#d5c7a8] shadow-sm" />
@@ -163,8 +165,8 @@ export function NotebookWorkspace({
                   </div>
                 </div>
               ) : (
-                visibleDays.map((day) => (
-                  <article key={day.id} className="min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
+                visibleDays.map((day, index) => (
+                  <article key={day.id} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && visibleDays.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -238,7 +240,7 @@ export function NotebookWorkspace({
               ) : notes.map((note) => (
                 <article key={note.id} className="rounded-xl bg-background p-3">
                   <p className="whitespace-pre-wrap text-sm text-dark">{note.message}</p>
-                  <p className="mt-2 text-[11px] text-muted">{new Date(note.createdAt).toLocaleString("pt-BR")}</p>
+                  <p className="mt-2 text-[11px] text-muted">{note.authorId === user?.id ? "Você" : mode === "teacher" ? "Aluno" : "Professor"} · {new Date(note.createdAt).toLocaleString("pt-BR")}</p>
                   <button type="button" onClick={() => setReplyTo(note.id)} className="mt-2 text-xs font-semibold text-primary underline">Responder</button>
                 </article>
               ))}
