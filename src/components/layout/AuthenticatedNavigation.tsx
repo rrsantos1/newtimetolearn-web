@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { BookOpen, LayoutDashboard, UserRound, Menu, X } from "lucide-react";
@@ -41,7 +42,7 @@ export function AuthenticatedNavigation() {
 
   const canAccessTeacherArea = hasAnyRole(user?.roles ?? [], ["TEACHER"]);
 
-  function renderTeacherLink(): React.ReactNode {
+  function renderTeacherLink(): ReactNode {
     if (!canAccessTeacherArea) return null;
     const active = isActive("/teacher");
     return (
