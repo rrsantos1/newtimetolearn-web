@@ -203,12 +203,15 @@ export function NotebookWorkspace({
   async function handleAddAttachment(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (!selectedFile) return;
+    const form = event.currentTarget;
 
-    const maxBytes = selectedFile.type.startsWith("video/") ? 50 * 1024 * 1024 : 20 * 1024 * 1024;
+    const maxBytes = selectedFile.type.startsWith("video/")
+      ? 50 * 1024 * 1024
+      : selectedFile.type.startsWith("image/") ? 5 * 1024 * 1024 : 20 * 1024 * 1024;
     if (selectedFile.size > maxBytes) {
       setError(selectedFile.type.startsWith("video/")
         ? "Vídeos podem ter no máximo 50 MB."
-        : "Documentos e imagens podem ter no máximo 20 MB.");
+        : selectedFile.type.startsWith("image/") ? "Imagens podem ter no máximo 5 MB." : "Documentos podem ter no máximo 20 MB.");
       return;
     }
 
@@ -217,7 +220,7 @@ export function NotebookWorkspace({
     try {
       await createNotebookAttachment(relationshipId, selectedFile);
       setSelectedFile(null);
-      event.currentTarget.reset();
+      form.reset();
       await loadContent();
     } catch {
       setError("Não foi possível anexar o arquivo. Verifique o formato e tente novamente.");
@@ -434,7 +437,7 @@ export function NotebookWorkspace({
                 <Paperclip size={18} className="text-primary" aria-hidden="true" />
                 <h3 className="font-semibold text-dark">Anexar material</h3>
               </div>
-              <p className="mt-1 text-xs text-muted">Imagens, PDF, Word, Excel, CSV e vídeos. Documentos até 20 MB; vídeos até 50 MB.</p>
+              <p className="mt-1 text-xs text-muted">Imagens, PDF, Word, Excel, CSV e vídeos. Imagens até 5 MB; documentos até 20 MB; vídeos até 50 MB.</p>
               <label htmlFor="notebook-attachment" className="mt-3 block text-sm font-medium text-dark">Selecionar arquivo</label>
               <input
                 id="notebook-attachment"
