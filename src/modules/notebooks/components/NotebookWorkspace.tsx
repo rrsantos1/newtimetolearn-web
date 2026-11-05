@@ -194,7 +194,7 @@ export function NotebookWorkspace({
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
-      URL.revokeObjectURL(objectUrl);
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch {
       setError("Não foi possível baixar este anexo.");
     }
