@@ -64,6 +64,42 @@ function isJsonContent(value: unknown): value is JSONContent {
     "type" in value && (value as { type?: unknown }).type === "doc";
 }
 
+function parseLegacyLine(line: string): JSONContent[] {
+  const pattern = /\*\*[\s\S]+?\*\*|__[\s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
+  const nodes: JSONContent[] = [];
+  let cursor = 0;
+
+  for (const match of line.matchAll(pattern)) {
+    const token = match[0];
+    const position = match.index ?? 0;
+    const plainText = line.slice(cursor, position);
+    if (plainText) nodes.push({ type: "text", text: plainText });
+
+    let text = token;
+    let marks: NonNullable<JSONContent["marks"]> = [];
+    if (token.startsWith("**")) {
+      text = token.slice(2, -2);
+      marks = [{ type: "bold" }];
+    } else if (token.startsWith("__")) {
+      text = token.slice(2, -2);
+      marks = [{ type: "underline" }];
+    } else if (token.startsWith("//")) {
+      text = token.slice(2, -2);
+      marks = [{ type: "italic" }];
+    } else {
+      const size = token.match(/^\[size=(12|14|16|18|20|24)\]/)?.[1] ?? "16";
+      text = token.replace(/^\[size=\d+\]/, "").replace(/\[\/size\]$/, "");
+      marks = [{ type: "textStyle", attrs: { fontSize: \`\${size}px\` } }];
+    }
+    if (text) nodes.push({ type: "text", text, marks });
+    cursor = position + token.length;
+  }
+
+  const remainingText = line.slice(cursor);
+  if (remainingText) nodes.push({ type: "text", text: remainingText });
+  return nodes;
+}
+
 function notebookDocument(content: Record<string, unknown>): JSONContent {
   if (isJsonContent(content.document)) return content.document;
   const text = contentText(content.text);
@@ -71,7 +107,7 @@ function notebookDocument(content: Record<string, unknown>): JSONContent {
     type: "doc",
     content: text.split("\n").map((line) => ({
       type: "paragraph",
-      content: line ? [{ type: "text", text: line }] : [],
+      content: parseLegacyLine(line),
     })),
   };
 }
