@@ -209,7 +209,7 @@ export default function PlayCrosswordPage() {
   return (
     <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-surface">
+        <header className="border-b border-[#315987] bg-[#142b4a]">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/dashboard" />
             <div className="flex items-center gap-2">
@@ -246,7 +246,7 @@ export default function PlayCrosswordPage() {
 
               {phase === "ready" && (
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
-                  <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-8">
+                  <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-8">
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">Complete as palavras usando as pistas horizontais e verticais. O cronômetro começa somente quando você iniciar.</p>
@@ -254,7 +254,7 @@ export default function PlayCrosswordPage() {
                       <p className="text-sm font-semibold text-dark">Tempo disponível</p>
                       <p className="mt-1 text-sm text-muted">{formatTime(activity.version.timeLimitSeconds)}</p>
                     </div>
-                    <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}>
                       <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar cruzadinha" : "Testar cruzadinha"}
                     </button>
                     {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não é registrada no recorde dos alunos.</p>}
@@ -275,10 +275,10 @@ export default function PlayCrosswordPage() {
               {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues} timeLimitSeconds={activity.version.timeLimitSeconds} onComplete={handleComplete} canAutoFill={!isStudent} />}
 
               {phase === "finished" && !isStudent && (
-                <section className="rounded-2xl border border-violet-200 bg-violet-50/50 p-6 shadow-sm sm:p-8">
+                <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Teste concluído</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">A prévia foi encerrada. Tentativas de professor não são registradas no recorde dos alunos.</p>
-                  <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white hover:bg-primary-hover"><Play size={17} aria-hidden="true" />Testar novamente</button>
+                  <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Testar novamente</button>
                 </section>
               )}
 
@@ -307,7 +307,7 @@ export default function PlayCrosswordPage() {
                         </p>
                       </div>
                       <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Record atualizado</h2></div><RankingList ranking={ranking} /></div>
-                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 font-semibold text-white hover:bg-primary-hover"><Play size={17} aria-hidden="true" />Jogar novamente</button>
+                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }} style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Jogar novamente</button>
                     </>
                   ) : null}
                 </section>
