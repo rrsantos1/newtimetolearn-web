@@ -2,8 +2,6 @@ import { useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import Underline from "@tiptap/extension-underline";
 import { FontSize, TextStyle } from "@tiptap/extension-text-style";
 import {
   Bold,
@@ -31,9 +29,7 @@ export function NotebookRichTextEditor({
   const [linkUrl, setLinkUrl] = useState("");
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Underline,
-      Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
+      StarterKit.configure({ link: { openOnClick: false, autolink: true, linkOnPaste: true } }),
       TextStyle,
       FontSize,
     ],
@@ -43,6 +39,7 @@ export function NotebookRichTextEditor({
     },
     editable: !readOnly,
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
     onUpdate: ({ editor: currentEditor }) => onChange(currentEditor.getJSON()),
   });
 
@@ -118,7 +115,7 @@ export function NotebookRichTextEditor({
       <div className="min-h-32 min-w-0 flex-1 rounded-lg border border-[#d8c9a9] bg-white/70 px-4 py-3 text-sm leading-7 text-[#51452f] focus-within:ring-2 focus-within:ring-[#b69b60]/30">
         <EditorContent
           editor={editor}
-          className="notebook-rich-editor min-h-28 outline-none"
+          className="notebook-rich-editor min-h-28 outline-none [&_.tiptap]:min-h-28 [&_.tiptap]:outline-none [&_.tiptap_p]:my-1 [&_.tiptap_ul]:list-disc [&_.tiptap_ul]:pl-6 [&_.tiptap_ol]:list-decimal [&_.tiptap_ol]:pl-6 [&_.tiptap_a]:text-blue-700 [&_.tiptap_a]:underline"
         />
       </div>
     </div>
