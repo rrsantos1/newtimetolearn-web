@@ -60,7 +60,7 @@ export function AuthenticatedNavigation() {
   }
 
   return (
-    <nav aria-label="Navegação principal" className="flex items-center gap-2">
+    <nav aria-label="Navegação principal" className="flex w-full items-center gap-2">
       <div className="hidden items-center gap-2 md:flex">
         {navigationItems.map(({ label, href, icon: Icon, disabled }) => (
           <Link
@@ -93,9 +93,9 @@ export function AuthenticatedNavigation() {
         )}
       </div>
 
-      <NotificationBell />
+      <div className="ml-auto"><NotificationBell /></div>
 
-      <div className="ml-auto flex items-center justify-end gap-2 md:hidden">
+      <div className="flex items-center justify-end gap-2 md:hidden">
         <button
           type="button"
           aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
