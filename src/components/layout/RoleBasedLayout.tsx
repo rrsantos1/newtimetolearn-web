@@ -13,6 +13,7 @@ interface RoleBasedLayoutProps {
   description: string;
   allowedRoles: UserRole[];
   area: "teacher" | "admin" | "student";
+  backLinkPlacement?: "top" | "title";
 }
 
 export function RoleBasedLayout({
@@ -21,6 +22,7 @@ export function RoleBasedLayout({
   description,
   allowedRoles,
   area,
+  backLinkPlacement = "top",
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
   const homeHref = area === "admin" ? "/admin" : area === "student" ? "/dashboard" : "/teacher";
@@ -58,17 +60,30 @@ export function RoleBasedLayout({
         </header>
 
         <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
-          <Link
-            href="/dashboard"
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted transition hover:text-accent"
-          >
-            <ArrowLeft size={16} aria-hidden="true" />
-            Área autenticada
-          </Link>
+          {backLinkPlacement === "top" && (
+            <Link
+              href="/dashboard"
+              className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted transition hover:text-accent"
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              Área autenticada
+            </Link>
+          )}
 
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+            </div>
+            {backLinkPlacement === "title" && (
+              <Link
+                href="/dashboard"
+                className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background"
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                Área autenticada
+              </Link>
+            )}
           </div>
 
           {children}
