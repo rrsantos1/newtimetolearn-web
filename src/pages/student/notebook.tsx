@@ -43,7 +43,7 @@ export default function StudentNotebookPage() {
       ) : error ? (
         <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</p>
       ) : relationship ? (
-        <NotebookWorkspace relationshipId={relationship.id} mode="student" studentName={relationship.teacher.name} />
+        <NotebookWorkspace relationshipId={relationship.id} mode="student" />
       ) : (
         <div className="rounded-2xl border border-dashed border-border bg-surface p-8 text-center">
           <h2 className="font-semibold text-dark">Você ainda não possui um professor vinculado.</h2>
