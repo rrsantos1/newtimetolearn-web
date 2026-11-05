@@ -11,18 +11,16 @@ export function BrandLogo({ href = "/", compact = false }: BrandLogoProps) {
     <Link
       href={href}
       aria-label="TimeToLearn - página inicial"
-      className="inline-flex min-w-0 items-center"
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-sm ${compact ? "size-12" : "size-14"}`}
     >
       <Image
         src="/images/logo.jpg"
         alt="TimeToLearn"
-        width={compact ? 96 : 112}
-        height={compact ? 64 : 72}
+        width={compact ? 88 : 104}
+        height={compact ? 88 : 104}
         priority
-        sizes={compact ? "96px" : "(max-width: 640px) 96px, 112px"}
-        className={compact
-          ? "h-14 w-auto max-w-24 object-contain"
-          : "h-16 w-auto max-w-28 object-contain"}
+        sizes={compact ? "48px" : "56px"}
+        className="size-full rounded-full object-contain"
       />
     </Link>
   );
