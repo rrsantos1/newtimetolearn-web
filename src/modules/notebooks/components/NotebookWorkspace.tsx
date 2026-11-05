@@ -548,7 +548,6 @@ export function NotebookWorkspace({
                       {entries.map((entry, entryIndex) => {
                         const absoluteIndex = entryIndex + entryOffset;
                         const isEditingText = editingEntryId === entry.id && entry.kind === "TEXT";
-                        const isEditingLink = editingLink?.id === entry.id;
                         return (
                           <div key={entry.id} className="rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2">
                             {isReordering && renderOrderControls(day, absoluteIndex)}
@@ -599,7 +598,6 @@ export function NotebookWorkspace({
                                     Abrir atividade <ExternalLink size={14} aria-hidden="true" />
                                   </a>
                                 </div>
-                              )
                             ) : isEditingText ? (
                               <div className="space-y-2 p-2">
                                 <NotebookRichTextEditor initialContent={editingDocument ?? undefined} onChange={setEditingDocument} />
