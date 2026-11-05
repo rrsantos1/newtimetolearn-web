@@ -172,6 +172,7 @@ export function NotebookWorkspace({
   const { user } = useAuth();
   const [days, setDays] = useState<NotebookDay[]>([]);
   const [notes, setNotes] = useState<NotebookNote[]>([]);
+  const [currentNotesPage, setCurrentNotesPage] = useState(0);
   const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
   const [editingDocument, setEditingDocument] = useState<JSONContent | null>(null);
   const [newDocument, setNewDocument] = useState<JSONContent | null>(null);
@@ -431,12 +432,18 @@ export function NotebookWorkspace({
       setReplyTo(null);
       const updatedNotes = await listNotebookNotes(relationshipId);
       setNotes(updatedNotes);
+      setCurrentNotesPage(Math.max(0, Math.ceil(updatedNotes.length / notesPerPage) - 1));
     } catch {
       setError("Não foi possível enviar sua mensagem.");
     } finally {
       setIsSavingNote(false);
     }
   }
+
+  const notesPerPage = 5;
+  const totalNotesPages = Math.max(1, Math.ceil(notes.length / notesPerPage));
+  const safeNotesPage = Math.min(currentNotesPage, totalNotesPages - 1);
+  const visibleNotes = notes.slice(safeNotesPage * notesPerPage, (safeNotesPage + 1) * notesPerPage);
 
   const orderedDays = [...days].reverse();
   const entriesPerPage = 4;
@@ -505,7 +512,7 @@ export function NotebookWorkspace({
                         const absoluteIndex = entryIndex + entryOffset;
                         const isEditingText = editingEntryId === entry.id && entry.kind === "TEXT";
                         return (
-                          <div key={entry.id} className="rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2">
+                          <div key={entry.id} className={mode === "teacher" ? "rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2" : "py-2"}>
                             {isReordering && renderOrderControls(day, absoluteIndex)}
                             {mode === "teacher" && (
                               <div className="mb-2 flex flex-wrap items-center justify-end gap-1">
@@ -809,10 +816,10 @@ export function NotebookWorkspace({
               <h3 className="font-semibold text-dark">Bloco de notas compartilhado</h3>
             </div>
             <p className="mt-1 text-xs leading-5 text-muted">Anotações e dúvidas ficam visíveis para o aluno e o professor.</p>
-            <div className="mt-4 max-h-112 space-y-3 overflow-y-auto">
+            <div className="mt-4 space-y-3">
               {notes.length === 0 ? (
                 <p className="rounded-xl bg-background p-3 text-sm text-muted">Nenhuma observação por enquanto.</p>
-              ) : notes.map((note) => (
+              ) : visibleNotes.map((note) => (
                 <article key={note.id} className="rounded-xl bg-background p-3">
                   <p className="whitespace-pre-wrap text-sm text-dark">{note.message}</p>
                   <p className="mt-2 text-[11px] text-muted">{note.authorId === user?.id ? "Você" : mode === "teacher" ? "Aluno" : "Professor"} · {new Date(note.createdAt).toLocaleString("pt-BR")}</p>
@@ -820,6 +827,29 @@ export function NotebookWorkspace({
                 </article>
               ))}
             </div>
+            {totalNotesPages > 1 && (
+              <nav aria-label="Paginação do bloco de notas" className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
+                <button
+                  type="button"
+                  onClick={() => setCurrentNotesPage((page) => Math.max(0, page - 1))}
+                  disabled={safeNotesPage === 0}
+                  className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border bg-white px-2.5 text-xs font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ChevronLeft size={14} aria-hidden="true" /> Anterior
+                </button>
+                <span className="text-xs font-medium text-muted" aria-live="polite">
+                  {safeNotesPage + 1} de {totalNotesPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentNotesPage((page) => Math.min(totalNotesPages - 1, page + 1))}
+                  disabled={safeNotesPage >= totalNotesPages - 1}
+                  className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border bg-white px-2.5 text-xs font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Próxima <ChevronRight size={14} aria-hidden="true" />
+                </button>
+              </nav>
+            )}
             {replyTo && <p className="mt-3 text-xs text-primary">Respondendo a uma mensagem. <button type="button" onClick={() => setReplyTo(null)} className="underline">Cancelar</button></p>}
             <form onSubmit={(event) => void handleAddNote(event)} className="mt-4 space-y-2">
               <label htmlFor="notebook-note" className="text-sm font-medium text-dark">Sua mensagem</label>
