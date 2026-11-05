@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save } from "lucide-react";
+import { RotateCcw, Save } from "lucide-react";
 import Image from "next/image";
 import { downloadNotebookAttachment } from "../services/notebookService";
 
@@ -22,7 +22,8 @@ export function NotebookAttachmentImage({
 }: NotebookAttachmentImageProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
-  const [displayWidth, setDisplayWidth] = useState(initialWidth);
+  const [savedWidth, setSavedWidth] = useState(initialWidth);
+  const [draftWidth, setDraftWidth] = useState(initialWidth);
   const [isSavingWidth, setIsSavingWidth] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -54,33 +55,44 @@ export function NotebookAttachmentImage({
     return <div className="aspect-video w-full animate-pulse rounded-lg bg-[#eee5d3]" aria-label="Carregando imagem" />;
   }
 
+  const hasWidthChanges = draftWidth !== savedWidth;
+
   async function saveDisplayWidth(): Promise<void> {
-    if (!onSaveWidth || displayWidth === initialWidth) return;
+    if (!onSaveWidth || !hasWidthChanges || isSavingWidth) return;
     setIsSavingWidth(true);
     setSaveError("");
     try {
-      await onSaveWidth(displayWidth);
+      await onSaveWidth(draftWidth);
+      setSavedWidth(draftWidth);
     } catch {
-      setSaveError("Não foi possível salvar o tamanho da imagem.");
+      setSaveError("Não foi possível salvar o tamanho da imagem. Tente novamente.");
     } finally {
       setIsSavingWidth(false);
     }
   }
 
+  function cancelWidthChanges(): void {
+    setDraftWidth(savedWidth);
+    setSaveError("");
+  }
+
   return (
-    <div className="mx-auto" style={{ width: `${displayWidth}%` }}>
-      <div className="relative aspect-video max-h-72 w-full overflow-hidden rounded-lg">
-        <Image
-          src={src}
-          alt={fileName}
-          fill
-          unoptimized
-          sizes="(max-width: 768px) 90vw, 40vw"
-          className="object-contain"
-        />
+    <div className="w-full">
+      <div className="mx-auto" style={{ width: `${draftWidth}%` }}>
+        <div className="relative aspect-video max-h-72 w-full overflow-hidden rounded-lg">
+          <Image
+            src={src}
+            alt={fileName}
+            fill
+            unoptimized
+            sizes="(max-width: 768px) 90vw, 40vw"
+            className="object-contain"
+          />
+        </div>
       </div>
+
       {canResize && onSaveWidth && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-[#d8c9a9] bg-white/80 p-2">
+        <div className="mt-2 flex w-full flex-wrap items-center gap-2 rounded-lg border border-[#d8c9a9] bg-white/90 p-2">
           <label className="flex min-w-0 flex-1 items-center gap-2 text-xs font-medium text-[#66583e]">
             <span className="shrink-0">Tamanho</span>
             <input
@@ -88,22 +100,36 @@ export function NotebookAttachmentImage({
               min={25}
               max={100}
               step={5}
-              value={displayWidth}
-              onChange={(event) => setDisplayWidth(Number(event.target.value))}
+              value={draftWidth}
+              onChange={(event) => {
+                setDraftWidth(Number(event.target.value));
+                setSaveError("");
+              }}
               aria-label="Largura da imagem"
               className="min-w-0 flex-1 accent-[#8b6b2e]"
             />
-            <span className="w-10 text-right tabular-nums">{displayWidth}%</span>
+            <span className="w-10 shrink-0 text-right tabular-nums">{draftWidth}%</span>
           </label>
-          <button
-            type="button"
-            onClick={() => void saveDisplayWidth()}
-            disabled={isSavingWidth || displayWidth === initialWidth}
-            className="inline-flex min-h-8 items-center gap-1 rounded-md border border-[#c8b994] bg-[#fffdf5] px-2 text-xs font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Save size={13} aria-hidden="true" />
-            {isSavingWidth ? "Salvando" : "Salvar"}
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={cancelWidthChanges}
+              disabled={!hasWidthChanges || isSavingWidth}
+              className="inline-flex min-h-8 items-center gap-1 rounded-md border border-[#c8b994] bg-white px-2 text-xs font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RotateCcw size={13} aria-hidden="true" />
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => void saveDisplayWidth()}
+              disabled={isSavingWidth || !hasWidthChanges}
+              className="inline-flex min-h-8 items-center gap-1 rounded-md border border-[#c8b994] bg-[#fffdf5] px-2 text-xs font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Save size={13} aria-hidden="true" />
+              {isSavingWidth ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
           {saveError && <p role="alert" className="w-full text-xs text-red-700">{saveError}</p>}
         </div>
       )}
