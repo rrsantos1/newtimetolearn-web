@@ -71,6 +71,7 @@ export function NotebookWorkspace({
   const [entryText, setEntryText] = useState("");
   const entryEditorRef = useRef<HTMLTextAreaElement | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [entryKind, setEntryKind] = useState<"TEXT" | "ACTIVITY_LINK">("TEXT");
   const [linkTitle, setLinkTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -154,12 +155,13 @@ export function NotebookWorkspace({
 
   async function moveEntry(day: NotebookDay, entryIndex: number, direction: -1 | 1): Promise<void> {
     const targetIndex = entryIndex + direction;
-    if (targetIndex < 0 || targetIndex >= day.entries.length) return;
+    if (isSavingOrder || targetIndex < 0 || targetIndex >= day.entries.length) return;
 
     const reorderedEntries = [...day.entries];
     const [movedEntry] = reorderedEntries.splice(entryIndex, 1);
     reorderedEntries.splice(targetIndex, 0, movedEntry);
 
+    setIsSavingOrder(true);
     try {
       await reorderNotebookEntries(relationshipId, day.id, reorderedEntries.map((entry) => entry.id));
       setDays((currentDays) => currentDays.map((currentDay) => (
@@ -167,6 +169,8 @@ export function NotebookWorkspace({
       )));
     } catch {
       setError("Não foi possível salvar a nova ordem dos itens.");
+    } finally {
+      setIsSavingOrder(false);
     }
   }
 
@@ -174,10 +178,10 @@ export function NotebookWorkspace({
     return (
       <div className="mb-2 flex items-center justify-end gap-1">
         <span className="mr-auto text-[11px] font-semibold text-[#76694f]">Posição {entryIndex + 1}</span>
-        <button type="button" disabled={entryIndex === 0} onClick={() => void moveEntry(day, entryIndex, -1)} aria-label="Mover item para cima" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
+        <button type="button" disabled={isSavingOrder || entryIndex === 0} onClick={() => void moveEntry(day, entryIndex, -1)} aria-label="Mover item para cima" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
           <ArrowUp size={15} aria-hidden="true" />
         </button>
-        <button type="button" disabled={entryIndex === day.entries.length - 1} onClick={() => void moveEntry(day, entryIndex, 1)} aria-label="Mover item para baixo" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
+        <button type="button" disabled={isSavingOrder || entryIndex === day.entries.length - 1} onClick={() => void moveEntry(day, entryIndex, 1)} aria-label="Mover item para baixo" className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
           <ArrowDown size={15} aria-hidden="true" />
         </button>
       </div>
