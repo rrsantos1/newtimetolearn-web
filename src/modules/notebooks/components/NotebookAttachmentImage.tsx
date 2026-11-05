@@ -9,6 +9,8 @@ interface NotebookAttachmentImageProps {
   fileName: string;
   initialWidth?: number;
   canResize?: boolean;
+  resizeOpen?: boolean;
+  onCancelResize?: () => void;
   onSaveWidth?: (width: number) => Promise<void>;
 }
 
@@ -18,6 +20,8 @@ export function NotebookAttachmentImage({
   fileName,
   initialWidth = 100,
   canResize = false,
+  resizeOpen = false,
+  onCancelResize,
   onSaveWidth,
 }: NotebookAttachmentImageProps) {
   const [src, setSrc] = useState<string | null>(null);
@@ -64,6 +68,7 @@ export function NotebookAttachmentImage({
     try {
       await onSaveWidth(draftWidth);
       setSavedWidth(draftWidth);
+      onCancelResize?.();
     } catch {
       setSaveError("Não foi possível salvar o tamanho da imagem. Tente novamente.");
     } finally {
@@ -74,6 +79,7 @@ export function NotebookAttachmentImage({
   function cancelWidthChanges(): void {
     setDraftWidth(savedWidth);
     setSaveError("");
+    onCancelResize?.();
   }
 
   return (
@@ -91,7 +97,7 @@ export function NotebookAttachmentImage({
         </div>
       </div>
 
-      {canResize && onSaveWidth && (
+      {canResize && resizeOpen && onSaveWidth && (
         <div className="mt-2 grid w-full min-w-0 grid-cols-1 gap-2 rounded-lg border border-[#d8c9a9] bg-white/90 p-2">
           <label className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_2.5rem] items-center gap-2 text-xs font-medium text-[#66583e]">
             <span className="shrink-0">Tamanho</span>
