@@ -109,9 +109,6 @@ export function NotebookWorkspace({
 
   const orderedDays = [...days].reverse();
   const visibleDays = twoPages ? orderedDays.slice(-2) : orderedDays.slice(-1);
-  const noteAuthorLabel = (note: NotebookNote) => note.authorId === notes[0]?.authorId
-    ? "Participante"
-    : "Participante";
 
   return (
     <div className="space-y-5">
@@ -158,7 +155,7 @@ export function NotebookWorkspace({
                 </div>
               )}
               {visibleDays.length === 0 ? (
-                <div className="notebook-paper flex min-h-[28rem] items-center justify-center rounded-lg border border-[#d8c9a9] bg-[#fffdf5] p-8 text-center shadow-sm">
+                <div className="flex min-h-[28rem] items-center justify-center rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-8 text-center shadow-sm">
                   <div>
                     <BookOpen className="mx-auto text-[#8b7b60]" size={34} aria-hidden="true" />
                     <h3 className="mt-3 font-semibold text-[#51452f]">Este caderno ainda está em branco</h3>
@@ -167,7 +164,7 @@ export function NotebookWorkspace({
                 </div>
               ) : (
                 visibleDays.map((day) => (
-                  <article key={day.id} className="notebook-paper min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-sm sm:p-7">
+                  <article key={day.id} className="min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
