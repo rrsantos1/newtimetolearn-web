@@ -30,7 +30,7 @@ function contentText(value: unknown): string {
 }
 
 function renderFormattedText(value: string): ReactNode[] {
-  const pattern = /\\*\\*[\\s\\S]+?\\*\\*|__[\\s\\S]+?__|\\/\\/[\\s\\S]+?\\/\\/|\\[size=(?:12|14|16|18|20|24)\\][\\s\\S]+?\\[\\/size\\]/g;
+  const pattern = /\*\*[\s\S]+?\*\*|__[\s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(?:12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
   const nodes: ReactNode[] = [];
   let cursor = 0;
   let index = 0;
@@ -47,8 +47,8 @@ function renderFormattedText(value: string): ReactNode[] {
     } else if (token.startsWith("//")) {
       nodes.push(<em key={index}>{token.slice(2, -2)}</em>);
     } else {
-      const size = token.match(/^\\[size=(12|14|16|18|20|24)\\]/)?.[1] ?? "16";
-      nodes.push(<span key={index} style={{ fontSize: `${size}px` }}>{token.replace(/^\\[size=\\d+\\]/, "").replace(/\\[\\/size\\]$/, "")}</span>);
+      const size = token.match(/^\[size=(12|14|16|18|20|24)\]/)?.[1] ?? "16";
+      nodes.push(<span key={index} style={{ fontSize: Number(size) }}>{token.replace(/^\[size=\d+\]/, "").replace(/\[\/size\]$/, "")}</span>);
     }
     cursor = start + token.length;
     index += 1;
