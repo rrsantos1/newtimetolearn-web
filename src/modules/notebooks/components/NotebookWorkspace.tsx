@@ -518,7 +518,7 @@ export function NotebookWorkspace({
                 </div>
               )}
               {pageItems.length === 0 ? (
-                <article className="min-h-112 rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
+                <article className="h-[680px] min-h-[480px] max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:col-start-1">
                   <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                     <h3 className="text-sm font-bold text-[#66583e]">Nova página</h3>
                     <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -635,6 +635,12 @@ export function NotebookWorkspace({
                     </div>
                   </article>
                 ))
+              )}
+              {twoPages && pageItems.length < 2 && (
+                <article
+                  aria-hidden="true"
+                  className="hidden h-[680px] min-h-[480px] max-h-[75vh] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] shadow-sm md:col-start-3 md:block"
+                />
               )}
             </div>
             {twoPages && <div className="mt-3 text-center text-xs text-[#76694f] md:hidden">A visualização em duas páginas fica disponível em telas maiores.</div>}
