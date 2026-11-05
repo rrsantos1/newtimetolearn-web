@@ -65,8 +65,36 @@ export function NotebookWorkspace({
   }, [relationshipId]);
 
   useEffect(() => {
-    void loadContent();
-  }, [loadContent]);
+    let isMounted = true;
+
+    async function loadInitialContent(): Promise<void> {
+      try {
+        const [notebookDays, notebookNotes] = await Promise.all([
+          getNotebook(relationshipId),
+          listNotebookNotes(relationshipId),
+        ]);
+
+        if (isMounted) {
+          setDays(notebookDays);
+          setNotes(notebookNotes);
+        }
+      } catch {
+        if (isMounted) {
+          setError("Não foi possível carregar o caderno. Atualize a página para tentar novamente.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadInitialContent();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [relationshipId]);
 
   async function handleAddEntry(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
