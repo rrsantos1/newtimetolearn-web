@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ChevronsRight, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -529,9 +529,16 @@ export function NotebookWorkspace({
                             {entry.kind === "IMAGE" ? (
                               <div className="p-2">
                                 <NotebookAttachmentImage
+                                  key={entry.id}
                                   relationshipId={relationshipId}
                                   entryId={entry.id}
                                   fileName={contentText(entry.content.fileName) || "Imagem do caderno"}
+                                  initialWidth={typeof entry.content.displayWidth === "number" ? entry.content.displayWidth : 100}
+                                  canResize={mode === "teacher"}
+                                  onSaveWidth={async (width) => {
+                                    await updateNotebookEntry(relationshipId, entry.id, "IMAGE", { displayWidth: width });
+                                    await loadContent();
+                                  }}
                                 />
                                 <p className="mt-2 text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Imagem anexada"}</p>
                               </div>
@@ -652,100 +659,127 @@ export function NotebookWorkspace({
         </div>
 
           {allPageItems.length > 0 && (
-            <div className="mt-4 space-y-3">
-              <nav aria-label="Paginação do caderno" className="flex flex-wrap items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextIndex = Math.max(0, safeSpreadIndex - 1);
-                    setCurrentSpreadIndex(nextIndex);
-                    setPageLookup(String(nextIndex * pagesPerSpread + 1));
-                  }}
-                  disabled={safeSpreadIndex === 0}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ArrowUp size={15} aria-hidden="true" /> Anterior
-                </button>
-                <span className="min-w-28 text-center text-sm font-semibold text-[#66583e]" aria-live="polite">
-                  {twoPages
-                    ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
-                    : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const nextIndex = Math.min(totalSpreads - 1, safeSpreadIndex + 1);
-                    setCurrentSpreadIndex(nextIndex);
-                    setPageLookup(String(nextIndex * pagesPerSpread + 1));
-                  }}
-                  disabled={safeSpreadIndex >= totalSpreads - 1}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Próxima <ArrowDown size={15} aria-hidden="true" />
-                </button>
-              </nav>
+            <nav
+              aria-label="Paginação do caderno"
+              className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-[#e2d6bf] bg-[#faf7ef] p-2"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  const nextIndex = Math.max(0, safeSpreadIndex - 1);
+                  setCurrentSpreadIndex(nextIndex);
+                  setPageLookup(String(nextIndex * pagesPerSpread + 1));
+                }}
+                disabled={safeSpreadIndex === 0}
+                aria-label="Página anterior"
+                title="Página anterior"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#c8b994] bg-[#fffdf5] text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronLeft size={18} aria-hidden="true" />
+              </button>
 
-              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <form
-                  className="flex items-end gap-2"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    const requestedPage = Number(pageLookup);
-                    if (!Number.isInteger(requestedPage) || requestedPage < 1 || requestedPage > allPageItems.length) {
-                      setError(`Informe uma página entre 1 e ${allPageItems.length}.`);
-                      return;
-                    }
-                    setError("");
-                    setCurrentSpreadIndex(Math.floor((requestedPage - 1) / pagesPerSpread));
-                  }}
+              <form
+                className="flex min-w-0 items-center gap-1"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const pageIndex = allPageItems.findIndex((item) => item.day.dayDate.slice(0, 10) === dateLookup);
+                  if (pageIndex < 0) {
+                    setError("Não há conteúdo cadastrado para essa data.");
+                    return;
+                  }
+                  setError("");
+                  setCurrentSpreadIndex(Math.floor(pageIndex / pagesPerSpread));
+                  setPageLookup(String(pageIndex + 1));
+                }}
+              >
+                <label className="sr-only" htmlFor="notebook-date-lookup">Localizar data no caderno</label>
+                <input
+                  id="notebook-date-lookup"
+                  type="date"
+                  required
+                  value={dateLookup}
+                  onChange={(event) => setDateLookup(event.target.value)}
+                  className="h-10 min-w-0 w-36 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-sm text-[#51452f] sm:w-40"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex h-10 shrink-0 items-center gap-1 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2.5 text-sm font-semibold text-[#51452f] hover:bg-[#f5efdf]"
                 >
-                  <label className="text-xs font-semibold text-[#66583e]">
-                    Ir para página
-                    <input
-                      type="number"
-                      min={1}
-                      max={allPageItems.length}
-                      required
-                      value={pageLookup}
-                      onChange={(event) => setPageLookup(event.target.value)}
-                      className="mt-1 block h-10 w-24 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-sm text-[#51452f]"
-                    />
-                  </label>
-                  <button type="submit" className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f]">
-                    <Search size={14} aria-hidden="true" /> Ir
-                  </button>
-                </form>
+                  <CalendarDays size={15} aria-hidden="true" />
+                  <span className="hidden sm:inline">Buscar</span>
+                </button>
+              </form>
 
-                <form
-                  className="flex items-end gap-2"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    const pageIndex = allPageItems.findIndex((item) => item.day.dayDate.slice(0, 10) === dateLookup);
-                    if (pageIndex < 0) {
-                      setError("Não há conteúdo cadastrado para essa data.");
-                      return;
-                    }
-                    setError("");
-                    setCurrentSpreadIndex(Math.floor(pageIndex / pagesPerSpread));
-                    setPageLookup(String(pageIndex + 1));
-                  }}
+              <span className="min-w-24 text-center text-xs font-semibold text-[#66583e] sm:min-w-32 sm:text-sm" aria-live="polite">
+                {twoPages
+                  ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
+                  : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const nextIndex = Math.min(totalSpreads - 1, safeSpreadIndex + 1);
+                  setCurrentSpreadIndex(nextIndex);
+                  setPageLookup(String(nextIndex * pagesPerSpread + 1));
+                }}
+                disabled={safeSpreadIndex >= totalSpreads - 1}
+                aria-label="Próxima página"
+                title="Próxima página"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#c8b994] bg-[#fffdf5] text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronRight size={18} aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const lastIndex = totalSpreads - 1;
+                  setCurrentSpreadIndex(lastIndex);
+                  setPageLookup(String(lastIndex * pagesPerSpread + 1));
+                }}
+                disabled={safeSpreadIndex >= totalSpreads - 1}
+                aria-label="Ir para a última página"
+                title="Ir para a última página"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#c8b994] bg-[#fffdf5] text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronsRight size={18} aria-hidden="true" />
+              </button>
+
+              <form
+                className="flex items-center gap-1"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const requestedPage = Number(pageLookup);
+                  if (!Number.isInteger(requestedPage) || requestedPage < 1 || requestedPage > allPageItems.length) {
+                    setError(`Informe uma página entre 1 e ${allPageItems.length}.`);
+                    return;
+                  }
+                  setError("");
+                  setCurrentSpreadIndex(Math.floor((requestedPage - 1) / pagesPerSpread));
+                }}
+              >
+                <label className="sr-only" htmlFor="notebook-page-lookup">Ir para página</label>
+                <input
+                  id="notebook-page-lookup"
+                  type="number"
+                  min={1}
+                  max={allPageItems.length}
+                  required
+                  value={pageLookup}
+                  onChange={(event) => setPageLookup(event.target.value)}
+                  className="h-10 w-14 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-center text-sm text-[#51452f]"
+                />
+                <button
+                  type="submit"
+                  aria-label="Ir para a página informada"
+                  title="Ir para a página informada"
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#c8b994] bg-[#fffdf5] text-[#51452f] hover:bg-[#f5efdf]"
                 >
-                  <label className="text-xs font-semibold text-[#66583e]">
-                    Localizar data
-                    <input
-                      type="date"
-                      required
-                      value={dateLookup}
-                      onChange={(event) => setDateLookup(event.target.value)}
-                      className="mt-1 block h-10 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-sm text-[#51452f]"
-                    />
-                  </label>
-                  <button type="submit" className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f]">
-                    <CalendarDays size={14} aria-hidden="true" /> Buscar
-                  </button>
-                </form>
-              </div>
-            </div>
+                  <Search size={15} aria-hidden="true" />
+                </button>
+              </form>
+            </nav>
           )}
 
           {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
