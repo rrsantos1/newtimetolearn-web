@@ -6,10 +6,7 @@ interface BrandLogoProps {
   compact?: boolean;
 }
 
-export function BrandLogo({
-  href = "/",
-  compact = false,
-}: BrandLogoProps) {
+export function BrandLogo({ href = "/", compact = false }: BrandLogoProps) {
   return (
     <Link
       href={href}
@@ -19,11 +16,13 @@ export function BrandLogo({
       <Image
         src="/images/logo.jpg"
         alt="TimeToLearn"
-        width={compact ? 132 : 172}
-        height={58}
+        width={compact ? 96 : 112}
+        height={compact ? 64 : 72}
         priority
-        sizes={compact ? "132px" : "(max-width: 640px) 142px, 172px"}
-        className={compact ? "h-auto w-[132px] object-contain" : "h-auto w-[142px] object-contain sm:w-[172px]"}
+        sizes={compact ? "96px" : "(max-width: 640px) 96px, 112px"}
+        className={compact
+          ? "h-14 w-auto max-w-24 object-contain"
+          : "h-16 w-auto max-w-28 object-contain"}
       />
     </Link>
   );
