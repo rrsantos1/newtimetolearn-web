@@ -503,7 +503,7 @@ export function NotebookWorkspace({
                 </div>
               )}
               {pageItems.length === 0 ? (
-                <article className="min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
+                <article className="min-h-112 rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
                   <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                     <h3 className="text-sm font-bold text-[#66583e]">Nova página</h3>
                     <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -524,7 +524,7 @@ export function NotebookWorkspace({
                 </article>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
-                  <article key={`${day.id}-${index}`} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
+                  <article key={`${day.id}-${index}`} className={"min-h-112 rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -692,7 +692,7 @@ export function NotebookWorkspace({
               <h3 className="font-semibold text-dark">Bloco de notas compartilhado</h3>
             </div>
             <p className="mt-1 text-xs leading-5 text-muted">Anotações e dúvidas ficam visíveis para o aluno e o professor.</p>
-            <div className="mt-4 max-h-[28rem] space-y-3 overflow-y-auto">
+            <div className="mt-4 max-h-112 space-y-3 overflow-y-auto">
               {notes.length === 0 ? (
                 <p className="rounded-xl bg-background p-3 text-sm text-muted">Nenhuma observação por enquanto.</p>
               ) : notes.map((note) => (

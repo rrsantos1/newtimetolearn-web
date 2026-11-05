@@ -89,7 +89,7 @@ export function NotebookRichTextEditor({
             aria-label="Tamanho da fonte"
             defaultValue="16px"
             onChange={(event) => editor.chain().focus().setFontSize(event.target.value).run()}
-            className="h-9 w-[4.5rem] rounded-lg border border-[#c8b994] bg-white px-1 text-xs font-semibold text-[#51452f] sm:w-11"
+            className="h-9 w-18 rounded-lg border border-[#c8b994] bg-white px-1 text-xs font-semibold text-[#51452f] sm:w-11"
           >
             {fontSizes.map((size) => <option key={size} value={size}>{size}</option>)}
           </select>
