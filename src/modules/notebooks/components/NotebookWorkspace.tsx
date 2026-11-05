@@ -245,7 +245,7 @@ export function NotebookWorkspace({
           )}
           <button
             type="button"
-            onClick={() => setTwoPages((value) => !value)
+            onClick={() => setTwoPages((value) => !value)}
             aria-pressed={twoPages}
             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
