@@ -188,6 +188,7 @@ export function NotebookWorkspace({
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(true);
   const [twoPages, setTwoPages] = useState(true);
+  const [currentSpreadIndex, setCurrentSpreadIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -435,17 +436,31 @@ export function NotebookWorkspace({
   }
 
   const orderedDays = [...days].reverse();
-  const visibleDays = twoPages ? orderedDays.slice(-2) : orderedDays.slice(-1);
-  const pageItems = twoPages && visibleDays.length === 1
-    ? (() => {
-        const day = visibleDays[0];
-        const splitIndex = Math.ceil(day.entries.length / 2);
-        return [
-          { day, entries: day.entries.slice(0, splitIndex), entryOffset: 0 },
-          { day, entries: day.entries.slice(splitIndex), entryOffset: splitIndex },
-        ];
-      })()
-    : visibleDays.map((day) => ({ day, entries: day.entries, entryOffset: 0 }));
+  const entriesPerPage = 3;
+  const allPageItems = orderedDays.flatMap((day) => {
+    if (day.entries.length === 0) {
+      return [{ day, entries: [], entryOffset: 0 }];
+    }
+
+    return Array.from(
+      { length: Math.ceil(day.entries.length / entriesPerPage) },
+      (_, pageIndex) => {
+        const entryOffset = pageIndex * entriesPerPage;
+        return {
+          day,
+          entries: day.entries.slice(entryOffset, entryOffset + entriesPerPage),
+          entryOffset,
+        };
+      },
+    );
+  });
+  const pagesPerSpread = twoPages ? 2 : 1;
+  const totalSpreads = Math.max(1, Math.ceil(allPageItems.length / pagesPerSpread));
+  const safeSpreadIndex = Math.min(currentSpreadIndex, totalSpreads - 1);
+  const pageItems = allPageItems.slice(
+    safeSpreadIndex * pagesPerSpread,
+    safeSpreadIndex * pagesPerSpread + pagesPerSpread,
+  );
 
   return (
     <div className="space-y-5">
@@ -468,7 +483,7 @@ export function NotebookWorkspace({
           )}
           <button
             type="button"
-            onClick={() => setTwoPages((value) => !value)}
+            onClick={() => { setCurrentSpreadIndex(0); setTwoPages((value) => !value); }}
             aria-pressed={twoPages}
             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
@@ -492,10 +507,10 @@ export function NotebookWorkspace({
       <div className={showNotes ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]" : "grid"}>
         <section className="min-w-0">
           <div className="flex items-start gap-3"><div className="relative min-w-0 flex-1 rounded-2xl border border-[#d5c7a8] bg-[#e8dfcb] p-3 shadow-inner sm:p-5">
-            <div className={twoPages ? "grid gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
+            <div className={twoPages ? "grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
               {twoPages && (
                 <div className="hidden items-center justify-center md:col-start-2 md:flex" aria-hidden="true">
-                  <div className="flex h-full min-h-80 flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
+                  <div className="flex h-full min-h-[480px] flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
                     {Array.from({ length: 13 }, (_, index) => (
                       <span key={index} className="size-3 rounded-full border-2 border-[#8b7b60] bg-[#d5c7a8] shadow-sm" />
                     ))}
@@ -524,7 +539,7 @@ export function NotebookWorkspace({
                 </article>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
-                  <article key={`${day.id}-${index}`} className={"min-h-112 rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
+                  <article key={`${day.id}-${index}`} className={"h-[680px] min-h-[480px] max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -578,21 +593,7 @@ export function NotebookWorkspace({
                                 </button>
                               </div>
                             ) : entry.kind === "ACTIVITY_LINK" ? (
-                              isEditingLink ? (
-                                <div className="space-y-2 p-2">
-                                  <label className="block text-xs font-semibold text-[#66583e]">Nome da atividade
-                                    <input value={editingLink.title} onChange={(event) => setEditingLink((current) => current ? { ...current, title: event.target.value } : current)} className="mt-1 min-h-10 w-full rounded-lg border border-[#c8b994] bg-white px-3 text-sm" />
-                                  </label>
-                                  <label className="block text-xs font-semibold text-[#66583e]">Endereço do link
-                                    <input type="url" value={editingLink.url} onChange={(event) => setEditingLink((current) => current ? { ...current, url: event.target.value } : current)} className="mt-1 min-h-10 w-full rounded-lg border border-[#c8b994] bg-white px-3 text-sm" />
-                                  </label>
-                                  <div className="flex gap-2">
-                                    <button type="button" onClick={() => void handleSaveLink()} disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar</button>
-                                    <button type="button" onClick={() => setEditingLink(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="p-2">
+                              <div className="p-2">
                                   <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
                                   <a href={contentText(entry.content.url)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
                                     Abrir atividade <ExternalLink size={14} aria-hidden="true" />
@@ -657,31 +658,33 @@ export function NotebookWorkspace({
           </div>
         </div>
 
-          {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
-
-          {mode === "teacher" && (
-            <div className="mt-4 space-y-3">
-
-              {editingLink && editingLink.id === null && (
-                <div className="rounded-xl border border-[#d8c9a9] bg-[#fffdf5] p-4">
-                  <h3 className="font-semibold text-[#51452f]">Novo link de atividade</h3>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <label className="text-sm font-medium text-[#51452f]">Nome da atividade
-                      <input value={editingLink.title} onChange={(event) => setEditingLink((current) => current ? { ...current, title: event.target.value } : current)} className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm" />
-                    </label>
-                    <label className="text-sm font-medium text-[#51452f]">Endereço do link
-                      <input type="url" value={editingLink.url} onChange={(event) => setEditingLink((current) => current ? { ...current, url: event.target.value } : current)} className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm" placeholder="https://..." />
-                    </label>
-                  </div>
-                  <div className="mt-3 flex gap-2">
-                    <button type="button" onClick={() => void handleSaveLink()} disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Publicar link</button>
-                    <button type="button" onClick={() => setEditingLink(null)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-4 text-sm font-semibold text-[#51452f]">Cancelar</button>
-                  </div>
-                </div>
-              )}
-            </div>
+          {allPageItems.length > 0 && (
+            <nav aria-label="Paginação do caderno" className="mt-4 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setCurrentSpreadIndex((value) => Math.max(0, value - 1))}
+                disabled={safeSpreadIndex === 0}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ArrowUp size={15} aria-hidden="true" /> Anterior
+              </button>
+              <span className="min-w-28 text-center text-sm font-semibold text-[#66583e]" aria-live="polite">
+                {twoPages
+                  ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
+                  : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentSpreadIndex((value) => Math.min(totalSpreads - 1, value + 1))}
+                disabled={safeSpreadIndex >= totalSpreads - 1}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima <ArrowDown size={15} aria-hidden="true" />
+              </button>
+            </nav>
           )}
 
+          {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
 
         </section>
 
@@ -715,6 +718,57 @@ export function NotebookWorkspace({
           </aside>
         )}
       </div>
+      {mode === "teacher" && editingLink && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notebook-link-title"
+            onSubmit={(event) => { event.preventDefault(); void handleSaveLink(); }}
+            className="w-full max-w-md rounded-2xl border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-xl"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="notebook-link-title" className="text-lg font-semibold text-[#51452f]">
+                {editingLink.id ? "Editar link" : "Novo link de atividade"}
+              </h3>
+              <button type="button" onClick={() => setEditingLink(null)} disabled={isSavingEdit} aria-label="Fechar janela" className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
+                <X size={17} aria-hidden="true" />
+              </button>
+            </div>
+            <div className="mt-4 space-y-3">
+              <label className="block text-sm font-medium text-[#51452f]">
+                Nome da atividade
+                <input
+                  autoFocus
+                  required
+                  maxLength={160}
+                  value={editingLink.title}
+                  onChange={(event) => setEditingLink((current) => current ? { ...current, title: event.target.value } : current)}
+                  className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-[#51452f]">
+                Endereço do link
+                <input
+                  type="url"
+                  required
+                  value={editingLink.url}
+                  onChange={(event) => setEditingLink((current) => current ? { ...current, url: event.target.value } : current)}
+                  placeholder="https://..."
+                  className="mt-2 min-h-11 w-full rounded-xl border border-[#c8b994] bg-white px-3 text-sm"
+                />
+              </label>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingLink(null)} disabled={isSavingEdit} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">Cancelar</button>
+              <button type="submit" disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : editingLink.id ? "Salvar alterações" : "Publicar link"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {mode === "teacher" && showAttachmentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <form
