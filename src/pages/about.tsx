@@ -61,6 +61,7 @@ export default function AboutPage() {
           <Image
             src="/images/learning.jpg"
             alt="Imagem que representa o processo de aprendizagem"
+            loading="eager"
             width={1000}
             height={760}
             sizes="(max-width: 768px) 100vw, 50vw"
