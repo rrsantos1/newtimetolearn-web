@@ -47,7 +47,7 @@ export function NotebookRichTextEditor({
 
   function applyLink(): void {
     const normalizedUrl = linkUrl.trim();
-    if (!normalizedUrl) return;
+    if (!normalizedUrl || !editor) return;
     try {
       const url = new URL(normalizedUrl);
       if (url.protocol !== "http:" && url.protocol !== "https:") return;
