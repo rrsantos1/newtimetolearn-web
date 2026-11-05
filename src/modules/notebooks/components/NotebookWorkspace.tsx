@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
