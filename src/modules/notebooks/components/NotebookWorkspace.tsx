@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ChevronsRight, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ChevronsRight, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -178,6 +178,7 @@ export function NotebookWorkspace({
   const [isCreatingText, setIsCreatingText] = useState(false);
   const [editingLink, setEditingLink] = useState<{ id: string | null; title: string; url: string } | null>(null);
   const [dateEntry, setDateEntry] = useState<{ entryId: string; date: string } | null>(null);
+  const [resizingImageEntryId, setResizingImageEntryId] = useState<string | null>(null);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
@@ -521,6 +522,18 @@ export function NotebookWorkspace({
                                 <button type="button" onClick={() => setDateEntry({ entryId: entry.id, date: day.dayDate.slice(0, 10) })} aria-label="Alterar data" title="Alterar data" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
                                   <CalendarDays size={15} aria-hidden="true" />
                                 </button>
+                                {entry.kind === "IMAGE" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setResizingImageEntryId((current) => current === entry.id ? null : entry.id)}
+                                    aria-label={resizingImageEntryId === entry.id ? "Fechar redimensionamento" : "Redimensionar imagem"}
+                                    aria-expanded={resizingImageEntryId === entry.id}
+                                    title="Redimensionar imagem"
+                                    className={resizingImageEntryId === entry.id ? "inline-flex size-8 items-center justify-center rounded-lg border border-[#8b6b2e] bg-[#f5efdf] text-[#51452f]" : "inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]"}
+                                  >
+                                    <SlidersHorizontal size={15} aria-hidden="true" />
+                                  </button>
+                                )}
                                 <button type="button" onClick={() => void handleDeleteEntry(entry.id)} disabled={isSavingEdit} aria-label="Remover conteúdo" title="Remover conteúdo" className="inline-flex size-8 items-center justify-center rounded-lg border border-red-200 bg-white text-red-700 hover:bg-red-50 disabled:opacity-40">
                                   <Trash2 size={15} aria-hidden="true" />
                                 </button>
@@ -535,8 +548,11 @@ export function NotebookWorkspace({
                                   fileName={contentText(entry.content.fileName) || "Imagem do caderno"}
                                   initialWidth={typeof entry.content.displayWidth === "number" ? entry.content.displayWidth : 100}
                                   canResize={mode === "teacher"}
+                                  resizeOpen={resizingImageEntryId === entry.id}
+                                  onCancelResize={() => setResizingImageEntryId(null)}
                                   onSaveWidth={async (width) => {
                                     await updateNotebookEntry(relationshipId, entry.id, "IMAGE", { displayWidth: width });
+                                    setResizingImageEntryId(null);
                                     await loadContent();
                                   }}
                                 />
