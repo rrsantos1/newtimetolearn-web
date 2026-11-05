@@ -30,6 +30,23 @@ export async function reorderNotebookEntries(
   await api.patch(`/notebooks/${relationshipId}/entries/reorder`, { dayId, entryIds });
 }
 
+export async function createNotebookAttachment(relationshipId: string, file: File): Promise<void> {
+  await api.post(`/notebooks/${relationshipId}/attachments`, file, {
+    headers: {
+      "Content-Type": file.type,
+      "x-file-name": encodeURIComponent(file.name),
+    },
+  });
+}
+
+export async function downloadNotebookAttachment(relationshipId: string, entryId: string): Promise<Blob> {
+  const response = await api.get<Blob>(
+    `/notebooks/${relationshipId}/entries/${entryId}/file`,
+    { responseType: "blob" },
+  );
+  return response.data;
+}
+
 export async function listNotebookNotes(relationshipId: string): Promise<NotebookNote[]> {
   const response = await api.get<NotebookNotesResponse>(`/notebooks/${relationshipId}/notes`);
   return response.data.data;
