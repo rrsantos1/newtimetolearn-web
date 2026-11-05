@@ -50,6 +50,7 @@ export function AuthenticatedNavigation() {
         href="/teacher"
         aria-current={active ? "page" : undefined}
         className={getLinkClass("/teacher")}
+        style={active ? { color: "var(--primary-foreground)" } : undefined}
       >
         <BookOpen size={17} aria-hidden="true" />
         Área do professor
@@ -69,6 +70,7 @@ export function AuthenticatedNavigation() {
             tabIndex={disabled ? -1 : undefined}
             onClick={disabled ? (event) => event.preventDefault() : undefined}
             className={getLinkClass(href, disabled)}
+            style={!disabled && isActive(href) ? { color: "var(--primary-foreground)" } : undefined}
           >
             <Icon size={17} aria-hidden="true" />
             {label}
@@ -108,6 +110,7 @@ export function AuthenticatedNavigation() {
                     closeMenu();
                   }}
                   className={getLinkClass(href, disabled)}
+                  style={!disabled && isActive(href) ? { color: "var(--primary-foreground)" } : undefined}
                 >
                   <Icon size={18} aria-hidden="true" />
                   {label}
@@ -119,6 +122,7 @@ export function AuthenticatedNavigation() {
                   href="/teacher"
                   aria-current={isActive("/teacher") ? "page" : undefined}
                   className={getLinkClass("/teacher")}
+                  style={isActive("/teacher") ? { color: "var(--primary-foreground)" } : undefined}
                   onClick={closeMenu}
                 >
                   <BookOpen size={18} aria-hidden="true" />
