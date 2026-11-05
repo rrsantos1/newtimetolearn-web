@@ -212,6 +212,8 @@ export function NotebookWorkspace({
   const [focusedEntryId, setFocusedEntryId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
+  const entriesPerPage = 4;
+
   const loadContent = useCallback(async (): Promise<NotebookDay[]> => {
     setError("");
     try {
@@ -501,7 +503,6 @@ export function NotebookWorkspace({
   const visibleNotes = notes.slice(safeNotesPage * notesPerPage, (safeNotesPage + 1) * notesPerPage);
 
   const orderedDays = [...days].reverse();
-  const entriesPerPage = 4;
   const today = getLocalDateValue();
   const hasTodayPage = orderedDays.some((day) => day.dayDate.slice(0, 10) === today);
   const draftDay: NotebookDay = {
