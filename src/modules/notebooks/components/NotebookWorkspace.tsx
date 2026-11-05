@@ -89,7 +89,7 @@ function parseLegacyLine(line: string): JSONContent[] {
     } else {
       const size = token.match(/^\[size=(12|14|16|18|20|24)\]/)?.[1] ?? "16";
       text = token.replace(/^\[size=\d+\]/, "").replace(/\[\/size\]$/, "");
-      marks = [{ type: "textStyle", attrs: { fontSize: \`\${size}px\` } }];
+      marks = [{ type: "textStyle", attrs: { fontSize: `${size}px` } }];
     }
     if (text) nodes.push({ type: "text", text, marks });
     cursor = position + token.length;
