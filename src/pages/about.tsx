@@ -115,7 +115,7 @@ export default function AboutPage() {
               width={700}
               height={1000}
               sizes="(max-width: 768px) 85vw, 380px"
-              className="mx-auto h-auto max-h-[500px] w-full rounded-2xl object-contain"
+              className="mx-auto h-auto max-h-125 w-full rounded-2xl object-contain"
             />
           </div>
         </div>
