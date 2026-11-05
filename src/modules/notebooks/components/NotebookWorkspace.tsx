@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
@@ -36,7 +36,7 @@ function contentText(value: unknown): string {
 }
 
 function renderFormattedText(value: string): ReactNode[] {
-  const pattern = /\\*\\*[\\s\\S]+?\\*\\*|__[\\s\\S]+?__|\\/\\/[\\s\\S]+?\\/\\/|\\[size=(?:12|14|16|18|20|24)\\][\\s\\S]+?\\[\\/size\\]/g;
+  const pattern = /\*\*[\s\S]+?\*\*|__[ \s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(?:12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
   const nodes: ReactNode[] = [];
   let cursor = 0;
   let index = 0;
@@ -49,8 +49,8 @@ function renderFormattedText(value: string): ReactNode[] {
     else if (token.startsWith("__")) nodes.push(<u key={index}>{token.slice(2, -2)}</u>);
     else if (token.startsWith("//")) nodes.push(<em key={index}>{token.slice(2, -2)}</em>);
     else {
-      const size = token.match(/^\\[size=(12|14|16|18|20|24)\\]/)?.[1] ?? "16";
-      nodes.push(<span key={index} style={{ fontSize: Number(size) }}>{token.replace(/^\\[size=\\d+\\]/, "").replace(/\\[\\/size\\]$/, "")}</span>);
+      const size = token.match(/^\[size=(12|14|16|18|20|24)\]/)?.[1] ?? "16";
+      nodes.push(<span key={index} style={{ fontSize: Number(size) }}>{token.replace(/^\[size=\d+\]/, "").replace(/\[\/size\]$/, "")}</span>);
     }
     cursor = position + token.length;
     index += 1;
@@ -69,7 +69,7 @@ function notebookDocument(content: Record<string, unknown>): JSONContent {
   const text = contentText(content.text);
   return {
     type: "doc",
-    content: text.split("\\n").map((line) => ({
+    content: text.split("\n").map((line) => ({
       type: "paragraph",
       content: line ? [{ type: "text", text: line }] : [],
     })),
@@ -86,7 +86,7 @@ function renderDocumentNode(node: JSONContent, key: string): ReactNode {
       else if (mark.type === "strike") rendered = <s key={key}>{rendered}</s>;
       else if (mark.type === "link") {
         const href = mark.attrs?.href;
-        if (typeof href === "string" && /^https?:\\/\\//i.test(href)) {
+        if (typeof href === "string" && /^https?:\/\//i.test(href)) {
           rendered = <a key={key} href={href} target="_blank" rel="noreferrer" className="text-blue-700 underline">{rendered}</a>;
         }
       } else if (mark.type === "textStyle") {
@@ -144,7 +144,6 @@ export function NotebookWorkspace({
   const [showNotes, setShowNotes] = useState(true);
   const [twoPages, setTwoPages] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSavingEntry, setIsSavingEntry] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
