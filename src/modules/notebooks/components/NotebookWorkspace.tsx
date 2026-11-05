@@ -522,12 +522,6 @@ export function NotebookWorkspace({
                     </div>
                   )}
                 </article>
-                  <div>
-                    <BookOpen className="mx-auto text-[#8b7b60]" size={34} aria-hidden="true" />
-                    <h3 className="mt-3 font-semibold text-[#51452f]">Este caderno ainda está em branco</h3>
-                    <p className="mt-1 text-sm text-[#76694f]">{mode === "teacher" ? "Publique o primeiro conteúdo para começar." : "Seu professor ainda não publicou conteúdo."}</p>
-                  </div>
-                </div>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
                   <article key={`${day.id}-${index}`} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
