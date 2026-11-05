@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BookOpenCheck,
   BrainCircuit,
-  GraduationCap,
   RefreshCw,
   UsersRound,
 } from "lucide-react";
