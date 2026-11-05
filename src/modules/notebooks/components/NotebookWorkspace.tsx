@@ -608,7 +608,7 @@ export function NotebookWorkspace({
                   </div>
                 </div>
               )}
-              {editingLink?.id === null && (
+              {editingLink && editingLink.id === null && (
                 <div className="rounded-xl border border-[#d8c9a9] bg-[#fffdf5] p-4">
                   <h3 className="font-semibold text-[#51452f]">Novo link de atividade</h3>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
