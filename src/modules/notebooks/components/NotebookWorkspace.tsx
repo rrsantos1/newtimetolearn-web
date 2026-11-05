@@ -467,7 +467,7 @@ export function NotebookWorkspace({
     }
   }
 
-  const notesPerPage = 5;
+  const notesPerPage = 4;
   const totalNotesPages = Math.max(1, Math.ceil(notes.length / notesPerPage));
   const safeNotesPage = Math.min(currentNotesPage, totalNotesPages - 1);
   const visibleNotes = notes.slice(safeNotesPage * notesPerPage, (safeNotesPage + 1) * notesPerPage);
