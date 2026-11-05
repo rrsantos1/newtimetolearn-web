@@ -8,6 +8,7 @@ const defaultCovers: Partial<Record<ActivityType, string>> = {
   listening: "/images/activities/listening.png",
   word_matching: "/images/activities/word-matching.png",
   sentence_completion: "/images/activities/sentence-completion.png",
+  multiple_choice: "/images/activities/multiple-choice.png",
 };
 
 export function getActivityCoverImage(
