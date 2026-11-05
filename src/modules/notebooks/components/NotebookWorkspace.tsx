@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -643,7 +643,7 @@ export function NotebookWorkspace({
           <div className="sticky top-4 flex shrink-0 flex-col gap-2 pt-2" aria-label="Ferramentas do caderno">
             {mode === "teacher" && (
               <>
-                <button type="button" onClick={() => { setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); setEditingLink(null); }} aria-label="Escrever na folha" title="Escrever na folha" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
+                <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); setEditingLink(null); setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); }} aria-label="Escrever na folha" title="Escrever na folha" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
                   <Pencil size={18} aria-hidden="true" />
                 </button>
                 <button type="button" onClick={() => setShowAttachmentModal(true)} aria-label="Anexar material" title="Anexar material" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
