@@ -19,6 +19,7 @@ import type { NotebookDay, NotebookNote } from "../types/notebook.types";
 
 
 import { NotebookAttachmentImage } from "./NotebookAttachmentImage";
+import { NotebookAttachmentVideo } from "./NotebookAttachmentVideo";
 
 interface NotebookWorkspaceProps {
   relationshipId: string;
@@ -208,9 +209,10 @@ export function NotebookWorkspace({
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+  const [focusedEntryId, setFocusedEntryId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  const loadContent = useCallback(async () => {
+  const loadContent = useCallback(async (): Promise<NotebookDay[]> => {
     setError("");
     try {
       const [notebookDays, notebookNotes] = await Promise.all([
@@ -219,12 +221,23 @@ export function NotebookWorkspace({
       ]);
       setDays(notebookDays);
       setNotes(notebookNotes);
+      return notebookDays;
     } catch {
       setError("Não foi possível carregar o caderno. Atualize a página para tentar novamente.");
+      return [];
     } finally {
       setIsLoading(false);
     }
   }, [relationshipId]);
+
+  useEffect(() => {
+    if (!focusedEntryId) return;
+    const entryElement = document.getElementById(`notebook-entry-${focusedEntryId}`);
+    if (!entryElement) return;
+    entryElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    const timeoutId = window.setTimeout(() => setFocusedEntryId(null), 5000);
+    return () => window.clearTimeout(timeoutId);
+  }, [focusedEntryId, currentSpreadIndex, days]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
@@ -342,11 +355,26 @@ export function NotebookWorkspace({
     setError("");
     setIsUploadingAttachment(true);
     try {
-      await createNotebookAttachment(relationshipId, selectedFile);
+      const created = await createNotebookAttachment(relationshipId, selectedFile);
       setSelectedFile(null);
       form.reset();
       setShowAttachmentModal(false);
-      await loadContent();
+      const updatedDays = await loadContent();
+      const orderedUpdatedDays = [...updatedDays].reverse();
+      let targetPageIndex = -1;
+      let pageOffset = 0;
+      for (const day of orderedUpdatedDays) {
+        const entryIndex = day.entries.findIndex((entry) => entry.id === created.entry.id);
+        if (entryIndex >= 0) {
+          targetPageIndex = pageOffset + Math.floor(entryIndex / entriesPerPage);
+          break;
+        }
+        pageOffset += Math.max(1, Math.ceil(day.entries.length / entriesPerPage));
+      }
+      if (targetPageIndex >= 0) {
+        setCurrentSpreadIndex(Math.floor(targetPageIndex / (twoPages && !isSmallScreen ? 2 : 1)));
+        setFocusedEntryId(created.entry.id);
+      }
     } catch {
       setError("Não foi possível anexar o arquivo. Verifique o formato e tente novamente.");
     } finally {
@@ -552,7 +580,7 @@ export function NotebookWorkspace({
                         const absoluteIndex = entryIndex + entryOffset;
                         const isEditingText = editingEntryId === entry.id && entry.kind === "TEXT";
                         return (
-                          <div key={entry.id} className={mode === "teacher" ? "rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2" : "py-2"}>
+                          <div id={`notebook-entry-${entry.id}`} key={entry.id} className={(mode === "teacher" ? "rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2" : "py-2") + (focusedEntryId === entry.id ? " rounded-xl ring-2 ring-[#d4a72c] ring-offset-2 transition-shadow" : "")}>
                             {isReordering && renderOrderControls(day, absoluteIndex)}
                             {mode === "teacher" && (
                               <div className="mb-2 flex flex-wrap items-center justify-end gap-1">
@@ -604,6 +632,15 @@ export function NotebookWorkspace({
                                   }}
                                 />
                                 <p className="mt-2 text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Imagem anexada"}</p>
+                              </div>
+                            ) : entry.kind === "FILE" && contentText(entry.content.contentType).startsWith("video/") ? (
+                              <div className="space-y-2 p-2">
+                                <NotebookAttachmentVideo
+                                  relationshipId={relationshipId}
+                                  entryId={entry.id}
+                                  fileName={contentText(entry.content.fileName) || "Vídeo do caderno"}
+                                />
+                                <p className="break-all text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Vídeo anexado"}</p>
                               </div>
                             ) : entry.kind === "FILE" ? (
                               <div className="flex items-center gap-3 p-2">
