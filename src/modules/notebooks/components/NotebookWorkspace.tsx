@@ -438,7 +438,7 @@ export function NotebookWorkspace({
   }
 
   const orderedDays = [...days].reverse();
-  const entriesPerPage = 3;
+  const entriesPerPage = 4;
   const allPageItems = orderedDays.flatMap((day) => {
     if (day.entries.length === 0) {
       return [{ day, entries: [], entryOffset: 0 }];
