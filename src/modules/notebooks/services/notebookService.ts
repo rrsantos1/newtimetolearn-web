@@ -48,8 +48,11 @@ export async function reorderNotebookEntries(
   await api.patch(`/notebooks/${relationshipId}/entries/reorder`, { dayId, entryIds });
 }
 
-export async function createNotebookAttachment(relationshipId: string, file: File): Promise<void> {
-  await api.post(`/notebooks/${relationshipId}/attachments`, file, {
+export async function createNotebookAttachment(
+  relationshipId: string,
+  file: File,
+): Promise<NotebookEntryResponse["data"]> {
+  const response = await api.post<NotebookEntryResponse>(`/notebooks/${relationshipId}/attachments`, file, {
     headers: {
       "Content-Type": file.type,
       "x-file-name": encodeURIComponent(file.name),
@@ -57,6 +60,7 @@ export async function createNotebookAttachment(relationshipId: string, file: Fil
     // Vídeos podem levar mais de 30 segundos para serem recebidos e enviados ao Backblaze.
     timeout: file.type.startsWith("video/") ? 360_000 : 60_000,
   });
+  return response.data.data;
 }
 
 export async function downloadNotebookAttachment(relationshipId: string, entryId: string): Promise<Blob> {
