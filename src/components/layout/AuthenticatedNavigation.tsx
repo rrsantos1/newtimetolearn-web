@@ -113,7 +113,17 @@ export function AuthenticatedNavigation() {
                   {disabled && <span className="ml-auto text-xs font-normal">Em breve</span>}
                 </Link>
               ))}
-              <div onClick={closeMenu}>{renderTeacherLink()}</div>
+              {canAccessTeacherArea && (
+                <Link
+                  href="/teacher"
+                  aria-current={isActive("/teacher") ? "page" : undefined}
+                  className={getLinkClass("/teacher")}
+                  onClick={closeMenu}
+                >
+                  <BookOpen size={18} aria-hidden="true" />
+                  Área do professor
+                </Link>
+              )}
             </div>
           </div>
         )}
