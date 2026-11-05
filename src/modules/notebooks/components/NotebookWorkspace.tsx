@@ -23,7 +23,6 @@ import { NotebookAttachmentImage } from "./NotebookAttachmentImage";
 interface NotebookWorkspaceProps {
   relationshipId: string;
   mode: "teacher" | "student";
-  studentName?: string;
 }
 
 function formatDay(value: string): string {
@@ -169,7 +168,6 @@ function renderNotebookText(content: Record<string, unknown>): ReactNode {
 export function NotebookWorkspace({
   relationshipId,
   mode,
-  studentName,
 }: NotebookWorkspaceProps) {
   const { user } = useAuth();
   const [days, setDays] = useState<NotebookDay[]>([]);
