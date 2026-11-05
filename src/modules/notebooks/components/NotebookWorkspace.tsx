@@ -151,6 +151,12 @@ function renderDocumentNode(node: JSONContent, key: string): ReactNode {
   }
 }
 
+function hasDocumentText(document: JSONContent | null): boolean {
+  if (!document) return false;
+  if (typeof document.text === "string" && document.text.trim().length > 0) return true;
+  return (document.content ?? []).some((node) => hasDocumentText(node));
+}
+
 function renderNotebookText(content: Record<string, unknown>): ReactNode {
   return isJsonContent(content.document)
     ? renderDocumentNode(content.document, "document")
@@ -315,12 +321,16 @@ export function NotebookWorkspace({
   }
 
   function startTextEdit(entry: NotebookDay["entries"][number]): void {
+    setIsCreatingText(false);
+    setNewDocument(null);
     setEditingEntryId(entry.id);
     setEditingDocument(notebookDocument(entry.content));
     setEditingLink(null);
   }
 
   function startLinkEdit(entry: NotebookDay["entries"][number]): void {
+    setIsCreatingText(false);
+    setNewDocument(null);
     setEditingLink({
       id: entry.id,
       title: contentText(entry.content.title),
@@ -555,7 +565,7 @@ export function NotebookWorkspace({
                               <div className="space-y-2 p-2">
                                 <NotebookRichTextEditor initialContent={editingDocument ?? undefined} onChange={setEditingDocument} />
                                 <div className="flex flex-wrap gap-2">
-                                  <button type="button" onClick={() => void handleSaveText(entry.id)} disabled={isSavingEdit || !editingDocument} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar alterações</button>
+                                  <button type="button" onClick={() => void handleSaveText(entry.id)} disabled={isSavingEdit || !hasDocumentText(editingDocument)} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar alterações</button>
                                   <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); }} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
                                 </div>
                               </div>
@@ -603,7 +613,7 @@ export function NotebookWorkspace({
                   <p className="mb-3 text-sm font-semibold text-[#66583e]">Escreva diretamente na folha</p>
                   <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !newDocument} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Salvar na folha</button>
+                    <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Salvar na folha</button>
                     <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-4 text-sm font-semibold text-[#51452f]"><X size={15} aria-hidden="true" /> Cancelar</button>
                   </div>
                 </div>
