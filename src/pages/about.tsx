@@ -137,7 +137,7 @@ export default function AboutPage() {
               key={title}
               className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-7"
             >
-              <span className="flex size-12 items-center justify-center rounded-2xl bg-[#244a7c]/[0.08] text-primary">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-[#244a7c]/8 text-primary">
                 <Icon size={24} aria-hidden="true" />
               </span>
               <h3 className="mt-5 text-lg font-bold text-dark">{title}</h3>
