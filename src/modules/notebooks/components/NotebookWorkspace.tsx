@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Plus, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -16,6 +17,95 @@ import {
   reorderNotebookEntries,
 } from "../services/notebookService";
 import type { NotebookDay, NotebookNote } from "../types/notebook.types";
+
+
+interface NotebookAttachmentImageProps {
+  relationshipId: string;
+  entryId: string;
+  fileName: string;
+}
+
+function NotebookAttachmentImage({ relationshipId, entryId, fileName }: NotebookAttachmentImageProps) {
+  const [src, setSrc] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    let objectUrl: string | null = null;
+
+    void downloadNotebookAttachment(relationshipId, entryId)
+      .then((blob) => {
+        if (!isMounted) return;
+        objectUrl = URL.createObjectURL(blob);
+        setSrc(objectUrl);
+      })
+      .catch(() => {
+        if (isMounted) setHasError(true);
+      });
+
+    return () => {
+      isMounted = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [entryId, relationshipId]);
+
+  if (hasError) {
+    return <p className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
+  }
+
+  if (!src) {
+    return <div className="aspect-video w-full animate-pulse rounded-lg bg-[#eee5d3]" aria-label="Carregando imagem" />;
+  }
+
+  return (
+    <div className="relative mx-auto aspect-video max-h-72 w-full overflow-hidden rounded-lg">
+      <Image src={src} alt={fileName} fill unoptimized sizes="(max-width: 768px) 90vw, 40vw" className="object-contain" />
+
+      {mode === "teacher" && showAttachmentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !isUploadingAttachment) {
+            setShowAttachmentModal(false);
+            setSelectedFile(null);
+          }
+        }}>
+          <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="notebook-attachment-title"
+            onSubmit={(event) => void handleAddAttachment(event)}
+            className="w-full max-w-md rounded-2xl border border-[#d8c9a9] bg-[#fffdf5] p-5 shadow-xl"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="notebook-attachment-title" className="text-lg font-semibold text-[#51452f]">Anexar material</h3>
+              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} aria-label="Fechar janela" className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
+                <X size={17} aria-hidden="true" />
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-[#76694f]">Imagens até 5 MB, documentos até 20 MB e vídeos até 50 MB.</p>
+            <input
+              ref={fileInputRef}
+              id="notebook-attachment"
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.mp4,.webm,.mov"
+              onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
+              className="sr-only"
+            />
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b9a77f] bg-white px-3 text-sm font-semibold text-[#51452f] hover:bg-[#f5efdf]">
+              <Paperclip size={17} aria-hidden="true" /> {selectedFile ? "Escolher outro arquivo" : "Selecionar arquivo"}
+            </button>
+            {selectedFile && <p className="mt-3 break-all text-sm text-[#66583e]">Selecionado: {selectedFile.name}</p>}
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">Cancelar</button>
+              <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <Paperclip size={15} aria-hidden="true" /> {isUploadingAttachment ? "Enviando..." : "Anexar"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface NotebookWorkspaceProps {
   relationshipId: string;
@@ -188,6 +278,8 @@ export function NotebookWorkspace({
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [error, setError] = useState("");
 
@@ -312,6 +404,7 @@ export function NotebookWorkspace({
       await createNotebookAttachment(relationshipId, selectedFile);
       setSelectedFile(null);
       form.reset();
+      setShowAttachmentModal(false);
       await loadContent();
     } catch {
       setError("Não foi possível anexar o arquivo. Verifique o formato e tente novamente.");
@@ -430,6 +523,16 @@ export function NotebookWorkspace({
 
   const orderedDays = [...days].reverse();
   const visibleDays = twoPages ? orderedDays.slice(-2) : orderedDays.slice(-1);
+  const pageItems = twoPages && visibleDays.length === 1
+    ? (() => {
+        const day = visibleDays[0];
+        const splitIndex = Math.ceil(day.entries.length / 2);
+        return [
+          { day, entries: day.entries.slice(0, splitIndex), entryOffset: 0 },
+          { day, entries: day.entries.slice(splitIndex), entryOffset: splitIndex },
+        ];
+      })()
+    : visibleDays.map((day) => ({ day, entries: day.entries, entryOffset: 0 }));
 
   return (
     <div className="space-y-5">
@@ -475,7 +578,7 @@ export function NotebookWorkspace({
 
       <div className={showNotes ? "grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]" : "grid"}>
         <section className="min-w-0">
-          <div className="relative rounded-2xl border border-[#d5c7a8] bg-[#e8dfcb] p-3 shadow-inner sm:p-5">
+          <div className="flex items-start gap-3"><div className="relative min-w-0 flex-1 rounded-2xl border border-[#d5c7a8] bg-[#e8dfcb] p-3 shadow-inner sm:p-5">
             <div className={twoPages ? "grid gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
               {twoPages && (
                 <div className="hidden items-center justify-center md:col-start-2 md:flex" aria-hidden="true">
@@ -486,8 +589,26 @@ export function NotebookWorkspace({
                   </div>
                 </div>
               )}
-              {visibleDays.length === 0 ? (
-                <div className="flex min-h-[28rem] items-center justify-center rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-8 text-center shadow-sm">
+              {pageItems.length === 0 ? (
+                <article className="min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7">
+                  <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
+                    <h3 className="text-sm font-bold text-[#66583e]">Nova página</h3>
+                    <span className="text-xs text-[#998b70]">TimeToLearn</span>
+                  </div>
+                  {mode === "teacher" && isCreatingText ? (
+                    <div className="space-y-3">
+                      <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar na folha</button>
+                        <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex min-h-48 items-center justify-center text-center text-sm text-[#76694f]">
+                      {mode === "teacher" ? "Use o lápis ao lado do caderno para começar a escrever." : "Seu professor ainda não publicou conteúdo."}
+                    </div>
+                  )}
+                </article>
                   <div>
                     <BookOpen className="mx-auto text-[#8b7b60]" size={34} aria-hidden="true" />
                     <h3 className="mt-3 font-semibold text-[#51452f]">Este caderno ainda está em branco</h3>
@@ -495,19 +616,20 @@ export function NotebookWorkspace({
                   </div>
                 </div>
               ) : (
-                visibleDays.map((day, index) => (
+                pageItems.map(({ day, entries, entryOffset }, index) => (
                   <article key={day.id} className={"min-h-[28rem] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && visibleDays.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
                     </div>
                     <div className="space-y-4">
-                      {day.entries.map((entry, entryIndex) => {
+                      {entries.map((entry, entryIndex) => {
+                        const absoluteIndex = entryIndex + entryOffset;
                         const isEditingText = editingEntryId === entry.id && entry.kind === "TEXT";
                         const isEditingLink = editingLink?.id === entry.id;
                         return (
                           <div key={entry.id} className="rounded-lg border border-[#d8c9a9]/80 bg-white/35 p-2">
-                            {isReordering && renderOrderControls(day, entryIndex)}
+                            {isReordering && renderOrderControls(day, absoluteIndex)}
                             {mode === "teacher" && (
                               <div className="mb-2 flex flex-wrap items-center justify-end gap-1">
                                 {entry.kind === "TEXT" && (
@@ -528,7 +650,16 @@ export function NotebookWorkspace({
                                 </button>
                               </div>
                             )}
-                            {entry.kind === "IMAGE" || entry.kind === "FILE" ? (
+                            {entry.kind === "IMAGE" ? (
+                              <div className="p-2">
+                                <NotebookAttachmentImage
+                                  relationshipId={relationshipId}
+                                  entryId={entry.id}
+                                  fileName={contentText(entry.content.fileName) || "Imagem do caderno"}
+                                />
+                                <p className="mt-2 text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Imagem anexada"}</p>
+                              </div>
+                            ) : entry.kind === "FILE" ? (
                               <div className="flex items-center gap-3 p-2">
                                 <FileText size={22} className="shrink-0 text-[#8b7b60]" aria-hidden="true" />
                                 <div className="min-w-0 flex-1">
@@ -586,6 +717,15 @@ export function NotebookWorkspace({
                           </div>
                         );
                       })}
+                      {mode === "teacher" && isCreatingText && index === pageItems.length - 1 && (
+                        <div className="mt-4 space-y-3 border-t border-[#d8c9a9] pt-4">
+                          <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
+                          <div className="flex flex-wrap gap-2">
+                            <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar na folha</button>
+                            <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </article>
                 ))
@@ -593,31 +733,28 @@ export function NotebookWorkspace({
             </div>
             {twoPages && <div className="mt-3 text-center text-xs text-[#76694f] md:hidden">A visualização em duas páginas fica disponível em telas maiores.</div>}
           </div>
+          <div className="sticky top-4 flex shrink-0 flex-col gap-2 pt-2" aria-label="Ferramentas do caderno">
+            {mode === "teacher" && (
+              <>
+                <button type="button" onClick={() => { setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); setEditingLink(null); }} aria-label="Escrever na folha" title="Escrever na folha" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
+                  <Pencil size={18} aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => setShowAttachmentModal(true)} aria-label="Anexar material" title="Anexar material" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
+                  <Paperclip size={18} aria-hidden="true" />
+                </button>
+                <button type="button" onClick={() => setEditingLink({ id: null, title: "", url: "" })} aria-label="Adicionar link" title="Adicionar link" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
+                  <Link2 size={18} aria-hidden="true" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
           {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
 
           {mode === "teacher" && (
             <div className="mt-4 space-y-3">
-              {!isCreatingText && (
-                <div className="flex flex-wrap gap-2">
-                  <button type="button" onClick={() => { setIsCreatingText(true); setNewDocument({ type: "doc", content: [{ type: "paragraph" }] }); setEditingLink(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white">
-                    <Plus size={16} aria-hidden="true" /> Escrever na folha
-                  </button>
-                  <button type="button" onClick={() => setEditingLink({ id: null, title: "", url: "" })} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 text-sm font-semibold text-dark">
-                    <Link2 size={16} aria-hidden="true" /> Adicionar link
-                  </button>
-                </div>
-              )}
-              {isCreatingText && (
-                <div className="rounded-xl border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-4 shadow-sm">
-                  <p className="mb-3 text-sm font-semibold text-[#66583e]">Escreva diretamente na folha</p>
-                  <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:opacity-50"><Save size={15} aria-hidden="true" /> Salvar na folha</button>
-                    <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-4 text-sm font-semibold text-[#51452f]"><X size={15} aria-hidden="true" /> Cancelar</button>
-                  </div>
-                </div>
-              )}
+
               {editingLink && editingLink.id === null && (
                 <div className="rounded-xl border border-[#d8c9a9] bg-[#fffdf5] p-4">
                   <h3 className="font-semibold text-[#51452f]">Novo link de atividade</h3>
@@ -638,28 +775,7 @@ export function NotebookWorkspace({
             </div>
           )}
 
-          {mode === "teacher" && (
-            <form onSubmit={(event) => void handleAddAttachment(event)} className="mt-4 rounded-2xl border border-border bg-surface p-4 sm:p-5">
-              <div className="flex items-center gap-2">
-                <Paperclip size={18} className="text-primary" aria-hidden="true" />
-                <h3 className="font-semibold text-dark">Anexar material</h3>
-              </div>
-              <p className="mt-1 text-xs text-muted">Imagens, PDF, Word, Excel, CSV e vídeos. Imagens até 5 MB; documentos até 20 MB; vídeos até 50 MB.</p>
-              <label htmlFor="notebook-attachment" className="mt-3 block text-sm font-medium text-dark">Selecionar arquivo</label>
-              <input
-                id="notebook-attachment"
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.mp4,.webm,.mov"
-                onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
-                className="mt-2 block min-h-11 w-full rounded-xl border border-border bg-white p-2 text-sm text-dark file:mr-3 file:rounded-lg file:border-0 file:bg-background file:px-3 file:py-2 file:text-sm file:font-semibold file:text-dark"
-              />
-              {selectedFile && <p className="mt-2 truncate text-xs text-muted">Selecionado: {selectedFile.name}</p>}
-              <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Paperclip size={15} aria-hidden="true" />
-                {isUploadingAttachment ? "Enviando arquivo..." : "Adicionar anexo"}
-              </button>
-            </form>
-          )}
+
         </section>
 
         {showNotes && (
