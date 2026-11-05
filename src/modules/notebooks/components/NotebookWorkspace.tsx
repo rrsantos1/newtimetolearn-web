@@ -36,7 +36,7 @@ function contentText(value: unknown): string {
 }
 
 function renderFormattedText(value: string): ReactNode[] {
-  const pattern = /\*\*[\s\S]+?\*\*|__[ \s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(?:12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
+  const pattern = /\*\*[\s\S]+?\*\*|__[\s\S]+?__|\/\/[\s\S]+?\/\/|\[size=(?:12|14|16|18|20|24)\][\s\S]+?\[\/size\]/g;
   const nodes: ReactNode[] = [];
   let cursor = 0;
   let index = 0;
