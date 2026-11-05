@@ -41,11 +41,11 @@ export default function AboutPage() {
           aria-hidden="true"
           className="absolute -right-24 -top-28 size-96 rounded-full bg-accent/25 blur-3xl"
         />
-        <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
+        <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3a6b1]">
             Sobre o TimeToLearn
           </p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
+          <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
             Mais possibilidades para ensinar e aprender inglês.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
