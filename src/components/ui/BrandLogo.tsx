@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
 
 interface BrandLogoProps {
   href?: string;
@@ -11,16 +11,20 @@ export function BrandLogo({
   compact = false,
 }: BrandLogoProps) {
   return (
-    <Link href={href} className="inline-flex items-center gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-dark text-primary" style={{ color: "var(--primary-foreground)" }}>
-        <BookOpen size={22} aria-hidden="true" />
-      </span>
-
-      {!compact && (
-        <span className="text-lg font-bold tracking-tight text-dark">
-            TimeTo<span className="text-accent">Learn</span>
-        </span>
-      )}
+    <Link
+      href={href}
+      aria-label="TimeToLearn - página inicial"
+      className="inline-flex min-w-0 items-center"
+    >
+      <Image
+        src="/images/logo.jpg"
+        alt="TimeToLearn"
+        width={compact ? 132 : 172}
+        height={58}
+        priority
+        sizes={compact ? "132px" : "(max-width: 640px) 142px, 172px"}
+        className={compact ? "h-auto w-[132px] object-contain" : "h-auto w-[142px] object-contain sm:w-[172px]"}
+      />
     </Link>
   );
 }
