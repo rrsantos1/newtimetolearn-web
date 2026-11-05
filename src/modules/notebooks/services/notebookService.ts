@@ -22,6 +22,14 @@ export async function createNotebookEntry(
   await api.post<NotebookEntryResponse>(`/notebooks/${relationshipId}/entries`, { kind, content });
 }
 
+export async function reorderNotebookEntries(
+  relationshipId: string,
+  dayId: string,
+  entryIds: string[],
+): Promise<void> {
+  await api.patch(`/notebooks/${relationshipId}/entries/reorder`, { dayId, entryIds });
+}
+
 export async function listNotebookNotes(relationshipId: string): Promise<NotebookNote[]> {
   const response = await api.get<NotebookNotesResponse>(`/notebooks/${relationshipId}/notes`);
   return response.data.data;
