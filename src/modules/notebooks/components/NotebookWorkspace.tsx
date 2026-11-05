@@ -510,7 +510,7 @@ export function NotebookWorkspace({
             <div className={twoPages ? "grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_22px_minmax(0,1fr)]" : "mx-auto grid max-w-3xl"}>
               {twoPages && (
                 <div className="hidden items-center justify-center md:col-start-2 md:flex" aria-hidden="true">
-                  <div className="flex h-full min-h-[480px] flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
+                  <div className="flex h-full min-h-120 flex-col justify-around border-x-2 border-[#9b8b6d] px-1">
                     {Array.from({ length: 13 }, (_, index) => (
                       <span key={index} className="size-3 rounded-full border-2 border-[#8b7b60] bg-[#d5c7a8] shadow-sm" />
                     ))}
@@ -518,7 +518,7 @@ export function NotebookWorkspace({
                 </div>
               )}
               {pageItems.length === 0 ? (
-                <article className="h-[680px] min-h-[480px] max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:col-start-1">
+                <article className="h-170 min-h-120 max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 md:col-start-1">
                   <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                     <h3 className="text-sm font-bold text-[#66583e]">Nova página</h3>
                     <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -539,7 +539,7 @@ export function NotebookWorkspace({
                 </article>
               ) : (
                 pageItems.map(({ day, entries, entryOffset }, index) => (
-                  <article key={`${day.id}-${index}`} className={"h-[680px] min-h-[480px] max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
+                  <article key={`${day.id}-${index}`} className={"h-170 min-h-120 max-h-[75vh] overflow-y-auto rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] p-5 shadow-sm sm:p-7 " + (twoPages && pageItems.length > 1 ? (index === 0 ? "md:col-start-1" : "md:col-start-3") : "md:col-start-1")}>
                     <div className="mb-5 flex items-center justify-between border-b border-[#d8c9a9] pb-2">
                       <h3 className="text-sm font-bold capitalize text-[#66583e]">{formatDay(day.dayDate)}</h3>
                       <span className="text-xs text-[#998b70]">TimeToLearn</span>
@@ -639,7 +639,7 @@ export function NotebookWorkspace({
               {twoPages && pageItems.length < 2 && (
                 <article
                   aria-hidden="true"
-                  className="hidden h-[680px] min-h-[480px] max-h-[75vh] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] shadow-sm md:col-start-3 md:block"
+                  className="hidden h-170 min-h-120 max-h-[75vh] rounded-lg border border-[#d8c9a9] bg-[repeating-linear-gradient(to_bottom,#fffdf5_0px,#fffdf5_27px,#dce5ef_28px)] shadow-sm md:col-start-3 md:block"
                 />
               )}
             </div>
