@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, SplitSquareHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -187,6 +187,8 @@ export function NotebookWorkspace({
   const [showNotes, setShowNotes] = useState(true);
   const [twoPages, setTwoPages] = useState(true);
   const [currentSpreadIndex, setCurrentSpreadIndex] = useState(0);
+  const [dateLookup, setDateLookup] = useState("");
+  const [pageLookup, setPageLookup] = useState("1");
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -464,38 +466,8 @@ export function NotebookWorkspace({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="ml-auto flex flex-wrap justify-end gap-2">
-          {mode === "teacher" && (
-            <button
-              type="button"
-              onClick={() => setIsReordering((value) => !value)}
-              aria-pressed={isReordering}
-              className={isReordering ? "inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-3 text-sm font-semibold text-white" : "inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background"}
-            >
-              <ListOrdered size={16} aria-hidden="true" />
-              {isReordering ? "Concluir organização" : "Organizar itens"}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => { setCurrentSpreadIndex(0); setTwoPages((value) => !value); }}
-            aria-pressed={twoPages}
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <SplitSquareHorizontal size={16} aria-hidden="true" />
-            {twoPages ? "Uma página" : "Duas páginas"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowNotes((value) => !value)}
-            aria-expanded={showNotes}
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            <MessageCircle size={16} aria-hidden="true" />
-            {showNotes ? "Ocultar notas" : "Bloco de notas"}
-          </button>
-        </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <span className="sr-only">Ferramentas do caderno</span>
       </div>
 
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -645,35 +617,139 @@ export function NotebookWorkspace({
                 <button type="button" onClick={() => setEditingLink({ id: null, title: "", url: "" })} aria-label="Adicionar link" title="Adicionar link" className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8b6b2e]">
                   <Link2 size={18} aria-hidden="true" />
                 </button>
+                <span className="my-1 h-px w-8 bg-[#c8b994]" aria-hidden="true" />
               </>
             )}
+            {mode === "teacher" && (
+              <button
+                type="button"
+                onClick={() => setIsReordering((value) => !value)}
+                aria-pressed={isReordering}
+                aria-label={isReordering ? "Concluir organização" : "Organizar itens"}
+                title={isReordering ? "Concluir organização" : "Organizar itens"}
+                className={isReordering ? "inline-flex size-10 items-center justify-center rounded-xl border border-[#8b6b2e] bg-[#8b6b2e] text-white shadow-sm" : "inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf]"}
+              >
+                <ListOrdered size={18} aria-hidden="true" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => { setCurrentSpreadIndex(0); setTwoPages((value) => !value); setPageLookup("1"); }}
+              aria-pressed={twoPages}
+              aria-label={twoPages ? "Mudar para uma página" : "Mudar para duas páginas"}
+              title={twoPages ? "Mudar para uma página" : "Mudar para duas páginas"}
+              className="inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf]"
+            >
+              <BookOpen size={18} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowNotes((value) => !value)}
+              aria-expanded={showNotes}
+              aria-label={showNotes ? "Ocultar bloco de notas" : "Exibir bloco de notas"}
+              title={showNotes ? "Ocultar bloco de notas" : "Exibir bloco de notas"}
+              className={showNotes ? "inline-flex size-10 items-center justify-center rounded-xl border border-[#8b6b2e] bg-[#f5efdf] text-[#51452f] shadow-sm" : "inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf]"}
+            >
+              <MessageCircle size={18} aria-hidden="true" />
+            </button>
           </div>
         </div>
 
           {allPageItems.length > 0 && (
-            <nav aria-label="Paginação do caderno" className="mt-4 flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setCurrentSpreadIndex((value) => Math.max(0, value - 1))}
-                disabled={safeSpreadIndex === 0}
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ArrowUp size={15} aria-hidden="true" /> Anterior
-              </button>
-              <span className="min-w-28 text-center text-sm font-semibold text-[#66583e]" aria-live="polite">
-                {twoPages
-                  ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
-                  : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
-              </span>
-              <button
-                type="button"
-                onClick={() => setCurrentSpreadIndex((value) => Math.min(totalSpreads - 1, value + 1))}
-                disabled={safeSpreadIndex >= totalSpreads - 1}
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Próxima <ArrowDown size={15} aria-hidden="true" />
-              </button>
-            </nav>
+            <div className="mt-4 space-y-3">
+              <nav aria-label="Paginação do caderno" className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextIndex = Math.max(0, safeSpreadIndex - 1);
+                    setCurrentSpreadIndex(nextIndex);
+                    setPageLookup(String(nextIndex * pagesPerSpread + 1));
+                  }}
+                  disabled={safeSpreadIndex === 0}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <ArrowUp size={15} aria-hidden="true" /> Anterior
+                </button>
+                <span className="min-w-28 text-center text-sm font-semibold text-[#66583e]" aria-live="polite">
+                  {twoPages
+                    ? `Páginas ${safeSpreadIndex * 2 + 1}–${Math.min(safeSpreadIndex * 2 + 2, allPageItems.length)} de ${allPageItems.length}`
+                    : `Página ${safeSpreadIndex + 1} de ${allPageItems.length}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextIndex = Math.min(totalSpreads - 1, safeSpreadIndex + 1);
+                    setCurrentSpreadIndex(nextIndex);
+                    setPageLookup(String(nextIndex * pagesPerSpread + 1));
+                  }}
+                  disabled={safeSpreadIndex >= totalSpreads - 1}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Próxima <ArrowDown size={15} aria-hidden="true" />
+                </button>
+              </nav>
+
+              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <form
+                  className="flex items-end gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const requestedPage = Number(pageLookup);
+                    if (!Number.isInteger(requestedPage) || requestedPage < 1 || requestedPage > allPageItems.length) {
+                      setError(`Informe uma página entre 1 e ${allPageItems.length}.`);
+                      return;
+                    }
+                    setError("");
+                    setCurrentSpreadIndex(Math.floor((requestedPage - 1) / pagesPerSpread));
+                  }}
+                >
+                  <label className="text-xs font-semibold text-[#66583e]">
+                    Ir para página
+                    <input
+                      type="number"
+                      min={1}
+                      max={allPageItems.length}
+                      required
+                      value={pageLookup}
+                      onChange={(event) => setPageLookup(event.target.value)}
+                      className="mt-1 block h-10 w-24 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-sm text-[#51452f]"
+                    />
+                  </label>
+                  <button type="submit" className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f]">
+                    <Search size={14} aria-hidden="true" /> Ir
+                  </button>
+                </form>
+
+                <form
+                  className="flex items-end gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const pageIndex = allPageItems.findIndex((item) => item.day.dayDate.slice(0, 10) === dateLookup);
+                    if (pageIndex < 0) {
+                      setError("Não há conteúdo cadastrado para essa data.");
+                      return;
+                    }
+                    setError("");
+                    setCurrentSpreadIndex(Math.floor(pageIndex / pagesPerSpread));
+                    setPageLookup(String(pageIndex + 1));
+                  }}
+                >
+                  <label className="text-xs font-semibold text-[#66583e]">
+                    Localizar data
+                    <input
+                      type="date"
+                      required
+                      value={dateLookup}
+                      onChange={(event) => setDateLookup(event.target.value)}
+                      className="mt-1 block h-10 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-2 text-sm text-[#51452f]"
+                    />
+                  </label>
+                  <button type="submit" className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#c8b994] bg-[#fffdf5] px-3 text-sm font-semibold text-[#51452f]">
+                    <CalendarDays size={14} aria-hidden="true" /> Buscar
+                  </button>
+                </form>
+              </div>
+            </div>
           )}
 
           {isLoading && <p className="mt-3 text-sm text-muted">Carregando caderno...</p>}
