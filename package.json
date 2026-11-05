@@ -15,7 +15,13 @@
     "next": "16.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "@tiptap/react": "3.32.2",
+    "@tiptap/pm": "3.32.2",
+    "@tiptap/starter-kit": "3.32.2",
+    "@tiptap/extension-text-style": "3.32.2",
+    "@tiptap/extension-underline": "3.32.2",
+    "@tiptap/extension-link": "3.32.2"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
