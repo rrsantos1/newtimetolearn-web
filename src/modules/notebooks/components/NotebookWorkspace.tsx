@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp, Bold, BookOpen, ExternalLink, Italic, ListOrdered, MessageCircle, Send, SplitSquareHorizontal, Underline } from "lucide-react";
+import { ArrowDown, ArrowUp, Bold, BookOpen, Download, ExternalLink, FileText, Italic, ListOrdered, MessageCircle, Paperclip, Send, SplitSquareHorizontal, Underline } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
+  createNotebookAttachment,
   createNotebookEntry,
+  downloadNotebookAttachment,
   createNotebookNote,
   getNotebook,
   listNotebookNotes,
@@ -79,6 +81,8 @@ export function NotebookWorkspace({
   const [isLoading, setIsLoading] = useState(true);
   const [isSavingEntry, setIsSavingEntry] = useState(false);
   const [isSavingNote, setIsSavingNote] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [error, setError] = useState("");
 
   const loadContent = useCallback(async () => {
@@ -178,6 +182,48 @@ export function NotebookWorkspace({
         </button>
       </div>
     );
+  }
+
+  async function handleAttachmentDownload(entryId: string, fileName: string): Promise<void> {
+    try {
+      const blob = await downloadNotebookAttachment(relationshipId, entryId);
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = fileName;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      setError("Não foi possível baixar este anexo.");
+    }
+  }
+
+  async function handleAddAttachment(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    if (!selectedFile) return;
+
+    const maxBytes = selectedFile.type.startsWith("video/") ? 50 * 1024 * 1024 : 20 * 1024 * 1024;
+    if (selectedFile.size > maxBytes) {
+      setError(selectedFile.type.startsWith("video/")
+        ? "Vídeos podem ter no máximo 50 MB."
+        : "Documentos e imagens podem ter no máximo 20 MB.");
+      return;
+    }
+
+    setError("");
+    setIsUploadingAttachment(true);
+    try {
+      await createNotebookAttachment(relationshipId, selectedFile);
+      setSelectedFile(null);
+      event.currentTarget.reset();
+      await loadContent();
+    } catch {
+      setError("Não foi possível anexar o arquivo. Verifique o formato e tente novamente.");
+    } finally {
+      setIsUploadingAttachment(false);
+    }
   }
 
   async function handleAddEntry(event: React.FormEvent<HTMLFormElement>) {
@@ -296,6 +342,24 @@ export function NotebookWorkspace({
                     </div>
                     <div className="space-y-4">
                       {day.entries.map((entry, entryIndex) => {
+                        if (entry.kind === "IMAGE" || entry.kind === "FILE") {
+                          const fileName = contentText(entry.content.fileName) || "Anexo";
+                          return (
+                            <div key={entry.id} className="rounded-lg border border-[#d8c9a9] bg-white/75 p-3">
+                              {isReordering && renderOrderControls(day, entryIndex)}
+                              <div className="flex items-center gap-3">
+                                <FileText size={22} className="shrink-0 text-[#8b7b60]" aria-hidden="true" />
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-sm font-semibold text-[#51452f]">{fileName}</p>
+                                  <p className="text-xs text-[#76694f]">{entry.kind === "IMAGE" ? "Imagem" : "Arquivo anexado"}</p>
+                                </div>
+                                <button type="button" onClick={() => void handleAttachmentDownload(entry.id, fileName)} aria-label={`Baixar ${fileName}`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f] hover:bg-[#f5efdf]">
+                                  <Download size={15} aria-hidden="true" /> Baixar
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        }
                         if (entry.kind === "ACTIVITY_LINK") {
                           const url = contentText(entry.content.url);
                           return (
@@ -361,6 +425,29 @@ export function NotebookWorkspace({
                 {isSavingEntry ? "Publicando..." : "Publicar no caderno"}
               </button>
               <p className="mt-2 text-xs text-muted">A data de hoje será criada automaticamente quando este for o primeiro conteúdo do dia.</p>
+            </form>
+          )}
+
+          {mode === "teacher" && (
+            <form onSubmit={(event) => void handleAddAttachment(event)} className="mt-4 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+              <div className="flex items-center gap-2">
+                <Paperclip size={18} className="text-primary" aria-hidden="true" />
+                <h3 className="font-semibold text-dark">Anexar material</h3>
+              </div>
+              <p className="mt-1 text-xs text-muted">Imagens, PDF, Word, Excel, CSV e vídeos. Documentos até 20 MB; vídeos até 50 MB.</p>
+              <label htmlFor="notebook-attachment" className="mt-3 block text-sm font-medium text-dark">Selecionar arquivo</label>
+              <input
+                id="notebook-attachment"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.mp4,.webm,.mov"
+                onChange={(event) => setSelectedFile(event.currentTarget.files?.[0] ?? null)}
+                className="mt-2 block min-h-11 w-full rounded-xl border border-border bg-white p-2 text-sm text-dark file:mr-3 file:rounded-lg file:border-0 file:bg-background file:px-3 file:py-2 file:text-sm file:font-semibold file:text-dark"
+              />
+              {selectedFile && <p className="mt-2 truncate text-xs text-muted">Selecionado: {selectedFile.name}</p>}
+              <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                <Paperclip size={15} aria-hidden="true" />
+                {isUploadingAttachment ? "Enviando arquivo..." : "Adicionar anexo"}
+              </button>
             </form>
           )}
         </section>
