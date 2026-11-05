@@ -37,6 +37,7 @@ export default function StudentNotebookPage() {
       allowedRoles={["STUDENT"]}
       title="Meu caderno virtual"
       description="Consulte os conteúdos publicados pelo professor e converse pelo bloco de notas."
+      backLinkPlacement="title"
     >
       {isLoading ? (
         <p className="text-sm text-muted">Carregando caderno...</p>
