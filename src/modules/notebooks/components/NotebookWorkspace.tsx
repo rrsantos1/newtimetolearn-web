@@ -25,6 +25,14 @@ interface NotebookWorkspaceProps {
   mode: "teacher" | "student";
 }
 
+function getLocalDateValue(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function formatDay(value: string): string {
   const [year, month, day] = value.slice(0, 10).split("-");
   return new Intl.DateTimeFormat("pt-BR", {
@@ -466,7 +474,7 @@ export function NotebookWorkspace({
 
   const orderedDays = [...days].reverse();
   const entriesPerPage = 4;
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = getLocalDateValue();
   const hasTodayPage = orderedDays.some((day) => day.dayDate.slice(0, 10) === today);
   const draftDay: NotebookDay = {
     id: "__new-notebook-day__",
@@ -637,7 +645,7 @@ export function NotebookWorkspace({
                           <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                           <div className="flex flex-wrap gap-2">
                             <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" /> Salvar na folha</button>
-                            <button type="button" onClick={() => { setIsCreatingText(false); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                            <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
                           </div>
                         </div>
                       )}
@@ -667,7 +675,7 @@ export function NotebookWorkspace({
             {mode === "teacher" && (
               <>
                 <button type="button" onClick={() => {
-                  const todayDate = new Date().toLocaleDateString("en-CA");
+                  const todayDate = getLocalDateValue();
                   const todayPageIndexes = allPageItems
                     .map((item, index) => item.day.dayDate.slice(0, 10) === todayDate ? index : -1)
                     .filter((index) => index >= 0);
