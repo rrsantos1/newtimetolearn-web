@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { Mail, RefreshCw, Search, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import {
@@ -157,9 +158,18 @@ export default function TeacherStudentsPage() {
                       <p className="text-sm text-muted">{relationship.student.email}</p>
                       <span className="mt-2 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
                     </div>
-                    <button type="button" onClick={() => void handleEnd(relationship)} className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
-                      Encerrar vínculo
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/teacher/students/${relationship.id}/notebook`}
+                        className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        style={{ color: "var(--primary-foreground)" }}
+                      >
+                        Abrir caderno
+                      </Link>
+                      <button type="button" onClick={() => void handleEnd(relationship)} className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
+                        Encerrar vínculo
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>
