@@ -108,7 +108,7 @@ export default function SentenceCompletionPlayPage() {
       }
     })();
     return () => { active = false; };
-  }, [isStudent, loadRanking, router.isReady, slug]);
+  }, [isStudent, loadRanking, router.isReady, slug, user]);
 
   useEffect(() => {
     if (phase !== "playing") return;
