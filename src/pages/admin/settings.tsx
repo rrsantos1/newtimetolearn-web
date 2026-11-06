@@ -110,7 +110,7 @@ export default function AdminSettingsPage() {
           <div className="flex items-start gap-2 text-amber-900">
             <AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-sm leading-6">
-              A verificação não exclui arquivos. A exclusão só fica disponível após a análise do resultado e exige uma segunda confirmação. Arquivos recentes são preservados automaticamente.
+              A verificação não exclui arquivos. A exclusão só fica disponível após a análise do resultado e exige uma segunda confirmação. Arquivos recentes são preservados automaticamente. Cada execução exclui no máximo 500 arquivos.
             </p>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function AdminSettingsPage() {
             <RefreshCw size={16} aria-hidden="true" className={loading ? "animate-spin" : undefined} />
             {loading ? "Verificando..." : "Verificar arquivos"}
           </button>
-          {result && result.eligibleForDeletion > 0 && (
+          {result?.dryRun && result.eligibleForDeletion > 0 && (
             <button
               type="button"
               onClick={() => void runCleanup(true)}
