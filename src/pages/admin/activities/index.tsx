@@ -173,6 +173,11 @@ export default function PendingActivitiesPage() {
       title="Atividades pendentes"
       description="Revise as atividades enviadas pelos professores e aprove, solicite alterações ou rejeite cada versão."
     >
+      <div className="mb-5 flex justify-end">
+        <Link href="/admin/activities/public" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5">
+          <Globe size={16} aria-hidden="true" /> Gerenciar atividades públicas
+        </Link>
+      </div>
       {successMessage && (
         <p role="status" className="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
           {successMessage}
