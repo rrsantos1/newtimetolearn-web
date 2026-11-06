@@ -32,5 +32,5 @@ export default function NewMarketplaceProductPage(){
  <div><label htmlFor="file" className="block text-sm font-semibold text-dark">Arquivo original</label><input id="file" name="file" type="file" accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation" onChange={event=>setFieldValue("file",event.currentTarget.files?.[0]??null)} className="mt-2 block min-h-11 w-full rounded-lg border border-border bg-white p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2"/><p className="mt-1 text-xs text-muted">PDF, PPT ou PPTX • máximo de 40 MB • até 120 páginas.</p><ErrorMessage name="file" component="p" className="mt-1 text-xs text-red-600"/></div>
  {status&&<p role="status" className="rounded-lg bg-slate-50 p-3 text-sm text-dark">{status}</p>}
  <button type="submit" disabled={isSubmitting} className="min-h-12 w-full rounded-xl bg-accent px-5 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">{isSubmitting?"Processando apresentação...":"Enviar para aprovação"}</button>
- </Form></Formik>}</section><PublicFooter/></main>;
+ </Form>}</Formik></section><PublicFooter/></main>;
 }
