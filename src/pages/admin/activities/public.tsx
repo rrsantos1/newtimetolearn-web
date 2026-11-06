@@ -41,7 +41,7 @@ export default function PublicActivitiesAdminPage() {
           allActivities.push(...nextPage.items);
         }
         if (!cancelled) {
-          setActivities(allActivities.filter((activity) => activity.status === "PUBLISHED" && activity.latestVersion?.status === "PUBLISHED"));
+          setActivities(allActivities.filter((activity) => activity.status === "PUBLISHED" && activity.publishedVersion !== null));
           setErrorMessage("");
         }
       } catch (error: unknown) {
@@ -107,7 +107,7 @@ export default function PublicActivitiesAdminPage() {
             <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm">
               <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} />
               <h2 className="mt-4 text-lg font-semibold text-dark">{getActivityName(activity)}</h2>
-              {activity.latestVersion?.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
+              {activity.latestVersion?.status === "PUBLISHED" && activity.latestVersion.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
               <div className="mt-4 flex items-center justify-between gap-3">
                 <span className={activity.visibility === "PUBLIC" ? "rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800" : "rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted"}>
                   {activity.visibility === "PUBLIC" ? "Na página inicial" : "Somente autenticados"}
