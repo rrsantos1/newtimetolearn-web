@@ -38,8 +38,15 @@ export function NotebookAttachmentImage({
     if (!element || shouldLoad) return;
 
     if (typeof IntersectionObserver === "undefined") {
-      setShouldLoad(true);
-      return;
+      let isActive = true;
+
+      void Promise.resolve().then(() => {
+        if (isActive) setShouldLoad(true);
+      });
+
+      return () => {
+        isActive = false;
+      };
     }
 
     const observer = new IntersectionObserver(
