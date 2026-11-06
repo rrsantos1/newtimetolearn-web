@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
+import { AuthenticatedNavigation } from "@/components/layout/AuthenticatedNavigation";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 
 export function PublicHeader() {
@@ -11,7 +12,7 @@ export function PublicHeader() {
   return (
     <header className="relative z-20 border-b border-[#315987] bg-[#142b4a]">
       <div className="mx-auto flex min-h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
-        <BrandLogo />
+        <BrandLogo href={user ? "/dashboard" : "/"} />
         <nav aria-label="Navegação principal" className="flex items-center gap-2 sm:gap-4">
           {!user && !isLoading && (
             <Link
@@ -39,6 +40,9 @@ export function PublicHeader() {
                   Administração
                 </Link>
               )}
+              <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 lg:inline">
+                {user.name}
+              </span>
               <LogoutButton />
             </>
           ) : isLoading ? (
@@ -55,6 +59,13 @@ export function PublicHeader() {
           )}
         </nav>
       </div>
+      {user && (
+        <div className="border-t border-white/15 bg-white">
+          <div className="mx-auto flex min-h-16 max-w-7xl items-center px-5 sm:px-8 lg:px-10">
+            <AuthenticatedNavigation />
+          </div>
+        </div>
+      )}
     </header>
   );
 }
