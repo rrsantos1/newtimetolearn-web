@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import axios from "axios";
 import { LoaderCircle, Play, Trophy } from "lucide-react";
-import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMemoryAttemptService, type MemoryAttemptResult } from "@/modules/activities/services/submitMemoryAttemptService";
 import { getMemoryRankingService, type MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
@@ -128,11 +128,13 @@ export default function MemoryGamePage() {
     let active = true;
     void (async () => {
       try {
-        const response = await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`);
+        const loaded = user
+          ? (await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (response.data.data.type !== "memory") throw new Error("Esta atividade não é um jogo da memória.");
-        setActivity(response.data.data);
-        if (user?.roles.includes("STUDENT")) void loadRanking(response.data.data.slug);
+        if (loaded.type !== "memory") throw new Error("Esta atividade não é um jogo da memória.");
+        setActivity(loaded);
+        if (user?.roles.includes("STUDENT")) void loadRanking(loaded.slug);
       } catch (error: unknown) {
         if (active) setLoadError(getErrorMessage(error, "Não foi possível carregar a atividade."));
       } finally {
@@ -219,7 +221,7 @@ export default function MemoryGamePage() {
 
   const visibleIds = new Set([...openIds, ...cards.filter((card) => matchedIds.includes(card.pairId)).map((card) => card.id)]);
   return (
-    <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={activity?.version.name ?? "Jogo da memória"} description={activity?.version.description ?? "Encontre todos os pares."}>
+    <PublicActivityLayout title={activity?.version.name ?? "Atividade"} description={activity?.version.description ?? "Experimente esta atividade."}>
       {loading ? (
         <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p>
       ) : loadError ? (
@@ -304,6 +306,6 @@ export default function MemoryGamePage() {
           )}
         </div>
       ) : null}
-    </RoleBasedLayout>
+    </PublicActivityLayout>
   );
 }
