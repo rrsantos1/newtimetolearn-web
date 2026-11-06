@@ -6,7 +6,6 @@ import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
-import { RoleGuard } from "@/modules/auth/components/RoleGuard";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { WordSearchGame } from "@/modules/activities/components/WordSearchGame";
 import { getWordSearchActivityService } from "@/modules/activities/services/wordSearch/getWordSearchActivityService";
@@ -177,7 +176,9 @@ export default function PlayWordSearchPage() {
       }
 
       try {
-        const result = await getWordSearchActivityService.execute(slug);
+        const result = user
+          ? await getWordSearchActivityService.execute(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableWordSearchActivity>(slug);
         if (cancelled) return;
         if (result.type !== "word_search") {
           setError("Esta atividade não é um caça-palavras.");
@@ -226,7 +227,7 @@ export default function PlayWordSearchPage() {
   }
 
   return (
-    <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
+    
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
@@ -386,6 +387,6 @@ export default function PlayWordSearchPage() {
           ) : null}
         </main>
       </div>
-    </RoleGuard>
+
   );
 }
