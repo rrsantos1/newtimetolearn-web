@@ -23,7 +23,14 @@ export const marketplaceService = {
     });
     return response.data.data;
   },
-  async pendingModeration() {\n    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; description: string; category: string; price_cents: number; author_name: string; created_at: string }> }>("/marketplace/admin/pending");\n    return response.data.data;\n  },\n  async review(input: { productId: string; approved: boolean; note?: string }) {\n    await api.patch("/marketplace/admin/" + encodeURIComponent(input.productId) + "/review", { approved: input.approved, note: input.note ?? "" });\n  },\n  async purchases() {
+  async pendingModeration() {
+    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; description: string; category: string; price_cents: number; author_name: string; created_at: string }> }>("/marketplace/admin/pending");
+    return response.data.data;
+  },
+  async review(input: { productId: string; approved: boolean; note?: string }) {
+    await api.patch("/marketplace/admin/" + encodeURIComponent(input.productId) + "/review", { approved: input.approved, note: input.note ?? "" });
+  },
+  async purchases() {
     const response = await api.get<{ success: true; data: Array<{ id: string; title: string; original_file_name: string; paid_at: string }> }>("/marketplace/me/purchases");
     return response.data.data;
   },
