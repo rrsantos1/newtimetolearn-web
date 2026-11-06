@@ -1,11 +1,23 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Library, Search, X } from "lucide-react";
-import { mediaLibraryService, type MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
+import { mediaLibraryService, type MediaLibraryAsset, type MediaStorageUsage } from "@/modules/activities/services/mediaLibraryService";
 
 interface MediaLibraryPickerProps {
   onSelect: (asset: MediaLibraryAsset) => void;
   disabled: boolean;
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB", "TB"];
+  let value = bytes / 1024;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ${units[unitIndex]}`;
 }
 
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
@@ -16,6 +28,23 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
   const [items, setItems] = useState<MediaLibraryAsset[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [storageUsage, setStorageUsage] = useState<MediaStorageUsage | null>(null);
+  const [storageUsageError, setStorageUsageError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    let active = true;
+    mediaLibraryService.getStorageUsage()
+      .then((usage) => {
+        if (active) setStorageUsage(usage);
+      })
+      .catch(() => {
+        if (active) setStorageUsageError("Não foi possível consultar o armazenamento utilizado.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -57,6 +86,36 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
                 <X aria-hidden="true" size={18} />
               </button>
             </div>
+            {storageUsage && (
+              <section aria-label="Uso do armazenamento" className="mt-5 rounded-xl border border-border bg-background p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="font-semibold text-dark">Armazenamento utilizado</span>
+                  <span className="text-muted">
+                    {formatBytes(storageUsage.usageBytes)}
+                    {storageUsage.limitBytes !== null ? ` de ${formatBytes(storageUsage.limitBytes)}` : " · sem limite"}
+                  </span>
+                </div>
+                {storageUsage.limitBytes !== null && (
+                  <div
+                    className="mt-2 h-2 overflow-hidden rounded-full bg-border"
+                    role="progressbar"
+                    aria-label="Percentual de armazenamento utilizado"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={storageUsage.usagePercentage ?? 0}
+                  >
+                    <div
+                      className="h-full rounded-full bg-accent transition-[width]"
+                      style={{ width: `${storageUsage.usagePercentage ?? 0}%` }}
+                    />
+                  </div>
+                )}
+                <p className="mt-2 text-xs text-muted">
+                  A cota considera imagens, miniaturas, áudios do Listening e anexos do caderno virtual.
+                </p>
+              </section>
+            )}
+            {storageUsageError && <p role="status" className="mt-3 text-xs text-muted">{storageUsageError}</p>}
             <label htmlFor="media-library-search" className="mt-5 block text-sm font-medium text-dark">Pesquisar imagens</label>
             <div className="relative mt-1">
               <Search aria-hidden="true" size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
