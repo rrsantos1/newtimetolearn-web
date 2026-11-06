@@ -80,6 +80,29 @@ export default function TeacherPage() {
             );
           }
 
+          if (title === "Conteúdos") {
+            return (
+              <article key={title} className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition hover:border-accent/40 hover:shadow-md">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon size={22} aria-hidden="true" />
+                </span>
+                <h2 className="mt-5 font-semibold text-dark">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Publique apresentações e materiais didáticos para venda no Marketplace. Disponível para assinantes ativos, sujeito à aprovação administrativa.
+                </p>
+                <div className="mt-5 flex flex-col gap-2">
+                  <Link href="/teacher/marketplace/new" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                    Publicar material
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                  <Link href="/marketplace" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    Explorar Marketplace
+                  </Link>
+                </div>
+              </article>
+            );
+          }
+
           if (title === "Plano e assinatura") {
             return (
               <article key={title} className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition hover:border-accent/40 hover:shadow-md">
