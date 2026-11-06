@@ -176,13 +176,13 @@ export default function TeacherStudentsPage() {
                 ) : (
                   <div className="mt-5 grid gap-3 lg:grid-cols-2">
                     {filteredActive.map((relationship) => (
-                      <article key={relationship.id} className="flex min-w-0 flex-col gap-4 rounded-xl border border-border p-4">
-                        <div className="min-w-0">
+                      <article key={relationship.id} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border p-4">
+                        <div className="min-w-0 flex-1">
                           <h3 className="break-words font-semibold text-dark">{relationship.student.name}</h3>
                           <p className="mt-1 break-all text-sm text-muted">{relationship.student.email}</p>
                           <span className="mt-3 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
                         </div>
-                        <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
+                        <div className="flex shrink-0 items-center gap-2">
                           <Link
                             href={`/teacher/students/${relationship.id}/notebook`}
                             aria-label={`Abrir caderno de ${relationship.student.name}`}
