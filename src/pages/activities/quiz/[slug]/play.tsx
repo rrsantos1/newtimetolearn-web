@@ -130,7 +130,7 @@ function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
         const src = imageUrl(image);
         return src ? (
           <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
-            <Image src={src} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized className="object-contain" />
+            <Image src={src} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" />
           </div>
         ) : (
           <p key={image.storageKey} className="rounded-xl bg-background p-3 text-xs text-muted">Imagem indisponível para visualização.</p>
