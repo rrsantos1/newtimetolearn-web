@@ -37,7 +37,6 @@ export function RoleBasedLayout({
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const isAdmin = user?.roles.includes("ADMIN") ?? false;
-  const homeHref = area === "admin" ? "/admin" : area === "student" ? "/dashboard" : "/teacher";
 
   useEffect(() => {
     if (area !== "teacher" || !isTeacher || !user?.id) return;
