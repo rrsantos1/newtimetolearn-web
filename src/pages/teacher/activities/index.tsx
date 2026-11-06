@@ -333,12 +333,39 @@ export default function TeacherActivitiesPage() {
 
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades</div>
-        <div className="grid gap-3 md:grid-cols-4">
-          <label className="relative block md:col-span-1"><span className="sr-only">Buscar por título ou descrição</span><Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Buscar atividade..." className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/15" /></label>
-          <label><span className="sr-only">Filtrar por tipo</span><select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark"><option value="ALL">Todos os tipos</option>{Object.entries(activityTypeLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label><span className="sr-only">Filtrar por dificuldade</span><select value={difficultyFilter} onChange={(event) => { setDifficultyFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark"><option value="ALL">Todas as dificuldades</option><option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option></select></label>
-          <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-dark"><input type="checkbox" checked={favoritesOnly} onChange={(event) => { setFavoritesOnly(event.target.checked); setPage(1); }} className="size-4 accent-current" /> Somente favoritas</label>
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="relative block">
+            <span className="sr-only">Buscar por título ou descrição</span>
+            <Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
+              placeholder="Buscar atividade..."
+              className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por tipo</span>
+            <select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
+              <option value="ALL">Todos os tipos</option>
+              {Object.entries(activityTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por dificuldade</span>
+            <select value={difficultyFilter} onChange={(event) => { setDifficultyFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
+              <option value="ALL">Todas as dificuldades</option>
+              <option value="EASY">Fácil</option>
+              <option value="MEDIUM">Média</option>
+              <option value="HARD">Difícil</option>
+            </select>
+          </label>
         </div>
+        <label className="mt-3 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-dark">
+          <input type="checkbox" checked={favoritesOnly} onChange={(event) => { setFavoritesOnly(event.target.checked); setPage(1); }} className="size-4 accent-current" />
+          Somente atividades favoritas
+        </label>
       </section>
 
       {successMessage && (
