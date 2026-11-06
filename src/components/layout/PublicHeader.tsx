@@ -31,10 +31,10 @@ export function PublicHeader() {
           )}
 
           <Link
-            href={user ? "/dashboard" : "/login"}
+            href="/login"
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-xs font-bold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-5 sm:text-sm"
           >
-            {user ? "Painel" : "Entrar"}
+            Entrar
           </Link>
         </nav>
       </div>
