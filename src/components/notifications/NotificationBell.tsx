@@ -40,7 +40,7 @@ export function NotificationBell() {
     void refreshNotifications();
     const intervalId = window.setInterval(() => {
       void refreshNotifications();
-    }, 60_000);
+    }, 300_000);
 
     return () => {
       isMounted = false;
@@ -103,7 +103,7 @@ export function NotificationBell() {
         <section
           id="notification-panel"
           aria-label="Central de notificações"
-          className="absolute right-0 top-13 z-[70] w-[min(92vw,380px)] overflow-hidden rounded-2xl border border-border bg-white shadow-xl"
+          className="absolute right-0 top-13 z-70 w-[min(92vw,380px)] overflow-hidden rounded-2xl border border-border bg-white shadow-xl"
         >
           <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div>
