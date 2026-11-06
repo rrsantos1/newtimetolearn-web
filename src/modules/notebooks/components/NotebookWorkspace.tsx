@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { JSONContent } from "@tiptap/core";
 import { NotebookRichTextEditor } from "./NotebookRichTextEditor";
-import { ArrowDown, ArrowUp, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ChevronsRight, Download, ExternalLink, FileText, Link2, ListOrdered, MessageCircle, Paperclip, Pencil, Save, Search, Send, SlidersHorizontal, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, BookOpen, CalendarDays, ChevronLeft, ChevronRight, ChevronsRight, Download, ExternalLink, Eye, FileText, Link2, ListOrdered, LoaderCircle, MessageCircle, Paperclip, Pencil, Save, Search, Send, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import {
   createNotebookAttachment,
@@ -210,6 +210,7 @@ export function NotebookWorkspace({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [focusedEntryId, setFocusedEntryId] = useState<string | null>(null);
+  const [activeAttachmentAction, setActiveAttachmentAction] = useState<{ entryId: string; action: "download" | "open" } | null>(null);
   const [error, setError] = useState("");
 
   const entriesPerPage = 4;
@@ -328,6 +329,9 @@ export function NotebookWorkspace({
     fileName: string,
     timeoutMs = 60_000,
   ): Promise<void> {
+    if (activeAttachmentAction) return;
+    setError("");
+    setActiveAttachmentAction({ entryId, action: "download" });
     try {
       const blob = await downloadNotebookAttachment(relationshipId, entryId, timeoutMs);
       const objectUrl = URL.createObjectURL(blob);
@@ -337,9 +341,34 @@ export function NotebookWorkspace({
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
     } catch {
-      setError("Não foi possível baixar este anexo.");
+      setError("Não foi possível baixar este anexo. Tente novamente.");
+    } finally {
+      setActiveAttachmentAction(null);
+    }
+  }
+
+  async function handleOpenAttachment(entryId: string, timeoutMs = 60_000): Promise<void> {
+    if (activeAttachmentAction) return;
+    const previewWindow = window.open("about:blank", "_blank");
+    if (!previewWindow) {
+      setError("Permita a abertura de novas janelas para visualizar o documento.");
+      return;
+    }
+    setError("");
+    setActiveAttachmentAction({ entryId, action: "open" });
+    try {
+      previewWindow.document.title = "Carregando documento...";
+      const blob = await downloadNotebookAttachment(relationshipId, entryId, timeoutMs);
+      const objectUrl = URL.createObjectURL(blob);
+      previewWindow.location.href = objectUrl;
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+    } catch {
+      previewWindow.close();
+      setError("Não foi possível abrir este documento no navegador. Tente baixá-lo.");
+    } finally {
+      setActiveAttachmentAction(null);
     }
   }
 
@@ -602,16 +631,31 @@ export function NotebookWorkspace({
                                 <button type="button" onClick={() => setDateEntry({ entryId: entry.id, date: day.dayDate.slice(0, 10) })} aria-label="Alterar data" title="Alterar data" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
                                   <CalendarDays size={15} aria-hidden="true" />
                                 </button>
-                                {entry.kind === "FILE" && contentText(entry.content.contentType).startsWith("video/") && (
-                                  <button
-                                    type="button"
-                                    onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "video", 360_000)}
-                                    aria-label={`Baixar vídeo ${contentText(entry.content.fileName) || ""}`}
-                                    title="Baixar vídeo"
-                                    className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]"
-                                  >
-                                    <Download size={15} aria-hidden="true" />
-                                  </button>
+                                {entry.kind === "FILE" && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo", contentText(entry.content.contentType).startsWith("video/") ? 360_000 : 60_000)}
+                                      disabled={activeAttachmentAction !== null}
+                                      aria-label={`Baixar ${contentText(entry.content.fileName) || "arquivo"}`}
+                                      title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? "Baixando..." : "Baixar arquivo"}
+                                      className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf] disabled:cursor-wait disabled:opacity-50"
+                                    >
+                                      {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Download size={15} aria-hidden="true" />}
+                                    </button>
+                                    {!contentText(entry.content.contentType).startsWith("video/") && (
+                                      <button
+                                        type="button"
+                                        onClick={() => void handleOpenAttachment(entry.id)}
+                                        disabled={activeAttachmentAction !== null}
+                                        aria-label={`Abrir ${contentText(entry.content.fileName) || "documento"} no navegador`}
+                                        title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? "Abrindo..." : "Abrir no navegador"}
+                                        className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf] disabled:cursor-wait disabled:opacity-50"
+                                      >
+                                        {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
+                                      </button>
+                                    )}
+                                  </>
                                 )}
                                 {entry.kind === "IMAGE" && (
                                   <button
@@ -662,12 +706,15 @@ export function NotebookWorkspace({
                               <div className="flex items-center gap-3 p-2">
                                 <FileText size={22} className="shrink-0 text-[#8b7b60]" aria-hidden="true" />
                                 <div className="min-w-0 flex-1">
-                                  <p className="truncate text-sm font-semibold text-[#51452f]">{contentText(entry.content.fileName) || "Anexo"}</p>
+                                  <p className="break-all text-sm font-semibold text-[#51452f]">{contentText(entry.content.fileName) || "Anexo"}</p>
                                   <p className="text-xs text-[#76694f]">Arquivo anexado</p>
                                 </div>
-                                <button type="button" onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo")} aria-label={`Baixar ${contentText(entry.content.fileName) || "anexo"}`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f] hover:bg-[#f5efdf]">
-                                  <Download size={15} aria-hidden="true" /> Baixar
-                                </button>
+                                {activeAttachmentAction?.entryId === entry.id && (
+                                  <span className="inline-flex items-center gap-1 text-xs text-[#76694f]" role="status" aria-live="polite">
+                                    <LoaderCircle size={13} className="animate-spin" aria-hidden="true" />
+                                    {activeAttachmentAction.action === "download" ? "Baixando..." : "Abrindo..."}
+                                  </span>
+                                )}
                               </div>
                             ) : entry.kind === "ACTIVITY_LINK" ? (
                               <div className="p-2">
