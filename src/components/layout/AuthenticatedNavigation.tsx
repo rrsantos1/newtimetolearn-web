@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { BookOpen, LayoutDashboard, UserRound, Menu, X, Users, GraduationCap } from "lucide-react";
+import { BookOpen, LayoutDashboard, UserRound, Menu, X, GraduationCap } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { hasAnyRole } from "@/modules/auth/utils/hasAnyRole";
@@ -79,12 +79,6 @@ export function AuthenticatedNavigation() {
           </Link>
         ))}
         {renderTeacherLink()}
-        {user?.roles.includes("TEACHER") && (
-          <Link href="/teacher/students" aria-current={isActive("/teacher/students") ? "page" : undefined} className={getLinkClass("/teacher/students")}>
-            <Users size={17} aria-hidden="true" />
-            Meus alunos
-          </Link>
-        )}
         {user?.roles.includes("STUDENT") && (
           <Link href="/student/teachers" aria-current={isActive("/student/teachers") ? "page" : undefined} className={getLinkClass("/student/teachers")}>
             <GraduationCap size={17} aria-hidden="true" />
@@ -142,12 +136,6 @@ export function AuthenticatedNavigation() {
                 >
                   <BookOpen size={18} aria-hidden="true" />
                   Área do professor
-                </Link>
-              )}
-              {user?.roles.includes("TEACHER") && (
-                <Link href="/teacher/students" aria-current={isActive("/teacher/students") ? "page" : undefined} className={getLinkClass("/teacher/students")} onClick={closeMenu}>
-                  <Users size={18} aria-hidden="true" />
-                  Meus alunos
                 </Link>
               )}
               {user?.roles.includes("STUDENT") && (
