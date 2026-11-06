@@ -32,6 +32,7 @@ export function PublicActivityLayout({ children, title, description }: PublicAct
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+          <p className="mt-3 inline-flex rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary">Você está testando como visitante. Seu resultado não será salvo nem entrará no ranking.</p>
         </div>
         {children}
       </main>
