@@ -7,7 +7,6 @@ import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
-import { RoleGuard } from "@/modules/auth/components/RoleGuard";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { CrosswordGame, type CrosswordClue } from "@/modules/activities/components/CrosswordGame";
 import { getCrosswordService } from "@/modules/activities/services/crossword/getCrosswordService";
@@ -170,7 +169,9 @@ export default function PlayCrosswordPage() {
         return;
       }
       try {
-        const result = await getCrosswordService.execute(slug);
+        const result = user
+          ? await getCrosswordService.execute(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableCrosswordActivity>(slug);
         if (cancelled) return;
         if (result.type !== "crossword") {
           setError("Esta atividade não é uma cruzadinha.");
@@ -207,7 +208,7 @@ export default function PlayCrosswordPage() {
   }
 
   return (
-    <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
+    
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
@@ -316,6 +317,6 @@ export default function PlayCrosswordPage() {
           ) : null}
         </main>
       </div>
-    </RoleGuard>
+
   );
 }
