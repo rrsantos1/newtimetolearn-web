@@ -727,6 +727,12 @@ export function NotebookWorkspace({
                                   fileName={contentText(entry.content.fileName) || "Vídeo do caderno"}
                                 />
                                 <p className="break-all text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Vídeo anexado"}</p>
+                                {activeAttachmentAction?.entryId === entry.id && (
+                                  <p className="flex items-center justify-center gap-2 text-xs text-[#76694f]" role="status" aria-live="polite">
+                                    <LoaderCircle size={13} className="animate-spin" aria-hidden="true" />
+                                    Baixando vídeo...
+                                  </p>
+                                )}
                               </div>
                             ) : entry.kind === "FILE" ? (
                               <div className="flex items-center gap-3 p-2">
