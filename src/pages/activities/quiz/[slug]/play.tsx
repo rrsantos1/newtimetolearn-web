@@ -145,8 +145,8 @@ export default function PlayQuizPage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
-  const backHref = user?.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
-  const backLabel = user?.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
   const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
