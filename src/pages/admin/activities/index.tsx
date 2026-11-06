@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import axios from "axios";
 import Link from "next/link";
-import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, Play, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, Play, RefreshCw, XCircle, Globe, Lock } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import type { ActivityDifficulty, ListedActivity } from "@/modules/activities/types/activityList.types";
 import api from "@/lib/api";
+import { updateActivityVisibilityService } from "@/modules/activities/services/updateActivityVisibilityService";
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -99,6 +100,22 @@ export default function PendingActivitiesPage() {
       cancelled = true;
     };
   }, [reloadKey]);
+
+  async function handleVisibility(activity: ListedActivity): Promise<void> {
+    if (busySlug || activity.status !== "PUBLISHED") return;
+    setBusySlug(activity.slug);
+    setErrorMessage("");
+    try {
+      const visibility = activity.visibility === "PUBLIC" ? "AUTHENTICATED" : "PUBLIC";
+      await updateActivityVisibilityService.execute(activity.slug, visibility);
+      setActivities((current) => current.map((item) => item.slug === activity.slug ? { ...item, visibility } : item));
+      setSuccessMessage(visibility === "PUBLIC" ? `“${getActivityName(activity)}” agora está disponível na página inicial.` : `“${getActivityName(activity)}” deixou de ser pública.`);
+    } catch (error: unknown) {
+      setErrorMessage(getErrorMessage(error));
+    } finally {
+      setBusySlug(null);
+    }
+  }
 
   async function handleDecision(
     activity: ListedActivity,
@@ -239,6 +256,13 @@ export default function PendingActivitiesPage() {
                 <Play size={16} aria-hidden="true" />
                 Testar atividade
               </Link>
+              {activity.status === "PUBLISHED" && (
+                <div className="mt-4">
+                  <button type="button" onClick={() => void handleVisibility(activity)} disabled={Boolean(busySlug)} aria-label={activity.visibility === "PUBLIC" ? `Retirar ${getActivityName(activity)} da página inicial` : `Disponibilizar ${getActivityName(activity)} publicamente`} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50">
+                    {activity.visibility === "PUBLIC" ? <><Lock size={15} aria-hidden="true" /> Remover da página inicial</> : <><Globe size={15} aria-hidden="true" /> Exibir na página inicial</>}
+                  </button>
+                </div>
+              )}
               <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
                 <button type="button" onClick={() => void handleDecision(activity, "approve")} disabled={Boolean(busySlug)} title="Aprovar e publicar" aria-label={`Aprovar ${getActivityName(activity)}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60">
                   <CheckCircle2 size={16} aria-hidden="true" /> Aprovar
