@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { AuthenticatedNavigation } from "@/components/layout/AuthenticatedNavigation";
@@ -41,12 +43,24 @@ export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProp
     return <LoadingState label="Redirecionando para o login..." fullScreen />;
   }
 
+  const isAdmin = user.roles.includes("ADMIN");
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-[#315987] bg-[#142b4a]">
         <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-5 sm:px-8">
           <BrandLogo href="/dashboard" />
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            {isAdmin && (
+              <Link
+                href="/admin"
+                aria-label="Acessar administração"
+                className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
+              >
+                <ShieldCheck size={16} aria-hidden="true" />
+                <span>Administração</span>
+              </Link>
+            )}
             <span className="hidden max-w-56 truncate text-sm font-medium text-white/90 lg:inline">
               {user.name}
             </span>
