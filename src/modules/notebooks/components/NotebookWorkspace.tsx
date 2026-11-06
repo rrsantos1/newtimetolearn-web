@@ -323,9 +323,13 @@ export function NotebookWorkspace({
     );
   }
 
-  async function handleAttachmentDownload(entryId: string, fileName: string): Promise<void> {
+  async function handleAttachmentDownload(
+    entryId: string,
+    fileName: string,
+    timeoutMs = 60_000,
+  ): Promise<void> {
     try {
-      const blob = await downloadNotebookAttachment(relationshipId, entryId);
+      const blob = await downloadNotebookAttachment(relationshipId, entryId, timeoutMs);
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = objectUrl;
@@ -598,6 +602,17 @@ export function NotebookWorkspace({
                                 <button type="button" onClick={() => setDateEntry({ entryId: entry.id, date: day.dayDate.slice(0, 10) })} aria-label="Alterar data" title="Alterar data" className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]">
                                   <CalendarDays size={15} aria-hidden="true" />
                                 </button>
+                                {entry.kind === "FILE" && contentText(entry.content.contentType).startsWith("video/") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "video", 360_000)}
+                                    aria-label={`Baixar vídeo ${contentText(entry.content.fileName) || ""}`}
+                                    title="Baixar vídeo"
+                                    className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]"
+                                  >
+                                    <Download size={15} aria-hidden="true" />
+                                  </button>
+                                )}
                                 {entry.kind === "IMAGE" && (
                                   <button
                                     type="button"
