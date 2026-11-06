@@ -43,7 +43,7 @@ export const marketplaceService = {
     return response.data.data;
   },
   previewUrl(slug: string, page: number) {
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+    const base = api.defaults.baseURL?.replace(/\/$/, "") ?? "";
     return `${base}/marketplace/${encodeURIComponent(slug)}/preview/${page}`;
   },
 };
