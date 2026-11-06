@@ -8,11 +8,6 @@ const nextConfig: NextConfig = {
         hostname: "**.backblazeb2.com",
         pathname: "/file/**",
       },
-      {
-        protocol: "https",
-        hostname: "**.backblazeb2.com",
-        pathname: "/**",
-      },
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 7,
