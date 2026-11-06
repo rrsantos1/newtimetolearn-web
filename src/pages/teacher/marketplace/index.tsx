@@ -36,15 +36,6 @@ export default function TeacherMarketplacePage() {
     };
   }, [isAuthenticated, isLoading, user]);
 
-  useEffect(() => {
-    if (router.query.mp === "connected") {
-      setMessage("Sua conta do Mercado Pago foi conectada com sucesso.");
-      setConnection("connected");
-    } else if (router.query.mp === "error") {
-      setMessage("Não foi possível conectar a conta. Tente novamente.");
-    }
-  }, [router.query.mp]);
-
   async function handleConnect(): Promise<void> {
     setConnecting(true);
     setMessage("");
@@ -100,7 +91,13 @@ export default function TeacherMarketplacePage() {
               {connecting ? "Redirecionando..." : connection === "connected" ? "Reconectar conta" : "Conectar Mercado Pago"}
             </button>
           </div>
-          {message && <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-dark" role="status">{message}</p>}
+          {(message || router.query.mp === "connected" || router.query.mp === "error") && (
+            <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-dark" role="status">
+              {message || (router.query.mp === "connected"
+                ? "Sua conta do Mercado Pago foi conectada com sucesso."
+                : "Não foi possível conectar a conta. Tente novamente.")}
+            </p>
+          )}
         </section>
 
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
