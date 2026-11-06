@@ -35,6 +35,7 @@ export function RoleBasedLayout({
   const { user } = useAuth();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
+  const isAdmin = user?.roles.includes("ADMIN") ?? false;
   const homeHref = area === "admin" ? "/admin" : area === "student" ? "/dashboard" : "/teacher";
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export function RoleBasedLayout({
   const shouldShowAds =
     area === "teacher" &&
     isTeacher &&
+    !isAdmin &&
     loadedEntitlements?.teacherId === user?.id &&
     loadedEntitlements?.entitlements.removesAds === false;
 
@@ -66,12 +68,12 @@ export function RoleBasedLayout({
             <BrandLogo href={homeHref} />
             <div className="flex items-center gap-2 sm:gap-3">
               {isTeacher && area === "admin" && (
-                <Link href="/teacher" className="hidden min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-sm font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:inline-flex">
+                <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">
                   Área do professor
                 </Link>
               )}
-              {user?.roles.includes("ADMIN") && area === "teacher" && (
-                <Link href="/admin" className="hidden min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-sm font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:inline-flex">
+              {isAdmin && area !== "admin" && (
+                <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">
                   <ShieldCheck size={16} aria-hidden="true" />
                   Administração
                 </Link>
