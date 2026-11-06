@@ -12,6 +12,18 @@ export interface MediaLibraryAsset {
   status: "APPROVED";
 }
 
+export interface MediaStorageUsage {
+  usageBytes: number;
+  limitBytes: number | null;
+  unlimited: boolean;
+  usagePercentage: number | null;
+}
+
+interface StorageUsageResponse {
+  success: true;
+  data: MediaStorageUsage;
+}
+
 interface ListMediaAssetsResponse {
   success: true;
   data: {
@@ -21,6 +33,11 @@ interface ListMediaAssetsResponse {
 }
 
 export const mediaLibraryService = {
+  async getStorageUsage(): Promise<MediaStorageUsage> {
+    const response = await api.get<StorageUsageResponse>("/activities/media-library/storage-usage");
+    return response.data.data;
+  },
+
   async list(search = ""): Promise<MediaLibraryAsset[]> {
     const response = await api.get<ListMediaAssetsResponse>("/activities/media-library", {
       params: { page: 1, limit: 24, search: search.trim() || undefined },
