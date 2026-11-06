@@ -4,6 +4,7 @@ export interface MediaLibraryAsset {
   id: string;
   storageKey: string;
   publicUrl: string;
+  thumbnailPublicUrl: string | null;
   fileName: string;
   contentType: string;
   sizeBytes: number;
