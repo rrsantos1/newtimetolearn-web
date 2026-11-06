@@ -10,17 +10,27 @@ export const marketplaceService = {
     const response = await api.get<MarketplaceDetailResponse>(`/marketplace/${encodeURIComponent(slug)}`);
     return response.data.data;
   },
-  async createProduct(input: { file: File; title: string; description: string; category: string; priceCents: number }, publisher: "teacher" | "admin" = "teacher") {
+  async createProduct(input: { title: string; description: string; category: string; priceCents: number; file?: File; externalUrl?: string }, publisher: "teacher" | "admin" = "teacher") {
     const endpoint = publisher === "admin" ? "/marketplace/admin/products" : "/marketplace/products";
-    const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, input.file, {
-      headers: {
-        "Content-Type": input.file.type,
-        "x-file-name": encodeURIComponent(input.file.name),
-        "x-marketplace-title": encodeURIComponent(input.title),
-        "x-marketplace-description": encodeURIComponent(input.description),
-        "x-marketplace-category": encodeURIComponent(input.category),
-        "x-marketplace-price-cents": String(input.priceCents),
-      },
+    if (input.file) {
+      const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, input.file, {
+        headers: {
+          "Content-Type": input.file.type,
+          "x-file-name": encodeURIComponent(input.file.name),
+          "x-marketplace-title": encodeURIComponent(input.title),
+          "x-marketplace-description": encodeURIComponent(input.description),
+          "x-marketplace-category": encodeURIComponent(input.category),
+          "x-marketplace-price-cents": String(input.priceCents),
+        },
+      });
+      return response.data.data;
+    }
+    const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, {
+      title: input.title,
+      description: input.description,
+      category: input.category,
+      priceCents: input.priceCents,
+      externalUrl: input.externalUrl,
     });
     return response.data.data;
   },
@@ -40,7 +50,7 @@ export const marketplaceService = {
     await api.patch("/marketplace/admin/" + encodeURIComponent(input.productId) + "/review", { approved: input.approved, note: input.note ?? "" });
   },
   async purchases() {
-    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; original_file_name: string; paid_at: string }> }>("/marketplace/me/purchases");
+    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; original_file_name: string | null; delivery_type: "FILE" | "EXTERNAL_URL"; external_url: string | null; paid_at: string }> }>("/marketplace/me/purchases");
     return response.data.data;
   },
   async download(orderId: string) {
