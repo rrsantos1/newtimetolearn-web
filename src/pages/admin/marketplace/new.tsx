@@ -1,5 +1,5 @@
-import NewMarketplaceProductPage from "@/pages/teacher/marketplace/new";
+import { MarketplaceProductFormPage } from "@/modules/marketplace/components/MarketplaceProductFormPage";
 
 export default function AdminNewMarketplaceProductPage() {
-  return <NewMarketplaceProductPage adminMode />;
+  return <MarketplaceProductFormPage adminMode />;
 }
