@@ -117,7 +117,7 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
               <li key={image.storageKey} className="rounded-xl border border-border p-3">
                 {imageUrl ? (
                   <div className="relative mb-3 aspect-video overflow-hidden rounded-lg bg-background">
-                    <Image src={imageUrl} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized className="object-contain" />
+                    <Image src={imageUrl} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
                   </div>
                 ) : (
                   <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">Configure NEXT_PUBLIC_B2_PUBLIC_BASE_URL para visualizar esta imagem após reabrir o Quiz.</p>
@@ -225,7 +225,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                       <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-dark">{question.statement || "Enunciado não preenchido."}</p>
                       {question.images.length > 0 && <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">{question.images.map((image, index) => {
                         const imageUrl = resolveImageUrl(image);
-                        return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl bg-background"><Image src={imageUrl} alt={image.altText || `Imagem do enunciado ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized className="object-contain" /></div> : null;
+                        return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl bg-background"><Image src={imageUrl} alt={image.altText || `Imagem do enunciado ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
                       })}</div>}
                       <ol className="mt-4 space-y-2">
                         {question.options.map((option, optionIndex) => (
@@ -234,7 +234,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                             {option.text?.trim() || (option.images?.length ? "Alternativa com imagem" : "Alternativa sem conteúdo")}
                             {option.images?.length > 0 && <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">{option.images.map((image, index) => {
                               const imageUrl = resolveImageUrl(image);
-                              return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `Imagem da alternativa ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" unoptimized className="object-contain" /></div> : null;
+                              return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `Imagem da alternativa ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
                             })}</div>}
                             {question.correctOptionId === option.id && <span className="ml-2 font-semibold">— Resposta correta</span>}
                           </li>
