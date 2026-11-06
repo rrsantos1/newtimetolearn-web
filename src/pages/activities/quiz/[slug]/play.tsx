@@ -9,7 +9,6 @@ import axios from "axios";
 import { ArrowLeft, CheckCircle2, Clock3, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
-import { RoleGuard } from "@/modules/auth/components/RoleGuard";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { getQuizService, type EditableQuizActivity } from "@/modules/activities/services/getQuizService";
 import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
@@ -193,7 +192,9 @@ export default function PlayQuizPage() {
         return;
       }
       try {
-        const result = await getQuizService.execute(slug);
+        const result = user
+          ? await getQuizService.execute(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableQuizActivity>(slug);
         if (cancelled) return;
         if (result.type !== "quiz") {
           setError("Esta atividade não é um Quiz.");
@@ -315,7 +316,7 @@ export default function PlayQuizPage() {
   const answeredCount = Object.keys(answers).length;
 
   return (
-    <RoleGuard allowedRoles={["ADMIN", "TEACHER", "STUDENT"]}>
+    
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
           <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
@@ -523,6 +524,6 @@ export default function PlayQuizPage() {
           ) : null}
         </main>
       </div>
-    </RoleGuard>
+
   );
 }
