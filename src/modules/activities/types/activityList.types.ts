@@ -46,6 +46,7 @@ export interface ListedActivity {
   status: ActivityStatus;
   visibility: ActivityVisibility;
   executionCount: number;
+  isFavorite: boolean;
   coverImageUrl: string | null;
   coverAltText: string | null;
   createdAt: string;
