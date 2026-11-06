@@ -5,7 +5,7 @@ import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCel
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
-import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import api from "@/lib/api";
 import { dragDropActivityService, type DragDropAttemptResult, type DragDropRankingEntry, type DragDropAnswer } from "@/modules/activities/services/dragDropActivityService";
@@ -93,10 +93,11 @@ export default function SentenceCompletionPlayPage() {
     let active = true;
     void (async () => {
       try {
-        const response = await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`);
+        const loaded = user
+          ? (await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (response.data.data.type !== "sentence_completion") throw new Error("Esta atividade não é do tipo Complete as Frases.");
-        const loaded = response.data.data;
+        if (loaded.type !== "sentence_completion") throw new Error("Esta atividade não é do tipo Complete as Frases.");
         setActivity(loaded);
         setWords(shuffle(loaded.version.content.words));
         if (isStudent) void loadRanking(loaded.slug);
@@ -194,7 +195,7 @@ export default function SentenceCompletionPlayPage() {
   }
 
   return (
-    <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={activity?.version.name ?? "Complete as frases"} description={activity?.version.description ?? "Preencha as lacunas usando o banco de palavras."}>
+    <PublicActivityLayout title={activity?.version.name ?? "Atividade"} description={activity?.version.description ?? "Experimente esta atividade."}>
       {loading ? <div role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</div> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : activity ? (
         <div className="space-y-5">
           <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Complete as frases</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 text-sm leading-6 text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
@@ -213,6 +214,6 @@ export default function SentenceCompletionPlayPage() {
           <div className="pt-2"><button type="button" onClick={() => void router.push("/student/activities")} className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark"><ArrowLeft size={16} aria-hidden="true" />Voltar às atividades</button></div>
         </div>
       ) : null}
-    </RoleBasedLayout>
+    </PublicActivityLayout>
   );
 }
