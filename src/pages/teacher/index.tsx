@@ -91,8 +91,8 @@ export default function TeacherPage() {
                   Publique apresentações e materiais didáticos para venda no Marketplace. Disponível para assinantes ativos, sujeito à aprovação administrativa.
                 </p>
                 <div className="mt-5 flex flex-col gap-2">
-                  <Link href="/teacher/marketplace/new" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                    Publicar material
+                  <Link href="/teacher/marketplace" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                    Gerenciar conteúdos
                     <ArrowRight size={16} aria-hidden="true" />
                   </Link>
                   <Link href="/marketplace" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
