@@ -31,6 +31,7 @@ function getErrorMessage(error: unknown): string {
 export default function TeacherStudentsPage() {
   const [relationships, setRelationships] = useState<TeacherStudentRelationship[]>([]);
   const [email, setEmail] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
@@ -115,6 +116,10 @@ export default function TeacherStudentsPage() {
   }
 
   const active = relationships.filter((item) => item.status === "ACTIVE");
+  const normalizedSearch = studentSearch.trim().toLocaleLowerCase("pt-BR");
+  const filteredActive = active.filter((item) =>
+    `${item.student.name} ${item.student.email}`.toLocaleLowerCase("pt-BR").includes(normalizedSearch)
+  );
   const pending = relationships.filter((item) => item.status === "PENDING");
   const history = relationships.filter((item) => item.status === "REJECTED" || item.status === "CANCELLED");
 
@@ -124,6 +129,7 @@ export default function TeacherStudentsPage() {
       allowedRoles={["TEACHER"]}
       title="Meus alunos"
       description="Convide alunos para acompanhar sua aprendizagem e organizar o caderno virtual."
+      backLinkPlacement="title"
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section className="space-y-6">
@@ -150,29 +156,49 @@ export default function TeacherStudentsPage() {
                 <p className="mt-1 text-sm text-muted">Envie um convite para começar.</p>
               </div>
             ) : (
-              <div className="mt-5 divide-y divide-border">
-                {active.map((relationship) => (
-                  <article key={relationship.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h3 className="font-semibold text-dark">{relationship.student.name}</h3>
-                      <p className="text-sm text-muted">{relationship.student.email}</p>
-                      <span className="mt-2 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Link
-                        href={`/teacher/students/${relationship.id}/notebook`}
-                        className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                        style={{ color: "var(--primary-foreground)" }}
-                      >
-                        Abrir caderno
-                      </Link>
-                      <button type="button" onClick={() => void handleEnd(relationship)} className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
-                        Encerrar vínculo
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <>
+                <div className="relative mt-5">
+                  <Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+                  <label htmlFor="search-linked-students" className="sr-only">Pesquisar alunos vinculados</label>
+                  <input
+                    id="search-linked-students"
+                    type="search"
+                    value={studentSearch}
+                    onChange={(event) => setStudentSearch(event.target.value)}
+                    placeholder="Pesquisar por nome ou e-mail..."
+                    className="min-h-11 w-full rounded-xl border border-border bg-white py-2 pl-10 pr-3 text-sm text-dark outline-none transition placeholder:text-muted focus:border-amber-500 focus:ring-4 focus:ring-amber-100"
+                  />
+                </div>
+                {filteredActive.length === 0 ? (
+                  <p className="mt-5 rounded-xl border border-dashed border-border p-5 text-center text-sm text-muted">
+                    Nenhum aluno encontrado para essa pesquisa.
+                  </p>
+                ) : (
+                  <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                    {filteredActive.map((relationship) => (
+                      <article key={relationship.id} className="flex flex-col justify-between gap-4 rounded-xl border border-border p-4 sm:flex-row sm:items-center">
+                        <div className="min-w-0">
+                          <h3 className="truncate font-semibold text-dark">{relationship.student.name}</h3>
+                          <p className="break-all text-sm text-muted">{relationship.student.email}</p>
+                          <span className="mt-2 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <Link
+                            href={`/teacher/students/${relationship.id}/notebook`}
+                            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            style={{ color: "var(--primary-foreground)" }}
+                          >
+                            Abrir caderno
+                          </Link>
+                          <button type="button" onClick={() => void handleEnd(relationship)} className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
+                            Encerrar vínculo
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
