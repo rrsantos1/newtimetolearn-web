@@ -34,7 +34,7 @@ export function PublicHeader() {
                   Administração
                 </Link>
               )}
-              <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 lg:inline">
+              <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">
                 {user.name}
               </span>
               <LogoutButton />
