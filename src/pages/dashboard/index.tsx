@@ -1,19 +1,49 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { BookOpen, GraduationCap, UserRound } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import Link from "next/link";
+import { TeacherAdSlot } from "@/components/ads/TeacherAdSlot";
+import { teacherSubscriptionService } from "@/modules/subscriptions/services/teacherSubscriptionService";
+import type { TeacherEntitlements } from "@/modules/subscriptions/types/teacherSubscription.types";
+
+interface LoadedTeacherEntitlements {
+  teacherId: string;
+  entitlements: TeacherEntitlements;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, sessionError } = useAuth();
+  const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
+  const isTeacher = user?.roles.includes("TEACHER") ?? false;
 
   useEffect(() => {
     if (!isLoading && !sessionError && !isAuthenticated) {
       void router.replace("/login");
     }
   }, [isLoading, sessionError, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isTeacher || !user?.id) return;
+
+    let active = true;
+    teacherSubscriptionService.getEntitlements()
+      .then((entitlements) => {
+        if (active) setLoadedEntitlements({ teacherId: user.id, entitlements });
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [isTeacher, user?.id]);
+
+  const shouldShowTeacherAd =
+    isTeacher &&
+    loadedEntitlements?.teacherId === user?.id &&
+    loadedEntitlements?.entitlements.removesAds === false;
 
   if (isLoading || sessionError || !isAuthenticated || !user) {
     return null;
@@ -101,6 +131,7 @@ export default function DashboardPage() {
             </Link>
         </div>
       </section>
+      {shouldShowTeacherAd && <TeacherAdSlot placement="teacher-bottom" />}
     </AuthenticatedLayout>
   );
 }
