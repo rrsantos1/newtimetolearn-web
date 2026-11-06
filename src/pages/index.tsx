@@ -11,6 +11,11 @@ import {
 } from "lucide-react";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useEffect, useState } from "react";
+import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
+import { listPublicActivitiesService } from "@/modules/activities/services/listPublicActivitiesService";
+import type { ListedActivity } from "@/modules/activities/types/activityList.types";
+import { Gamepad2 } from "lucide-react";
 
 const features = [
   {
@@ -40,6 +45,28 @@ const activityTypes = [
 ];
 
 export default function Home() {
+  const [publicActivities, setPublicActivities] = useState<ListedActivity[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    listPublicActivitiesService.execute({ page: 1, limit: 6 })
+      .then((result) => { if (!cancelled) setPublicActivities(result.items); })
+      .catch(() => { if (!cancelled) setPublicActivities([]); });
+    return () => { cancelled = true; };
+  }, []);
+
+  function getPlayHref(activity: ListedActivity): string {
+    const slug = encodeURIComponent(activity.slug);
+    if (activity.type === "quiz") return `/activities/quiz/${slug}/play`;
+    if (activity.type === "crossword") return `/activities/crossword/${slug}/play`;
+    if (activity.type === "memory") return `/activities/memory/${slug}/play`;
+    if (activity.type === "listening") return `/activities/listening/${slug}/play`;
+    if (activity.type === "multiple_choice") return `/activities/multiple-choice/${slug}/play`;
+    if (activity.type === "word_matching") return `/activities/word-matching/${slug}/play`;
+    if (activity.type === "sentence_completion") return `/activities/sentence-completion/${slug}/play`;
+    return `/activities/word-search/${slug}/play`;
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-background">
       <PublicHeader />
@@ -158,6 +185,30 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+
+      {publicActivities.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
+            <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
+            <p className="mt-4 text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {publicActivities.map((activity) => (
+              <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-sm">
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? activity.latestVersion?.name} />
+                <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted">{activity.type.replaceAll("_", " ")}</p>
+                <h3 className="mt-2 text-lg font-bold text-dark">{activity.latestVersion?.name ?? activity.publishedVersion?.name ?? "Atividade"}</h3>
+                {activity.latestVersion?.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
+                <Link href={getPlayHref(activity)} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-4 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                  <Gamepad2 size={16} aria-hidden="true" /> Experimentar atividade
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="bg-[#142b4a]">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
