@@ -79,7 +79,7 @@ export default function Home() {
 
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-10 lg:py-16">
           <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/[0.06] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
               Aprender inglês pode ser uma experiência
             </span>
@@ -107,7 +107,7 @@ export default function Home() {
 
               <Link
                 href="/about"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#244a7c]/20 bg-white px-6 font-semibold text-primary transition hover:bg-[#244a7c]/[0.05] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#244a7c]/20 bg-white px-6 font-semibold text-primary transition hover:bg-[#244a7c]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 Conheça a plataforma
               </Link>
@@ -174,7 +174,7 @@ export default function Home() {
                 className={
                   index === 1
                     ? "flex size-12 items-center justify-center rounded-2xl bg-accent-soft text-accent"
-                    : "flex size-12 items-center justify-center rounded-2xl bg-[#244a7c]/[0.08] text-primary"
+                    : "flex size-12 items-center justify-center rounded-2xl bg-[#244a7c]/8 text-primary"
                 }
               >
                 <Icon size={24} aria-hidden="true" />
@@ -201,7 +201,7 @@ export default function Home() {
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted">{activity.type.replaceAll("_", " ")}</p>
                 <h3 className="mt-2 text-lg font-bold text-dark">{activity.latestVersion?.name ?? activity.publishedVersion?.name ?? "Atividade"}</h3>
                 {activity.latestVersion?.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
-                <Link href={getPlayHref(activity)} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-4 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                <Link href={getPlayHref(activity)} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-4 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Gamepad2 size={16} aria-hidden="true" /> Experimentar atividade
                 </Link>
               </article>
