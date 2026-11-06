@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardCheck, Settings, ShieldCheck, Users, Images } from "lucide-react";
+import { ClipboardCheck, Settings, ShieldCheck, Users, Images, ShoppingBag } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 
 const features = [
@@ -14,6 +14,12 @@ const features = [
     description: "Analise imagens em quarentena e aprove ou rejeite o envio para a biblioteca pública.",
     icon: Images,
     href: "/admin/media-review",
+  },
+  {
+    title: "Marketplace",
+    description: "Cadastre materiais próprios, gerencie publicações e revise os materiais enviados pelos professores.",
+    icon: ShoppingBag,
+    href: "/admin/marketplace",
   },
   {
     title: "Usuários",
@@ -69,7 +75,9 @@ export default function AdminPage() {
                   ? "Revisar imagens"
                   : href === "/admin/settings"
                     ? "Abrir configurações"
-                    : "Revisar atividades"}
+                    : href === "/admin/marketplace"
+                      ? "Gerenciar Marketplace"
+                      : "Revisar atividades"}
               </Link>
             ) : (
               <span className="mt-4 inline-block text-xs font-medium text-muted">
