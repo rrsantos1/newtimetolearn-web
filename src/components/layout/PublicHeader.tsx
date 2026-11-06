@@ -25,12 +25,6 @@ export function PublicHeader() {
 
           {user ? (
             <>
-              <Link
-                href="/dashboard"
-                className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4 sm:text-sm"
-              >
-                Minha área
-              </Link>
               {isAdmin && (
                 <Link
                   href="/admin"
