@@ -10,7 +10,7 @@ import {marketplaceService} from "@/modules/marketplace/services/marketplaceServ
 interface Values{title:string;description:string;category:string;price:string;file:File|null;}
 const schema=Yup.object({
  title:Yup.string().trim().min(3,"Informe pelo menos 3 caracteres.").max(180).required("Informe o título."),
- description:Yup.string().trim().min(10,"Descreva melhor o material.").max(5000).required("Informe a descrição."),
+ description:Yup.string().trim().min(10,"Descreva melhor o material.").max(1000).required("Informe a descrição."),
  category:Yup.string().required("Selecione uma categoria."),
  price:Yup.number().typeError("Informe um valor válido.").min(1,"O valor mínimo é R$ 1,00.").max(10000).required("Informe o preço."),
  file:Yup.mixed<File>().required("Selecione um arquivo PDF, PPT ou PPTX."),
