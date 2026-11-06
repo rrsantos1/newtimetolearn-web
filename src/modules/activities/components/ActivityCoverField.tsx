@@ -10,6 +10,7 @@ import { generateActivityCoverService } from "@/modules/activities/services/gene
 interface SelectedCover {
   id: string;
   publicUrl: string;
+  thumbnailPublicUrl?: string | null;
   altText: string;
 }
 
@@ -68,7 +69,7 @@ export function ActivityCoverField() {
   }
 
   function selectLibraryAsset(asset: MediaLibraryAsset): void {
-    selectCover({ id: asset.id, publicUrl: asset.publicUrl, altText: asset.altText });
+    selectCover({ id: asset.id, publicUrl: asset.publicUrl, thumbnailPublicUrl: asset.thumbnailPublicUrl, altText: asset.altText });
   }
 
   async function handleUpload(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
@@ -79,7 +80,7 @@ export function ActivityCoverField() {
     setError("");
     try {
       const uploaded = await uploadMediaImageService.execute(file, "Capa da atividade");
-      selectCover({ id: uploaded.id, publicUrl: uploaded.publicUrl, altText: uploaded.altText });
+      selectCover({ id: uploaded.id, publicUrl: uploaded.publicUrl, thumbnailPublicUrl: uploaded.thumbnailPublicUrl, altText: uploaded.altText });
     } catch (uploadError: unknown) {
       setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar a imagem.");
     }
@@ -154,7 +155,7 @@ export function ActivityCoverField() {
       {visibleCover && (
         <div className="mb-4 max-w-xl">
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
-            <Image src={visibleCover.publicUrl} alt={visibleCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
+            <Image src={visibleCover.thumbnailPublicUrl ?? visibleCover.publicUrl} alt={visibleCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={clearCover} disabled={isSubmitting} className={`${buttonClass} mt-3 text-red-700`}>
             <Trash2 size={16} aria-hidden="true" /> Remover capa
