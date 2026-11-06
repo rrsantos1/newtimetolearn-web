@@ -6,12 +6,14 @@ import {PublicHeader} from "@/components/layout/PublicHeader";
 import {PublicFooter} from "@/components/layout/PublicFooter";
 import {marketplaceService} from "@/modules/marketplace/services/marketplaceService";
 import type {MarketplaceProduct} from "@/modules/marketplace/types/marketplace.types";
+type MarketplaceListState={query:string;items:MarketplaceProduct[];error:string;};
 export default function MarketplacePage(){
- const [items,setItems]=useState<MarketplaceProduct[]>([]);
  const [query,setQuery]=useState("");
- const [loading,setLoading]=useState(true);
- const [error,setError]=useState("");
- useEffect(()=>{let active=true;setLoading(true);marketplaceService.list({q:query,page:1,limit:24}).then(result=>{if(active)setItems(result.items);}).catch(()=>{if(active)setError("Não foi possível carregar os materiais.");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[query]);
+ const [listState,setListState]=useState<MarketplaceListState|null>(null);
+ const loading=listState?.query!==query;
+ const items=listState?.query===query?listState.items:[];
+ const error=listState?.query===query?listState.error:"";
+ useEffect(()=>{let active=true;const loadItems=async():Promise<void>=>{try{const result=await marketplaceService.list({q:query,page:1,limit:24});if(active)setListState({query,items:result.items,error:""});}catch{if(active)setListState({query,items:[],error:"Não foi possível carregar os materiais."});}};void loadItems();return()=>{active=false;};},[query]);
  return <main className="min-h-screen bg-background"><Head><title>Marketplace | TimeToLearn</title><meta name="description" content="Apresentações e materiais didáticos para suas aulas." /></Head><PublicHeader/><section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
  <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Materiais didáticos</p><h1 className="mt-2 text-3xl font-extrabold text-dark sm:text-4xl">Marketplace</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted">Apresentações e recursos preparados por professores. Confira todas as páginas antes de adquirir.</p></div><div className="flex flex-wrap gap-4 text-sm font-semibold"><Link href="/marketplace/purchases" className="text-primary hover:underline">Minhas compras</Link><Link href="/teacher/marketplace/new" className="text-primary hover:underline">Vender material</Link><Link href="/" className="text-primary hover:underline">Voltar ao início</Link></div></div>
  <label htmlFor="marketplace-search" className="mt-8 block text-sm font-semibold text-dark">Buscar materiais</label><input id="marketplace-search" value={query} onChange={event=>setQuery(event.target.value)} placeholder="Digite um título ou assunto" className="mt-2 min-h-12 w-full max-w-xl rounded-xl border border-border bg-white px-4 text-sm text-dark outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"/>
