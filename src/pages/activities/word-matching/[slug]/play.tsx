@@ -6,7 +6,7 @@ import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCel
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
-import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { dragDropActivityService, type DragDropAttemptResult, type DragDropRankingEntry } from "@/modules/activities/services/dragDropActivityService";
 import type { DragDropAnswer } from "@/modules/activities/services/dragDropActivityService";
@@ -100,10 +100,11 @@ export default function WordMatchingPlayPage() {
     let active = true;
     void (async () => {
       try {
-        const response = await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`);
+        const loaded = user
+          ? (await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (response.data.data.type !== "word_matching") throw new Error("Esta atividade não é uma Associação de Palavras.");
-        const loaded = response.data.data;
+        if (loaded.type !== "word_matching") throw new Error("Esta atividade não é uma Associação de Palavras.");
         const normalized = loaded.version.content.pairs.map((pair, index) => ({
           source: { ...pair.source, id: pair.source.id ?? `preview-source-${pair.id ?? index}` } as DragItem,
           target: { ...pair.target, id: pair.target.id ?? `preview-target-${pair.id ?? index}` } as DragItem,
@@ -182,7 +183,7 @@ export default function WordMatchingPlayPage() {
   }
 
   return (
-    <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={activity?.version.name ?? "Associação de palavras"} description={activity?.version.description ?? "Arraste cada palavra até sua correspondência."}>
+    <PublicActivityLayout title={activity?.version.name ?? "Atividade"} description={activity?.version.description ?? "Experimente esta atividade."}>
       {loading ? <div role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</div> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : activity ? (
         <div className="space-y-5">
           <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Associação de palavras</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 text-sm leading-6 text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
@@ -200,6 +201,6 @@ export default function WordMatchingPlayPage() {
           <div className="pt-2"><button type="button" onClick={() => void router.push("/student/activities")} className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark"><ArrowLeft size={16} aria-hidden="true" />Voltar às atividades</button></div>
         </div>
       ) : null}
-    </RoleBasedLayout>
+    </PublicActivityLayout>
   );
 }
