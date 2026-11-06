@@ -3,11 +3,13 @@ import Link from "next/link";
 import axios from "axios";
 import {
   AlertCircle,
-  ArrowLeft,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
+  Search,
+  SlidersHorizontal,
+  Heart,
   Clock3,
   Gamepad2,
   History,
@@ -22,6 +24,8 @@ import { deleteActivityService } from "@/modules/activities/services/deleteActiv
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
+import { favoriteActivityService } from "@/modules/activities/services/favoriteActivityService";
+import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 import type {
   ActivityListData,
   ListedActivity,
@@ -189,6 +193,10 @@ function getActivityName(activity: ListedActivity): string {
 export default function TeacherActivitiesPage() {
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("ALL");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -204,7 +212,12 @@ export default function TeacherActivitiesPage() {
     let cancelled = false;
 
     listActivitiesService
-      .execute(page, 9)
+      .execute(page, 9, "mine", {
+        ...(search.trim() ? { search: search.trim() } : {}),
+        ...(typeFilter !== "ALL" ? { type: typeFilter as ListedActivity["type"] } : {}),
+        ...(difficultyFilter !== "ALL" ? { difficulty: difficultyFilter as "EASY" | "MEDIUM" | "HARD" } : {}),
+        ...(favoritesOnly ? { favoritesOnly: true } : {}),
+      })
       .then((data) => {
         if (cancelled) return;
 
@@ -225,7 +238,7 @@ export default function TeacherActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, reloadKey]);
+  }, [page, reloadKey, search, typeFilter, difficultyFilter, favoritesOnly]);
 
   async function handleSubmitForApproval(activity: ListedActivity): Promise<void> {
     if (submittingSlug || activity.latestVersion?.status !== "DRAFT") {
@@ -304,18 +317,11 @@ export default function TeacherActivitiesPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
+      backLinkPlacement="title"
       title="Minhas atividades"
       description="Consulte suas atividades, acompanhe o status de aprovação e gerencie seus materiais pedagógicos."
     >
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Link
-          href="/teacher"
-          className="inline-flex min-h-10 items-center gap-2 self-start text-sm font-medium text-muted transition hover:text-dark"
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          Área do professor
-        </Link>
-
+      <div className="mb-6 flex justify-end">
         <Link
           href={CREATE_ACTIVITY_ROUTE}
           className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
@@ -324,6 +330,16 @@ export default function TeacherActivitiesPage() {
           Criar atividade
         </Link>
       </div>
+
+      <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades</div>
+        <div className="grid gap-3 md:grid-cols-4">
+          <label className="relative block md:col-span-1"><span className="sr-only">Buscar por título ou descrição</span><Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" /><input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Buscar atividade..." className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/15" /></label>
+          <label><span className="sr-only">Filtrar por tipo</span><select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark"><option value="ALL">Todos os tipos</option>{Object.entries(activityTypeLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label><span className="sr-only">Filtrar por dificuldade</span><select value={difficultyFilter} onChange={(event) => { setDifficultyFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark"><option value="ALL">Todas as dificuldades</option><option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option></select></label>
+          <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 text-sm font-medium text-dark"><input type="checkbox" checked={favoritesOnly} onChange={(event) => { setFavoritesOnly(event.target.checked); setPage(1); }} className="size-4 accent-current" /> Somente favoritas</label>
+        </div>
+      </section>
 
       {successMessage && (
         <div
@@ -493,6 +509,7 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
+                    <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error)); } }} aria-label={activity.isFavorite ? `Remover ${getActivityName(activity)} dos favoritos` : `Favoritar ${getActivityName(activity)}`} title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
                     {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
