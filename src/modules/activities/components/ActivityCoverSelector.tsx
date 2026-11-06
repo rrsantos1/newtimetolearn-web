@@ -9,6 +9,7 @@ import { generateActivityCoverService } from "@/modules/activities/services/gene
 export interface ActivityCoverSelection {
   id: string;
   publicUrl: string;
+  thumbnailPublicUrl?: string | null;
   altText: string;
 }
 
@@ -36,7 +37,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
   }
 
   function selectLibraryAsset(asset: MediaLibraryAsset): void {
-    select({ id: asset.id, publicUrl: asset.publicUrl, altText: asset.altText });
+    select({ id: asset.id, publicUrl: asset.publicUrl, thumbnailPublicUrl: asset.thumbnailPublicUrl, altText: asset.altText });
   }
 
   async function handleUpload(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
@@ -46,7 +47,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
     setError("");
     try {
       const uploaded = await uploadMediaImageService.execute(file, "Capa da atividade");
-      select({ id: uploaded.id, publicUrl: uploaded.publicUrl, altText: uploaded.altText });
+      select({ id: uploaded.id, publicUrl: uploaded.publicUrl, thumbnailPublicUrl: uploaded.thumbnailPublicUrl, altText: uploaded.altText });
     } catch (uploadError: unknown) {
       setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar a imagem.");
     }
@@ -95,7 +96,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
       {value && (
         <div className="mb-4 max-w-xl">
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
-            <Image src={value.publicUrl} alt={value.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
+            <Image src={value.thumbnailPublicUrl ?? value.publicUrl} alt={value.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={() => onChange(null)} disabled={disabled} className={`${buttonClass} mt-3 text-red-700`}>
             <Trash2 size={16} aria-hidden="true" /> Remover capa
