@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LoaderCircle, Play } from "lucide-react";
-import { downloadNotebookAttachment } from "../services/notebookService";
+import { getNotebookAttachmentUrl } from "../services/notebookService";
 
 interface NotebookAttachmentVideoProps {
   relationshipId: string;
@@ -23,8 +23,8 @@ export function NotebookAttachmentVideo({
     setIsLoading(true);
     setHasError(false);
     try {
-      const blob = await downloadNotebookAttachment(relationshipId, entryId, 360_000);
-      setSrc(URL.createObjectURL(blob));
+      const downloadUrl = await getNotebookAttachmentUrl(relationshipId, entryId);
+      setSrc(downloadUrl);
     } catch {
       setHasError(true);
     } finally {
@@ -36,7 +36,7 @@ export function NotebookAttachmentVideo({
     <div className="w-full">
       {hasError && (
         <p role="alert" className="mb-2 rounded-lg bg-red-50 p-3 text-xs text-red-700">
-          Não foi possível carregar este vídeo. Tente novamente.
+          Não foi possível preparar este vídeo. Tente novamente.
         </p>
       )}
 
@@ -62,12 +62,12 @@ export function NotebookAttachmentVideo({
           {isLoading ? (
             <>
               <LoaderCircle size={22} className="animate-spin" aria-hidden="true" />
-              Carregando vídeo...
+              Preparando vídeo...
             </>
           ) : (
             <>
               <Play size={24} aria-hidden="true" />
-              {hasError ? "Tentar carregar vídeo novamente" : "Carregar e reproduzir vídeo"}
+              {hasError ? "Tentar carregar vídeo novamente" : "Reproduzir vídeo"}
             </>
           )}
         </button>
