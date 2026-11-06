@@ -34,10 +34,11 @@ export function RoleBasedLayout({
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
+  const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const homeHref = area === "admin" ? "/admin" : area === "student" ? "/dashboard" : "/teacher";
 
   useEffect(() => {
-    if (area !== "teacher" || !user?.roles.includes("TEACHER")) return;
+    if (area !== "teacher" || !isTeacher || !user?.id) return;
 
     let active = true;
     teacherSubscriptionService.getEntitlements()
@@ -49,12 +50,12 @@ export function RoleBasedLayout({
     return () => {
       active = false;
     };
-  }, [area, user?.id]);
+  }, [area, isTeacher, user?.id]);
 
   const shouldShowAds =
     area === "teacher" &&
-    user?.roles.includes("TEACHER") === true &&
-    loadedEntitlements?.teacherId === user.id &&
+    isTeacher &&
+    loadedEntitlements?.teacherId === user?.id &&
     !loadedEntitlements.entitlements.removesAds;
 
   return (
@@ -64,7 +65,7 @@ export function RoleBasedLayout({
           <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
             <BrandLogo href={homeHref} />
             <div className="flex items-center gap-2 sm:gap-3">
-              {user?.roles.includes("TEACHER") && area === "admin" && (
+              {isTeacher && area === "admin" && (
                 <Link href="/teacher" className="hidden min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-sm font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:inline-flex">
                   Área do professor
                 </Link>
