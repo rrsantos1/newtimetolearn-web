@@ -72,7 +72,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
                   <button type="button" onClick={() => { onSelect(asset); setOpen(false); }}
                     className="w-full rounded-xl border border-border p-3 text-left transition hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                     <div className="relative aspect-video overflow-hidden rounded-lg bg-background">
-                      <Image src={asset.publicUrl} alt={asset.altText || asset.fileName} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
+                      <Image src={asset.thumbnailPublicUrl ?? asset.publicUrl} alt={asset.altText || asset.fileName} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
                     </div>
                     <span className="mt-2 block truncate text-sm font-semibold text-dark">{asset.fileName}</span>
                     {asset.altText && <span className="mt-1 block truncate text-xs text-muted">{asset.altText}</span>}
