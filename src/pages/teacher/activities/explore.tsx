@@ -10,11 +10,13 @@ import {
   ChevronRight,
   Clock3,
   Gamepad2,
+  Heart,
   Search,
   SlidersHorizontal,
 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
+import { favoriteActivityService } from "@/modules/activities/services/favoriteActivityService";
 import type {
   ActivityDifficulty,
   ActivityType,
@@ -76,6 +78,8 @@ export default function ExploreActivitiesPage() {
   const [difficultyFilter, setDifficultyFilter] = useState<
     ActivityDifficulty | "ALL"
   >("ALL");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [favoriteActionSlug, setFavoriteActionSlug] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [loadedRequestKey, setLoadedRequestKey] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -86,6 +90,7 @@ export default function ExploreActivitiesPage() {
     search: search.trim(),
     typeFilter,
     difficultyFilter,
+    favoritesOnly,
     reloadKey,
   });
   const isLoading = loadedRequestKey !== requestKey;
@@ -98,6 +103,7 @@ export default function ExploreActivitiesPage() {
         ...(search.trim() ? { search: search.trim() } : {}),
         ...(typeFilter !== "ALL" ? { type: typeFilter } : {}),
         ...(difficultyFilter !== "ALL" ? { difficulty: difficultyFilter } : {}),
+        ...(favoritesOnly ? { favoritesOnly: true } : {}),
       })
       .then((data) => {
         if (cancelled) return;
@@ -114,25 +120,16 @@ export default function ExploreActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, typeFilter, difficultyFilter, reloadKey, requestKey]);
+  }, [page, search, typeFilter, difficultyFilter, favoritesOnly, reloadKey, requestKey]);
 
   return (
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
+      backLinkPlacement="title"
       title="Biblioteca de atividades"
       description="Explore atividades publicadas por outros professores e encontre materiais para usar com seus alunos."
     >
-      <div className="mb-6">
-        <Link
-          href="/teacher"
-          className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          Área do professor
-        </Link>
-      </div>
-
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark">
           <SlidersHorizontal size={17} aria-hidden="true" />
@@ -199,6 +196,18 @@ export default function ExploreActivitiesPage() {
             </select>
           </label>
         </div>
+        <label className="mt-3 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-dark">
+          <input
+            type="checkbox"
+            checked={favoritesOnly}
+            onChange={(event) => {
+              setFavoritesOnly(event.target.checked);
+              setPage(1);
+            }}
+            className="size-4 accent-current"
+          />
+          Somente atividades favoritas
+        </label>
       </section>
 
       {errorMessage && (
@@ -235,17 +244,18 @@ export default function ExploreActivitiesPage() {
             Nenhuma atividade encontrada
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            {search || typeFilter !== "ALL" || difficultyFilter !== "ALL"
+            {search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly
               ? "Tente alterar os termos da busca ou os filtros selecionados."
               : "Quando outros professores publicarem atividades elegíveis para compartilhamento, elas aparecerão aqui."}
           </p>
-          {(search || typeFilter !== "ALL" || difficultyFilter !== "ALL") && (
+          {(search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly) && (
             <button
               type="button"
               onClick={() => {
                 setSearch("");
                 setTypeFilter("ALL");
                 setDifficultyFilter("ALL");
+                setFavoritesOnly(false);
                 setPage(1);
               }}
               className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background"
@@ -323,6 +333,43 @@ export default function ExploreActivitiesPage() {
                     {activity.executionCount === 1 ? "execução" : "execuções"}
                   </span>
 
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={favoriteActionSlug === activity.slug}
+                      onClick={async () => {
+                        const nextFavorite = !activity.isFavorite;
+                        setFavoriteActionSlug(activity.slug);
+                        try {
+                          await favoriteActivityService.set(activity.slug, nextFavorite);
+                          setResult((current) => current
+                            ? {
+                                ...current,
+                                items: current.items.map((item) =>
+                                  item.slug === activity.slug
+                                    ? { ...item, isFavorite: nextFavorite }
+                                    : item,
+                                ),
+                              }
+                            : current);
+                          if (favoritesOnly && !nextFavorite) {
+                            setReloadKey((current) => current + 1);
+                          }
+                        } catch (error: unknown) {
+                          setErrorMessage(getErrorMessage(error));
+                        } finally {
+                          setFavoriteActionSlug(null);
+                        }
+                      }}
+                      aria-label={activity.isFavorite
+                        ? `Remover ${getActivityName(activity)} dos favoritos`
+                        : `Favoritar ${getActivityName(activity)}`}
+                      title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                      className={`inline-flex size-10 items-center justify-center rounded-lg border border-border transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-50 ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}
+                    >
+                      <Heart size={17} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" />
+                    </button>
+
                   {activity.type === "word_search" ? (
                     <Link
                       href={`/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
@@ -373,6 +420,7 @@ export default function ExploreActivitiesPage() {
                       Execução em breve
                     </span>
                   )}
+                  </div>
                 </div>
               </article>
             ))}
