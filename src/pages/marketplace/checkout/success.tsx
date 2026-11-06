@@ -1,0 +1,7 @@
+import Link from "next/link";
+import Head from "next/head";
+import {PublicHeader} from "@/components/layout/PublicHeader";
+import {PublicFooter} from "@/components/layout/PublicFooter";
+export default function MarketplaceCheckoutSuccessPage(){
+ return <main className="min-h-screen bg-background"><Head><title>Pagamento recebido | TimeToLearn</title></Head><PublicHeader/><section className="mx-auto max-w-2xl px-5 py-20 text-center"><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Marketplace</p><h1 className="mt-3 text-3xl font-extrabold text-dark">Pagamento em processamento</h1><p className="mt-4 text-sm leading-7 text-muted">Estamos aguardando a confirmação do Mercado Pago. Quando o pagamento for aprovado, a compra ficará disponível em Minhas compras. Se você comprou como visitante, crie ou acesse uma conta usando o mesmo e-mail informado na compra e confirme esse endereço para vincular o material.</p><div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/marketplace/purchases" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white">Ver minhas compras</Link><Link href="/marketplace" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border bg-white px-5 text-sm font-semibold text-dark">Voltar ao Marketplace</Link></div></section><PublicFooter/></main>;
+}
