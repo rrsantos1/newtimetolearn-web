@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, ClipboardList, Plus, Search, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardList, CreditCard, Plus, Search, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import Link from "next/link";
 
@@ -17,6 +17,11 @@ const features = [
     title: "Alunos",
     description: "Gerencie seus vínculos e acesse o caderno virtual de cada aluno.",
     icon: Users,
+  },
+  {
+    title: "Plano e assinatura",
+    description: "Consulte seus limites, benefícios e gerencie sua assinatura.",
+    icon: CreditCard,
   },
 ];
 
@@ -71,6 +76,22 @@ export default function TeacherPage() {
                     Criar atividade
                   </Link>
                 </div>
+              </article>
+            );
+          }
+
+          if (title === "Plano e assinatura") {
+            return (
+              <article key={title} className="rounded-2xl border border-border bg-surface p-6 shadow-sm transition hover:border-accent/40 hover:shadow-md">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon size={22} aria-hidden="true" />
+                </span>
+                <h2 className="mt-5 font-semibold text-dark">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+                <Link href="/teacher/subscription" className="mt-5 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                  Gerenciar assinatura
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
               </article>
             );
           }
