@@ -7,6 +7,7 @@ export interface UploadedMediaImage {
   id: string;
   storageKey: string;
   publicUrl: string;
+  thumbnailPublicUrl: string | null;
   fileName: string;
   contentType: string;
   sizeBytes: number;
@@ -50,6 +51,7 @@ export const uploadMediaImageService = {
       id: response.data.data.id,
       storageKey: response.data.data.storageKey,
       publicUrl: response.data.data.publicUrl,
+      thumbnailPublicUrl: response.data.data.thumbnailPublicUrl ?? null,
       fileName: file.name,
       contentType: file.type,
       sizeBytes: file.size,
