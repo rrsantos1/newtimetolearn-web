@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { Mail, RefreshCw, Search, Users } from "lucide-react";
+import { BookOpen, Mail, RefreshCw, Search, UserMinus, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import {
   cancelInvitation,
@@ -176,22 +176,30 @@ export default function TeacherStudentsPage() {
                 ) : (
                   <div className="mt-5 grid gap-3 lg:grid-cols-2">
                     {filteredActive.map((relationship) => (
-                      <article key={relationship.id} className="flex flex-col justify-between gap-4 rounded-xl border border-border p-4 sm:flex-row sm:items-center">
+                      <article key={relationship.id} className="flex min-w-0 flex-col gap-4 rounded-xl border border-border p-4">
                         <div className="min-w-0">
-                          <h3 className="truncate font-semibold text-dark">{relationship.student.name}</h3>
-                          <p className="break-all text-sm text-muted">{relationship.student.email}</p>
-                          <span className="mt-2 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
+                          <h3 className="break-words font-semibold text-dark">{relationship.student.name}</h3>
+                          <p className="mt-1 break-all text-sm text-muted">{relationship.student.email}</p>
+                          <span className="mt-3 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
                         </div>
-                        <div className="flex shrink-0 flex-wrap gap-2">
+                        <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
                           <Link
                             href={`/teacher/students/${relationship.id}/notebook`}
-                            className="inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            aria-label={`Abrir caderno de ${relationship.student.name}`}
+                            title="Abrir caderno"
+                            className="inline-flex size-11 items-center justify-center rounded-lg bg-primary text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             style={{ color: "var(--primary-foreground)" }}
                           >
-                            Abrir caderno
+                            <BookOpen size={19} aria-hidden="true" />
                           </Link>
-                          <button type="button" onClick={() => void handleEnd(relationship)} className="min-h-10 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600">
-                            Encerrar vínculo
+                          <button
+                            type="button"
+                            onClick={() => void handleEnd(relationship)}
+                            aria-label={`Encerrar vínculo com ${relationship.student.name}`}
+                            title="Encerrar vínculo"
+                            className="inline-flex size-11 items-center justify-center rounded-lg border border-border text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+                          >
+                            <UserMinus size={19} aria-hidden="true" />
                           </button>
                         </div>
                       </article>
