@@ -10,8 +10,9 @@ export const marketplaceService = {
     const response = await api.get<MarketplaceDetailResponse>(`/marketplace/${encodeURIComponent(slug)}`);
     return response.data.data;
   },
-  async createProduct(input: { file: File; title: string; description: string; category: string; priceCents: number }) {
-    const response = await api.post<{ success: true; data: { id: string; status: string } }>("/marketplace/products", input.file, {
+  async createProduct(input: { file: File; title: string; description: string; category: string; priceCents: number }, publisher: "teacher" | "admin" = "teacher") {
+    const endpoint = publisher === "admin" ? "/marketplace/admin/products" : "/marketplace/products";
+    const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, input.file, {
       headers: {
         "Content-Type": input.file.type,
         "x-file-name": encodeURIComponent(input.file.name),
