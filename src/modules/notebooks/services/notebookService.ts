@@ -63,10 +63,14 @@ export async function createNotebookAttachment(
   return response.data.data;
 }
 
-export async function downloadNotebookAttachment(relationshipId: string, entryId: string): Promise<Blob> {
+export async function downloadNotebookAttachment(
+  relationshipId: string,
+  entryId: string,
+  timeoutMs = 60_000,
+): Promise<Blob> {
   const response = await api.get<Blob>(
     `/notebooks/${relationshipId}/entries/${entryId}/file`,
-    { responseType: "blob" },
+    { responseType: "blob", timeout: timeoutMs },
   );
   return response.data;
 }
