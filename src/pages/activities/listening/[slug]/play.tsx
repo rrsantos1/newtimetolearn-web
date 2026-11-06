@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, Clock3, Headphones, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
-import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import type {
@@ -155,7 +155,9 @@ export default function PlayListeningPage() {
     async function loadActivity(): Promise<void> {
       try {
         if (!slug) throw new Error("Não foi possível identificar a atividade.");
-        const loaded = await listeningService.getExecution(slug);
+        const loaded = user
+          ? await listeningService.getExecution(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ListeningExecutionActivity>(slug);
         if (cancelled) return;
         if (loaded.type !== "listening") throw new Error("Esta atividade não é do tipo Listening.");
         if (loaded.version.content.passages.length === 0) throw new Error("Esta atividade ainda não possui textos.");
@@ -247,7 +249,7 @@ export default function PlayListeningPage() {
   }
 
   return (
-    <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={activity?.version.name ?? "Listening"} description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}>
+    <PublicActivityLayout title={activity?.version.name ?? "Listening"} description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}>
       <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -383,6 +385,6 @@ export default function PlayListeningPage() {
           </>
         ) : null}
       </div>
-    </RoleBasedLayout>
+    </PublicActivityLayout>
   );
 }
