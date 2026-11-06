@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const { user, isAuthenticated, isLoading, sessionError } = useAuth();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
+  const isAdmin = user?.roles.includes("ADMIN") ?? false;
 
   useEffect(() => {
     if (!isLoading && !sessionError && !isAuthenticated) {
@@ -26,7 +27,7 @@ export default function DashboardPage() {
   }, [isLoading, sessionError, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!isTeacher || !user?.id) return;
+    if (!isTeacher || isAdmin || !user?.id) return;
 
     let active = true;
     teacherSubscriptionService.getEntitlements()
@@ -38,10 +39,11 @@ export default function DashboardPage() {
     return () => {
       active = false;
     };
-  }, [isTeacher, user?.id]);
+  }, [isTeacher, isAdmin, user?.id]);
 
   const shouldShowTeacherAd =
     isTeacher &&
+    !isAdmin &&
     loadedEntitlements?.teacherId === user?.id &&
     loadedEntitlements?.entitlements.removesAds === false;
 
@@ -73,62 +75,53 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
-      
+
       <section className="mt-8">
         <h2 className="text-lg font-semibold text-dark">
-            Acesso rápido
+          Acesso rápido
         </h2>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {user.roles.includes("STUDENT") ? (
-              <Link
-                href="/student/activities"
-                className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-              >
-                <BookOpen size={23} className="text-primary" aria-hidden="true" />
-                <h3 className="mt-4 font-semibold text-dark">Atividades</h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  Encontre atividades publicadas e pratique seus conhecimentos.
-                </p>
-                <span className="mt-4 inline-block text-xs font-semibold text-accent">
-                  Explorar atividades
-                </span>
-              </Link>
-            ) : (
-              <article className="rounded-2xl border border-border bg-surface p-5">
-                <BookOpen size={23} className="text-primary" aria-hidden="true" />
-                <h3 className="mt-4 font-semibold text-dark">Meus estudos</h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  O espaço de estudos será disponibilizado em uma próxima etapa.
-                </p>
-                <span className="mt-4 inline-block text-xs font-medium text-muted">
-                  Em preparação
-                </span>
-              </article>
-            )}
-
+          {user.roles.includes("STUDENT") ? (
             <Link
+              href="/student/activities"
+              className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            >
+              <BookOpen size={23} className="text-primary" aria-hidden="true" />
+              <h3 className="mt-4 font-semibold text-dark">Atividades</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Encontre atividades publicadas e pratique seus conhecimentos.
+              </p>
+              <span className="mt-4 inline-block text-xs font-semibold text-accent">
+                Explorar atividades
+              </span>
+            </Link>
+          ) : (
+            <article className="rounded-2xl border border-border bg-surface p-5">
+              <BookOpen size={23} className="text-primary" aria-hidden="true" />
+              <h3 className="mt-4 font-semibold text-dark">Meus estudos</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                O espaço de estudos será disponibilizado em uma próxima etapa.
+              </p>
+              <span className="mt-4 inline-block text-xs font-medium text-muted">
+                Em preparação
+              </span>
+            </article>
+          )}
+
+          <Link
             href="/profile"
             className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-            >
-            <UserRound
-                size={23}
-                className="text-accent"
-                aria-hidden="true"
-            />
-
-            <h3 className="mt-4 font-semibold text-dark">
-                Minha conta
-            </h3>
-
+          >
+            <UserRound size={23} className="text-accent" aria-hidden="true" />
+            <h3 className="mt-4 font-semibold text-dark">Minha conta</h3>
             <p className="mt-2 text-sm leading-6 text-muted">
-                Consulte seus dados e atualize seu perfil.
+              Consulte seus dados e atualize seu perfil.
             </p>
-
             <span className="mt-4 inline-block text-xs font-semibold text-accent">
-                Acessar perfil
+              Acessar perfil
             </span>
-            </Link>
+          </Link>
         </div>
       </section>
       {shouldShowTeacherAd && <TeacherAdSlot placement="teacher-bottom" />}
