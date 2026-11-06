@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RotateCcw, Save } from "lucide-react";
 import Image from "next/image";
-import { downloadNotebookAttachment } from "../services/notebookService";
+import { getNotebookAttachmentUrl } from "../services/notebookService";
 
 interface NotebookAttachmentImageProps {
   relationshipId: string;
@@ -58,13 +58,10 @@ export function NotebookAttachmentImage({
     if (!shouldLoad) return;
 
     let isMounted = true;
-    let objectUrl: string | null = null;
 
-    void downloadNotebookAttachment(relationshipId, entryId)
-      .then((blob) => {
-        if (!isMounted) return;
-        objectUrl = URL.createObjectURL(blob);
-        setSrc(objectUrl);
+    void getNotebookAttachmentUrl(relationshipId, entryId)
+      .then((downloadUrl) => {
+        if (isMounted) setSrc(downloadUrl);
       })
       .catch(() => {
         if (isMounted) setHasError(true);
@@ -72,7 +69,6 @@ export function NotebookAttachmentImage({
 
     return () => {
       isMounted = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [entryId, relationshipId, shouldLoad]);
 
@@ -115,7 +111,6 @@ export function NotebookAttachmentImage({
             src={src}
             alt={fileName}
             fill
-            unoptimized
             loading="lazy"
             sizes="(max-width: 768px) 90vw, 40vw"
             className="object-contain"
