@@ -43,7 +43,7 @@ export const marketplaceService = {
     return response.data.data.authorizationUrl;
   },
   async pendingModeration() {
-    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; description: string; category: string; price_cents: number; author_name: string; created_at: string }> }>("/marketplace/admin/pending");
+    const response = await api.get<{ success: true; data: Array<{ id: string; title: string; description: string; category: string; price_cents: number; author_name: string; created_at: string; delivery_type: "FILE" | "EXTERNAL_URL"; external_url: string | null }> }>("/marketplace/admin/pending");
     return response.data.data;
   },
   async review(input: { productId: string; approved: boolean; note?: string }) {
