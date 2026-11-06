@@ -19,7 +19,7 @@ export function NotebookAttachmentVideo({
     let isMounted = true;
     let objectUrl: string | null = null;
 
-    void downloadNotebookAttachment(relationshipId, entryId)
+    void downloadNotebookAttachment(relationshipId, entryId, 360_000)
       .then((blob) => {
         if (!isMounted) return;
         objectUrl = URL.createObjectURL(blob);
