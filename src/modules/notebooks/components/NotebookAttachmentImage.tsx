@@ -55,7 +55,7 @@ export function NotebookAttachmentImage({
   }, [shouldLoad]);
 
   useEffect(() => {
-    if (!shouldLoad || src) return;
+    if (!shouldLoad) return;
 
     let isMounted = true;
     let objectUrl: string | null = null;
@@ -74,7 +74,7 @@ export function NotebookAttachmentImage({
       isMounted = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [entryId, relationshipId, shouldLoad, src]);
+  }, [entryId, relationshipId, shouldLoad]);
 
   if (hasError) {
     return <p ref={containerRef} className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
