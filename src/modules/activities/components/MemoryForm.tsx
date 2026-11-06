@@ -121,7 +121,7 @@ export function MemoryItemEditor({ name, value, onChange, title, invalid }: Read
             <div className="rounded-xl border border-border bg-surface p-3">
               {imageUrl ? (
                 <div className="relative mb-3 aspect-video overflow-hidden rounded-lg bg-background">
-                  <Image src={imageUrl} alt={value.altText || "Pré-visualização da imagem selecionada"} fill sizes="(max-width: 768px) 100vw, 40vw" unoptimized className="object-contain" />
+                  <Image src={imageUrl} alt={value.altText || "Pré-visualização da imagem selecionada"} fill sizes="(max-width: 768px) 100vw, 40vw" className="object-contain" />
                 </div>
               ) : (
                 <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">Configure NEXT_PUBLIC_B2_PUBLIC_BASE_URL para visualizar a imagem.</p>
