@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
-import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
@@ -85,9 +85,10 @@ export default function MultipleChoicePlayPage() {
     let active = true;
     void (async () => {
       try {
-        const response = await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`);
+        const loaded = user
+          ? (await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        const loaded = response.data.data;
         if (loaded.type !== "multiple_choice") throw new Error("Esta atividade não é de Múltipla Escolha.");
         setActivity(loaded);
         const normalized = loaded.version.content.pairs.map((pair, index) => ({
@@ -161,7 +162,7 @@ export default function MultipleChoicePlayPage() {
 
   const correctCount = result?.attempt.correctCount ?? 0;
   return (
-    <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={activity?.version.name ?? "Múltipla escolha"} description={activity?.version.description ?? "Escolha a correspondência correta para cada item."}>
+    <PublicActivityLayout title={activity?.version.name ?? "Atividade"} description={activity?.version.description ?? "Experimente esta atividade."}>
       {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : activity ? <div className="space-y-5">
         <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Múltipla escolha</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 text-sm leading-6 text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
         {phase === "ready" && <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]" : ""}>
@@ -175,6 +176,6 @@ export default function MultipleChoicePlayPage() {
         {phase === "finished" && <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7"><ConfettiCelebration active={isStudent && result !== null && result.attempt.totalItems > 0 && correctCount === result.attempt.totalItems} /><h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />Corrigindo respostas...</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{correctCount} de {result.attempt.totalItems} questões corretas · {result.attempt.accuracyPoints} pontos de precisão · {result.attempt.speedPoints} pontos de velocidade.</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das questões</h3>{result.attempt.corrections.map((correction, index) => { const question = questions.find((pair) => pair.source.id === correction.itemId); const selected = options.find((item) => item.id === correction.selectedId); const expected = options.find((item) => item.id === correction.expectedId); return <div key={correction.itemId} className="rounded-xl border border-border bg-surface p-3"><div className="grid gap-3 sm:grid-cols-[1fr_1fr]"><div><p className="mb-1 text-xs text-muted">Questão {index + 1}</p>{question && <ItemView item={question.source} />}</div><div><p className="mb-1 text-xs text-muted">{correction.isCorrect ? "Resposta correta" : "Sua resposta"}</p>{selected ? <ItemView item={selected} /> : <span className="text-sm text-muted">Não respondida</span>}{!correction.isCorrect && expected && <div className="mt-2 rounded-lg bg-emerald-50 p-2"><p className="mb-1 text-xs font-semibold text-emerald-800">Resposta esperada</p><ItemView item={expected} /></div>}</div></div><p className={`mt-2 text-sm font-semibold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>{correction.isCorrect ? "Correto" : "Incorreto"}</p></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><Ranking entries={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? "Seu resultado entrou no Top 5." : "Seu resultado foi registrado, mas não entrou no Top 5."}</p></> : <p role="alert" className="mt-3 text-sm text-red-600">{submitError || "A prévia foi concluída sem registrar resultado."}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Tentar novamente</button></section>}
         <div className="pt-2"><button type="button" onClick={() => void router.push("/student/activities")} className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark"><ArrowLeft size={16} aria-hidden="true" />Voltar às atividades</button></div>
       </div> : null}
-    </RoleBasedLayout>
+    </PublicActivityLayout>
   );
 }
