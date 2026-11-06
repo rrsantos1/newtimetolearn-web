@@ -179,22 +179,22 @@ export default function TeacherSubscriptionPage() {
                     <button
                       type="button"
                       onClick={() => void handleCancel()}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !entitlements.paymentIntegrationEnabled}
                       className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <X size={17} aria-hidden="true" />
-                      {isSubmitting ? "Processando..." : "Cancelar assinatura"}
+                      {isSubmitting ? "Processando..." : entitlements.paymentIntegrationEnabled ? "Cancelar assinatura" : "Gerenciamento indisponível"}
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={() => void handleCheckout()}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !entitlements.paymentIntegrationEnabled}
                       className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                       style={{ color: "var(--primary-foreground)" }}
                     >
                       <CreditCard size={17} aria-hidden="true" />
-                      {isSubmitting ? "Preparando checkout..." : "Assinar por R$ 5,90/mês"}
+                      {isSubmitting ? "Preparando checkout..." : entitlements.paymentIntegrationEnabled ? "Assinar por R$ 5,90/mês" : "Contratação em breve"}
                     </button>
                   )}
                   <button

@@ -13,6 +13,7 @@ export interface TeacherEntitlements {
   studentLimit: number | null;
   removesAds: boolean;
   subscriptionStatus: TeacherSubscriptionStatus;
+  paymentIntegrationEnabled: boolean;
   reservedStudents: number;
   studentsRemaining: number | null;
 }
