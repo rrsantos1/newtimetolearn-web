@@ -674,6 +674,32 @@ export function NotebookWorkspace({
                                 </button>
                               </div>
                             )}
+                            {mode === "student" && entry.kind === "FILE" && (
+                              <div className="mb-2 flex items-center justify-end gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo", contentText(entry.content.contentType).startsWith("video/") ? 360_000 : 60_000)}
+                                  disabled={activeAttachmentAction !== null}
+                                  aria-label={`Baixar ${contentText(entry.content.fileName) || "arquivo"}`}
+                                  title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? "Baixando..." : "Baixar arquivo"}
+                                  className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] disabled:cursor-wait disabled:opacity-50"
+                                >
+                                  {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Download size={15} aria-hidden="true" />}
+                                </button>
+                                {!contentText(entry.content.contentType).startsWith("video/") && (
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleOpenAttachment(entry.id)}
+                                    disabled={activeAttachmentAction !== null}
+                                    aria-label={`Abrir ${contentText(entry.content.fileName) || "documento"} no navegador`}
+                                    title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? "Abrindo..." : "Abrir no navegador"}
+                                    className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] disabled:cursor-wait disabled:opacity-50"
+                                  >
+                                    {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
+                                  </button>
+                                )}
+                              </div>
+                            )}
                             {entry.kind === "IMAGE" ? (
                               <div className="p-2">
                                 <NotebookAttachmentImage
