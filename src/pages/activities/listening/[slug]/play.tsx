@@ -176,7 +176,7 @@ export default function PlayListeningPage() {
     return () => {
       cancelled = true;
     };
-  }, [router.isReady, slug]);
+  }, [router.isReady, slug, user]);
 
   const finishAttempt = useCallback(async (timedOut = false, retry = false): Promise<void> => {
     if ((phase !== "playing" && !(retry && phase === "finished")) || submittedRef.current || !activity) return;
