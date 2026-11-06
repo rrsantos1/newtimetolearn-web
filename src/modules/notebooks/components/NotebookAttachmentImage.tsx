@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RotateCcw, Save } from "lucide-react";
 import Image from "next/image";
 import { downloadNotebookAttachment } from "../services/notebookService";
@@ -25,6 +25,8 @@ export function NotebookAttachmentImage({
   onSaveWidth,
 }: NotebookAttachmentImageProps) {
   const [src, setSrc] = useState<string | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [hasError, setHasError] = useState(false);
   const [savedWidth, setSavedWidth] = useState(initialWidth);
   const [draftWidth, setDraftWidth] = useState(initialWidth);
@@ -32,6 +34,29 @@ export function NotebookAttachmentImage({
   const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
+    const element = containerRef.current;
+    if (!element || shouldLoad) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setShouldLoad(true);
+        observer.disconnect();
+      },
+      { rootMargin: "250px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [shouldLoad]);
+
+  useEffect(() => {
+    if (!shouldLoad || src) return;
+
     let isMounted = true;
     let objectUrl: string | null = null;
 
@@ -49,14 +74,14 @@ export function NotebookAttachmentImage({
       isMounted = false;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [entryId, relationshipId]);
+  }, [entryId, relationshipId, shouldLoad, src]);
 
   if (hasError) {
-    return <p className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
+    return <p ref={containerRef} className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
   }
 
   if (!src) {
-    return <div className="aspect-video w-full animate-pulse rounded-lg bg-[#eee5d3]" aria-label="Carregando imagem" />;
+    return <div ref={containerRef} className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#eee5d3] text-xs text-[#76694f]" aria-label="Imagem carregará quando estiver próxima da tela">{shouldLoad ? "Carregando imagem..." : "Imagem disponível ao rolar a página"}</div>;
   }
 
   const hasWidthChanges = draftWidth !== savedWidth;
@@ -83,7 +108,7 @@ export function NotebookAttachmentImage({
   }
 
   return (
-    <div className="w-full">
+    <div ref={containerRef} className="w-full">
       <div className="mx-auto" style={{ width: `${draftWidth}%` }}>
         <div className="relative aspect-video max-h-72 w-full overflow-hidden rounded-lg">
           <Image
@@ -91,7 +116,7 @@ export function NotebookAttachmentImage({
             alt={fileName}
             fill
             unoptimized
-            loading="eager"
+            loading="lazy"
             sizes="(max-width: 768px) 90vw, 40vw"
             className="object-contain"
           />
