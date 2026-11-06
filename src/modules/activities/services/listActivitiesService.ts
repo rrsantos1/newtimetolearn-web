@@ -17,6 +17,7 @@ export interface ActivityListFilters {
   search?: string;
   type?: ActivityType;
   difficulty?: ActivityDifficulty;
+  favoritesOnly?: boolean;
 }
 
 export const listActivitiesService = {
