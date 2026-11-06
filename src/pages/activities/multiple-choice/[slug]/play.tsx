@@ -43,7 +43,7 @@ function imageUrl(item: Extract<Item, { type: "image" }>): string | null {
 function ItemView({ item }: Readonly<{ item: Item }>) {
   if (item.type === "text") return <span className="wrap-break-word text-base font-semibold text-dark">{item.value}</span>;
   const src = imageUrl(item);
-  return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || "Imagem da opção"} fill sizes="(max-width: 640px) 90vw, 40vw" unoptimized className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
+  return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || "Imagem da opção"} fill sizes="(max-width: 640px) 90vw, 40vw" className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
 }
 function Ranking({ entries }: Readonly<{ entries: DragDropRankingEntry[] }>) {
   if (entries.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados.</p>;
