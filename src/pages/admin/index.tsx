@@ -29,9 +29,9 @@ const features = [
   },
   {
     title: "Configurações",
-    description: "Organize as futuras configurações da plataforma.",
+    description: "Acesse ferramentas administrativas e tarefas de manutenção da plataforma.",
     icon: Settings,
-    href: undefined,
+    href: "/admin/settings",
   },
 ];
 
@@ -65,7 +65,11 @@ export default function AdminPage() {
                 className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 py-2 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                 style={{ color: "var(--primary-foreground)" }}
               >
-                {href === "/admin/media-review" ? "Revisar imagens" : "Revisar atividades"}
+                {href === "/admin/media-review"
+                  ? "Revisar imagens"
+                  : href === "/admin/settings"
+                    ? "Abrir configurações"
+                    : "Revisar atividades"}
               </Link>
             ) : (
               <span className="mt-4 inline-block text-xs font-medium text-muted">
