@@ -104,7 +104,7 @@ export default function TeacherMarketplacePage() {
           <article className="rounded-2xl border border-border bg-white p-6">
             <h2 className="font-bold text-dark">Publicar material</h2>
             <p className="mt-2 text-sm leading-6 text-muted">Envie arquivos PDF, PPT ou PPTX. A publicação depende de assinatura ativa e aprovação administrativa.</p>
-            <Link href="/teacher/marketplace/new" className="mt-5 inline-flex min-h-10 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+            <Link href="/teacher/marketplace/new" className="mt-5 inline-flex min-h-10 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
               Cadastrar material
             </Link>
           </article>
