@@ -1,0 +1,4 @@
+import Link from "next/link";
+import {PublicHeader} from "@/components/layout/PublicHeader";
+import {PublicFooter} from "@/components/layout/PublicFooter";
+export default function MarketplaceCheckoutFailurePage(){return <main className="min-h-screen bg-background"><PublicHeader/><section className="mx-auto max-w-2xl px-5 py-20 text-center"><h1 className="text-3xl font-extrabold text-dark">Não foi possível concluir o pagamento</h1><p className="mt-4 text-sm leading-7 text-muted">Nenhum acesso ao material será liberado até que o Mercado Pago confirme a aprovação. Você pode voltar ao Marketplace e tentar novamente.</p><Link href="/marketplace" className="mt-8 inline-flex min-h-11 items-center rounded-xl bg-accent px-5 text-sm font-semibold text-white">Voltar ao Marketplace</Link></section><PublicFooter/></main>;}
