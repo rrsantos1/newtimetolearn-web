@@ -56,7 +56,7 @@ export function RoleBasedLayout({
     area === "teacher" &&
     isTeacher &&
     loadedEntitlements?.teacherId === user?.id &&
-    !loadedEntitlements.entitlements.removesAds;
+    loadedEntitlements?.entitlements.removesAds === false;
 
   return (
     <RoleGuard allowedRoles={allowedRoles}>
