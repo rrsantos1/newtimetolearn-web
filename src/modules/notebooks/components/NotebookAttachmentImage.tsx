@@ -111,6 +111,7 @@ export function NotebookAttachmentImage({
             src={src}
             alt={fileName}
             fill
+            unoptimized
             loading="lazy"
             sizes="(max-width: 768px) 90vw, 40vw"
             className="object-contain"
