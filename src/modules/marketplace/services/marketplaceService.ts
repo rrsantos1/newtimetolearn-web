@@ -15,9 +15,9 @@ export const marketplaceService = {
       headers: {
         "Content-Type": input.file.type,
         "x-file-name": encodeURIComponent(input.file.name),
-        "x-marketplace-title": input.title,
-        "x-marketplace-description": input.description,
-        "x-marketplace-category": input.category,
+        "x-marketplace-title": encodeURIComponent(input.title),
+        "x-marketplace-description": encodeURIComponent(input.description),
+        "x-marketplace-category": encodeURIComponent(input.category),
         "x-marketplace-price-cents": String(input.priceCents),
       },
     });
