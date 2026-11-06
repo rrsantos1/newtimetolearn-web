@@ -24,6 +24,14 @@ export const marketplaceService = {
     });
     return response.data.data;
   },
+  async sellerConnectionStatus() {
+    const response = await api.get<{ success: true; data: { connected: boolean; mpUserId: string | null } }>("/marketplace/seller/status");
+    return response.data.data;
+  },
+  async connectSellerAccount() {
+    const response = await api.post<{ success: true; data: { authorizationUrl: string } }>("/marketplace/seller/connect");
+    return response.data.data.authorizationUrl;
+  },
   async pendingModeration() {
     const response = await api.get<{ success: true; data: Array<{ id: string; title: string; description: string; category: string; price_cents: number; author_name: string; created_at: string }> }>("/marketplace/admin/pending");
     return response.data.data;
