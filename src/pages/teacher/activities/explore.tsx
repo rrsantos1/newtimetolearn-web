@@ -4,7 +4,6 @@ import Link from "next/link";
 import axios from "axios";
 import {
   AlertCircle,
-  ArrowLeft,
   BookOpen,
   ChevronLeft,
   ChevronRight,
