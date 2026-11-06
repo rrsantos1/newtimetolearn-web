@@ -63,6 +63,24 @@ export async function createNotebookAttachment(
   return response.data.data;
 }
 
+interface NotebookAttachmentUrlResponse {
+  success: boolean;
+  data: {
+    downloadUrl: string;
+    expiresInSeconds: number;
+  };
+}
+
+export async function getNotebookAttachmentUrl(
+  relationshipId: string,
+  entryId: string,
+): Promise<string> {
+  const response = await api.get<NotebookAttachmentUrlResponse>(
+    `/notebooks/${relationshipId}/entries/${entryId}/file-url`,
+  );
+  return response.data.data.downloadUrl;
+}
+
 export async function downloadNotebookAttachment(
   relationshipId: string,
   entryId: string,
