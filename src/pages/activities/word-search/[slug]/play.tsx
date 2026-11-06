@@ -90,8 +90,8 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
 export default function PlayWordSearchPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const backHref = user?.roles.includes("ADMIN") ? "/admin/activities" : user?.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
-  const backLabel = user?.roles.includes("ADMIN") || user?.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar ao painel";
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || user.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar ao painel";
   const isStudent = user?.roles.includes("STUDENT") ?? false;
 
   const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
