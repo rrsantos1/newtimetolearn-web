@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { ArrowLeft, CheckCircle2, Clock3, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
@@ -59,7 +59,7 @@ function RankingList({ ranking }: Readonly<{ ranking: QuizRankingEntry[] }>) {
         <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
-            <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p><p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p></div>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p></div>
           </div>
           <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
         </li>
@@ -113,10 +113,6 @@ function getErrorMessage(error: unknown): string {
   }
   return "Não foi possível carregar o Quiz.";
 }
-function formatTime(seconds: number | null): string {
-  if (seconds === null) return "Sem limite de tempo";
-  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-}
 function imageUrl(image: QuizImage): string | null {
   if (image.publicUrl) return image.publicUrl;
   const base = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
@@ -155,16 +151,13 @@ export default function PlayQuizPage() {
   const [mode, setMode] = useState<RunMode>("question");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [attemptResult, setAttemptResult] = useState<QuizAttemptResult | null>(null);
   const [ranking, setRanking] = useState<QuizRankingEntry[]>([]);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rankingError, setRankingError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [deadlineReached, setDeadlineReached] = useState(false);
 
-  const timeLimitSeconds = activity?.version.timeLimitSeconds ?? null;
 
   const loadRanking = useCallback(async (slug: string): Promise<void> => {
     setRankingLoading(true);
@@ -173,7 +166,6 @@ export default function PlayQuizPage() {
     catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", "Não foi possível carregar o ranking agora.")); }
     finally { setRankingLoading(false); }
   }, []);
-  const remainingSeconds = timeLimitSeconds === null ? null : Math.max(0, timeLimitSeconds - elapsedSeconds);
   const correctCount = useMemo(
     () => questions.filter((question) => answers[question.id] === question.correctOptionId).length,
     [answers, questions],
@@ -218,10 +210,9 @@ export default function PlayQuizPage() {
     return () => { cancelled = true; };
   }, [router.isReady, router.query.slug, user, loadRanking]);
 
-  const finishQuiz = useCallback(async (finalAnswers: Record<string, string>, elapsed: number, timedOut = false): Promise<void> => {
+  const finishQuiz = useCallback(async (finalAnswers: Record<string, string>): Promise<void> => {
     if (!activity || phase !== "playing" || submitting) return;
     setPhase("finished");
-    setDeadlineReached(timedOut);
     setSubmitError("");
     if (!isStudent) return;
     setSubmitting(true);
@@ -230,7 +221,7 @@ export default function PlayQuizPage() {
         const answer = finalAnswers[question.id];
         return answer ? [answer] : [];
       });
-      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsed);
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds);
       setAttemptResult(result);
       setRanking(result.ranking);
       const correctAnswers = questions.filter((question) => finalAnswers[question.id] === question.correctOptionId).length;
@@ -248,22 +239,6 @@ export default function PlayQuizPage() {
     }
   }, [activity, isStudent, phase, questions, submitting]);
 
-  useEffect(() => {
-    if (phase !== "playing") return;
-    const timerId = window.setInterval(() => {
-      setElapsedSeconds((previous) => {
-        const next = previous + 1;
-        if (timeLimitSeconds !== null && next >= timeLimitSeconds) {
-          window.clearTimeout(timerId);
-          window.setTimeout(() => void finishQuiz(answers, timeLimitSeconds, true), 0);
-          return timeLimitSeconds;
-        }
-        return next;
-      });
-    }, 1000);
-    return () => window.clearInterval(timerId);
-  }, [answers, finishQuiz, phase, timeLimitSeconds]);
-
   async function retrySubmission(): Promise<void> {
     if (!activity || submitting) return;
     setSubmitting(true);
@@ -273,7 +248,7 @@ export default function PlayQuizPage() {
         const answer = answers[question.id];
         return answer ? [answer] : [];
       });
-      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds, elapsedSeconds);
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds);
       setAttemptResult(result);
       setRanking(result.ranking);
       const correctAnswers = questions.filter((question) => answers[question.id] === question.correctOptionId).length;
@@ -294,10 +269,8 @@ export default function PlayQuizPage() {
   function startQuiz(): void {
     setAnswers({});
     setCurrentIndex(0);
-    setElapsedSeconds(0);
     setAttemptResult(null);
     setSubmitError("");
-    setDeadlineReached(false);
     setPhase("playing");
   }
   function chooseAnswer(questionId: string, optionId: string): void {
@@ -309,7 +282,7 @@ export default function PlayQuizPage() {
     }
   }
   function finishFromButton(): void {
-    void finishQuiz(answers, elapsedSeconds);
+    void finishQuiz(answers);
   }
 
   const currentQuestion = questions[currentIndex];
@@ -354,7 +327,7 @@ export default function PlayQuizPage() {
                 <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                   <h2 className="mt-4 text-xl font-bold text-dark">Como deseja responder?</h2>
-                  <p className="mt-2 text-sm leading-6 text-muted">Escolha o formato antes de começar. O cronômetro só inicia quando você clicar em iniciar.</p>
+                  <p className="mt-2 text-sm leading-6 text-muted">Escolha o formato antes de começar. Você poderá revisar suas respostas antes de finalizar.</p>
                   <fieldset className="mt-6 grid gap-3 sm:grid-cols-2">
                     <legend className="mb-3 text-sm font-semibold text-dark">Modo de execução</legend>
                     <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
@@ -370,8 +343,7 @@ export default function PlayQuizPage() {
                   </fieldset>
                   <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 text-sm sm:grid-cols-3">
                     <div><p className="text-muted">Questões</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div>
-                    <div><p className="text-muted">Tempo limite</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimitSeconds)}</p></div>
-                    <div><p className="text-muted">Respostas obrigatórias</p><p className="mt-1 font-semibold text-dark">Todas antes de avançar</p></div>
+                                        <div><p className="text-muted">Respostas obrigatórias</p><p className="mt-1 font-semibold text-dark">Todas antes de avançar</p></div>
                   </div>
                   <button type="button" onClick={startQuiz} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                     <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar Quiz" : "Testar Quiz"}
@@ -393,9 +365,7 @@ export default function PlayQuizPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
                     <p className="text-sm font-semibold text-dark">{mode === "question" ? `Questão ${currentIndex + 1} de ${questions.length}` : `${answeredCount} de ${questions.length} respondidas`}</p>
                     <div className="flex items-center gap-3">
-                      <p className={`inline-flex items-center gap-2 text-sm font-semibold ${remainingSeconds !== null && remainingSeconds <= 60 ? "text-red-600" : "text-dark"}`} aria-live="polite">
-                        <Clock3 size={17} aria-hidden="true" />{remainingSeconds === null ? formatTime(elapsedSeconds) : formatTime(remainingSeconds)}
-                      </p>
+                      
                       <button type="button" onClick={abandonQuiz} className="min-h-9 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Abandonar Quiz</button>
                     </div>
                   </div>
@@ -480,8 +450,8 @@ export default function PlayQuizPage() {
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
                           <p className="mt-1 text-3xl font-bold text-dark">{isStudent && attemptResult ? attemptResult.attempt.score : localScore}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Respostas corretas: {correctCount} de {questions.length}</p>
-                          <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(elapsedSeconds)}</p>
-                          {deadlineReached && <p className="mt-2 text-sm font-semibold text-amber-700">O tempo acabou; o Quiz foi enviado automaticamente.</p>}
+                          
+                          
                         </div>
                         {isStudent && attemptResult && <p className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}><Trophy size={18} aria-hidden="true" />{attemptResult.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>}
                       </div>
