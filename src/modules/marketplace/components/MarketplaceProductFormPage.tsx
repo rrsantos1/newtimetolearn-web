@@ -22,9 +22,9 @@ const schema=Yup.object({
 export function MarketplaceProductFormPage({adminMode=false}:{adminMode?:boolean}){
  const router=useRouter();const {user,isAuthenticated,isLoading}=useAuth();
  const adminPublisher=adminMode||(user?.roles.includes("ADMIN")??false);
- const [subscriptionState,setSubscriptionState]=useState<"checking"|"active"|"inactive"|"error">(adminMode?"active":"checking");
+ const [subscriptionState,setSubscriptionState]=useState<"checking"|"active"|"inactive"|"error">("checking");
  useEffect(()=>{if(!isLoading&&(!isAuthenticated||!(adminMode?user?.roles.includes("ADMIN"):user?.roles.includes("TEACHER"))))void router.replace("/login");},[adminMode,isAuthenticated,isLoading,router,user]);
- useEffect(()=>{if(adminPublisher){setSubscriptionState("active");return;}if(isLoading||!isAuthenticated||!user?.roles.includes("TEACHER"))return;let active=true;teacherSubscriptionService.getEntitlements().then(data=>{if(active)setSubscriptionState(data.subscriptionStatus==="ACTIVE"&&data.planCode==="TEACHER_MONTHLY"?"active":"inactive");}).catch(()=>{if(active)setSubscriptionState("error");});return()=>{active=false;};},[adminPublisher,isAuthenticated,isLoading,user]);
+ useEffect(()=>{if(adminPublisher||isLoading||!isAuthenticated||!user?.roles.includes("TEACHER"))return;let active=true;teacherSubscriptionService.getEntitlements().then(data=>{if(active)setSubscriptionState(data.subscriptionStatus==="ACTIVE"&&data.planCode==="TEACHER_MONTHLY"?"active":"inactive");}).catch(()=>{if(active)setSubscriptionState("error");});return()=>{active=false;};},[adminPublisher,isAuthenticated,isLoading,user]);
  async function submit(values:Values,helpers:FormikHelpers<Values>){
   if(values.deliveryType==="FILE"&&!values.file){helpers.setFieldError("file","Selecione um arquivo.");helpers.setSubmitting(false);return;}
   if(values.deliveryType==="EXTERNAL_URL"&&!values.externalUrl.trim()){helpers.setFieldError("externalUrl","Informe o link do Google Slides.");helpers.setSubmitting(false);return;}
