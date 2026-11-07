@@ -117,7 +117,7 @@ export default function PlayCrosswordPage() {
   const [attemptResult, setAttemptResult] = useState<CrosswordAttemptResult | null>(null);
   const [submittingAttempt, setSubmittingAttempt] = useState(false);
   const [attemptError, setAttemptError] = useState("");
-  const [pendingAttempt, setPendingAttempt] = useState<{ answers: string[]; elapsedSeconds: number } | null>(null);
+  const [pendingAttempt, setPendingAttempt] = useState<{ answers: string[] } | null>(null);
 
   const loadRanking = useCallback(async (slug: string): Promise<void> => {
     setRankingLoading(true);
@@ -131,7 +131,7 @@ export default function PlayCrosswordPage() {
     }
   }, []);
 
-  const handleComplete = useCallback(async (answers: string[], elapsedSeconds: number): Promise<void> => {
+  const handleComplete = useCallback(async (answers: string[]): Promise<void> => {
     if (!activity) return;
     if (!isStudent) {
       setPhase("finished");
@@ -139,13 +139,13 @@ export default function PlayCrosswordPage() {
     }
     if (attemptResult || submittingAttempt) return;
 
-    setPendingAttempt({ answers, elapsedSeconds });
+    setPendingAttempt({ answers });
     setSubmittingAttempt(true);
     setAttemptError("");
     setPhase("finished");
 
     try {
-      const result = await submitCrosswordAttemptService.execute(activity.slug, answers, elapsedSeconds);
+      const result = await submitCrosswordAttemptService.execute(activity.slug, answers);
       setAttemptResult(result);
       setRanking(result.ranking);
       setPendingAttempt(null);
@@ -273,7 +273,7 @@ export default function PlayCrosswordPage() {
                 </div>
               )}
 
-              {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues} timeLimitSeconds={activity.version.timeLimitSeconds} onComplete={handleComplete} canAutoFill={!isStudent} />}
+              {phase === "playing" && <CrosswordGame key={gameKey} grid={grid} clues={clues}  onComplete={handleComplete} canAutoFill={!isStudent} />}
 
               {phase === "finished" && !isStudent && (
                 <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-8">
@@ -290,7 +290,7 @@ export default function PlayCrosswordPage() {
                   ) : attemptError ? (
                     <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                       <p>{attemptError}</p>
-                      {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.answers, pendingAttempt.elapsedSeconds)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
+                      {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.answers)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
                     </div>
                   ) : attemptResult ? (
                     <>
