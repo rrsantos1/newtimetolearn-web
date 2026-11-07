@@ -18,9 +18,9 @@ export interface MoleHitAttemptResult {
 interface Response { success: true; data: MoleHitAttemptResult; }
 
 export const submitMoleHitAttemptService = {
-  async execute(slug: string, hits: number, misses: number, elapsedSeconds: number): Promise<MoleHitAttemptResult> {
+  async execute(slug: string, attemptToken: string, hits: number, misses: number, elapsedSeconds: number): Promise<MoleHitAttemptResult> {
     const response = await api.post<Response>(`/activities/${encodeURIComponent(slug)}/mole-hit/attempts`, {
-      hits, misses, elapsedSeconds,
+      attemptToken, hits, misses, elapsedSeconds,
     });
     return response.data.data;
   },
