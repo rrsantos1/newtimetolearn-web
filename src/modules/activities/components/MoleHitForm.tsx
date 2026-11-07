@@ -32,7 +32,14 @@ export function MoleHitForm({ onSubmit, submitError, initialValues: suppliedInit
       initialValues={initialValues}
       enableReinitialize
       validationSchema={createMoleHitSchema}
-      onSubmit={onSubmit}
+      onSubmit={(values) => onSubmit({
+        ...values,
+        content: {
+          ...values.content,
+          correctOptions: values.content.correctOptions.filter((option) => option.trim().length > 0),
+          incorrectOptions: values.content.incorrectOptions.filter((option) => option.trim().length > 0),
+        },
+      })}
     >
       {({ values, errors, touched, submitCount, isSubmitting, setFieldValue }) => {
         const themeError = getIn(errors, "content.theme") as string | undefined;
