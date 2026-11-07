@@ -131,6 +131,7 @@ export default function MoleHitPlayPage() {
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     setSubmitError("");
     if (!isStudent) {
+      setScoreSaving(false);
       setSubmitError("Prévia concluída. O resultado não foi registrado no ranking dos alunos.");
       return;
     }
@@ -240,7 +241,7 @@ export default function MoleHitPlayPage() {
           {phase === "playing" && (
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
-              <div className="mx-auto grid max-w-3xl gap-3 rounded-2xl bg-[#d6b47b] p-3 sm:gap-4 sm:p-5" style={{ gridTemplateColumns: `repeat(${boardCols}, minmax(0, 1fr))` }}>
+              <div className="mx-auto grid max-w-3xl gap-3 rounded-2xl bg-[#d6b47b] bg-cover bg-center p-3 sm:gap-4 sm:p-5" style={{ gridTemplateColumns: `repeat(${boardCols}, minmax(0, 1fr))`, backgroundImage: "url(/moles/background.jpg)" }}>
                 {Array.from({ length: holeCount }, (_, index) => (
                   <button type="button" key={index} onClick={() => hitHole(index)} aria-label={activeHole === index ? "Acertar toupeira" : "Buraco vazio"} className="relative flex aspect-square min-h-0 items-end justify-center overflow-hidden rounded-[50%] border-4 border-[#9a6b35] bg-[#70451f] shadow-inner focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                     {activeHole === index && <Image src="/moles/mole_animation.gif" alt="" fill sizes="(max-width: 640px) 28vw, 160px" unoptimized className="object-contain" />}
