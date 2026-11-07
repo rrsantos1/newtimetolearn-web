@@ -6,10 +6,8 @@ export interface CrosswordAttemptResult {
     id: string;
     score: number;
     accuracyPoints: number;
-    speedPoints: number;
     totalWords: number;
     wordsFound: string[];
-    elapsedSeconds: number;
     createdAt: string;
   };
   ranking: CrosswordRankingEntry[];
@@ -22,10 +20,10 @@ interface SubmitCrosswordAttemptResponse {
 }
 
 export const submitCrosswordAttemptService = {
-  async execute(slug: string, answers: string[], elapsedSeconds: number): Promise<CrosswordAttemptResult> {
+  async execute(slug: string, answers: string[]): Promise<CrosswordAttemptResult> {
     const response = await api.post<SubmitCrosswordAttemptResponse>(
       `/activities/${encodeURIComponent(slug)}/attempts`,
-      { wordsFound: answers, elapsedSeconds },
+      { wordsFound: answers },
     );
     return response.data.data;
   },
