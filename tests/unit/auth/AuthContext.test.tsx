@@ -162,6 +162,7 @@ describe("AuthContext", () => {
   });
 
   it("refreshes the authenticated user's profile", async () => {
+    window.sessionStorage.setItem(AUTH_TOKEN_KEY, "stored-token");
     vi.mocked(api.get)
       .mockResolvedValueOnce(resolvedProfile() as never)
       .mockResolvedValueOnce({
