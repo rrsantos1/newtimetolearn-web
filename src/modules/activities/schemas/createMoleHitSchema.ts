@@ -24,7 +24,7 @@ export const createMoleHitSchema = Yup.object({
   content: Yup.object({
     holeCount: Yup.number().oneOf([6, 9, 12]).required(),
     theme: Yup.string().trim().min(2, "Informe o tema do desafio.").max(160).required(),
-    correctOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).min(2, "Cadastre pelo menos 2 opções corretas.").max(30).required(),
-    incorrectOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).min(2, "Cadastre pelo menos 2 opções incorretas.").max(30).required(),
+    correctOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).compact((option) => !option?.trim()).min(2, "Cadastre pelo menos 2 opções corretas.").max(30).required(),
+    incorrectOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).compact((option) => !option?.trim()).min(2, "Cadastre pelo menos 2 opções incorretas.").max(30).required(),
   }).required(),
 });
