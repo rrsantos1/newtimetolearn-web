@@ -166,13 +166,15 @@ export default function MoleHitPlayPage() {
     const safeHole = lastSpawnRef.current === nextHole && holeCount > 1 ? (nextHole + 1) % holeCount : nextHole;
     lastSpawnRef.current = safeHole;
     const content = activity?.version.content;
-    const options = [...(content?.correctOptions ?? []), ...(content?.incorrectOptions ?? [])];
+    const correctOptions = content?.correctOptions?.length ? content.correctOptions : ["Toupeira"];
+    const incorrectOptions = content?.incorrectOptions?.length ? content.incorrectOptions : ["Tente novamente"];
+    const options = [...correctOptions, ...incorrectOptions];
     if (optionQueueRef.current.length === 0) {
       optionQueueRef.current = shuffleOptions(options, previousCycleFirstRef.current);
       previousCycleFirstRef.current = optionQueueRef.current[0] ?? "";
     }
     const option = optionQueueRef.current.shift() ?? "";
-    const isCorrect = content?.correctOptions.includes(option) ?? false;
+    const isCorrect = correctOptions.includes(option);
     setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
     const elapsed = (Date.now() - startAtRef.current) / 1000;
     const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
@@ -285,7 +287,7 @@ export default function MoleHitPlayPage() {
                   );
                 })}
               </div>
-              <p className="mt-4 text-center text-xs text-muted">Tema: <strong>{activity.version.content.theme}</strong>. Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
+              <p className="mt-4 text-center text-xs text-muted">Tema: <strong>{activity.version.content.theme || "Identifique a resposta correta"}</strong>. Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
               <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>
             </section>
           )}
