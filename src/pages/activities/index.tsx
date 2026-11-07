@@ -32,22 +32,24 @@ function getPlayHref(activity: ListedActivity): string {
 export default function PublicActivitiesPage() {
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loadedPage, setLoadedPage] = useState<number | null>(null);
+  const [errorState, setErrorState] = useState<{ page: number; message: string } | null>(null);
+  const loading = loadedPage !== page;
+  const error = errorState?.page === page ? errorState.message : "";
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError("");
     listPublicActivitiesService.execute({ page, limit: PAGE_SIZE })
       .then((data) => {
-        if (active) setResult(data);
+        if (!active) return;
+        setResult(data);
+        setErrorState(null);
+        setLoadedPage(page);
       })
       .catch(() => {
-        if (active) setError("Não foi possível carregar as atividades públicas.");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
+        if (!active) return;
+        setErrorState({ page, message: "Não foi possível carregar as atividades públicas." });
+        setLoadedPage(page);
       });
     return () => { active = false; };
   }, [page]);
