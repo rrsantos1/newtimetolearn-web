@@ -34,17 +34,6 @@ export const createWordSearchSchema = Yup.object({
     )
     .required("Selecione a dificuldade."),
 
-  timeLimitSeconds: Yup.number()
-    .transform((value, originalValue) => {
-      return originalValue === "" || originalValue === null
-        ? null
-        : value;
-    })
-    .nullable()
-    .optional()
-    .integer("O tempo deve ser informado em segundos inteiros.")
-    .positive("O tempo deve ser maior que zero."),
-
   words: Yup.array()
     .of(
       Yup.string()
