@@ -10,7 +10,7 @@ export const marketplaceService = {
     const response = await api.get<MarketplaceDetailResponse>(`/marketplace/${encodeURIComponent(slug)}`);
     return response.data.data;
   },
-  async createProduct(input: { title: string; description: string; category: string; priceCents: number; file?: File; externalUrl?: string }, publisher: "teacher" | "admin" = "teacher") {
+  async createProduct(input: { title: string; description: string; category: string; priceCents: number; file?: File; externalUrl?: string; previewFile?: File }, publisher: "teacher" | "admin" = "teacher") {
     const endpoint = publisher === "admin" ? "/marketplace/admin/products" : "/marketplace/products";
     if (input.file) {
       const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, input.file, {
@@ -25,14 +25,21 @@ export const marketplaceService = {
       });
       return response.data.data;
     }
-    const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, {
-      title: input.title,
-      description: input.description,
-      category: input.category,
-      priceCents: input.priceCents,
-      externalUrl: input.externalUrl,
-    });
-    return response.data.data;
+    if (input.externalUrl && input.previewFile) {
+      const response = await api.post<{ success: true; data: { id: string; status: string } }>(endpoint, input.previewFile, {
+        headers: {
+          "Content-Type": input.previewFile.type,
+          "x-file-name": encodeURIComponent(input.previewFile.name),
+          "x-marketplace-title": encodeURIComponent(input.title),
+          "x-marketplace-description": encodeURIComponent(input.description),
+          "x-marketplace-category": encodeURIComponent(input.category),
+          "x-marketplace-price-cents": String(input.priceCents),
+          "x-marketplace-external-url": encodeURIComponent(input.externalUrl),
+        },
+      });
+      return response.data.data;
+    }
+    throw new Error("MARKETPLACE_PREVIEW_PDF_REQUIRED");
   },
   async sellerConnectionStatus() {
     const response = await api.get<{ success: true; data: { connected: boolean; mpUserId: string | null } }>("/marketplace/seller/status");
