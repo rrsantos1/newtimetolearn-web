@@ -41,9 +41,9 @@ function shuffleOptions(options: string[], previousFirst: string): string[] {
 }
 
 const DIFFICULTY_SETTINGS = {
-  EASY: { spawnMs: 1500, visibleMs: 1250 },
-  MEDIUM: { spawnMs: 1200, visibleMs: 1000 },
-  HARD: { spawnMs: 950, visibleMs: 800 },
+  EASY: { spawnMs: 1800, visibleMs: 1600 },
+  MEDIUM: { spawnMs: 1600, visibleMs: 1400 },
+  HARD: { spawnMs: 1400, visibleMs: 1200 },
 } as const;
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -186,8 +186,8 @@ export default function MoleHitPlayPage() {
     setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-    const progress = Math.min(0.2, elapsedSeconds / Math.max(1, duration) * 0.2);
-    const visibleMs = Math.max(500, Math.round(settings.visibleMs * (1 - progress)));
+    const progress = Math.min(0.1, elapsedSeconds / Math.max(1, duration) * 0.1);
+    const visibleMs = Math.max(850, Math.round(settings.visibleMs * (1 - progress)));
     visibleTimeoutRef.current = window.setTimeout(
       () => setActiveHole((current) => current?.index === safeHole ? null : current),
       visibleMs,
@@ -212,8 +212,8 @@ export default function MoleHitPlayPage() {
     const scheduleNext = (): void => {
       spawnMole();
       const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-      const progress = Math.min(0.2, elapsedSeconds / Math.max(1, duration) * 0.2);
-      const spawnMs = Math.max(500, Math.round(settings.spawnMs * (1 - progress)));
+      const progress = Math.min(0.1, elapsedSeconds / Math.max(1, duration) * 0.1);
+      const spawnMs = Math.max(900, Math.round(settings.spawnMs * (1 - progress)));
       timer = window.setTimeout(scheduleNext, spawnMs);
       spawnTimeoutRef.current = timer;
     };
