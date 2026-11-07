@@ -1,12 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { ArrowLeft, Globe, Lock, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  Lock,
+  RefreshCw,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import { updateActivityVisibilityService } from "@/modules/activities/services/updateActivityVisibilityService";
-import type { ListedActivity } from "@/modules/activities/types/activityList.types";
+import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
+import type {
+  ActivityDifficulty,
+  ActivityType,
+  ListedActivity,
+} from "@/modules/activities/types/activityList.types";
+
+const PAGE_SIZE = 9;
+
+const difficultyLabels: Record<ActivityDifficulty, string> = {
+  EASY: "Fácil",
+  MEDIUM: "Média",
+  HARD: "Difícil",
+};
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -22,38 +44,68 @@ function getActivityName(activity: ListedActivity): string {
 
 export default function PublicActivitiesAdminPage() {
   const [activities, setActivities] = useState<ListedActivity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<ActivityType | "ALL">("ALL");
+  const [difficultyFilter, setDifficultyFilter] = useState<ActivityDifficulty | "ALL">("ALL");
+  const [page, setPage] = useState(1);
+  const [loadedReloadKey, setLoadedReloadKey] = useState<number | null>(null);
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
+  const isLoading = loadedReloadKey !== reloadKey;
+
   useEffect(() => {
     let cancelled = false;
 
     async function loadActivities(): Promise<void> {
-      setIsLoading(true);
       try {
         const firstPage = await listActivitiesService.execute(1, 100, "all");
         const allActivities = [...firstPage.items];
+
         for (let currentPage = 2; currentPage <= firstPage.pagination.totalPages; currentPage += 1) {
           const nextPage = await listActivitiesService.execute(currentPage, 100, "all");
           allActivities.push(...nextPage.items);
         }
+
         if (!cancelled) {
-          setActivities(allActivities.filter((activity) => activity.status === "PUBLISHED" && activity.publishedVersion !== null));
+          setActivities(allActivities.filter(
+            (activity) => activity.status === "PUBLISHED" && activity.publishedVersion !== null,
+          ));
           setErrorMessage("");
         }
       } catch (error: unknown) {
         if (!cancelled) setErrorMessage(getErrorMessage(error));
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) setLoadedReloadKey(reloadKey);
       }
     }
 
     void loadActivities();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [reloadKey]);
+
+  const filteredActivities = useMemo(() => {
+    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+
+    return activities.filter((activity) => {
+      const matchesSearch = !normalizedSearch
+        || getActivityName(activity).toLocaleLowerCase("pt-BR").includes(normalizedSearch)
+        || (activity.latestVersion?.description ?? "").toLocaleLowerCase("pt-BR").includes(normalizedSearch);
+      const matchesType = typeFilter === "ALL" || activity.type === typeFilter;
+      const matchesDifficulty = difficultyFilter === "ALL"
+        || activity.latestVersion?.difficulty === difficultyFilter;
+
+      return matchesSearch && matchesType && matchesDifficulty;
+    });
+  }, [activities, search, typeFilter, difficultyFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredActivities.length / PAGE_SIZE));
+  const visibleActivities = filteredActivities.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasFilters = Boolean(search.trim()) || typeFilter !== "ALL" || difficultyFilter !== "ALL";
 
   async function toggleVisibility(activity: ListedActivity): Promise<void> {
     if (busySlug) return;
@@ -85,41 +137,198 @@ export default function PublicActivitiesAdminPage() {
         <Link href="/admin/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark">
           <ArrowLeft size={16} aria-hidden="true" /> Atividades pendentes
         </Link>
-        <button type="button" onClick={() => setReloadKey((current) => current + 1)} disabled={isLoading} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:opacity-50">
+        <button
+          type="button"
+          onClick={() => setReloadKey((current) => current + 1)}
+          disabled={isLoading}
+          className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:opacity-50"
+        >
           <RefreshCw size={15} aria-hidden="true" /> Atualizar
         </button>
       </div>
 
-      {successMessage && <p role="status" className="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">{successMessage}</p>}
-      {errorMessage && <p role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{errorMessage}</p>}
+      <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark">
+          <SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="relative block">
+            <span className="sr-only">Buscar por título ou descrição</span>
+            <Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Buscar atividade..."
+              className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por tipo</span>
+            <select
+              value={typeFilter}
+              onChange={(event) => {
+                setTypeFilter(event.target.value as ActivityType | "ALL");
+                setPage(1);
+              }}
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+            >
+              <option value="ALL">Todos os tipos</option>
+              {Object.entries(activityTypeLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por dificuldade</span>
+            <select
+              value={difficultyFilter}
+              onChange={(event) => {
+                setDifficultyFilter(event.target.value as ActivityDifficulty | "ALL");
+                setPage(1);
+              }}
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+            >
+              <option value="ALL">Todas as dificuldades</option>
+              {Object.entries(difficultyLabels).map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      {successMessage && (
+        <p role="status" className="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          {successMessage}
+        </p>
+      )}
+      {errorMessage && (
+        <section role="alert" className="mb-6 flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between">
+          <p>{errorMessage}</p>
+          <button
+            type="button"
+            onClick={() => setReloadKey((current) => current + 1)}
+            disabled={isLoading}
+            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-red-300 px-3 font-semibold transition hover:bg-red-100 disabled:opacity-50"
+          >
+            <RefreshCw size={15} aria-hidden="true" /> Tentar novamente
+          </button>
+        </section>
+      )}
 
       {isLoading ? (
-        <section aria-live="polite" className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-muted">Carregando atividades aprovadas...</section>
-      ) : activities.length === 0 ? (
+        <section aria-live="polite" className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-muted">
+          Carregando atividades aprovadas...
+        </section>
+      ) : filteredActivities.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface p-10 text-center">
           <Globe size={28} className="mx-auto text-muted" aria-hidden="true" />
-          <h2 className="mt-3 font-semibold text-dark">Nenhuma atividade aprovada</h2>
-          <p className="mt-2 text-sm text-muted">As atividades aparecerão aqui após a aprovação administrativa.</p>
+          <h2 className="mt-3 font-semibold text-dark">
+            {hasFilters ? "Nenhuma atividade encontrada" : "Nenhuma atividade aprovada"}
+          </h2>
+          <p className="mt-2 text-sm text-muted">
+            {hasFilters
+              ? "Tente alterar os termos da busca ou os filtros selecionados."
+              : "As atividades aparecerão aqui após a aprovação administrativa."}
+          </p>
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setTypeFilter("ALL");
+                setDifficultyFilter("ALL");
+                setPage(1);
+              }}
+              className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background"
+            >
+              Limpar filtros
+            </button>
+          )}
         </section>
       ) : (
-        <section aria-label="Atividades aprovadas" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {activities.map((activity) => (
-            <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm">
-              <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} />
-              <h2 className="mt-4 text-lg font-semibold text-dark">{getActivityName(activity)}</h2>
-              {activity.latestVersion?.status === "PUBLISHED" && activity.latestVersion.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <span className={activity.visibility === "PUBLIC" ? "rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800" : "rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted"}>
-                  {activity.visibility === "PUBLIC" ? "Na página inicial" : "Somente autenticados"}
-                </span>
-                <button type="button" onClick={() => void toggleVisibility(activity)} disabled={Boolean(busySlug)} aria-label={activity.visibility === "PUBLIC" ? `Retirar ${getActivityName(activity)} da página inicial` : `Exibir ${getActivityName(activity)} na página inicial`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50">
-                  {activity.visibility === "PUBLIC" ? <><Lock size={15} aria-hidden="true" /> Retirar</> : <><Globe size={15} aria-hidden="true" /> Publicar</>}
-                </button>
-              </div>
-              {busySlug === activity.slug && <p className="mt-2 text-xs text-muted" aria-live="polite">Atualizando visibilidade...</p>}
-            </article>
-          ))}
-        </section>
+        <>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-muted" aria-live="polite">
+              {filteredActivities.length === 1
+                ? "1 atividade encontrada"
+                : `${filteredActivities.length} atividades encontradas`}
+            </p>
+            {isLoading && <span className="text-xs text-muted">Atualizando...</span>}
+          </div>
+
+          <section aria-label="Atividades aprovadas" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {visibleActivities.map((activity) => (
+              <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm">
+                <ActivityCoverImage
+                  type={activity.type}
+                  coverImageUrl={activity.coverImageUrl}
+                  altText={activity.coverAltText ?? getActivityName(activity)}
+                />
+                <h2 className="mt-4 text-lg font-semibold text-dark">{getActivityName(activity)}</h2>
+                {activity.latestVersion?.status === "PUBLISHED" && activity.latestVersion.description && (
+                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted">
+                  <span>{activityTypeLabels[activity.type] ?? activity.type}</span>
+                  {activity.latestVersion && (
+                    <span>• {difficultyLabels[activity.latestVersion.difficulty]}</span>
+                  )}
+                </div>
+                <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+                  <span className={activity.visibility === "PUBLIC"
+                    ? "rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800"
+                    : "rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted"}>
+                    {activity.visibility === "PUBLIC" ? "Na página inicial" : "Somente autenticados"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void toggleVisibility(activity)}
+                    disabled={Boolean(busySlug)}
+                    title={activity.visibility === "PUBLIC" ? "Retirar da página inicial" : "Exibir na página inicial"}
+                    aria-label={activity.visibility === "PUBLIC"
+                      ? `Retirar ${getActivityName(activity)} da página inicial`
+                      : `Exibir ${getActivityName(activity)} na página inicial`}
+                    className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {busySlug === activity.slug
+                      ? <RefreshCw size={16} className="animate-spin" aria-hidden="true" />
+                      : activity.visibility === "PUBLIC"
+                        ? <Lock size={16} aria-hidden="true" />
+                        : <Globe size={16} aria-hidden="true" />}
+                  </button>
+                </div>
+                {busySlug === activity.slug && <p className="mt-2 text-xs text-muted" aria-live="polite">Atualizando visibilidade...</p>}
+              </article>
+            ))}
+          </section>
+
+          {totalPages > 1 && (
+            <nav aria-label="Paginação das atividades" className="mt-8 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                disabled={page <= 1}
+                className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronLeft size={17} aria-hidden="true" /> Anterior
+              </button>
+              <span className="text-sm text-muted">Página {page} de {totalPages}</span>
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                disabled={page >= totalPages}
+                className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima <ChevronRight size={17} aria-hidden="true" />
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </RoleBasedLayout>
   );
