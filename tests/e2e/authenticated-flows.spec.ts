@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const student = {
   id: "e2e-student-id",
@@ -7,7 +7,7 @@ const student = {
   roles: ["STUDENT"],
 };
 
-async function mockSuccessfulLogin(page: Parameters<typeof test>[0] extends never ? never : import("@playwright/test").Page) {
+async function mockSuccessfulLogin(page: Page): Promise<void> {
   await page.route("**/auth/login", async (route) => {
     await route.fulfill({
       status: 200,
