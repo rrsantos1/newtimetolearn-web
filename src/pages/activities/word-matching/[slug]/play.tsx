@@ -22,7 +22,7 @@ interface ActivityResponse {
     slug: string;
     type: string;
     isOwner: boolean;
-    version: { name: string; description: string | null; timeLimitSeconds: number | null; content: { pairs: MatchingPair[] } };
+    version: { name: string; description: string | null;  content: { pairs: MatchingPair[] } };
   };
 }
 type Phase = "ready" | "playing" | "finished";
@@ -42,10 +42,6 @@ function getErrorMessage(error: unknown, fallback: string): string {
   }
   return fallback;
 }
-function formatTime(seconds: number | null): string {
-  if (seconds === null) return "Sem limite";
-  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-}
 function imageUrl(item: Extract<DragItem, { type: "image" }>): string | null {
   if (item.publicUrl) return item.publicUrl;
   const base = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
@@ -58,7 +54,7 @@ function ItemView({ item }: Readonly<{ item: DragItem }>) {
 }
 function RankingList({ ranking }: Readonly<{ ranking: DragDropRankingEntry[] }>) {
   if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados para esta atividade.</p>;
-  return <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">{ranking.slice(0, 5).map((entry) => <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-3 py-3"><div className="flex min-w-0 items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span><div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p><p className="text-xs text-muted">{formatTime(entry.elapsedSeconds)}</p></div></div><span className="shrink-0 text-sm font-bold text-dark">{entry.score} pts</span></li>)}</ol>;
+  return <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">{ranking.slice(0, 5).map((entry) => <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-3 py-3"><div className="flex min-w-0 items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span><div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p></div></div><span className="shrink-0 text-sm font-bold text-dark">{entry.score} pts</span></li>)}</ol>;
 }
 
 export default function WordMatchingPlayPage() {
@@ -73,7 +69,6 @@ export default function WordMatchingPlayPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [selectedSourceId, setSelectedSourceId] = useState("");
   const [draggedSourceId, setDraggedSourceId] = useState("");
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [attemptToken, setAttemptToken] = useState("");
   const [result, setResult] = useState<DragDropAttemptResult | null>(null);
   const [ranking, setRanking] = useState<DragDropRankingEntry[]>([]);
@@ -83,7 +78,6 @@ export default function WordMatchingPlayPage() {
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const timeLimit = activity?.version.timeLimitSeconds ?? null;
   const assignedSources = useMemo(() => new Set(Object.keys(answers)), [answers]);
   const correctPreviewCount = result?.attempt.correctCount ?? 0;
 
@@ -122,13 +116,8 @@ export default function WordMatchingPlayPage() {
     return () => { active = false; };
   }, [isStudent, loadRanking, router.isReady, slug, user]);
 
-  useEffect(() => {
-    if (phase !== "playing") return;
-    const timer = window.setInterval(() => setElapsedSeconds((value) => value + 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [phase]);
 
-  const finishActivity = useCallback(async (finalAnswers: Record<string, string>, elapsed: number) => {
+  const finishActivity = useCallback(async (finalAnswers: Record<string, string>) => {
     if (phase !== "playing" || !activity || submitting) return;
     setPhase("finished");
     setSubmitError("");
@@ -136,7 +125,7 @@ export default function WordMatchingPlayPage() {
     setSubmitting(true);
     try {
       const answersToSubmit: DragDropAnswer[] = Object.entries(finalAnswers).map(([itemId, selectedId]) => ({ itemId, selectedId }));
-      const submitted = await dragDropActivityService.submit(activity.slug, "word-matching", answersToSubmit, elapsed, attemptToken);
+      const submitted = await dragDropActivityService.submit(activity.slug, "word-matching", answersToSubmit, attemptToken);
       setResult(submitted);
       setRanking(submitted.ranking);
       if (submitted.attempt.totalItems > 0 && submitted.attempt.correctCount === submitted.attempt.totalItems) {
@@ -153,11 +142,6 @@ export default function WordMatchingPlayPage() {
     }
   }, [activity, attemptToken, isStudent, phase, submitting]);
 
-  useEffect(() => {
-    if (phase !== "playing" || timeLimit === null || elapsedSeconds < timeLimit) return;
-    const timeout = window.setTimeout(() => void finishActivity(answers, timeLimit), 0);
-    return () => window.clearTimeout(timeout);
-  }, [answers, elapsedSeconds, finishActivity, phase, timeLimit]);
 
   function assign(sourceId: string, targetId: string): void {
     if (phase !== "playing") return;
@@ -176,7 +160,6 @@ export default function WordMatchingPlayPage() {
     setAttemptToken(globalThis.crypto.randomUUID());
     setAnswers({});
     setSelectedSourceId("");
-    setElapsedSeconds(0);
     setResult(null);
     setSubmitError("");
     setPhase("playing");
@@ -188,16 +171,16 @@ export default function WordMatchingPlayPage() {
         <div className="space-y-5">
           <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Associação de palavras</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 text-sm leading-6 text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
           {phase === "ready" && <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]" : ""}>
-            <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 shadow-sm sm:p-8"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div><h2 className="mt-4 text-xl font-bold text-dark">Pronto para associar?</h2><p className="mt-2 text-sm leading-6 text-muted">Arraste cada item da área superior até a correspondência correta. Em celular ou teclado, selecione primeiro uma palavra e depois seu destino.</p><div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">Associações</p><p className="mt-1 font-semibold text-dark">{sources.length}</p></div><div><p className="text-sm text-muted">Tempo disponível</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimit)}</p></div></div><button type="button" onClick={start} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar atividade" : "Testar atividade"}</button>{!isStudent && <p className="mt-3 text-xs text-muted">O teste não será registrado no ranking dos alunos.</p>}</section>
+            <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 shadow-sm sm:p-8"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div><h2 className="mt-4 text-xl font-bold text-dark">Pronto para associar?</h2><p className="mt-2 text-sm leading-6 text-muted">Arraste cada item da área superior até a correspondência correta. Em celular ou teclado, selecione primeiro uma palavra e depois seu destino.</p><div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">Associações</p><p className="mt-1 font-semibold text-dark">{sources.length}</p></div></div><button type="button" onClick={start} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar atividade" : "Testar atividade"}</button>{!isStudent && <p className="mt-3 text-xs text-muted">O teste não será registrado no ranking dos alunos.</p>}</section>
             {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking — Top 5</h2></div>{rankingLoading ? <p role="status" className="mt-4 text-sm text-muted">Carregando ranking...</p> : <RankingList ranking={ranking} />}</section>}
           </div>}
           {phase === "playing" && <div className="space-y-5">
-            <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"><div><p className="text-sm text-muted">Associações preenchidas</p><p className="text-lg font-bold text-dark">{Object.keys(answers).length} / {sources.length}</p></div><div><p className="text-sm text-muted">Tempo</p><p className="text-lg font-bold text-dark" aria-live="polite">{formatTime(elapsedSeconds)}</p></div><button type="button" onClick={() => void finishActivity(answers, elapsedSeconds)} disabled={submitting} className="min-h-10 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ color: "var(--primary-foreground)" }}>Finalizar e corrigir</button></section>
+            <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"><div><p className="text-sm text-muted">Associações preenchidas</p><p className="text-lg font-bold text-dark">{Object.keys(answers).length} / {sources.length}</p></div><button type="button" onClick={() => void finishActivity(answers)} disabled={submitting} className="min-h-10 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50" style={{ color: "var(--primary-foreground)" }}>Finalizar e corrigir</button></section>
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6"><h2 className="text-lg font-bold text-dark">1. Banco de palavras</h2><p className="mt-1 text-sm text-muted">Arraste uma palavra ou selecione-a e toque na correspondência.</p><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sources.filter((source) => !assignedSources.has(source.id ?? "")).map((source) => { const sourceId = source.id ?? ""; const selected = selectedSourceId === sourceId; return <button key={sourceId} type="button" draggable onDragStart={() => setDraggedSourceId(sourceId)} onClick={() => setSelectedSourceId(selected ? "" : sourceId)} aria-pressed={selected} className={`min-h-14 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selected ? "border-orange-500 bg-orange-100 ring-2 ring-orange-300/60" : "border-orange-200 bg-white hover:border-orange-400"}`}><ItemView item={source} /></button>; })}</div></section>
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6"><h2 className="text-lg font-bold text-dark">2. Correspondências</h2><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{targets.map((target) => { const targetId = target.id ?? ""; const assignedEntry = Object.entries(answers).find(([, assignedTarget]) => assignedTarget === targetId); const assignedSource = assignedEntry ? sources.find((source) => source.id === assignedEntry[0]) : undefined; return <button key={targetId} type="button" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const sourceId = draggedSourceId || selectedSourceId; if (sourceId) assign(sourceId, targetId); setDraggedSourceId(""); }} onClick={() => { const sourceId = selectedSourceId; if (sourceId) assign(sourceId, targetId); else if (assignedEntry) setAnswers((previous) => { const next = { ...previous }; delete next[assignedEntry[0]]; return next; }); }} aria-label={`Destino: ${target.type === "text" ? target.value : target.altText || "imagem"}${assignedSource ? ", preenchido" : ", vazio"}`} className={`flex min-h-28 flex-col justify-between gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selectedSourceId ? "border-orange-400 bg-orange-50 hover:bg-orange-100" : "border-border"}`}><span className="w-full"><ItemView item={target} /></span><span className="w-full border-t border-dashed border-border pt-2 text-xs text-muted">{assignedSource ? <span className="block rounded-lg bg-background p-2"><span className="mb-1 block font-semibold text-dark">Palavra posicionada</span><ItemView item={assignedSource} /></span> : "Solte a palavra aqui"}</span></button>; })}</div></section>
           </div>}
           {phase === "finished" && <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7"><ConfettiCelebration active={isStudent && result !== null && result.attempt.totalItems > 0 && result.attempt.correctCount === result.attempt.totalItems} />
-                      <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />Corrigindo respostas...</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{correctPreviewCount} de {result.attempt.totalItems} associações corretas · {result.attempt.accuracyPoints} pontos de precisão · {result.attempt.speedPoints} pontos de velocidade.</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das associações</h3>{result.attempt.corrections.map((correction) => { const source = sources.find((item) => item.id === correction.itemId); const expectedTarget = targets.find((item) => item.id === correction.expectedId); const selectedTarget = correction.selectedId ? targets.find((item) => item.id === correction.selectedId) : undefined; return <div key={correction.itemId} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center"><div><p className="mb-1 text-xs text-muted">Palavra</p>{source ? <ItemView item={source} /> : <span className="text-sm text-muted">Item</span>}</div><span className={`text-sm font-bold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>{correction.isCorrect ? "Correto" : "Incorreto"}</span><div><p className="mb-1 text-xs text-muted">{correction.isCorrect ? "Correspondência" : "Sua resposta / correta"}</p>{selectedTarget ? <ItemView item={selectedTarget} /> : <span className="text-sm text-muted">Não respondida</span>}{!correction.isCorrect && expectedTarget && <div className="mt-2 rounded-lg bg-emerald-50 p-2"><p className="mb-1 text-xs font-semibold text-emerald-800">Resposta correta</p><ItemView item={expectedTarget} /></div>}</div></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? "Seu resultado entrou no Top 5." : "Seu resultado foi registrado, mas não entrou no Top 5."}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "A prévia foi concluída sem registrar resultado."}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button></section>}
+                      <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />Corrigindo respostas...</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{correctPreviewCount} de {result.attempt.totalItems} associações corretas</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das associações</h3>{result.attempt.corrections.map((correction) => { const source = sources.find((item) => item.id === correction.itemId); const expectedTarget = targets.find((item) => item.id === correction.expectedId); const selectedTarget = correction.selectedId ? targets.find((item) => item.id === correction.selectedId) : undefined; return <div key={correction.itemId} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center"><div><p className="mb-1 text-xs text-muted">Palavra</p>{source ? <ItemView item={source} /> : <span className="text-sm text-muted">Item</span>}</div><span className={`text-sm font-bold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>{correction.isCorrect ? "Correto" : "Incorreto"}</span><div><p className="mb-1 text-xs text-muted">{correction.isCorrect ? "Correspondência" : "Sua resposta / correta"}</p>{selectedTarget ? <ItemView item={selectedTarget} /> : <span className="text-sm text-muted">Não respondida</span>}{!correction.isCorrect && expectedTarget && <div className="mt-2 rounded-lg bg-emerald-50 p-2"><p className="mb-1 text-xs font-semibold text-emerald-800">Resposta correta</p><ItemView item={expectedTarget} /></div>}</div></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? "Seu resultado entrou no Top 5." : "Seu resultado foi registrado, mas não entrou no Top 5."}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "A prévia foi concluída sem registrar resultado."}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button></section>}
           <div className="pt-2"><button type="button" onClick={() => void router.push(user ? "/student/activities" : "/")} className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark"><ArrowLeft size={16} aria-hidden="true" />{user ? "Voltar às atividades" : "Página inicial"}</button></div>
         </div>
       ) : null}
