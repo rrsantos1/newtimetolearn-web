@@ -4,7 +4,6 @@ export interface CreateWordSearchInput {
   name: string;
   description?: string | null;
   difficulty: ActivityDifficulty;
-  timeLimitSeconds?: number | null;
   words: string[];
 }
 
@@ -54,7 +53,6 @@ export interface EditableWordSearchActivity {
     name: string;
     description: string | null;
     difficulty: ActivityDifficulty;
-    timeLimitSeconds: number | null;
     status: string;
     revision: number;
     content: Record<string, unknown>;
