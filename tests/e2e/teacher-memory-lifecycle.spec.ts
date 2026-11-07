@@ -46,7 +46,6 @@ function activityListResponse(status: "DRAFT" | "PENDING_REVIEW") {
             name: "Jogo de memória E2E",
             description: "Atividade criada pelo teste automatizado.",
             difficulty: "EASY",
-            timeLimitSeconds: 900,
             status,
             revision: 1,
           },
