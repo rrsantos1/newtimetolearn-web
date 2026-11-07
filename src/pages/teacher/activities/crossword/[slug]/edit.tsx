@@ -51,7 +51,6 @@ function toFormValues(activity: EditableCrosswordActivity): CreateCrosswordFormV
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
-    timeLimitSeconds: activity.version.timeLimitSeconds,
     words: words.length >= 3 ? words : [
       { word: "", clue: "" },
       { word: "", clue: "" },
@@ -123,7 +122,6 @@ export default function EditCrosswordPage() {
         name: values.name,
         description: values.description,
         difficulty: values.difficulty,
-        timeLimitSeconds: values.timeLimitSeconds,
         words: values.words,
       });
       const coverId = (values as CreateCrosswordFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
@@ -136,7 +134,6 @@ export default function EditCrosswordPage() {
           name: values.name,
           description: values.description?.trim() ?? null,
           difficulty: values.difficulty,
-          timeLimitSeconds: values.timeLimitSeconds ?? null,
           status: result.version.status,
           content: { ...current.version.content, words: values.words },
         },
