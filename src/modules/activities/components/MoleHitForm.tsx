@@ -16,7 +16,6 @@ const defaultInitialValues: CreateMoleHitFormValues = {
   name: "",
   description: "",
   difficulty: "EASY",
-  timeLimitSeconds: 30,
   content: { holeCount: 6, correctOptions: ["", ""], incorrectOptions: ["", ""] },
 };
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
@@ -85,12 +84,6 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                     <option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option>
                   </Field>
                   <p className="mt-1 text-xs text-muted">Será a opção selecionada inicialmente na tela de execução. O aluno poderá alterá-la antes de começar.</p>
-                </div>
-                <div>
-                  <label htmlFor="timeLimitSeconds" className={labelClassName}>Tempo limite</label>
-                  <Field as="select" id="timeLimitSeconds" name="timeLimitSeconds" className={inputClassName}>
-                    <option value={30}>30 segundos</option><option value={45}>45 segundos</option><option value={60}>60 segundos</option>
-                  </Field>
                 </div>
               </div>
             </div>
