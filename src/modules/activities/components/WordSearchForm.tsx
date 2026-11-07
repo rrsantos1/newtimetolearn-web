@@ -46,7 +46,6 @@ const defaultInitialValues: CreateWordSearchFormValues = {
   name: "",
   description: "",
   difficulty: "EASY",
-  timeLimitSeconds: 900,
   words: ["", "", ""],
 };
 
@@ -171,63 +170,6 @@ export function WordSearchForm({
                     component="p"
                     className={errorClassName}
                   />
-                </div>
-
-                <div>
-                  <label htmlFor="timeLimitSeconds" className={labelClassName}>
-                    Tempo limite
-                  </label>
-
-                  <Field
-                    as="select"
-                    id="timeLimitSeconds"
-                    name="timeLimitSeconds"
-                    value={
-                      values.timeLimitSeconds == null
-                        ? ""
-                        : String(values.timeLimitSeconds)
-                    }
-                    disabled={values.timeLimitSeconds === null}
-                    className={`${inputClassName} disabled:cursor-not-allowed disabled:opacity-60`}
-                    onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-                      const value = event.target.value;
-
-                      void setFieldValue(
-                        "timeLimitSeconds",
-                        value === "" ? null : Number(value),
-                      );
-                    }}
-                  >
-                    <option value={300}>5 minutos</option>
-                    <option value={600}>10 minutos</option>
-                    <option value={900}>15 minutos</option>
-                    <option value={1200}>20 minutos</option>
-                    <option value={1800}>30 minutos</option>
-                  </Field>
-
-                  <ErrorMessage
-                    name="timeLimitSeconds"
-                    component="p"
-                    className={errorClassName}
-                  />
-
-                  <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-muted">
-                    <input
-                      type="checkbox"
-                      checked={values.timeLimitSeconds === null}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-
-                        void setFieldValue(
-                          "timeLimitSeconds",
-                          checked ? null : 900,
-                        );
-                      }}
-                      className="size-4 rounded border-border accent-accent"
-                    />
-
-                    Sem limite de tempo
-                  </label>
                 </div>
               </div>
             </div>
