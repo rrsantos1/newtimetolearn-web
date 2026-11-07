@@ -5,23 +5,27 @@ import { ActivityCoverField } from "@/modules/activities/components/ActivityCove
 interface Props {
   onSubmit: (values: CreateMoleHitFormValues) => Promise<void>;
   submitError: string;
+  initialValues?: CreateMoleHitFormValues;
+  submitLabel?: string;
 }
 
 const labelClass = "mb-1 block text-sm font-semibold text-dark";
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring";
 
-export function MoleHitForm({ onSubmit, submitError }: Readonly<Props>) {
-  const initialValues: CreateMoleHitFormValues = {
+export function MoleHitForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar atividade como rascunho" }: Readonly<Props>) {
+  const defaults: CreateMoleHitFormValues = {
     name: "",
     description: "",
     difficulty: "EASY",
     timeLimitSeconds: 30,
     content: { holeCount: 6 },
   };
+  const initialValues = suppliedInitialValues ?? defaults;
 
   return (
     <Formik<CreateMoleHitFormValues>
       initialValues={initialValues}
+      enableReinitialize
       validationSchema={createMoleHitSchema}
       onSubmit={onSubmit}
     >
@@ -70,7 +74,7 @@ export function MoleHitForm({ onSubmit, submitError }: Readonly<Props>) {
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
           <div className="flex justify-end">
-            <button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : "Salvar atividade como rascunho"}</button>
+            <button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button>
           </div>
         </Form>
       )}
