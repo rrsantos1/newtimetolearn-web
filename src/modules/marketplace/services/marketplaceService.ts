@@ -75,6 +75,17 @@ export const marketplaceService = {
     const response = await api.post<MarketplaceCheckoutResponse>("/marketplace/checkout", input);
     return response.data.data;
   },
+  shouldBypassImageOptimization(): boolean {
+    const baseUrl = api.defaults.baseURL;
+    if (!baseUrl) return false;
+
+    try {
+      const hostname = new URL(baseUrl).hostname.toLowerCase();
+      return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+    } catch {
+      return false;
+    }
+  },
   coverUrl(slug: string) {
     const base = api.defaults.baseURL?.replace(/\/$/, "") ?? "";
     return `${base}/marketplace/${encodeURIComponent(slug)}/cover`;
