@@ -76,7 +76,7 @@ export function MoleHitAiSuggestionsPanel() {
           <input id="mole-ai-incorrect-quantity" type="number" min={2} max={15} value={incorrectQuantity} onChange={(event) => setIncorrectQuantity(Number(event.target.value))} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark" />
         </div>
       </div>
-      <button type="button" onClick={() => void generate()} disabled={loading || correctQuantity < 2 || correctQuantity > 15 || incorrectQuantity < 2 || incorrectQuantity > 15} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+      <button type="button" onClick={() => void generate()} disabled={loading || !Number.isInteger(correctQuantity) || correctQuantity < 2 || correctQuantity > 15 || !Number.isInteger(incorrectQuantity) || incorrectQuantity < 2 || incorrectQuantity > 15} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
         <Sparkles size={16} aria-hidden="true" />{loading ? "Gerando opções..." : "Gerar opções"}
       </button>
       {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
