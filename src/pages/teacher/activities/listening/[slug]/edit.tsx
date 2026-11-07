@@ -265,7 +265,6 @@ export default function EditListeningPage() {
     try {
       await listeningService.edit(slug, {
         name: name.trim(), description: description.trim(), difficulty,
-        timeLimitSeconds: timeLimitMinutes.trim() ? Math.round(Number(timeLimitMinutes) * 60) : null,
         content: { language, instructions: instructions.trim(), passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })) },
       });
       const preview = audioPreviews[passage.id];
