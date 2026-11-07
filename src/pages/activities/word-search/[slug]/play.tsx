@@ -56,12 +56,6 @@ function isWordPositions(value: unknown): value is WordPosition[] {
     "direction" in item && typeof item.direction === "string");
 }
 
-function formatTime(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
-  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-  return `${minutes}:${seconds}`;
-}
-
 function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }>) {
   if (ranking.length === 0) {
     return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
@@ -267,17 +261,9 @@ export default function PlayWordSearchPage() {
                     </div>
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">
-                      Encontre todas as palavras escondidas na grade. O cronômetro só começa quando você iniciar.
+                      Encontre todas as palavras escondidas na grade.
                     </p>
-                    <div className="mt-5 rounded-xl bg-sky-100/70 p-4">
-                      <p className="text-sm font-semibold text-dark">Tempo disponível</p>
-                      <p className="mt-1 text-sm text-muted">
-                        {activity.version.timeLimitSeconds
-                          ? formatTime(activity.version.timeLimitSeconds)
-                          : "Sem limite de tempo"}
-                      </p>
-                    </div>
-                    {(user?.roles.includes("TEACHER") || user?.roles.includes("ADMIN")) && (
+                                        {(user?.roles.includes("TEACHER") || user?.roles.includes("ADMIN")) && (
                       <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" style={{ color: "var(--primary-foreground)" }}>
                         <Play size={18} aria-hidden="true" /> Testar caça-palavras
                       </button>
