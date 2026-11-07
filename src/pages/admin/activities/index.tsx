@@ -221,9 +221,7 @@ export default function PendingActivitiesPage() {
                       </strong>
                     </span>
                   )}
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock3 size={14} aria-hidden="true" />
-                                      </span>
+                  
                   <span>Criada em {formatDate(activity.createdAt)}</span>
                 </div>
               </div>
