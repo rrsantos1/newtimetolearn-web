@@ -11,7 +11,7 @@ export interface MemoryAttemptResult {
     penaltyPoints: number;
     createdAt: string;
   };
-  ranking: Array<{ position: number; studentName: string; score: number; elapsedSeconds: number; createdAt: string }>;
+  ranking: Array<{ position: number; studentName: string; score: number; createdAt: string }>;
   isInRanking: boolean;
 }
 
