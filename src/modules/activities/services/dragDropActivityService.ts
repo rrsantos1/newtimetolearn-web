@@ -42,10 +42,9 @@ export const dragDropActivityService = {
     return response.data.data.ranking;
   },
 
-  async submit(slug: string, kind: "word-matching" | "sentence-completion" | "multiple-choice", answers: DragDropAnswer[], attemptToken: string: Promise<DragDropAttemptResult> {
+  async submit(slug: string, kind: "word-matching" | "sentence-completion" | "multiple-choice", answers: DragDropAnswer[], attemptToken: string): Promise<DragDropAttemptResult> {
     const response = await api.post<AttemptResponse>(`/activities/${encodeURIComponent(slug)}/${kind}/attempts`, {
       answers,
-      elapsedSeconds,
       attemptToken,
     });
     return response.data.data;
