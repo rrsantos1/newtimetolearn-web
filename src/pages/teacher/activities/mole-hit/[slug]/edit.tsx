@@ -24,7 +24,6 @@ interface EditableMoleHitActivity {
     name: string;
     description: string | null;
     difficulty: CreateMoleHitFormValues["difficulty"];
-    timeLimitSeconds: number | null;
     status: string;
     revision: number;
     content: { holeCount: 6 | 9 | 12; theme?: string; correctOptions: string[]; incorrectOptions: string[] };
@@ -70,7 +69,6 @@ export default function EditMoleHitPage() {
           name: loaded.version.name,
           description: loaded.version.description ?? "",
           difficulty: loaded.version.difficulty,
-          timeLimitSeconds: loaded.version.timeLimitSeconds ?? 30,
           content: {
             holeCount: loaded.version.content.holeCount,
             correctOptions: loaded.version.content.correctOptions ?? [],
@@ -94,7 +92,6 @@ export default function EditMoleHitPage() {
         name: values.name.trim(),
         description: values.description.trim() || null,
         difficulty: values.difficulty,
-        timeLimitSeconds: values.timeLimitSeconds,
         content: {
           holeCount: values.content.holeCount,
           correctOptions: values.content.correctOptions,
