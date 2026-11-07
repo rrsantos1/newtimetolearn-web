@@ -387,7 +387,6 @@ export default function MoleHitPlayPage() {
                 `}</style>
               </div>
               <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
-              {phase === "playing" && <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>}
             </section>
           )}
           {phase === "finished" && (
