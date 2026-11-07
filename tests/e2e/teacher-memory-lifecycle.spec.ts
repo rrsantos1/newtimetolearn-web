@@ -80,6 +80,22 @@ async function signInAsTeacher(page: Page): Promise<void> {
     });
   });
 
+  await page.route("**/users/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          ...teacher,
+          status: "ACTIVE",
+          emailVerifiedAt: "2026-01-01T10:00:00.000Z",
+          createdAt: "2026-01-01T09:00:00.000Z",
+        },
+      }),
+    });
+  });
+
   await page.route("**/subscriptions/me/entitlements", async (route) => {
     await route.fulfill({
       status: 200,
