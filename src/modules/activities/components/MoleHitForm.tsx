@@ -17,7 +17,7 @@ const defaultInitialValues: CreateMoleHitFormValues = {
   description: "",
   difficulty: "EASY",
   timeLimitSeconds: 30,
-  content: { holeCount: 6, theme: "", correctOptions: ["", ""], incorrectOptions: ["", ""] },
+  content: { holeCount: 6, correctOptions: ["", ""], incorrectOptions: ["", ""] },
 };
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
 const labelClassName = "mb-2 block text-sm font-medium text-dark";
@@ -48,7 +48,7 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
       onSubmit={(values) => onSubmit({
         ...values,
         content: {
-          ...values.content,
+          holeCount: values.content.holeCount,
           correctOptions: values.content.correctOptions.map((option) => option.trim()).filter(Boolean),
           incorrectOptions: values.content.incorrectOptions.map((option) => option.trim()).filter(Boolean),
         },
@@ -61,7 +61,7 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
-              <p className="mt-1 text-sm leading-6 text-muted">Defina o título, o tema e as configurações padrão para a execução.</p>
+              <p className="mt-1 text-sm leading-6 text-muted">Defina o título e as configurações padrão para a execução.</p>
             </div>
             <div className="space-y-5">
               <div>
@@ -73,11 +73,6 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                 <label htmlFor="description" className={labelClassName}>Descrição</label>
                 <Field as="textarea" id="description" name="description" rows={3} maxLength={2000} placeholder="Descreva o objetivo da atividade..." className={inputClassName} />
                 <ErrorMessage name="description" component="p" className={errorClassName} />
-              </div>
-              <div>
-                <label htmlFor="content.theme" className={labelClassName}>Tema / categoria <span className="text-red-600">*</span></label>
-                <Field id="content.theme" name="content.theme" maxLength={160} placeholder="Ex.: Cidades que são capitais de estados brasileiros" className={inputClassName} aria-required="true" aria-invalid={Boolean(getIn(errors, "content.theme") && submitCount > 0)} />
-                <ErrorMessage name="content.theme" component="p" className={errorClassName} />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
