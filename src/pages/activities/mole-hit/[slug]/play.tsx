@@ -181,9 +181,12 @@ export default function MoleHitPlayPage() {
     const isCorrect = correctOptions.includes(option);
     setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
+    const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
+    const progress = Math.min(0.2, elapsedSeconds / Math.max(1, duration) * 0.2);
+    const visibleMs = Math.max(500, Math.round(settings.visibleMs * (1 - progress)));
     visibleTimeoutRef.current = window.setTimeout(
       () => setActiveHole((current) => current?.index === safeHole ? null : current),
-      settings.visibleMs,
+      visibleMs,
     );
   }, [activity, duration, holeCount, phase, settings.visibleMs]);
 
@@ -204,7 +207,10 @@ export default function MoleHitPlayPage() {
     let timer: number;
     const scheduleNext = (): void => {
       spawnMole();
-      timer = window.setTimeout(scheduleNext, settings.spawnMs);
+      const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
+      const progress = Math.min(0.2, elapsedSeconds / Math.max(1, duration) * 0.2);
+      const spawnMs = Math.max(500, Math.round(settings.spawnMs * (1 - progress)));
+      timer = window.setTimeout(scheduleNext, spawnMs);
       spawnTimeoutRef.current = timer;
     };
     scheduleNext();
