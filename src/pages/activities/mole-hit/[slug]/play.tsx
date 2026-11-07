@@ -76,6 +76,9 @@ export default function MoleHitPlayPage() {
   const hitsRef = useRef(0);
   const missesRef = useRef(0);
   const remainingRef = useRef(30);
+  const gameEndedRef = useRef(false);
+  const spawnTimeoutRef = useRef<number | null>(null);
+  const visibleTimeoutRef = useRef<number | null>(null);
 
   const holeCount = activity?.version.content.holeCount ?? 6;
   const duration = activity?.version.timeLimitSeconds ?? 30;
@@ -115,10 +118,13 @@ export default function MoleHitPlayPage() {
   }, [router.isReady, slug, user, loadRanking]);
 
   const finishGame = useCallback(async (): Promise<void> => {
-    if (phase !== "playing" || !activity) return;
+    if (phase !== "playing" || !activity || gameEndedRef.current) return;
+    gameEndedRef.current = true;
     const elapsedSeconds = Math.min(duration, Math.max(0, Math.floor((Date.now() - startAtRef.current) / 1000)));
     setPhase("finished");
     setActiveHole(null);
+    if (spawnTimeoutRef.current !== null) window.clearTimeout(spawnTimeoutRef.current);
+    if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     setSubmitError("");
     if (!isStudent) {
       setSubmitError("Prévia concluída. O resultado não foi registrado no ranking dos alunos.");
@@ -134,7 +140,7 @@ export default function MoleHitPlayPage() {
   }, [activity, duration, isStudent, phase]);
 
   const spawnMole = useCallback(() => {
-    if (phase !== "playing") return;
+    if (phase !== "playing" || gameEndedRef.current) return;
     const nextHole = Math.floor(Math.random() * holeCount);
     const safeHole = lastSpawnRef.current === nextHole && holeCount > 1 ? (nextHole + 1) % holeCount : nextHole;
     lastSpawnRef.current = safeHole;
@@ -142,7 +148,8 @@ export default function MoleHitPlayPage() {
     const elapsed = (Date.now() - startAtRef.current) / 1000;
     const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
     const visibleMs = Math.max(260, Math.round(settings.visibleMs * (1 - acceleration)));
-    window.setTimeout(() => setActiveHole((current) => current === safeHole ? null : current), visibleMs);
+    if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
+    visibleTimeoutRef.current = window.setTimeout(() => setActiveHole((current) => current === safeHole ? null : current), visibleMs);
   }, [duration, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
@@ -159,12 +166,21 @@ export default function MoleHitPlayPage() {
 
   useEffect(() => {
     if (phase !== "playing") return;
-    const elapsed = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-    const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
-    const intervalMs = Math.max(280, Math.round(settings.spawnMs * (1 - acceleration)));
-    const timer = window.setInterval(spawnMole, intervalMs);
-    spawnMole();
-    return () => window.clearInterval(timer);
+    let timer: number;
+    const scheduleNext = (): void => {
+      spawnMole();
+      const elapsedNow = Math.max(0, (Date.now() - startAtRef.current) / 1000);
+      const progress = Math.min(0.55, elapsedNow / Math.max(1, duration) * 0.55);
+      const nextInterval = Math.max(280, Math.round(settings.spawnMs * (1 - progress)));
+      timer = window.setTimeout(scheduleNext, nextInterval);
+      spawnTimeoutRef.current = timer;
+    };
+    scheduleNext();
+    return () => {
+      window.clearTimeout(timer);
+      if (spawnTimeoutRef.current !== null) window.clearTimeout(spawnTimeoutRef.current);
+      if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
+    };
   }, [duration, phase, settings.spawnMs, spawnMole]);
 
   function startGame(): void {
@@ -179,11 +195,12 @@ export default function MoleHitPlayPage() {
     setResult(null);
     setSubmitError("");
     startAtRef.current = Date.now();
+    gameEndedRef.current = false;
     setPhase("playing");
   }
 
   function hitHole(index: number): void {
-    if (phase !== "playing") return;
+    if (phase !== "playing" || gameEndedRef.current) return;
     if (activeHole === index) {
       hitsRef.current += 1;
       setHits(hitsRef.current);
