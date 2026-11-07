@@ -6,8 +6,8 @@ import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMoleHitAttemptService, type MoleHitAttemptResult } from "@/modules/activities/services/submitMoleHitAttemptService";
-import { getMoleHitRankingService as getMemoryRankingService } from "@/modules/activities/services/getMoleHitRankingService";
-import type { MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
+import { getMoleHitRankingService } from "@/modules/activities/services/getMoleHitRankingService";
+import type { MoleHitRankingEntry } from "@/modules/activities/services/getMoleHitRankingService";
 
 interface ActivityResponse {
   success: true;
@@ -40,7 +40,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function RankingList({ ranking }: Readonly<{ ranking: MemoryRankingEntry[] }>) {
+function RankingList({ ranking }: Readonly<{ ranking: MoleHitRankingEntry[] }>) {
   if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Seja o primeiro no ranking!</p>;
   return (
     <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
@@ -69,7 +69,7 @@ export default function MoleHitPlayPage() {
   const [remaining, setRemaining] = useState(30);
   const [result, setResult] = useState<MoleHitAttemptResult | null>(null);
   const [submitError, setSubmitError] = useState("");
-  const [ranking, setRanking] = useState<MemoryRankingEntry[]>([]);
+  const [ranking, setRanking] = useState<MoleHitRankingEntry[]>([]);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rankingError, setRankingError] = useState("");
   const startAtRef = useRef<number>(0);
@@ -89,7 +89,7 @@ export default function MoleHitPlayPage() {
     setRankingLoading(true);
     setRankingError("");
     try {
-      setRanking(await getMemoryRankingService.execute(activitySlug));
+      setRanking(await getMoleHitRankingService.execute(activitySlug));
     } catch (error: unknown) {
       setRankingError(getErrorMessage(error, "Não foi possível carregar o ranking."));
     } finally {
