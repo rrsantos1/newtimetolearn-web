@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   RefreshCw,
   Trophy,
 } from "lucide-react";
@@ -162,7 +161,6 @@ export default function ActivityAttemptsPage() {
                     <th scope="col" className="px-5 py-4 font-semibold">Aluno</th>
                     <th scope="col" className="px-5 py-4 font-semibold">Pontuação</th>
                     <th scope="col" className="px-5 py-4 font-semibold">{result.activityType === "listening" ? "Lacunas" : "Palavras"}</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Tempo</th>
                     <th scope="col" className="px-5 py-4 font-semibold">Data</th>
                   </tr>
                 </thead>
@@ -182,12 +180,6 @@ export default function ActivityAttemptsPage() {
                         {result.activityType === "listening"
                           ? `${attempt.correctBlanks ?? 0} de ${attempt.totalBlanks ?? 0}`
                           : `${attempt.wordsFound?.length ?? 0} de ${attempt.totalWords ?? 0}`}
-                      </td>
-                      <td className="px-5 py-4 text-dark">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock3 size={14} className="text-muted" aria-hidden="true" />
-                          
-                        </span>
                       </td>
                       <td className="px-5 py-4 text-muted">
                         {formatDate(attempt.createdAt)}
