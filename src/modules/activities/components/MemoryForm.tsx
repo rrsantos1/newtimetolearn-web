@@ -142,7 +142,7 @@ export function MemoryItemEditor({ name, value, onChange, title, invalid }: Read
 export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar jogo da memória como rascunho" }: Readonly<Props>) {
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateMemoryFormValues>(() => ({
-    name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
+    name: "", description: "", difficulty: "EASY",
     content: { pairs: Array.from({ length: 6 }, () => emptyPair()) },
   }), []);
   const initialValues = suppliedInitialValues ?? defaultInitialValues;
@@ -163,7 +163,6 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
               <div><label htmlFor="description" className={labelClass}>Descrição</label><Field as="textarea" id="description" name="description" rows={3} maxLength={2000} className={inputClass} /></div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div><label htmlFor="difficulty" className={labelClass}>Dificuldade</label><Field as="select" id="difficulty" name="difficulty" className={inputClass}><option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option></Field></div>
-                <div><label htmlFor="timeLimitSeconds" className={labelClass}>Tempo limite</label><select id="timeLimitSeconds" value={values.timeLimitSeconds === null ? "" : String(values.timeLimitSeconds)} onChange={(event) => void setFieldValue("timeLimitSeconds", event.target.value === "" ? null : Number(event.target.value))} className={inputClass}><option value="300">5 minutos</option><option value="600">10 minutos</option><option value="900">15 minutos</option><option value="1200">20 minutos</option><option value="1800">30 minutos</option><option value="">Sem limite</option></select></div>
               </div>
             </div>
           </section>
