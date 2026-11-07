@@ -223,10 +223,7 @@ export default function PendingActivitiesPage() {
                   )}
                   <span className="inline-flex items-center gap-1.5">
                     <Clock3 size={14} aria-hidden="true" />
-                    {activity.latestVersion?.timeLimitSeconds == null
-                      ? "Sem limite de tempo"
-                      : `${Math.floor(activity.latestVersion.timeLimitSeconds / 60)} min`}
-                  </span>
+                                      </span>
                   <span>Criada em {formatDate(activity.createdAt)}</span>
                 </div>
               </div>
