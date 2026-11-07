@@ -5,7 +5,6 @@ import axios from "axios";
 import { ArrowLeft, CheckCircle2, LoaderCircle } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { MoleHitForm } from "@/modules/activities/components/MoleHitForm";
-import { createMoleHitService } from "@/modules/activities/services/createMoleHitService";
 import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import type { CreateMoleHitFormValues } from "@/modules/activities/schemas/createMoleHitSchema";
