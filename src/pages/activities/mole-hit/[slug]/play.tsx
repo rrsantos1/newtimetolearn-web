@@ -235,7 +235,8 @@ export default function MoleHitPlayPage() {
 
   function hitHole(index: number): void {
     if (phase !== "playing" || gameEndedRef.current) return;
-    if (activeHole?.index === index && activeHole.resolved === null) {
+    if (activeHole?.index === index && activeHole.resolved !== null) return;
+    if (activeHole?.index === index) {
       if (activeHole.isCorrect) {
         hitsRef.current += 1;
         setHits(hitsRef.current);
