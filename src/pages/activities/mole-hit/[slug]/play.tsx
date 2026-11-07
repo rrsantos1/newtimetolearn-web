@@ -178,7 +178,7 @@ export default function MoleHitPlayPage() {
     const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
     const visibleMs = Math.max(260, Math.round(settings.visibleMs * (1 - acceleration)));
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
-    visibleTimeoutRef.current = window.setTimeout(() => setActiveHole((current) => current === safeHole ? null : current), visibleMs);
+    visibleTimeoutRef.current = window.setTimeout(() => setActiveHole((current) => current?.index === safeHole ? null : current), visibleMs);
   }, [activity, duration, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
