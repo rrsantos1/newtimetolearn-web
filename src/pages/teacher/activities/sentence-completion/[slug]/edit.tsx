@@ -22,7 +22,6 @@ interface Response {
       name: string;
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
-      timeLimitSeconds: number | null;
       content: {
         words: Array<{ id: string; text: string }>;
         sentences: Array<{ id: string; text: string; blanks: Array<{ id: string; expectedWordId: string }> }>;
@@ -78,7 +77,6 @@ export default function EditSentenceCompletionPage() {
           name: activity.version.name,
           description: activity.version.description ?? "",
           difficulty: activity.version.difficulty,
-          timeLimitSeconds: activity.version.timeLimitSeconds,
           content: {
             words: activity.version.content.words.map((word) => ({ ...word })),
             sentences: activity.version.content.sentences.map((sentence) => ({ id: sentence.id, parts: toParts(sentence.text, sentence.blanks) })),
