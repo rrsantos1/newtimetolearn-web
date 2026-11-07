@@ -24,7 +24,7 @@ describe("createWordSearchSchema", () => {
         ...validValues,
         words: ["Pássaro", "PASSARO", "Cachorro"],
       }),
-    ).rejects.toThrow("palavras duplicadas.");
+    ).rejects.toThrow("palavras duplicadas na atividade.");
   });
 
   it("rejects words containing unsupported punctuation", async () => {
