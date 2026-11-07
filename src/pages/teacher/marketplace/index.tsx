@@ -15,6 +15,7 @@ type ConnectionState = "loading" | "connected" | "disconnected" | "error";
 export default function TeacherMarketplacePage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const isAdmin = user?.roles.includes("ADMIN") ?? false;
   const [connection, setConnection] = useState<ConnectionState>("loading");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
@@ -136,7 +137,7 @@ export default function TeacherMarketplacePage() {
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
           <article className="rounded-2xl border border-border bg-white p-6">
             <h2 className="font-bold text-dark">Publicar material</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">Envie PDF, PPT ou PPTX ou cadastre um link do Google Slides para venda como cópia. A publicação depende de assinatura ativa e aprovação administrativa.</p>
+            <p className="mt-2 text-sm leading-6 text-muted">{isAdmin ? "Envie PDF, PPT ou PPTX ou cadastre um link do Google Slides. Seus materiais serão publicados imediatamente, sem exigência de assinatura." : "Envie PDF, PPT ou PPTX ou cadastre um link do Google Slides para venda como cópia. A publicação depende de assinatura ativa e aprovação administrativa."}</p>
             <Link href="/teacher/marketplace/new" className="mt-5 inline-flex min-h-10 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
               Cadastrar material
             </Link>
