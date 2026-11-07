@@ -171,13 +171,12 @@ export default function PlayListeningPage() {
     };
   }, [router.isReady, slug, user]);
 
-  const finishAttempt = useCallback(async (timedOut = false, retry = false): Promise<void> => {
+  const finishAttempt = useCallback(async (retry = false): Promise<void> => {
     if ((phase !== "playing" && !(retry && phase === "finished")) || submittedRef.current || !activity) return;
     submittedRef.current = true;
     setPhase("finished");
     setSubmitting(isStudent);
     setSubmitError("");
-    if (timedOut) setPreviewNotice("O tempo acabou e as respostas foram finalizadas automaticamente.");
 
     if (!isStudent) {
       setSubmitting(false);
@@ -216,7 +215,6 @@ export default function PlayListeningPage() {
   function startActivity(): void {
     submittedRef.current = false;
     setAnswers({});
-    setElapsedSeconds(0);
     setResult(null);
     setSubmitError("");
     setPreviewNotice("");
