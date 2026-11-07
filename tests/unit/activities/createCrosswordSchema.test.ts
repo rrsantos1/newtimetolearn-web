@@ -32,7 +32,7 @@ describe("createCrosswordSchema", () => {
           validValues.words[1],
         ],
       }),
-    ).rejects.toThrow("respostas duplicadas.");
+    ).rejects.toThrow("respostas duplicadas na atividade.");
   });
 
   it("requires a clue for every answer", async () => {
