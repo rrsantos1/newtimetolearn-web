@@ -14,7 +14,6 @@ export interface EditableQuizActivity {
     name: string;
     description: string | null;
     difficulty: ActivityDifficulty;
-    timeLimitSeconds: number | null;
     status: string;
     revision: number;
     content: {
