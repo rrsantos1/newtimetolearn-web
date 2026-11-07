@@ -68,11 +68,6 @@ function normalizeCrosswordClues(value: unknown): CrosswordClue[] | null {
   return normalized;
 }
 
-function formatTime(seconds: number | null): string {
-  if (seconds === null) return "Sem limite de tempo";
-  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-}
-
 function RankingList({ ranking }: Readonly<{ ranking: CrosswordRankingEntry[] }>) {
   if (ranking.length === 0) {
     return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
@@ -86,7 +81,7 @@ function RankingList({ ranking }: Readonly<{ ranking: CrosswordRankingEntry[] }>
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
-              <p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p>
+              
             </div>
           </div>
           <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
@@ -250,12 +245,8 @@ export default function PlayCrosswordPage() {
                   <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-8">
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
-                    <p className="mt-2 text-sm leading-6 text-muted">Complete as palavras usando as pistas horizontais e verticais. O cronômetro começa somente quando você iniciar.</p>
-                    <div className="mt-5 rounded-xl bg-violet-100/70 p-4">
-                      <p className="text-sm font-semibold text-dark">Tempo disponível</p>
-                      <p className="mt-1 text-sm text-muted">{formatTime(activity.version.timeLimitSeconds)}</p>
-                    </div>
-                    <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                    <p className="mt-2 text-sm leading-6 text-muted">Complete as palavras usando as pistas horizontais e verticais.</p>
+                                        <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                       <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar cruzadinha" : "Testar cruzadinha"}
                     </button>
                     {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não é registrada no recorde dos alunos.</p>}
@@ -300,8 +291,8 @@ export default function PlayCrosswordPage() {
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
                           <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Palavras corretas: {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
-                          <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(attemptResult.attempt.elapsedSeconds)}</p>
-                          <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/80 · Velocidade: {attemptResult.attempt.speedPoints}/20</p>
+                          
+                          <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/100</p>
                         </div>
                         <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
                           {attemptResult.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Seu resultado não entrou no Top 5 desta vez. Continue praticando!"}
