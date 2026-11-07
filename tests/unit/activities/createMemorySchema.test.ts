@@ -5,7 +5,6 @@ const validValues = {
   name: "Memória de animais",
   description: "Encontre os pares.",
   difficulty: "EASY",
-  timeLimitSeconds: null,
   content: {
     pairs: [
       { id: "pair-1", first: { type: "text", value: "Gato" }, second: { type: "text", value: "Felino" } },
