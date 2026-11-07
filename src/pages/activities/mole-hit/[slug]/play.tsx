@@ -99,6 +99,7 @@ export default function MoleHitPlayPage() {
   const spawnTimeoutRef = useRef<number | null>(null);
   const visibleTimeoutRef = useRef<number | null>(null);
   const hitEffectTimeoutRef = useRef<number | null>(null);
+  const hitEffectCounterRef = useRef(0);
   const optionQueueRef = useRef<string[]>([]);
   const previousCycleFirstRef = useRef("");
 
@@ -254,7 +255,7 @@ export default function MoleHitPlayPage() {
         hitsRef.current += 1;
         setHits(hitsRef.current);
         setActiveHole({ ...activeHole, resolved: "correct" });
-        setHitEffect({ index, key: Date.now() });
+        setHitEffect({ index, key: ++hitEffectCounterRef.current });
         if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
         hitEffectTimeoutRef.current = window.setTimeout(() => setHitEffect(null), 650);
       } else {
