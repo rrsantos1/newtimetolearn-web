@@ -165,7 +165,7 @@ export default function TeacherMarketplacePage() {
               {products.map((product) => (
                 <article key={product.id} className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 sm:flex-row sm:items-center">
                   <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:w-36">
-                    {product.preview_pages > 0 && <Image src={marketplaceService.coverUrl(product.slug)} alt={`Capa de ${product.title}`} fill sizes="144px" className="object-contain p-1" />}
+                    {product.preview_pages > 0 && <Image src={marketplaceService.coverUrl(product.slug)} alt={`Capa de ${product.title}`} fill sizes="144px" unoptimized={marketplaceService.shouldBypassImageOptimization()} className="object-contain p-1" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-dark">{product.title}</h3>
