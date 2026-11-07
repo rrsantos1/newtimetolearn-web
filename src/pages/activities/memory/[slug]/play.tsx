@@ -25,7 +25,6 @@ interface ActivityResponse {
     version: {
       name: string;
       description: string | null;
-      timeLimitSeconds: number | null;
       content: { pairs: Pair[] };
     };
   };
@@ -51,10 +50,6 @@ function imageUrl(item: Extract<MemoryItemValue, { type: "image" }>): string | u
   return base && item.storageKey ? `${base}/${item.storageKey}` : undefined;
 }
 
-function formatTime(totalSeconds: number | null): string {
-  if (totalSeconds === null) return "Sem limite de tempo";
-  return `${Math.floor(totalSeconds / 60).toString().padStart(2, "0")}:${(totalSeconds % 60).toString().padStart(2, "0")}`;
-}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
@@ -77,7 +72,7 @@ function RankingList({ ranking }: Readonly<{ ranking: MemoryRankingEntry[] }>) {
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
-              <p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p>
+              
             </div>
           </div>
           <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
@@ -99,7 +94,6 @@ export default function MemoryGamePage() {
   const [openIds, setOpenIds] = useState<string[]>([]);
   const [matchedIds, setMatchedIds] = useState<string[]>([]);
   const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [seconds, setSeconds] = useState(0);
   const [result, setResult] = useState<MemoryAttemptResult | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [ranking, setRanking] = useState<MemoryRankingEntry[]>([]);
@@ -144,13 +138,7 @@ export default function MemoryGamePage() {
     return () => { active = false; };
   }, [router.isReady, slug, user, loadRanking]);
 
-  const timeLimit = activity?.version.timeLimitSeconds ?? null;
 
-  useEffect(() => {
-    if (phase !== "playing") return;
-    const timer = window.setInterval(() => setSeconds((current) => current + 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [phase]);
 
   const finishGame = useCallback(async (
     finalMatchedIds: string[] = matchedIds,
@@ -164,30 +152,19 @@ export default function MemoryGamePage() {
       return;
     }
     try {
-      const elapsedSeconds = timeLimit === null ? seconds : Math.min(seconds, timeLimit);
-      const submitted = await submitMemoryAttemptService.execute(activity.slug, finalMatchedIds, finalWrongAttempts, elapsedSeconds);
+      const submitted = await submitMemoryAttemptService.execute(activity.slug, finalMatchedIds, finalWrongAttempts);
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error, "Não foi possível salvar seu resultado."));
     }
-  }, [activity, isStudent, matchedIds, phase, seconds, timeLimit, wrongAttempts]);
+  }, [activity, isStudent, matchedIds, phase, wrongAttempts]);
 
-  useEffect(() => {
-    if (phase !== "playing" || timeLimit === null || seconds < timeLimit) return;
-
-    const timeout = window.setTimeout(() => {
-      void finishGame(matchedIds, wrongAttempts);
-    }, 0);
-
-    return () => window.clearTimeout(timeout);
-  }, [finishGame, matchedIds, phase, seconds, timeLimit, wrongAttempts]);
 
   function startGame(): void {
     setOpenIds([]);
     setMatchedIds([]);
     setWrongAttempts(0);
-    setSeconds(0);
     setResult(null);
     setSubmitError("");
     setPhase("playing");
@@ -243,7 +220,7 @@ export default function MemoryGamePage() {
                 <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas. O cronômetro só começa quando você clicar em iniciar.</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2">
                   <div><p className="text-sm text-muted">Quantidade de pares</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
-                  <div><p className="text-sm text-muted">Tempo disponível</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimit)}</p></div>
+                  
                 </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo da memória" : "Testar jogo da memória"}
@@ -270,7 +247,7 @@ export default function MemoryGamePage() {
               <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5">
                 <div><p className="text-sm text-muted">Pares encontrados</p><p className="text-xl font-bold text-dark">{matchedIds.length} / {activity.version.content.pairs.length}</p></div>
                 <div><p className="text-sm text-muted">Erros</p><p className="text-xl font-bold text-dark">{wrongAttempts}</p></div>
-                <div><p className="text-sm text-muted">Tempo</p><p className="text-xl font-bold text-dark">{formatTime(seconds)}</p></div>
+                
                 <button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button>
               </section>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
