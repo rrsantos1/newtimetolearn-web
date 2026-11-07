@@ -95,7 +95,8 @@ export default function MoleHitPlayPage() {
   const gameEndedRef = useRef(false);
   const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
-  const visibleTimeoutRef = useRef<number | null>(null);\n  const optionQueueRef = useRef<string[]>([]);\n  const previousCycleFirstRef = useRef(\"\");
+  const visibleTimeoutRef = useRef<number | null>(null);
+  const optionQueueRef = useRef<string[]>([]);\n  const previousCycleFirstRef = useRef(\"\");
 
   const holeCount = activity?.version.content.holeCount ?? 6;
   const duration = activity?.version.timeLimitSeconds ?? 30;
