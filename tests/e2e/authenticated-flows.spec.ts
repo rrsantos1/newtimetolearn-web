@@ -86,3 +86,43 @@ test("student cannot access the teacher area", async ({ page }) => {
     page.getByRole("heading", { name: `Olá, ${student.name}!` }),
   ).toBeVisible();
 });
+
+test("session is restored after reload and logout removes the token", async ({
+  page,
+}) => {
+  await mockSuccessfulLogin(page);
+  await page.route("**/users/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          ...student,
+          status: "ACTIVE",
+          emailVerifiedAt: "2026-01-01T10:00:00.000Z",
+          createdAt: "2026-01-01T09:00:00.000Z",
+        },
+      }),
+    });
+  });
+
+  await page.goto("/login");
+  await page.getByLabel("E-mail").fill(student.email);
+  await page.getByLabel("Senha").fill("SenhaSegura123!");
+  await page.getByRole("button", { name: /^Entrar$/ }).click();
+  await expect(page).toHaveURL(/\\/dashboard$/);
+
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: `Olá, ${student.name}!` }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Sair" }).click();
+  await expect(page).toHaveURL(/\\/login$/);
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.sessionStorage.getItem("timetolearn_access_token")),
+    )
+    .toBeNull();
+});
