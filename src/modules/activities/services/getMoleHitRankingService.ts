@@ -1,6 +1,6 @@
 import api from "@/lib/api";
 
-export interface MemoryRankingEntry {
+export interface MoleHitRankingEntry {
   position: number;
   studentName: string;
   score: number;
@@ -8,14 +8,14 @@ export interface MemoryRankingEntry {
   createdAt: string;
 }
 
-interface GetMemoryRankingResponse {
+interface GetMoleHitRankingResponse {
   success: true;
-  data: { ranking: MemoryRankingEntry[] };
+  data: { ranking: MoleHitRankingEntry[] };
 }
 
-export const getMemoryRankingService = {
-  async execute(slug: string): Promise<MemoryRankingEntry[]> {
-    const response = await api.get<GetMemoryRankingResponse>(
+export const getMoleHitRankingService = {
+  async execute(slug: string): Promise<MoleHitRankingEntry[]> {
+    const response = await api.get<GetMoleHitRankingResponse>(
       `/activities/${encodeURIComponent(slug)}/mole-hit/ranking`,
     );
     return response.data.data.ranking;
