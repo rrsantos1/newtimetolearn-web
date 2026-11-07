@@ -63,7 +63,6 @@ export interface CreateListeningInput {
   name: string;
   description: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
-  timeLimitSeconds: number | null;
   content: {
     language: string;
     instructions: string;
@@ -92,7 +91,6 @@ export interface ListeningActivityDetailsResponse {
       name: string;
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
-      timeLimitSeconds: number | null;
       status: string;
       content: {
         language: string;
@@ -262,7 +260,6 @@ export const listeningService = {
   async submitAttempt(
     slug: string,
     answers: ListeningAttemptAnswerInput[],
-    elapsedSeconds: number,
   ): Promise<ListeningAttemptResult> {
     const response = await api.post<ListeningAttemptResponse>(
       `/activities/${encodeURIComponent(slug)}/listening/attempts`,
