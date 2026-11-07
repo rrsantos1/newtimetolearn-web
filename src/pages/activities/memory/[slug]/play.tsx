@@ -217,7 +217,7 @@ export default function MemoryGamePage() {
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                 <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
-                <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas. O cronômetro só começa quando você clicar em iniciar.</p>
+                <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas e conclua a atividade no seu ritmo.</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2">
                   <div><p className="text-sm text-muted">Quantidade de pares</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
                   
