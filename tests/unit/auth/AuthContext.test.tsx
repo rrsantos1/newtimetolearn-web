@@ -113,6 +113,7 @@ describe("AuthContext", () => {
       undefined,
       undefined,
       {
+        data: { message: "Unauthorized" },
         status: 401,
         statusText: "Unauthorized",
         headers: {},
