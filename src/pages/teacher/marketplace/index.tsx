@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
+import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
+
+type SellerProduct = MarketplaceProduct & { status: "PENDING_REVIEW" | "PUBLISHED" | "REJECTED"; created_at: string };
 
 type ConnectionState = "loading" | "connected" | "disconnected" | "error";
 
@@ -14,6 +18,10 @@ export default function TeacherMarketplacePage() {
   const [connection, setConnection] = useState<ConnectionState>("loading");
   const [connecting, setConnecting] = useState(false);
   const [message, setMessage] = useState("");
+  const [products, setProducts] = useState<SellerProduct[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [productsError, setProductsError] = useState("");
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || !user?.roles.includes("TEACHER"))) {
@@ -35,6 +43,31 @@ export default function TeacherMarketplacePage() {
       active = false;
     };
   }, [isAuthenticated, isLoading, user]);
+
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !user?.roles.includes("TEACHER")) return;
+    let active = true;
+    marketplaceService.myProducts()
+      .then((items) => { if (active) setProducts(items); })
+      .catch(() => { if (active) setProductsError("Não foi possível carregar seus materiais."); })
+      .finally(() => { if (active) setProductsLoading(false); });
+    return () => { active = false; };
+  }, [isAuthenticated, isLoading, user]);
+
+  async function handleArchive(product: SellerProduct): Promise<void> {
+    const confirmed = window.confirm(`Deseja remover "${product.title}" do Marketplace? Ele deixará de aparecer publicamente, mas compras anteriores serão preservadas.`);
+    if (!confirmed) return;
+    setDeletingProductId(product.id);
+    setProductsError("");
+    try {
+      await marketplaceService.archiveProduct(product.id);
+      setProducts((current) => current.filter((item) => item.id !== product.id));
+    } catch {
+      setProductsError("Não foi possível remover o material. Tente novamente.");
+    } finally {
+      setDeletingProductId(null);
+    }
+  }
 
   async function handleConnect(): Promise<void> {
     setConnecting(true);
@@ -115,6 +148,42 @@ export default function TeacherMarketplacePage() {
               Abrir Marketplace
             </Link>
           </article>
+        </section>
+
+        <section className="mt-8" aria-labelledby="seller-products-title">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="seller-products-title" className="text-xl font-bold text-dark">Meus materiais</h2>
+              <p className="mt-1 text-sm text-muted">Gerencie publicações e remova materiais que não deseja mais oferecer.</p>
+            </div>
+            <span className="text-sm text-muted">{products.length} {products.length === 1 ? "material" : "materiais"}</span>
+          </div>
+          {productsError && <p role="alert" className="mt-4 text-sm text-red-600">{productsError}</p>}
+          {productsLoading ? <p className="mt-5 text-sm text-muted">Carregando materiais...</p> :
+            products.length === 0 ? <p className="mt-5 rounded-xl border border-border bg-white p-5 text-sm text-muted">Você ainda não cadastrou materiais.</p> :
+            <div className="mt-5 grid gap-4">
+              {products.map((product) => (
+                <article key={product.id} className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 sm:flex-row sm:items-center">
+                  <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:w-36">
+                    {product.preview_pages > 0 && <Image src={marketplaceService.coverUrl(product.slug)} alt={`Capa de ${product.title}`} fill sizes="144px" className="object-contain p-1" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-dark">{product.title}</h3>
+                    <p className="mt-1 text-sm text-muted">{product.category}</p>
+                    <p className="mt-2 text-xs font-semibold text-primary">
+                      {product.status === "PUBLISHED" ? "Publicado" : product.status === "PENDING_REVIEW" ? "Aguardando aprovação" : "Reprovado"}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {product.status === "PUBLISHED" && <Link href={`/marketplace/${encodeURIComponent(product.slug)}`} className="inline-flex min-h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background">Visualizar</Link>}
+                    <button type="button" onClick={() => void handleArchive(product)} disabled={deletingProductId === product.id} className="inline-flex min-h-10 items-center rounded-lg border border-red-200 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                      {deletingProductId === product.id ? "Removendo..." : "Remover"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          }
         </section>
       </section>
       <PublicFooter />
