@@ -73,7 +73,7 @@ async function signInAsStudent(page: Page): Promise<void> {
   await page.getByLabel("E-mail").fill(student.email);
   await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
-  await expect(page).toHaveURL(/\\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/);
 }
 
 test("student completes a memory activity and receives the saved score and ranking", async ({
