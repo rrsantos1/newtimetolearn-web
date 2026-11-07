@@ -10,7 +10,6 @@ import {
   Search,
   SlidersHorizontal,
   Heart,
-  Clock3,
   Gamepad2,
   History,
   Plus,
