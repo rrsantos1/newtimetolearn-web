@@ -17,7 +17,7 @@ export interface CreateMoleHitFormValues {
 
 export const createMoleHitSchema = Yup.object({
   name: Yup.string().trim().required("Informe o nome da atividade.").max(120),
-  description: Yup.string().max(2000).defined(),
+  description: Yup.string().max(2000).default(""),
   difficulty: Yup.mixed<"EASY" | "MEDIUM" | "HARD">().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
   timeLimitSeconds: Yup.number().integer().min(10).max(300).required(),
   content: Yup.object({
