@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { MarketplaceCheckoutResponse, MarketplaceDetailResponse, MarketplaceListResponse } from "../types/marketplace.types";
+import type { MarketplaceCheckoutResponse, MarketplaceDetailResponse, MarketplaceListResponse, MarketplaceProduct } from "../types/marketplace.types";
 
 export const marketplaceService = {
   async list(params: { q?: string; category?: string; page?: number; limit?: number } = {}) {
@@ -40,6 +40,13 @@ export const marketplaceService = {
       return response.data.data;
     }
     throw new Error("MARKETPLACE_PREVIEW_PDF_REQUIRED");
+  },
+  async myProducts() {
+    const response = await api.get<{ success: true; data: Array<MarketplaceProduct & { status: "PENDING_REVIEW" | "PUBLISHED" | "REJECTED"; created_at: string }> }>("/marketplace/me/products");
+    return response.data.data;
+  },
+  async archiveProduct(productId: string) {
+    await api.delete<{ success: true }>(`/marketplace/products/${encodeURIComponent(productId)}`);
   },
   async sellerConnectionStatus() {
     const response = await api.get<{ success: true; data: { connected: boolean; mpUserId: string | null } }>("/marketplace/seller/status");
