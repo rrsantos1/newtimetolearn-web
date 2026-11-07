@@ -12,9 +12,11 @@ interface MoleHitMutationResponse {
 export const createMoleHitService = {
   async execute(input: CreateMoleHitFormValues): Promise<MoleHitMutationResponse["data"]> {
     const response = await api.post<MoleHitMutationResponse>("/activities/mole-hit", {
-      ...input,
       name: input.name.trim(),
       description: input.description.trim() || null,
+      difficulty: input.difficulty,
+      timeLimitSeconds: input.timeLimitSeconds,
+      content: input.content,
     });
     return response.data.data;
   },
