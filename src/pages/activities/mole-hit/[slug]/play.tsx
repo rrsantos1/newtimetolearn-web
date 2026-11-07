@@ -77,6 +77,7 @@ export default function MoleHitPlayPage() {
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState<GamePhase>("ready");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("EASY");
   const [activeHole, setActiveHole] = useState<ActiveMole | null>(null);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
@@ -99,9 +100,9 @@ export default function MoleHitPlayPage() {
   const optionQueueRef = useRef<string[]>([]);
   const previousCycleFirstRef = useRef("");
 
-  const holeCount = activity?.version.content.holeCount ?? 6;
+  const holeCount = selectedDifficulty === "EASY" ? 6 : selectedDifficulty === "MEDIUM" ? 9 : 12;
   const duration = activity?.version.timeLimitSeconds ?? 30;
-  const settings = useMemo(() => activity ? DIFFICULTY_SETTINGS[activity.version.difficulty] : DIFFICULTY_SETTINGS.EASY, [activity]);
+  const settings = useMemo(() => DIFFICULTY_SETTINGS[selectedDifficulty], [selectedDifficulty]);
 
   const loadRanking = useCallback(async (activitySlug: string): Promise<void> => {
     setRankingLoading(true);
@@ -126,6 +127,7 @@ export default function MoleHitPlayPage() {
         if (!active) return;
         if (loaded.type !== "mole_hit") throw new Error("Esta atividade não é Acertar a Toupeira.");
         setActivity(loaded);
+        setSelectedDifficulty(loaded.version.difficulty);
         if (user?.roles.includes("STUDENT")) void loadRanking(slug);
       } catch (error: unknown) {
         if (active) setLoadError(getErrorMessage(error, "Não foi possível carregar a atividade."));
@@ -266,7 +268,10 @@ export default function MoleHitPlayPage() {
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex items-center gap-3"><Image src="/moles/normal.png" alt="" width={64} height={64} className="object-contain" /><div><h2 className="text-xl font-bold text-dark">Preparado para o desafio?</h2><p className="mt-1 text-sm text-muted">Acerte o máximo de toupeiras em {duration} segundos!</p></div></div>
-                <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">Buracos</p><p className="mt-1 font-semibold text-dark">{holeCount}</p></div><div><p className="text-sm text-muted">Dificuldade</p><p className="mt-1 font-semibold text-dark">{activity.version.difficulty === "EASY" ? "Fácil" : activity.version.difficulty === "MEDIUM" ? "Média" : "Difícil"}</p></div></div>
+                <div className="mt-5 grid gap-4 rounded-xl bg-background p-4 sm:grid-cols-2">
+                  <div><label htmlFor="mole-hit-difficulty" className="mb-1 block text-sm font-semibold text-dark">Escolha a dificuldade</label><select id="mole-hit-difficulty" value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(event.target.value as "EASY" | "MEDIUM" | "HARD")} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><option value="EASY">Fácil — 6 buracos</option><option value="MEDIUM">Média — 9 buracos</option><option value="HARD">Difícil — 12 buracos</option></select><p className="mt-1 text-xs text-muted">A dificuldade escolhida vale somente para esta execução.</p></div>
+                  <div><p className="text-sm text-muted">Tempo de jogo</p><p className="mt-1 font-semibold text-dark">{duration} segundos</p><p className="mt-1 text-xs text-muted">A velocidade das toupeiras também muda conforme a dificuldade.</p></div>
+                </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo" : "Testar jogo"}</button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A prévia não será registrada no ranking dos alunos.</p>}
               </section>
