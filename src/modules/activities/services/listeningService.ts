@@ -146,7 +146,6 @@ export interface ListeningExecutionActivity {
   version: {
     name: string;
     description: string | null;
-    timeLimitSeconds: number | null;
     content: {
       language: string;
       instructions: string;
