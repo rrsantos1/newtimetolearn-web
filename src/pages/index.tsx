@@ -52,14 +52,14 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
-    listPublicActivitiesService.execute({ page: 1, limit: 6 })
+    listPublicActivitiesService.execute({ page: 1, limit: 4 })
       .then((result) => { if (!cancelled) setPublicActivities(result.items); })
       .catch(() => { if (!cancelled) setPublicActivities([]); });
     return () => { cancelled = true; };
   }, []);
   useEffect(() => {
     let cancelled = false;
-    marketplaceService.list({ page: 1, limit: 3 })
+    marketplaceService.list({ page: 1, limit: 4 })
       .then((result) => { if (!cancelled) setMarketplaceItems(result.items); })
       .catch(() => { if (!cancelled) setMarketplaceItems([]); });
     return () => { cancelled = true; };
@@ -204,7 +204,7 @@ export default function Home() {
             <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
             <p className="mt-4 text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {publicActivities.map((activity) => (
               <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-sm">
                 <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? activity.latestVersion?.name} />
@@ -232,10 +232,10 @@ export default function Home() {
               Ver todos os materiais <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {marketplaceItems.map((item) => (
               <article key={item.id} className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
-                <div className="relative flex aspect-[16/10] items-center justify-center bg-slate-100">
+                <div className="relative flex aspect-16/10 items-center justify-center bg-slate-100">
                   {item.preview_pages > 0 ? (
                     <Image src={marketplaceService.coverUrl(item.slug)} alt={`Capa do material ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized={marketplaceService.shouldBypassImageOptimization()} className="object-contain p-2" />
                   ) : (
