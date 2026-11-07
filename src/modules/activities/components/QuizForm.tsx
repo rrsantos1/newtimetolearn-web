@@ -168,7 +168,6 @@ const initialValues: CreateQuizFormValues = {
   name: "",
   description: "",
   difficulty: "EASY",
-  timeLimitSeconds: 900,
   content: { questions: [createQuestion()] },
 };
 
@@ -217,7 +216,6 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <X aria-hidden="true" size={18} />
                   </button>
                 </div>
-                <p className="mt-3 text-sm text-muted">{values.content.questions.length} {values.content.questions.length === 1 ? "questão" : "questões"} · {values.timeLimitSeconds === null ? "Sem limite de tempo" : `${Math.floor((values.timeLimitSeconds ?? 900) / 60)} minutos`}</p>
                 <div className="mt-6 space-y-5">
                   {values.content.questions.map((question, questionIndex) => (
                     <article key={question.id} className="rounded-xl border border-border p-4 sm:p-5">
@@ -271,26 +269,6 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <option value="MEDIUM">Média</option>
                     <option value="HARD">Difícil</option>
                   </Field>
-                </div>
-                <div>
-                  <label htmlFor="timeLimitSeconds" className={labelClassName}>Tempo limite</label>
-                  <Field as="select" id="timeLimitSeconds" name="timeLimitSeconds" className={inputClassName}
-                    value={values.timeLimitSeconds === null ? "" : String(values.timeLimitSeconds)}
-                    onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-                      void setFieldValue("timeLimitSeconds", event.target.value === "" ? null : Number(event.target.value));
-                    }}>
-                    <option value="300">5 minutos</option>
-                    <option value="600">10 minutos</option>
-                    <option value="900">15 minutos</option>
-                    <option value="1200">20 minutos</option>
-                    <option value="1800">30 minutos</option>
-                  </Field>
-                  <label className="mt-3 flex items-center gap-2 text-sm text-muted">
-                    <input type="checkbox" checked={values.timeLimitSeconds === null}
-                      onChange={(event) => void setFieldValue("timeLimitSeconds", event.target.checked ? null : 900)}
-                      className="size-4 rounded border-border accent-accent" />
-                    Sem limite de tempo
-                  </label>
                 </div>
               </div>
             </div>
