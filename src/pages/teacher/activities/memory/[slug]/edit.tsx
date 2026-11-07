@@ -87,7 +87,7 @@ export default function EditMemoryPage() {
       const result = await updateMemoryService.execute(activity.slug, values);
       const coverId = (values as CreateMemoryFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
       if (coverId !== undefined) await activityCoverService.update(activity.slug, coverId);
-      setActivity((current) => current ? { ...current, version: { ...current.version, name: values.name, description: values.description.trim() || null, difficulty: values.difficulty, timeLimitSeconds: values.timeLimitSeconds, status: result.version.status, revision: result.version.revision, content: values.content, reviewFeedback: null } } : current);
+      setActivity((current) => current ? { ...current, version: { ...current.version, name: values.name, description: values.description.trim() || null, difficulty: values.difficulty, status: result.version.status, revision: result.version.revision, content: values.content, reviewFeedback: null } } : current);
       setInitialValues(values);
       setMessage("Alterações salvas. A versão continua como rascunho até ser enviada para aprovação.");
     } catch (cause: unknown) { setSubmitError(getErrorMessage(cause)); }
