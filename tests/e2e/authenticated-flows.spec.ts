@@ -30,7 +30,7 @@ test("successful login opens the student dashboard", async ({ page }) => {
   await page.goto("/login");
 
   await page.getByLabel("E-mail").fill(student.email);
-  await page.getByLabel("Senha").fill("SenhaSegura123!");
+  await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -61,7 +61,7 @@ test("invalid credentials show an accessible error and keep the user on login", 
 
   await page.goto("/login");
   await page.getByLabel("E-mail").fill(student.email);
-  await page.getByLabel("Senha").fill("senha-incorreta");
+  await page.getByRole("textbox", { name: "Senha" }).fill("senha-incorreta");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
 
   await expect(page).toHaveURL(/\/login$/);
@@ -75,7 +75,7 @@ test("student cannot access the teacher area", async ({ page }) => {
   await page.goto("/login");
 
   await page.getByLabel("E-mail").fill(student.email);
-  await page.getByLabel("Senha").fill("SenhaSegura123!");
+  await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
 
   await expect(page).toHaveURL(/\/dashboard$/);
@@ -109,7 +109,7 @@ test("session is restored after reload and logout removes the token", async ({
 
   await page.goto("/login");
   await page.getByLabel("E-mail").fill(student.email);
-  await page.getByLabel("Senha").fill("SenhaSegura123!");
+  await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 
