@@ -27,7 +27,7 @@ interface ActivityResponse {
   };
 }
 
-type GamePhase = "ready" | "playing" | "finished";
+type GamePhase = "ready" | "countdown" | "playing" | "finished";
 type ActiveMole = { index: number; option: string; isCorrect: boolean; resolved: "correct" | "incorrect" | null };
 
 function shuffleOptions(options: string[], previousFirst: string): string[] {
@@ -80,6 +80,7 @@ export default function MoleHitPlayPage() {
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState<GamePhase>("ready");
+  const [countdown, setCountdown] = useState(3);
   const [selectedDifficulty, setSelectedDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("EASY");
   const [activeHole, setActiveHole] = useState<ActiveMole | null>(null);
   const [hitEffect, setHitEffect] = useState<{ index: number; key: number } | null>(null);
@@ -93,6 +94,8 @@ export default function MoleHitPlayPage() {
   const [rankingError, setRankingError] = useState("");
   const [scoreSaving, setScoreSaving] = useState(false);
   const startAtRef = useRef<number>(0);
+  const gameBoardRef = useRef<HTMLElement | null>(null);
+  const countdownValueRef = useRef(3);
   const lastSpawnRef = useRef<number | null>(null);
   const hitsRef = useRef(0);
   const missesRef = useRef(0);
@@ -199,6 +202,25 @@ export default function MoleHitPlayPage() {
   }, [activity, duration, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
+    if (phase !== "countdown") return;
+    const timer = window.setInterval(() => {
+      if (countdownValueRef.current <= 1) {
+        window.clearInterval(timer);
+        countdownValueRef.current = 0;
+        setCountdown(0);
+        startAtRef.current = Date.now();
+        attemptTokenRef.current = crypto.randomUUID();
+        gameEndedRef.current = false;
+        setPhase("playing");
+        return;
+      }
+      countdownValueRef.current -= 1;
+      setCountdown(countdownValueRef.current);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [phase]);
+
+  useEffect(() => {
     if (phase !== "playing") return;
     const timer = window.setInterval(() => {
       const elapsed = Math.floor((Date.now() - startAtRef.current) / 1000);
@@ -244,10 +266,13 @@ export default function MoleHitPlayPage() {
     if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
     setResult(null);
     setSubmitError("");
-    startAtRef.current = Date.now();
-    attemptTokenRef.current = crypto.randomUUID();
+    countdownValueRef.current = 3;
+    setCountdown(3);
     gameEndedRef.current = false;
-    setPhase("playing");
+    setPhase("countdown");
+    window.requestAnimationFrame(() => {
+      gameBoardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
   }
 
   function hitHole(index: number): void {
@@ -297,8 +322,8 @@ export default function MoleHitPlayPage() {
               {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7"><div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>{rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p> : <RankingList ranking={ranking} />}</section>}
             </div>
           )}
-          {phase === "playing" && (
-            <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
+          {(phase === "countdown" || phase === "playing") && (
+            <section ref={gameBoardRef} className="scroll-mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
                 className="relative mx-auto h-[min(68vh,560px)] min-h-110 w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
@@ -307,6 +332,13 @@ export default function MoleHitPlayPage() {
                   backgroundPosition: "center bottom",
                 }}
               >
+                {phase === "countdown" && (
+                  <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/45 text-center" role="status" aria-live="assertive">
+                    <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">Prepare-se!</span>
+                    <span key={countdown} className="mt-2 text-8xl font-black leading-none text-white drop-shadow-lg">{countdown}</span>
+                    <span className="mt-3 text-sm font-semibold text-white">O jogo começa em instantes</span>
+                  </div>
+                )}
                 {Array.from({ length: holeCount }, (_, index) => {
                   const mole = activeHole?.index === index ? activeHole : null;
                   const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
@@ -374,7 +406,7 @@ export default function MoleHitPlayPage() {
                 `}</style>
               </div>
               <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
-              <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>
+              {phase === "playing" && <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>}
             </section>
           )}
           {phase === "finished" && (
