@@ -283,16 +283,35 @@ export default function MoleHitPlayPage() {
           {phase === "playing" && (
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
-              <div className="mx-auto grid min-h-[330px] w-full max-w-2xl grid-cols-3 grid-rows-2 items-center justify-items-center gap-x-3 gap-y-5 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 py-5 sm:min-h-[390px] sm:gap-x-6 sm:gap-y-6 sm:px-6 sm:py-7" style={{ backgroundImage: "url(/moles/background.jpg)", backgroundPosition: "center bottom" }}>
+              <div
+                className="mx-auto grid h-[390px] w-full max-w-2xl grid-cols-3 items-end justify-items-center gap-x-3 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 pb-5 pt-[42%] sm:h-[420px] sm:px-6 sm:pb-6"
+                style={{
+                  backgroundImage: "url(/moles/background.jpg)",
+                  backgroundPosition: "center bottom",
+                  gridTemplateRows: `repeat(${Math.ceil(holeCount / 3)}, minmax(0, 1fr))`,
+                  rowGap: holeCount === 6 ? "18px" : holeCount === 9 ? "10px" : "5px",
+                }}
+              >
                 {Array.from({ length: holeCount }, (_, index) => {
                   const mole = activeHole?.index === index ? activeHole : null;
                   const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
+                  const holeSize = holeCount === 6 ? "max-w-[96px] sm:max-w-[108px]" : holeCount === 9 ? "max-w-[76px] sm:max-w-[88px]" : "max-w-[58px] sm:max-w-[68px]";
                   return (
-                    <button type="button" key={index} onClick={() => hitHole(index)} aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"} className="relative flex aspect-square w-full max-w-[112px] items-end justify-center overflow-hidden rounded-[50%] border-[3px] border-[#9a6b35] bg-[#70451f] shadow-[0_5px_0_#70451f] focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:max-w-[145px]">
-                      {mole && <>
-                        <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 28vw, 160px" className="object-contain" />
-                        <span className="absolute inset-x-1 top-1 z-10 rounded-lg bg-white/95 px-1 py-1 text-center text-[clamp(0.55rem,2vw,0.85rem)] font-extrabold leading-tight text-gray-900 shadow-sm wrap-anywhere">{mole.option}</span>
-                      </>}
+                    <button
+                      type="button"
+                      key={index}
+                      onClick={() => hitHole(index)}
+                      aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"}
+                      className={`relative flex aspect-square w-full ${holeSize} items-center justify-center overflow-visible rounded-full focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring`}
+                    >
+                      <span className="absolute inset-0 overflow-hidden rounded-full border-[3px] border-[#9a6b35] bg-[#70451f] shadow-[0_4px_0_#70451f]">
+                        {mole && <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 22vw, 108px" className="object-contain" />}
+                      </span>
+                      {mole && (
+                        <span className="absolute -top-5 left-1/2 z-10 w-max max-w-[min(180px,30vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.6rem,1.8vw,0.8rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
+                          {mole.option}
+                        </span>
+                      )}
                     </button>
                   );
                 })}
