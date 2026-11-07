@@ -41,9 +41,9 @@ function shuffleOptions(options: string[], previousFirst: string): string[] {
 }
 
 const DIFFICULTY_SETTINGS = {
-  EASY: { spawnMs: 1000, visibleMs: 850 },
-  MEDIUM: { spawnMs: 800, visibleMs: 700 },
-  HARD: { spawnMs: 650, visibleMs: 550 },
+  EASY: { spawnMs: 1500, visibleMs: 1250 },
+  MEDIUM: { spawnMs: 1200, visibleMs: 1000 },
+  HARD: { spawnMs: 950, visibleMs: 800 },
 } as const;
 
 function getErrorMessage(error: unknown, fallback: string): string {
@@ -180,11 +180,11 @@ export default function MoleHitPlayPage() {
     const option = optionQueueRef.current.shift() ?? "";
     const isCorrect = correctOptions.includes(option);
     setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
-    const elapsed = (Date.now() - startAtRef.current) / 1000;
-    const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
-    const visibleMs = Math.max(260, Math.round(settings.visibleMs * (1 - acceleration)));
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
-    visibleTimeoutRef.current = window.setTimeout(() => setActiveHole((current) => current?.index === safeHole ? null : current), visibleMs);
+    visibleTimeoutRef.current = window.setTimeout(
+      () => setActiveHole((current) => current?.index === safeHole ? null : current),
+      settings.visibleMs,
+    );
   }, [activity, duration, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
@@ -204,10 +204,7 @@ export default function MoleHitPlayPage() {
     let timer: number;
     const scheduleNext = (): void => {
       spawnMole();
-      const elapsedNow = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-      const progress = Math.min(0.55, elapsedNow / Math.max(1, duration) * 0.55);
-      const nextInterval = Math.max(280, Math.round(settings.spawnMs * (1 - progress)));
-      timer = window.setTimeout(scheduleNext, nextInterval);
+      timer = window.setTimeout(scheduleNext, settings.spawnMs);
       spawnTimeoutRef.current = timer;
     };
     scheduleNext();
@@ -281,12 +278,12 @@ export default function MoleHitPlayPage() {
           {phase === "playing" && (
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
-              <div className="mx-auto grid max-w-3xl gap-3 rounded-2xl bg-[#d6b47b] bg-cover bg-center p-3 sm:gap-4 sm:p-5" style={{ gridTemplateColumns: `repeat(${boardCols}, minmax(0, 1fr))`, backgroundImage: "url(/moles/background.jpg)" }}>
+              <div className="mx-auto grid min-h-[330px] w-full max-w-2xl grid-cols-3 grid-rows-2 items-center justify-items-center gap-x-3 gap-y-5 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 py-5 sm:min-h-[390px] sm:gap-x-6 sm:gap-y-6 sm:px-6 sm:py-7" style={{ backgroundImage: "url(/moles/background.jpg)", backgroundPosition: "center bottom" }}>
                 {Array.from({ length: holeCount }, (_, index) => {
                   const mole = activeHole?.index === index ? activeHole : null;
                   const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
                   return (
-                    <button type="button" key={index} onClick={() => hitHole(index)} aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"} className="relative flex aspect-square min-h-0 items-end justify-center overflow-hidden rounded-[50%] border-4 border-[#9a6b35] bg-[#70451f] shadow-inner focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <button type="button" key={index} onClick={() => hitHole(index)} aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"} className="relative flex aspect-square w-full max-w-[112px] items-end justify-center overflow-hidden rounded-[50%] border-[3px] border-[#9a6b35] bg-[#70451f] shadow-[0_5px_0_#70451f] focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:max-w-[145px]">
                       {mole && <>
                         <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 28vw, 160px" className="object-contain" />
                         <span className="absolute inset-x-1 top-1 z-10 rounded-lg bg-white/95 px-1 py-1 text-center text-[clamp(0.55rem,2vw,0.85rem)] font-extrabold leading-tight text-gray-900 shadow-sm wrap-anywhere">{mole.option}</span>
