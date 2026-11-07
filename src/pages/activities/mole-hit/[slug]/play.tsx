@@ -6,7 +6,8 @@ import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMoleHitAttemptService, type MoleHitAttemptResult } from "@/modules/activities/services/submitMoleHitAttemptService";
-import { getMemoryRankingService, type MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
+import { getMoleHitRankingService as getMemoryRankingService } from "@/modules/activities/services/getMoleHitRankingService";
+import type { MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
 
 interface ActivityResponse {
   success: true;
