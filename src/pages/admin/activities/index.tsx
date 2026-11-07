@@ -50,6 +50,7 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   if (type === "word_matching") return "Associação de palavras";
   if (type === "multiple_choice") return "Múltipla escolha";
   if (type === "sentence_completion") return "Preenchimento de lacunas";
+  if (type === "mole_hit") return "Acertar a toupeira";
   return type;
 }
 
@@ -255,7 +256,9 @@ export default function PendingActivitiesPage() {
                           ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
                           : activity.type === "sentence_completion"
                             ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
-                            : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                            : activity.type === "mole_hit"
+                            ? `/activities/mole_hit/${encodeURIComponent(activity.slug)}/play`
+                              : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                 className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <Play size={16} aria-hidden="true" />

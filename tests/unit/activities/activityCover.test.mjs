@@ -19,6 +19,7 @@ test("uses the default image for each supported activity type", () => {
     ["word_matching", "/images/activities/word-matching.png"],
     ["sentence_completion", "/images/activities/sentence-completion.png"],
     ["multiple_choice", "/images/activities/multiple-choice.png"],
+    ["mole_hit", "/images/activities/mole-hit.png"],
   ]);
 
   for (const [type, image] of expected) {
@@ -37,5 +38,12 @@ test("uses the default cover when the optional URL is null", () => {
   assert.equal(
     getActivityCoverImage("quiz", null),
     "/images/activities/quiz.png",
+  );
+});
+
+test("uses the default cover when the optional URL is null", () => {
+  assert.equal(
+    getActivityCoverImage("mole_hit", null),
+    "/images/activities/mole-hit.png",
   );
 });
