@@ -13,7 +13,6 @@ const input: CreateMemoryFormValues = {
   name: "  Animais  ",
   description: "  Encontre os pares  ",
   difficulty: "MEDIUM",
-  timeLimitSeconds: null,
   content: {
     pairs: [
       {
