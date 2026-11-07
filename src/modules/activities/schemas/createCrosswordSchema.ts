@@ -24,14 +24,6 @@ export const createCrosswordSchema = Yup.object({
   difficulty: Yup.string()
     .oneOf(["EASY", "MEDIUM", "HARD"], "Selecione uma dificuldade válida.")
     .required("Selecione a dificuldade."),
-  timeLimitSeconds: Yup.number()
-    .transform((value, originalValue) =>
-      originalValue === "" || originalValue === null ? null : value,
-    )
-    .nullable()
-    .optional()
-    .integer("O tempo deve ser informado em segundos inteiros.")
-    .positive("O tempo deve ser maior que zero."),
   words: Yup.array()
     .of(
       Yup.object({
