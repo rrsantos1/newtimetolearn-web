@@ -81,7 +81,8 @@ test.describe("public memory activity", () => {
     await expect(
       page.getByText(
         "Prévia concluída. O resultado não foi registrado no ranking dos alunos.",
-      ),
+        { exact: true },
+      ).first(),
     ).toBeVisible();
     expect(attemptRequests).toBe(0);
   });
