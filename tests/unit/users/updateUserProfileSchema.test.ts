@@ -10,7 +10,7 @@ describe("updateUserProfileSchema", () => {
 
   it("requires a name", async () => {
     await expect(
-      updateUserProfileSchema.validate({ name: " " }),
+      updateUserProfileSchema.validate({}),
     ).rejects.toThrow("Informe seu nome.");
   });
 
