@@ -145,11 +145,8 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
   function finishGame(): void {
     if (completedRef.current) return;
     completedRef.current = true;
-    const startedAt = startedAtRef.current ?? Date.now();
-    const actualElapsed = Math.floor((Date.now() - startedAt) / 1000);
-    const elapsed = timeLimitSeconds === null ? actualElapsed : Math.min(actualElapsed, timeLimitSeconds);
     setCompleted(true);
-    onComplete(getAnswers(), elapsed);
+    onComplete(getAnswers());
   }
 
   function selectCell(row: number, col: number): void {
