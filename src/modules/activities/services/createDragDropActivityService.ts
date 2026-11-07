@@ -25,7 +25,6 @@ function normalizeBase(input: CreateWordMatchingFormValues | CreateSentenceCompl
     name: input.name.trim(),
     description: input.description.trim() || null,
     difficulty: input.difficulty,
-    timeLimitSeconds: input.timeLimitSeconds,
   };
 }
 
