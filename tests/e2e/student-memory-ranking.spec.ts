@@ -79,7 +79,7 @@ async function signInAsStudent(page: Page): Promise<void> {
 test("student completes a memory activity and receives the saved score and ranking", async ({
   page,
 }) => {
-  let submittedAttempt: Record<string, unknown> | null = null;
+  const submittedAttempts: Array<Record<string, unknown>> = [];
 
   await signInAsStudent(page);
 
@@ -102,7 +102,7 @@ test("student completes a memory activity and receives the saved score and ranki
   await page.route(
     "**/activities/memory-student-e2e/memory/attempts",
     async (route) => {
-      submittedAttempt = route.request().postDataJSON() as Record<string, unknown>;
+      submittedAttempts.push(route.request().postDataJSON() as Record<string, unknown>);
       await route.fulfill({
         status: 201,
         contentType: "application/json",
@@ -146,8 +146,9 @@ test("student completes a memory activity and receives the saved score and ranki
   await expect(page.getByText("Aluno de Teste", { exact: true })).toBeVisible();
   await expect(page.getByText("Parabéns! Seu resultado entrou no Top 5!")).toBeVisible();
 
-  expect(submittedAttempt).not.toBeNull();
-  expect(submittedAttempt?.matchedPairIds).toEqual(["pair-one"]);
-  expect(submittedAttempt?.wrongAttempts).toBe(0);
-  expect(typeof submittedAttempt?.elapsedSeconds).toBe("number");
+  expect(submittedAttempts).toHaveLength(1);
+  const submittedAttempt = submittedAttempts[0];
+  expect(submittedAttempt?.["matchedPairIds"]).toEqual(["pair-one"]);
+  expect(submittedAttempt?.["wrongAttempts"]).toBe(0);
+  expect(typeof submittedAttempt?.["elapsedSeconds"]).toBe("number");
 });
