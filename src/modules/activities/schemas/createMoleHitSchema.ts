@@ -5,7 +5,12 @@ export interface CreateMoleHitFormValues {
   description: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   timeLimitSeconds: number;
-  content: { holeCount: 6 | 9 | 12 };
+  content: {
+    holeCount: 6 | 9 | 12;
+    theme: string;
+    correctOptions: string[];
+    incorrectOptions: string[];
+  };
   coverMediaAssetId?: string | null;
   coverImageUrl?: string | null;
   coverAltText?: string | null;
@@ -18,5 +23,8 @@ export const createMoleHitSchema = Yup.object({
   timeLimitSeconds: Yup.number().integer().min(10).max(300).required(),
   content: Yup.object({
     holeCount: Yup.number().oneOf([6, 9, 12]).required(),
+    theme: Yup.string().trim().min(2, "Informe o tema do desafio.").max(160).required(),
+    correctOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).min(2, "Cadastre pelo menos 2 opções corretas.").max(30).required(),
+    incorrectOptions: Yup.array().of(Yup.string().trim().min(1).max(80).required()).min(2, "Cadastre pelo menos 2 opções incorretas.").max(30).required(),
   }).required(),
 });
