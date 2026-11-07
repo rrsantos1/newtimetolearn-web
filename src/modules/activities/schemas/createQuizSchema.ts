@@ -47,7 +47,6 @@ export const createQuizSchema = Yup.object({
   name: Yup.string().trim().required("Informe o nome do Quiz.").max(120, "O nome deve ter no máximo 120 caracteres."),
   description: Yup.string().trim().max(2000).optional(),
   difficulty: Yup.string().oneOf(["EASY", "MEDIUM", "HARD"]).required("Selecione a dificuldade."),
-  timeLimitSeconds: Yup.number().nullable().integer().positive().optional(),
   content: Yup.object({
     questions: Yup.array().of(questionSchema).required().min(1, "Adicione pelo menos uma questão.").max(1000).default([]),
   }).required(),
