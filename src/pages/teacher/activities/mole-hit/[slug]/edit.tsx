@@ -13,6 +13,11 @@ import type { CreateMoleHitFormValues } from "@/modules/activities/schemas/creat
 interface EditableMoleHitActivity {
   slug: string;
   type: string;
+  status: string;
+  visibility: string;
+  executionCount: number;
+  createdAt: string;
+  isOwner: boolean;
   coverMediaAssetId: string | null;
   coverImageUrl: string | null;
   coverAltText: string | null;
