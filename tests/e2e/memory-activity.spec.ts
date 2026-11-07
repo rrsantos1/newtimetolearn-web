@@ -37,7 +37,7 @@ test.describe("public memory activity", () => {
     await page.goto("/activities/memory/memory-e2e/play");
 
     await expect(
-      page.getByRole("heading", { name: "Memória E2E" }),
+      page.getByRole("heading", { name: "Memória E2E" }).first(),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Preparado para o desafio?" }),
