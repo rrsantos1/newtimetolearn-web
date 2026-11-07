@@ -17,7 +17,6 @@ export const updateWordSearchActivityService = {
         name: input.name.trim(),
         description: input.description?.trim() || undefined,
         difficulty: input.difficulty,
-        timeLimitSeconds: input.timeLimitSeconds,
         words: input.words.map((word) => word.trim()),
       },
     );
