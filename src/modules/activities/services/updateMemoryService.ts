@@ -15,7 +15,6 @@ export const updateMemoryService = {
       name: input.name.trim(),
       description: input.description.trim() || null,
       difficulty: input.difficulty,
-      timeLimitSeconds: input.timeLimitSeconds,
       content: {
         pairs: input.content.pairs.map((pair) => ({
           id: pair.id,
