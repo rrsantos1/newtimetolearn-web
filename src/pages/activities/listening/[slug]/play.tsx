@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, CheckCircle2, Clock3, Headphones, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Headphones, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { listeningService } from "@/modules/activities/services/listeningService";
@@ -24,10 +24,6 @@ function answerKey(passageId: string, blankId: string): string {
   return JSON.stringify([passageId, blankId]);
 }
 
-function formatTime(seconds: number | null): string {
-  if (seconds === null) return "Sem limite";
-  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-}
 
 function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
@@ -101,7 +97,7 @@ function RankingList({ result }: Readonly<{ result: ListeningAttemptResult }>) {
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
-              <p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p>
+              
             </div>
           </div>
           <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
@@ -123,7 +119,6 @@ export default function PlayListeningPage() {
   const [loadError, setLoadError] = useState("");
   const [phase, setPhase] = useState<Phase>("ready");
   const [answers, setAnswers] = useState<Answers>({});
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [result, setResult] = useState<ListeningAttemptResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -145,8 +140,6 @@ export default function PlayListeningPage() {
     ),
     [answers, passages],
   );
-  const timeLimitSeconds = activity?.version.timeLimitSeconds ?? null;
-  const remainingSeconds = timeLimitSeconds === null ? null : Math.max(0, timeLimitSeconds - elapsedSeconds);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -201,7 +194,7 @@ export default function PlayListeningPage() {
     );
 
     try {
-      const attemptResult = await listeningService.submitAttempt(activity.slug, submittedAnswers, elapsedSeconds);
+      const attemptResult = await listeningService.submitAttempt(activity.slug, submittedAnswers);
       setResult(attemptResult);
       if (attemptResult.attempt.totalBlanks > 0 && attemptResult.attempt.correctBlanks === attemptResult.attempt.totalBlanks) {
         playActivitySound("applause");
@@ -216,23 +209,9 @@ export default function PlayListeningPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [activity, answers, elapsedSeconds, isStudent, passages, phase]);
+  }, [activity, answers, isStudent, passages, phase]);
 
-  useEffect(() => {
-    if (phase !== "playing") return;
-    const timerId = window.setInterval(() => {
-      setElapsedSeconds((current) => current + 1);
-    }, 1000);
-    return () => window.clearInterval(timerId);
-  }, [phase]);
 
-  useEffect(() => {
-    if (phase !== "playing" || timeLimitSeconds === null || elapsedSeconds < timeLimitSeconds) return;
-    const timeoutId = window.setTimeout(() => {
-      void finishAttempt(true);
-    }, 0);
-    return () => window.clearTimeout(timeoutId);
-  }, [elapsedSeconds, finishAttempt, phase, timeLimitSeconds]);
 
   function startActivity(): void {
     submittedRef.current = false;
@@ -281,7 +260,7 @@ export default function PlayListeningPage() {
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-3">
                   <div><p className="text-sm text-muted">Textos</p><p className="mt-1 font-semibold text-dark">{passages.length}</p></div>
                   <div><p className="text-sm text-muted">Lacunas</p><p className="mt-1 font-semibold text-dark">{totalBlanks}</p></div>
-                  <div><p className="text-sm text-muted">Tempo limite</p><p className="mt-1 font-semibold text-dark">{formatTime(timeLimitSeconds)}</p></div>
+                  
                 </div>
                 <button type="button" onClick={startActivity} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar atividade" : "Testar atividade"}
@@ -294,9 +273,7 @@ export default function PlayListeningPage() {
               <div className="space-y-5">
                 <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
                   <p className="text-sm font-semibold text-dark">{answeredCount} de {totalBlanks} lacunas preenchidas</p>
-                  <p className={`inline-flex items-center gap-2 text-sm font-semibold ${remainingSeconds !== null && remainingSeconds <= 60 ? "text-red-600" : "text-dark"}`} aria-live="polite">
-                    <Clock3 size={17} aria-hidden="true" />{remainingSeconds === null ? formatTime(elapsedSeconds) : formatTime(remainingSeconds)}
-                  </p>
+                  
                 </section>
                 {activity.version.content.instructions && <p className="rounded-xl bg-primary/5 p-4 text-sm leading-6 text-dark">{activity.version.content.instructions}</p>}
                 {passages.map((passage, passageIndex) => {
@@ -343,11 +320,11 @@ export default function PlayListeningPage() {
                         <>
                           <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Respostas corretas: {result.attempt.correctBlanks} de {result.attempt.totalBlanks}</p>
-                          <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(result.attempt.elapsedSeconds)}</p>
+                          
                           <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
                         </>
                       ) : (
-                        <p className="mt-2 text-sm text-muted">{previewNotice || "Prévia concluída."} Tempo utilizado: {formatTime(elapsedSeconds)}.</p>
+                        <p className="mt-2 text-sm text-muted">{previewNotice || "Prévia concluída."}.</p>
                       )}
                     </div>
 
