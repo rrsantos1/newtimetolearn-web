@@ -16,6 +16,8 @@ import { ActivityCoverImage } from "@/modules/activities/components/ActivityCove
 import { listPublicActivitiesService } from "@/modules/activities/services/listPublicActivitiesService";
 import type { ListedActivity } from "@/modules/activities/types/activityList.types";
 import { Gamepad2 } from "lucide-react";
+import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
+import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
 
 const features = [
   {
@@ -46,12 +48,20 @@ const activityTypes = [
 
 export default function Home() {
   const [publicActivities, setPublicActivities] = useState<ListedActivity[]>([]);
+  const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceProduct[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     listPublicActivitiesService.execute({ page: 1, limit: 6 })
       .then((result) => { if (!cancelled) setPublicActivities(result.items); })
       .catch(() => { if (!cancelled) setPublicActivities([]); });
+    return () => { cancelled = true; };
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    marketplaceService.list({ page: 1, limit: 3 })
+      .then((result) => { if (!cancelled) setMarketplaceItems(result.items); })
+      .catch(() => { if (!cancelled) setMarketplaceItems([]); });
     return () => { cancelled = true; };
   }, []);
 
@@ -204,6 +214,47 @@ export default function Home() {
                 <Link href={getPlayHref(activity)} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-4 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Gamepad2 size={16} aria-hidden="true" /> Experimentar atividade
                 </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {marketplaceItems.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="marketplace-featured-title">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Materiais didáticos</span>
+              <h2 id="marketplace-featured-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Destaques do Marketplace</h2>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-muted">Explore materiais preparados por professores e encontre novos recursos para suas aulas.</p>
+            </div>
+            <Link href="/marketplace" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
+              Ver todos os materiais <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {marketplaceItems.map((item) => (
+              <article key={item.id} className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+                <div className="relative flex aspect-[16/10] items-center justify-center bg-slate-100">
+                  {item.preview_pages > 0 ? (
+                    <Image src={marketplaceService.coverUrl(item.slug)} alt={`Capa do material ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain p-2" />
+                  ) : (
+                    <span className="rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-dark">
+                      {item.delivery_type === "EXTERNAL_URL" ? "Google Slides • Cópia digital" : "Material didático"}
+                    </span>
+                  )}
+                </div>
+                <div className="p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-accent">{item.category}</p>
+                  <h3 className="mt-2 text-lg font-bold text-dark">{item.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">{item.description}</p>
+                  <div className="mt-5 flex items-center justify-between gap-3">
+                    <strong className="text-base text-dark">{(item.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: item.currency })}</strong>
+                    <Link href={`/marketplace/${encodeURIComponent(item.slug)}`} className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                      Ver material
+                    </Link>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
