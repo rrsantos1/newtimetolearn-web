@@ -8,7 +8,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
 import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
 
-type SellerProduct = MarketplaceProduct & { status: "PENDING_REVIEW" | "PUBLISHED" | "REJECTED"; created_at: string };
+type SellerProduct = MarketplaceProduct & { status: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED"; created_at: string };
 
 type ConnectionState = "loading" | "connected" | "disconnected" | "error";
 
@@ -171,7 +171,7 @@ export default function TeacherMarketplacePage() {
                     <h3 className="font-bold text-dark">{product.title}</h3>
                     <p className="mt-1 text-sm text-muted">{product.category}</p>
                     <p className="mt-2 text-xs font-semibold text-primary">
-                      {product.status === "PUBLISHED" ? "Publicado" : product.status === "PENDING_REVIEW" ? "Aguardando aprovação" : "Reprovado"}
+                      {product.status === "PUBLISHED" ? "Publicado" : product.status === "PENDING_REVIEW" ? "Aguardando aprovação" : product.status === "DRAFT" ? "Rascunho" : "Reprovado"}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
