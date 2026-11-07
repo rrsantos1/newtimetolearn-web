@@ -110,7 +110,6 @@ export default function PlayWordSearchPage() {
   const [attemptError, setAttemptError] = useState("");
   const [pendingAttempt, setPendingAttempt] = useState<{
     wordsFound: string[];
-    elapsedSeconds: number;
   } | null>(null);
 
   const loadRanking = useCallback(async (slug: string): Promise<void> => {
@@ -126,7 +125,7 @@ export default function PlayWordSearchPage() {
   }, []);
 
   const handleComplete = useCallback(
-    async (wordsFound: string[], elapsedSeconds: number): Promise<void> => {
+    async (wordsFound: string[]): Promise<void> => {
       if (!activity) return;
 
       if (!isStudent) {
@@ -136,7 +135,7 @@ export default function PlayWordSearchPage() {
 
       if (attemptResult || submittingAttempt) return;
 
-      setPendingAttempt({ wordsFound, elapsedSeconds });
+      setPendingAttempt({ wordsFound });
       setSubmittingAttempt(true);
       setAttemptError("");
 
@@ -144,7 +143,7 @@ export default function PlayWordSearchPage() {
         const result = await submitWordSearchAttemptService.execute(
           activity.slug,
           wordsFound,
-          elapsedSeconds,
+
         );
         setAttemptResult(result);
         setRanking(result.ranking);
@@ -320,7 +319,7 @@ export default function PlayWordSearchPage() {
                     grid={grid}
                     words={words}
                     wordPositions={wordPositions}
-                    timeLimitSeconds={activity.version.timeLimitSeconds}
+                    
                     canSubmitScore={isStudent}
                     onComplete={handleComplete}
                   />
@@ -330,7 +329,7 @@ export default function PlayWordSearchPage() {
                       {attemptError && (
                         <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                           <p>{attemptError}</p>
-                          {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.wordsFound, pendingAttempt.elapsedSeconds)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
+                          {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.wordsFound)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
                         </div>
                       )}
                     </section>
