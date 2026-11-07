@@ -79,6 +79,7 @@ export default function MoleHitPlayPage() {
   const [phase, setPhase] = useState<GamePhase>("ready");
   const [selectedDifficulty, setSelectedDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("EASY");
   const [activeHole, setActiveHole] = useState<ActiveMole | null>(null);
+  const [hitEffect, setHitEffect] = useState<{ index: number; key: number } | null>(null);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [remaining, setRemaining] = useState(30);
@@ -97,6 +98,7 @@ export default function MoleHitPlayPage() {
   const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
   const visibleTimeoutRef = useRef<number | null>(null);
+  const hitEffectTimeoutRef = useRef<number | null>(null);
   const optionQueueRef = useRef<string[]>([]);
   const previousCycleFirstRef = useRef("");
 
@@ -144,6 +146,8 @@ export default function MoleHitPlayPage() {
     const elapsedSeconds = Math.min(duration, Math.max(0, Math.floor((Date.now() - startAtRef.current) / 1000)));
     setPhase("finished");
     setActiveHole(null);
+    setHitEffect(null);
+    if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
     setScoreSaving(isStudent);
     if (spawnTimeoutRef.current !== null) window.clearTimeout(spawnTimeoutRef.current);
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
@@ -232,6 +236,8 @@ export default function MoleHitPlayPage() {
     setMisses(0);
     setRemaining(duration);
     setActiveHole(null);
+    setHitEffect(null);
+    if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
     setResult(null);
     setSubmitError("");
     startAtRef.current = Date.now();
@@ -248,6 +254,9 @@ export default function MoleHitPlayPage() {
         hitsRef.current += 1;
         setHits(hitsRef.current);
         setActiveHole({ ...activeHole, resolved: "correct" });
+        setHitEffect({ index, key: Date.now() });
+        if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
+        hitEffectTimeoutRef.current = window.setTimeout(() => setHitEffect(null), 650);
       } else {
         missesRef.current += 1;
         setMisses(missesRef.current);
@@ -284,38 +293,66 @@ export default function MoleHitPlayPage() {
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
-                className="mx-auto grid h-[390px] w-full max-w-2xl grid-cols-3 items-center justify-items-center gap-x-3 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 pb-5 sm:h-[420px] sm:px-6 sm:pb-6"
+                className="relative mx-auto h-[390px] w-full max-w-2xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center sm:h-[420px]"
                 style={{
                   backgroundImage: "url(/moles/background.jpg)",
                   backgroundPosition: "center bottom",
-                  gridTemplateRows: `minmax(0, 1.35fr) repeat(${Math.ceil(holeCount / 3)}, minmax(0, 1fr))`,
-                  rowGap: holeCount === 6 ? "18px" : holeCount === 9 ? "10px" : "5px",
                 }}
               >
-                <div aria-hidden="true" />
                 {Array.from({ length: holeCount }, (_, index) => {
                   const mole = activeHole?.index === index ? activeHole : null;
                   const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
-                  const holeSize = holeCount === 6 ? "max-w-[96px] sm:max-w-[108px]" : holeCount === 9 ? "max-w-[76px] sm:max-w-[88px]" : "max-w-[58px] sm:max-w-[68px]";
+                  const rows = Math.ceil(holeCount / 3);
+                  const left = ((index % 3) + 0.5) / 3 * 100;
+                  const top = 42 + (Math.floor(index / 3) + 0.5) * (53 / rows);
+                  const holeSize = holeCount === 6
+                    ? "size-[88px] sm:size-[104px]"
+                    : holeCount === 9
+                      ? "size-[72px] sm:size-[84px]"
+                      : "size-[58px] sm:size-[68px]";
                   return (
                     <button
                       type="button"
                       key={index}
                       onClick={() => hitHole(index)}
                       aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"}
-                      className={`relative flex aspect-square w-full ${holeSize} items-center justify-center overflow-visible rounded-full focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring`}
+                      className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${holeSize}`}
+                      style={{ left: `${left}%`, top: `${top}%` }}
                     >
                       <span className="absolute inset-0 overflow-hidden rounded-full border-[3px] border-[#9a6b35] bg-[#70451f] shadow-[0_4px_0_#70451f]">
-                        {mole && <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 22vw, 108px" className="object-contain" />}
+                        {mole && <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 22vw, 104px" className="object-contain" />}
                       </span>
                       {mole && (
-                        <span className="absolute -top-5 left-1/2 z-10 w-max max-w-[min(180px,30vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.6rem,1.8vw,0.8rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
+                        <span className="absolute -top-7 left-1/2 z-20 w-max max-w-[min(190px,34vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.62rem,1.8vw,0.82rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
                           {mole.option}
+                        </span>
+                      )}
+                      {hitEffect?.index === index && (
+                        <span key={hitEffect.key} aria-hidden="true" className="pointer-events-none absolute inset-0 z-30">
+                          {Array.from({ length: 10 }, (_, particleIndex) => {
+                            const angle = (Math.PI * 2 * particleIndex) / 10;
+                            const dx = Math.round(Math.cos(angle) * 43);
+                            const dy = Math.round(Math.sin(angle) * 43);
+                            return (
+                              <span
+                                key={particleIndex}
+                                className="mole-hit-particle absolute left-1/2 top-1/2 size-2 rounded-full bg-amber-300 shadow-sm"
+                                style={{ "--particle-x": `${dx}px`, "--particle-y": `${dy}px` } as React.CSSProperties}
+                              />
+                            );
+                          })}
                         </span>
                       )}
                     </button>
                   );
                 })}
+                <style jsx>{`
+                  @keyframes mole-hit-burst {
+                    0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(calc(-50% + var(--particle-x)), calc(-50% + var(--particle-y))) scale(0.25); }
+                  }
+                  .mole-hit-particle { animation: mole-hit-burst 550ms ease-out forwards; }
+                `}</style>
               </div>
               <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
               <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>
