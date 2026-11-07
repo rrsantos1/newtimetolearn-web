@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import axios from "axios";
 import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
+import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
+import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMoleHitAttemptService, type MoleHitAttemptResult } from "@/modules/activities/services/submitMoleHitAttemptService";
 import { getMoleHitRankingService } from "@/modules/activities/services/getMoleHitRankingService";
@@ -256,17 +259,20 @@ export default function MoleHitPlayPage() {
         setHits(hitsRef.current);
         setActiveHole({ ...activeHole, resolved: "correct" });
         setHitEffect({ index, key: ++hitEffectCounterRef.current });
+        playActivitySound("success");
         if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
         hitEffectTimeoutRef.current = window.setTimeout(() => setHitEffect(null), 650);
       } else {
         missesRef.current += 1;
         setMisses(missesRef.current);
         setActiveHole({ ...activeHole, resolved: "incorrect" });
+        playActivitySound("error");
       }
       return;
     }
     missesRef.current += 1;
     setMisses(missesRef.current);
+    playActivitySound("error");
   }
 
   return (
@@ -275,6 +281,7 @@ export default function MoleHitPlayPage() {
         <div className="space-y-5">
           <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Acertar a toupeira</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}</div>
+            <ActivitySoundToggle />
           </header>
           {phase === "ready" && (
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
@@ -371,7 +378,8 @@ export default function MoleHitPlayPage() {
             </section>
           )}
           {phase === "finished" && (
-            <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
+            <section className="relative rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
+              <ConfettiCelebration active={isStudent && result !== null && result.attempt.hits > 0 && result.attempt.misses === 0} />
               <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
               {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">Registrando seu resultado...</p>}
               {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros · {result.attempt.elapsedSeconds}s</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Continue praticando para alcançar o Top 5!"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
