@@ -177,7 +177,6 @@ export interface ListeningAttemptResult {
     score: number;
     totalBlanks: number;
     correctBlanks: number;
-    elapsedSeconds: number;
     createdAt: string;
   };
   review: ListeningAttemptReview[];
@@ -185,7 +184,6 @@ export interface ListeningAttemptResult {
     position: number;
     studentName: string;
     score: number;
-    elapsedSeconds: number;
     createdAt: string;
   }>;
   isInRanking: boolean;
@@ -268,7 +266,7 @@ export const listeningService = {
   ): Promise<ListeningAttemptResult> {
     const response = await api.post<ListeningAttemptResponse>(
       `/activities/${encodeURIComponent(slug)}/listening/attempts`,
-      { answers, elapsedSeconds },
+      { answers },
     );
     return response.data.data;
   },
