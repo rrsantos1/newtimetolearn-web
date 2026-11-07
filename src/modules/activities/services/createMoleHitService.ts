@@ -15,7 +15,6 @@ export const createMoleHitService = {
       name: input.name.trim(),
       description: input.description.trim() || null,
       difficulty: input.difficulty,
-      timeLimitSeconds: input.timeLimitSeconds,
       content: input.content,
     });
     return response.data.data;
