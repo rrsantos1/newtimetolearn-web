@@ -386,7 +386,7 @@ export default function MoleHitPlayPage() {
                   .mole-hit-particle { animation: mole-hit-burst 550ms ease-out forwards; }
                 `}</style>
               </div>
-              <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
+              <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. Todas as opções aparecem uma vez por ciclo; o jogo termina após três ciclos completos.</p>
             </section>
           )}
           {phase === "finished" && (
