@@ -46,13 +46,6 @@ function formatDate(value: string): string {
   }).format(date);
 }
 
-function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return minutes > 0
-    ? `${minutes} min ${remainingSeconds.toString().padStart(2, "0")} s`
-    : `${remainingSeconds} s`;
-}
 
 export default function ActivityAttemptsPage() {
   const router = useRouter();
@@ -193,7 +186,7 @@ export default function ActivityAttemptsPage() {
                       <td className="px-5 py-4 text-dark">
                         <span className="inline-flex items-center gap-1.5">
                           <Clock3 size={14} className="text-muted" aria-hidden="true" />
-                          {formatDuration(attempt.elapsedSeconds)}
+                          
                         </span>
                       </td>
                       <td className="px-5 py-4 text-muted">
