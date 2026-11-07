@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiOrigin = apiUrl ? new URL(apiUrl) : null;
+const apiPath = apiOrigin?.pathname.replace(/\/$/, "") ?? "";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -8,6 +12,14 @@ const nextConfig: NextConfig = {
         hostname: "**.backblazeb2.com",
         pathname: "/file/**",
       },
+      ...(apiOrigin
+        ? [{
+            protocol: apiOrigin.protocol.slice(0, -1) as "http" | "https",
+            hostname: apiOrigin.hostname,
+            port: apiOrigin.port,
+            pathname: `${apiPath}/**`,
+          }]
+        : []),
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 7,
