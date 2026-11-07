@@ -71,7 +71,12 @@ export default function EditMoleHitPage() {
           description: loaded.version.description ?? "",
           difficulty: loaded.version.difficulty,
           timeLimitSeconds: loaded.version.timeLimitSeconds ?? 30,
-          content: loaded.version.content,
+          content: {
+            holeCount: loaded.version.content.holeCount,
+            theme: loaded.version.content.theme ?? "",
+            correctOptions: loaded.version.content.correctOptions ?? [],
+            incorrectOptions: loaded.version.content.incorrectOptions ?? [],
+          },
         });
       } catch (cause: unknown) { if (active) setError(getErrorMessage(cause)); }
       finally { if (active) setLoading(false); }
