@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import axios from "axios";
 import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
@@ -337,7 +337,7 @@ export default function MoleHitPlayPage() {
                               <span
                                 key={particleIndex}
                                 className="mole-hit-particle absolute left-1/2 top-1/2 size-2 rounded-full bg-amber-300 shadow-sm"
-                                style={{ "--particle-x": `${dx}px`, "--particle-y": `${dy}px` } as React.CSSProperties}
+                                style={{ "--particle-x": `${dx}px`, "--particle-y": `${dy}px` } as CSSProperties}
                               />
                             );
                           })}
