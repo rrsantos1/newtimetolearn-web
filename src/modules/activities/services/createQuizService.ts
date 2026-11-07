@@ -17,7 +17,6 @@ export const createQuizService = {
       name: input.name.trim(),
       description: input.description?.trim() || null,
       difficulty: input.difficulty,
-      timeLimitSeconds: input.timeLimitSeconds,
       content: {
         questions: input.content.questions.map((question) => ({
           ...question,
