@@ -27,7 +27,7 @@ interface EditableMoleHitActivity {
     timeLimitSeconds: number | null;
     status: string;
     revision: number;
-    content: { holeCount: 6 | 9 | 12; theme: string; correctOptions: string[]; incorrectOptions: string[] };
+    content: { holeCount: 6 | 9 | 12; theme?: string; correctOptions: string[]; incorrectOptions: string[] };
     reviewFeedback: string | null;
   };
 }
@@ -73,7 +73,6 @@ export default function EditMoleHitPage() {
           timeLimitSeconds: loaded.version.timeLimitSeconds ?? 30,
           content: {
             holeCount: loaded.version.content.holeCount,
-            theme: loaded.version.content.theme ?? "",
             correctOptions: loaded.version.content.correctOptions ?? [],
             incorrectOptions: loaded.version.content.incorrectOptions ?? [],
           },
@@ -96,7 +95,11 @@ export default function EditMoleHitPage() {
         description: values.description.trim() || null,
         difficulty: values.difficulty,
         timeLimitSeconds: values.timeLimitSeconds,
-        content: values.content,
+        content: {
+          holeCount: values.content.holeCount,
+          correctOptions: values.content.correctOptions,
+          incorrectOptions: values.content.incorrectOptions,
+        },
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, revision: response.data.data.version.revision, reviewFeedback: null } } : current);
