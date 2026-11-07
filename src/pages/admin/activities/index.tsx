@@ -269,14 +269,14 @@ export default function PendingActivitiesPage() {
                 </div>
               )}
               <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
-                <button type="button" onClick={() => void handleDecision(activity, "approve")} disabled={Boolean(busySlug)} title="Aprovar e publicar" aria-label={`Aprovar ${getActivityName(activity)}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-green-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60">
-                  <CheckCircle2 size={16} aria-hidden="true" /> Aprovar
+                <button type="button" onClick={() => void handleDecision(activity, "approve")} disabled={Boolean(busySlug)} title="Aprovar e publicar" aria-label={`Aprovar ${getActivityName(activity)}`} className="inline-flex size-9 items-center justify-center rounded-lg bg-green-700 text-white transition hover:bg-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+                  <CheckCircle2 size={16} aria-hidden="true" />
                 </button>
-                <button type="button" onClick={() => void handleDecision(activity, "request-changes")} disabled={Boolean(busySlug)} title="Solicitar correções ao professor" aria-label={`Solicitar alterações em ${getActivityName(activity)}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-amber-300 px-3 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60">
-                  <RefreshCw size={16} aria-hidden="true" /> Solicitar alterações
+                <button type="button" onClick={() => void handleDecision(activity, "request-changes")} disabled={Boolean(busySlug)} title="Solicitar alterações" aria-label={`Solicitar alterações em ${getActivityName(activity)}`} className="inline-flex size-9 items-center justify-center rounded-lg border border-amber-300 text-amber-800 transition hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+                  <RefreshCw size={16} aria-hidden="true" />
                 </button>
-                <button type="button" onClick={() => void handleDecision(activity, "reject")} disabled={Boolean(busySlug)} title="Rejeitar atividade" aria-label={`Rejeitar ${getActivityName(activity)}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60">
-                  <XCircle size={16} aria-hidden="true" /> Rejeitar
+                <button type="button" onClick={() => void handleDecision(activity, "reject")} disabled={Boolean(busySlug)} title="Rejeitar atividade" aria-label={`Rejeitar ${getActivityName(activity)}`} className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
+                  <XCircle size={16} aria-hidden="true" />
                 </button>
               </div>
               {busySlug === activity.slug && <p className="mt-3 text-xs text-muted" aria-live="polite">Processando decisão...</p>}
