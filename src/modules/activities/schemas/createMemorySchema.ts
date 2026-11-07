@@ -17,7 +17,6 @@ export interface CreateMemoryFormValues {
   name: string;
   description: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
-  timeLimitSeconds: number | null;
   content: { pairs: MemoryPairValue[] };
 }
 
