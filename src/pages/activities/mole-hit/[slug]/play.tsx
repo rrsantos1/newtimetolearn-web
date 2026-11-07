@@ -72,6 +72,7 @@ export default function MoleHitPlayPage() {
   const [ranking, setRanking] = useState<MoleHitRankingEntry[]>([]);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rankingError, setRankingError] = useState("");
+  const [scoreSaving, setScoreSaving] = useState(false);
   const startAtRef = useRef<number>(0);
   const lastSpawnRef = useRef<number | null>(null);
   const hitsRef = useRef(0);
@@ -124,6 +125,7 @@ export default function MoleHitPlayPage() {
     const elapsedSeconds = Math.min(duration, Math.max(0, Math.floor((Date.now() - startAtRef.current) / 1000)));
     setPhase("finished");
     setActiveHole(null);
+    setScoreSaving(isStudent);
     if (spawnTimeoutRef.current !== null) window.clearTimeout(spawnTimeoutRef.current);
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     setSubmitError("");
@@ -137,6 +139,8 @@ export default function MoleHitPlayPage() {
       setRanking(submitted.ranking);
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error, "Não foi possível salvar seu resultado."));
+    } finally {
+      setScoreSaving(false);
     }
   }, [activity, duration, isStudent, phase]);
 
@@ -248,6 +252,7 @@ export default function MoleHitPlayPage() {
           {phase === "finished" && (
             <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
+              {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">Registrando seu resultado...</p>}
               {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros · {result.attempt.elapsedSeconds}s</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Continue praticando para alcançar o Top 5!"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError}</p>}
               <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Jogar novamente</button>
