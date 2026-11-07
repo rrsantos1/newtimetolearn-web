@@ -99,7 +99,7 @@ test("teacher creates a memory activity and submits it for approval", async ({
   page,
 }) => {
   let submittedForApproval = false;
-  let createdPayload: Record<string, unknown> | null = null;
+  const createdPayload: { current: Record<string, unknown> | null } = { current: null };
 
   await signInAsTeacher(page);
 
@@ -109,7 +109,7 @@ test("teacher creates a memory activity and submits it for approval", async ({
       return;
     }
 
-    createdPayload = route.request().postDataJSON() as Record<string, unknown>;
+    createdPayload.current = route.request().postDataJSON() as Record<string, unknown>;
     await route.fulfill({
       status: 201,
       contentType: "application/json",
@@ -190,10 +190,10 @@ test("teacher creates a memory activity and submits it for approval", async ({
     page.getByRole("heading", { name: "Jogo salvo com sucesso!" }),
   ).toBeVisible();
 
-  expect(createdPayload).not.toBeNull();
-  expect(createdPayload?.name).toBe("Jogo de memória E2E");
+  expect(createdPayload.current).not.toBeNull();
+  expect(createdPayload.current?.name).toBe("Jogo de memória E2E");
   expect(
-    (createdPayload?.content as { pairs: unknown[] } | undefined)?.pairs,
+    (createdPayload.current?.content as { pairs: unknown[] } | undefined)?.pairs,
   ).toHaveLength(3);
 
   await page.getByRole("link", { name: "Ver minhas atividades" }).click();
