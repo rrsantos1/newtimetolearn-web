@@ -19,7 +19,7 @@ interface ActivityResponse {
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
       timeLimitSeconds: number | null;
-      content: { holeCount: 6 | 9 | 12; theme: string; correctOptions: string[]; incorrectOptions: string[] };
+      content: { holeCount: 6 | 9 | 12; theme?: string; correctOptions: string[]; incorrectOptions: string[] };
     };
   };
 }
@@ -295,7 +295,7 @@ export default function MoleHitPlayPage() {
                   );
                 })}
               </div>
-              <p className="mt-4 text-center text-xs text-muted">Tema: <strong>{activity.version.content.theme || "Identifique a resposta correta"}</strong>. Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
+              <p className="mt-4 text-center text-xs text-muted">Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
               <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>
             </section>
           )}
