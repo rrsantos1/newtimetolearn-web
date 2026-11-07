@@ -53,14 +53,6 @@ export function MoleHitAiSuggestionsPanel() {
     }
   }
 
-  async function apply(): Promise<void> {
-    if (!suggestions) return;
-    await setFieldValue("content.correctOptions", suggestions.correctOptions);
-    await setFieldValue("content.incorrectOptions", suggestions.incorrectOptions);
-    setNotice("Opções adicionadas ao formulário. Revise-as antes de salvar.");
-    setSuggestions(null);
-  }
-
   useEffect(() => {
     if (!isOpen) return;
     function handleEscape(event: KeyboardEvent): void {
@@ -93,7 +85,7 @@ export function MoleHitAiSuggestionsPanel() {
       </div>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-3 sm:p-6" role="presentation">
-          <section role="dialog" aria-modal="true" aria-labelledby="mole-ai-modal-title" className="my-auto max-h-[ min(90vh, 760px)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-5 shadow-2xl sm:p-7">
+          <section role="dialog" aria-modal="true" aria-labelledby="mole-ai-modal-title" className="my-auto max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-5 shadow-2xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2"><Sparkles size={20} aria-hidden="true" className="text-amber-700" /><h2 id="mole-ai-modal-title" className="text-xl font-bold text-dark">Gerar opções com IA</h2></div>
               <button type="button" onClick={() => setIsOpen(false)} disabled={loading} aria-label="Fechar modal" className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">×</button>
