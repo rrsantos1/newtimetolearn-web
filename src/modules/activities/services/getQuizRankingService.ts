@@ -4,7 +4,6 @@ export interface QuizRankingEntry {
   position: number;
   studentName: string;
   score: number;
-  elapsedSeconds: number;
   createdAt: string;
 }
 
