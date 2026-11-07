@@ -150,7 +150,6 @@ export function WordSearchGame({
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const finishedRef = useRef(false);
-  const foundWordsRef = useRef<string[]>([]);
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
   const [selection, setSelection] = useState<CellPosition[]>([]);
   const [message, setMessage] = useState("");
@@ -225,7 +224,6 @@ export function WordSearchGame({
         ? foundWords
         : [...foundWords, match.word];
       setFoundWords(nextFoundWords);
-      foundWordsRef.current = nextFoundWords;
       const original = normalizedWords.find(
         (word) => word.normalized === match.word,
       )?.original ?? match.word;
