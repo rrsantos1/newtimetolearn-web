@@ -284,14 +284,15 @@ export default function MoleHitPlayPage() {
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
-                className="mx-auto grid h-[390px] w-full max-w-2xl grid-cols-3 items-end justify-items-center gap-x-3 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 pb-5 pt-[42%] sm:h-[420px] sm:px-6 sm:pb-6"
+                className="mx-auto grid h-[390px] w-full max-w-2xl grid-cols-3 items-center justify-items-center gap-x-3 overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center px-3 pb-5 sm:h-[420px] sm:px-6 sm:pb-6"
                 style={{
                   backgroundImage: "url(/moles/background.jpg)",
                   backgroundPosition: "center bottom",
-                  gridTemplateRows: `repeat(${Math.ceil(holeCount / 3)}, minmax(0, 1fr))`,
+                  gridTemplateRows: `minmax(0, 1.35fr) repeat(${Math.ceil(holeCount / 3)}, minmax(0, 1fr))`,
                   rowGap: holeCount === 6 ? "18px" : holeCount === 9 ? "10px" : "5px",
                 }}
               >
+                <div aria-hidden="true" />
                 {Array.from({ length: holeCount }, (_, index) => {
                   const mole = activeHole?.index === index ? activeHole : null;
                   const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
