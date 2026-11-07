@@ -41,7 +41,6 @@ export const createMemorySchema = Yup.object({
   name: Yup.string().trim().required("Informe o nome da atividade.").max(120),
   description: Yup.string().max(2000),
   difficulty: Yup.mixed<"EASY" | "MEDIUM" | "HARD">().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
-  timeLimitSeconds: Yup.number().nullable().integer().positive().defined(),
   content: Yup.object({
     pairs: Yup.array().of(memoryPairSchema).min(3, "Adicione pelo menos 3 pares.").max(50, "O limite é de 50 pares.").required()
       .test("unique-pair-ids", "Cada par precisa ter um identificador único.", (pairs) => {
