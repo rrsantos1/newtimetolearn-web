@@ -6,6 +6,9 @@ export interface CreateMoleHitFormValues {
   difficulty: "EASY" | "MEDIUM" | "HARD";
   timeLimitSeconds: number;
   content: { holeCount: 6 | 9 | 12 };
+  coverMediaAssetId?: string | null;
+  coverImageUrl?: string | null;
+  coverAltText?: string | null;
 }
 
 export const createMoleHitSchema = Yup.object({
