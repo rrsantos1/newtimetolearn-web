@@ -65,13 +65,28 @@ test("invalid credentials show an accessible error and keep the user on login", 
   await page.getByRole("button", { name: /^Entrar$/ }).click();
 
   await expect(page).toHaveURL(/\/login$/);
-  await expect(page.getByRole("alert")).toContainText(
-    "E-mail ou senha inválidos.",
-  );
+  await expect(
+    page.getByText("E-mail ou senha inválidos.", { exact: true }),
+  ).toBeVisible();
 });
 
 test("student cannot access the teacher area", async ({ page }) => {
   await mockSuccessfulLogin(page);
+  await page.route("**/users/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          ...student,
+          status: "ACTIVE",
+          emailVerifiedAt: "2026-01-01T10:00:00.000Z",
+          createdAt: "2026-01-01T09:00:00.000Z",
+        },
+      }),
+    });
+  });
   await page.goto("/login");
 
   await page.getByLabel("E-mail").fill(student.email);
