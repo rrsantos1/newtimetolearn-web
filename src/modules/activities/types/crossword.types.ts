@@ -9,7 +9,6 @@ export interface CreateCrosswordInput {
   name: string;
   description?: string | null;
   difficulty: ActivityDifficulty;
-  timeLimitSeconds?: number | null;
   words: CrosswordWordInput[];
 }
 
@@ -68,7 +67,6 @@ export interface EditableCrosswordActivity {
     name: string;
     description: string | null;
     difficulty: ActivityDifficulty;
-    timeLimitSeconds: number | null;
     status: string;
     revision: number;
     content: {
