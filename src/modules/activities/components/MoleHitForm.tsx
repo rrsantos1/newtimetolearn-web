@@ -14,7 +14,7 @@ const labelClass = "mb-1 block text-sm font-semibold text-dark";
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring";
 
 function parseOptions(value: string): string[] {
-  return value.split("\n").map((option) => option.trim()).filter(Boolean);
+  return value.split("\n").map((option) => option.trim());
 }
 
 export function MoleHitForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar atividade como rascunho" }: Readonly<Props>) {
