@@ -5,12 +5,10 @@ export interface ActivityAttemptHistoryItem {
   studentName: string;
   score: number;
   accuracyPoints?: number;
-  speedPoints?: number;
   totalWords?: number;
   wordsFound?: string[];
   totalBlanks?: number;
   correctBlanks?: number;
-  elapsedSeconds: number;
   createdAt: string;
 }
 
