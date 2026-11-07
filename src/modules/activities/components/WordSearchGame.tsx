@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
 import { playActivitySound } from "@/modules/activities/utils/activitySounds";
 
@@ -149,7 +149,6 @@ export function WordSearchGame({
   onComplete,
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
-  const startedAtRef = useRef(0);
   const finishedRef = useRef(false);
   const foundWordsRef = useRef<string[]>([]);
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
@@ -161,29 +160,7 @@ export function WordSearchGame({
     [words],
   );
 
-  const timeLimit = Math.max(1, timeLimitSeconds ?? 900);
   const completed = words.length > 0 && foundWords.length === words.length;
-  const timedOut = elapsedSeconds >= timeLimit && !completed;
-  useEffect(() => {
-    if (completed || timedOut) return;
-
-    if (startedAtRef.current === 0) {
-      startedAtRef.current = Date.now();
-    }
-
-    const intervalId = window.setInterval(() => {
-      setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, [completed, timedOut]);
-
-  useEffect(() => {
-    if (!timedOut || finishedRef.current) return;
-
-    finishedRef.current = true;
-    onComplete(foundWordsRef.current, timeLimit);
-  }, [onComplete, timeLimit, timedOut]);
 
   const foundSet = useMemo(() => new Set(foundWords), [foundWords]);
   const selectedSet = useMemo(
@@ -269,7 +246,7 @@ export function WordSearchGame({
   }
 
   function handleCellPointerDown(row: number, col: number): void {
-    if (finishedRef.current || timedOut || completed) return;
+    if (finishedRef.current || completed) return;
 
     const start = { row, col };
     setSelectionStart(start);
@@ -285,10 +262,8 @@ export function WordSearchGame({
 
   function resetGame(): void {
     finishedRef.current = false;
-    startedAtRef.current = Date.now();
     foundWordsRef.current = [];
     setFoundWords([]);
-    setElapsedSeconds(0);
     setSelectionStart(null);
     setSelection([]);
     setMessage("");
@@ -305,9 +280,7 @@ export function WordSearchGame({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-background text-dark"}`}>
-              Tempo: {formatTime(Math.min(elapsedSeconds, timeLimit))}
-            </span>
+            
             <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-semibold text-violet-900">
               {foundWords.length} de {words.length}
             </span>
@@ -356,7 +329,7 @@ export function WordSearchGame({
           <p className="text-xs text-muted">
             Cada palavra encontrada recebe uma cor diferente.
           </p>
-          {!completed && !timedOut && (
+          {!completed && (
             <button
               type="button"
               onClick={resetGame}
@@ -374,18 +347,14 @@ export function WordSearchGame({
           </p>
         )}
 
-        {(completed || timedOut) && (
+        {completed && (
           <div role="status" className={`mt-4 rounded-xl border p-4 ${completed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
             <p className={`flex items-center gap-2 font-semibold ${completed ? "text-emerald-900" : "text-amber-900"}`}>
               <CheckCircle2 size={19} aria-hidden="true" />
-              {completed ? "Parabéns! Você encontrou todas as palavras." : "O tempo acabou."}
+              Parabéns! Você encontrou todas as palavras.
             </p>
             <p className={`mt-1 text-sm ${completed ? "text-emerald-800" : "text-amber-800"}`}>
-              {canSubmitScore
-                ? completed
-                  ? "Sua pontuação está sendo registrada."
-                  : "Sua pontuação parcial está sendo registrada."
-                : "Atividade concluída."}
+              {canSubmitScore ? "Sua pontuação está sendo registrada." : "Atividade concluída."}
             </p>
           </div>
         )}
