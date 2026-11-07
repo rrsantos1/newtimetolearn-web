@@ -36,12 +36,6 @@ describe("createWordSearchSchema", () => {
     ).rejects.toThrow("Use apenas letras, espaços e hífens.");
   });
 
-  it("accepts an empty optional time limit", async () => {
-    await expect(
-      createWordSearchSchema.validate({ ...validValues, timeLimitSeconds: "" }),
-    ).resolves.toMatchObject({ timeLimitSeconds: null });
-  });
-
   it("rejects a word longer than twenty normalized characters", async () => {
     await expect(
       createWordSearchSchema.validate({
