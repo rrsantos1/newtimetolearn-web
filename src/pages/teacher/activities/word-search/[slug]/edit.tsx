@@ -56,7 +56,6 @@ function toFormValues(
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
-    timeLimitSeconds: activity.version.timeLimitSeconds,
     words,
   };
 }
@@ -144,7 +143,6 @@ export default function EditWordSearchPage() {
             name: values.name,
             description: values.description,
             difficulty: values.difficulty,
-            timeLimitSeconds: values.timeLimitSeconds,
             words: values.words,
             },
         );
@@ -163,7 +161,6 @@ export default function EditWordSearchPage() {
                     name: values.name,
                     description: values.description || null,
                     difficulty: values.difficulty,
-                    timeLimitSeconds: values.timeLimitSeconds ?? null,
                     status: result.version.status,
                     content: {
                         ...current.version.content,
