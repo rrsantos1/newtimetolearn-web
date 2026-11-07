@@ -10,26 +10,30 @@
     "test": "node --experimental-strip-types --test"
   },
   "dependencies": {
+    "@tiptap/extension-text-style": "3.32.2",
+    "@tiptap/pm": "3.32.2",
+    "@tiptap/react": "3.32.2",
+    "@tiptap/starter-kit": "3.32.2",
     "axios": "^1.20.0",
     "formik": "^2.4.9",
     "lucide-react": "^1.61.0",
     "next": "16.4.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "yup": "^1.7.1",
-    "@tiptap/react": "3.32.2",
-    "@tiptap/pm": "3.32.2",
-    "@tiptap/starter-kit": "3.32.2",
-    "@tiptap/extension-text-style": "3.32.2"
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^20",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }
