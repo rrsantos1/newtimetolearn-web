@@ -68,6 +68,10 @@ export const marketplaceService = {
     const response = await api.post<MarketplaceCheckoutResponse>("/marketplace/checkout", input);
     return response.data.data;
   },
+  coverUrl(slug: string) {
+    const base = api.defaults.baseURL?.replace(/\/$/, "") ?? "";
+    return `${base}/marketplace/${encodeURIComponent(slug)}/cover`;
+  },
   previewUrl(slug: string, page: number) {
     const base = api.defaults.baseURL?.replace(/\/$/, "") ?? "";
     return `${base}/marketplace/${encodeURIComponent(slug)}/preview/${page}`;
