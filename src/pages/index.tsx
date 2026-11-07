@@ -199,10 +199,15 @@ export default function Home() {
 
       {publicActivities.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
-            <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
-            <p className="mt-4 text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
+              <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
+            </div>
+            <Link href="/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
+              Ver todas as atividades <ArrowRight size={16} aria-hidden="true" />
+            </Link>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {publicActivities.map((activity) => (
