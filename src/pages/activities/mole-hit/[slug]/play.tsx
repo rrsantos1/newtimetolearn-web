@@ -96,7 +96,8 @@ export default function MoleHitPlayPage() {
   const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
   const visibleTimeoutRef = useRef<number | null>(null);
-  const optionQueueRef = useRef<string[]>([]);\n  const previousCycleFirstRef = useRef(\"\");
+  const optionQueueRef = useRef<string[]>([]);
+  const previousCycleFirstRef = useRef("");
 
   const holeCount = activity?.version.content.holeCount ?? 6;
   const duration = activity?.version.timeLimitSeconds ?? 30;
@@ -269,7 +270,7 @@ export default function MoleHitPlayPage() {
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo" : "Testar jogo"}</button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A prévia não será registrada no ranking dos alunos.</p>}
               </section>
-              {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-7"><div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>{rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p> : <RankingList ranking={ranking} />}</section>}
+              {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7"><div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>{rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p> : <RankingList ranking={ranking} />}</section>}
             </div>
           )}
           {phase === "playing" && (
@@ -283,7 +284,7 @@ export default function MoleHitPlayPage() {
                     <button type="button" key={index} onClick={() => hitHole(index)} aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"} className="relative flex aspect-square min-h-0 items-end justify-center overflow-hidden rounded-[50%] border-4 border-[#9a6b35] bg-[#70451f] shadow-inner focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                       {mole && <>
                         <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 28vw, 160px" className="object-contain" />
-                        <span className="absolute inset-x-1 top-1 z-10 rounded-lg bg-white/95 px-1 py-1 text-center text-[clamp(0.55rem,2vw,0.85rem)] font-extrabold leading-tight text-gray-900 shadow-sm [overflow-wrap:anywhere]">{mole.option}</span>
+                        <span className="absolute inset-x-1 top-1 z-10 rounded-lg bg-white/95 px-1 py-1 text-center text-[clamp(0.55rem,2vw,0.85rem)] font-extrabold leading-tight text-gray-900 shadow-sm wrap-anywhere">{mole.option}</span>
                       </>}
                     </button>
                   );
