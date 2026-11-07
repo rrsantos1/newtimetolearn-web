@@ -14,7 +14,6 @@ export interface EditableMemoryActivity {
     name: string;
     description: string | null;
     difficulty: ActivityDifficulty;
-    timeLimitSeconds: number | null;
     status: string;
     revision: number;
     content: { pairs?: unknown; [key: string]: unknown };
