@@ -13,9 +13,8 @@ interface WordSearchGameProps {
   grid: string[][];
   words: string[];
   wordPositions: WordSearchPosition[];
-  timeLimitSeconds: number | null;
   canSubmitScore: boolean;
-  onComplete: (wordsFound: string[], elapsedSeconds: number) => void;
+  onComplete: (wordsFound: string[]) => void;
 }
 
 interface CellPosition {
@@ -146,12 +145,10 @@ export function WordSearchGame({
   grid,
   words,
   wordPositions,
-  timeLimitSeconds,
   canSubmitScore,
   onComplete,
 }: Readonly<WordSearchGameProps>) {
   const [foundWords, setFoundWords] = useState<string[]>([]);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const startedAtRef = useRef(0);
   const finishedRef = useRef(false);
   const foundWordsRef = useRef<string[]>([]);
@@ -260,7 +257,7 @@ export function WordSearchGame({
 
       if (nextFoundWords.length === words.length && !finishedRef.current) {
         finishedRef.current = true;
-        onComplete(nextFoundWords, elapsedSeconds);
+        onComplete(nextFoundWords);
       }
     } else {
       setMessage("Essa seleção não corresponde a uma palavra da lista.");
@@ -295,12 +292,6 @@ export function WordSearchGame({
     setSelectionStart(null);
     setSelection([]);
     setMessage("");
-  }
-
-  function formatTime(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
-    const seconds = (totalSeconds % 60).toString().padStart(2, "0");
-    return `${minutes}:${seconds}`;
   }
 
   return (
