@@ -379,7 +379,7 @@ export default function PlayQuizPage() {
                   {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
                 </section>
                 {isStudent && (
-                  <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-7">
+                  <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
                     <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
                     <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                     {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div> : <RankingList ranking={ranking} /> }
