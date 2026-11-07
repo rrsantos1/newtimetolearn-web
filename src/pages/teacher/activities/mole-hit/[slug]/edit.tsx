@@ -88,9 +88,11 @@ export default function EditMoleHitPage() {
     try {
       const api = (await import("@/lib/api")).default;
       const response = await api.patch<{ success: true; data: { version: { status: string; revision: number } } }>(`/activities/${encodeURIComponent(activity.slug)}/mole-hit`, {
-        ...values,
         name: values.name.trim(),
         description: values.description.trim() || null,
+        difficulty: values.difficulty,
+        timeLimitSeconds: values.timeLimitSeconds,
+        content: values.content,
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, revision: response.data.data.version.revision, reviewFeedback: null } } : current);
