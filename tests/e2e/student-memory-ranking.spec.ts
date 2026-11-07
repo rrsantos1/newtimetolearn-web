@@ -143,7 +143,7 @@ test("student completes a memory activity and receives the saved score and ranki
   await expect(page.getByRole("heading", { name: "Resultado final" })).toBeVisible();
   await expect(page.getByText("100/100 pontos")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Ranking atualizado" })).toBeVisible();
-  await expect(page.getByText("Aluno de Teste", { exact: true })).toBeVisible();
+  await expect(page.getByRole("listitem").getByText("Aluno de Teste", { exact: true })).toBeVisible();
   await expect(page.getByText("Parabéns! Seu resultado entrou no Top 5!")).toBeVisible();
 
   expect(submittedAttempts).toHaveLength(1);
