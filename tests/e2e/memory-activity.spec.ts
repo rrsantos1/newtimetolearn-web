@@ -6,7 +6,6 @@ const activity = {
   version: {
     name: "Memória E2E",
     description: "Atividade usada nos testes automatizados.",
-    timeLimitSeconds: null,
     content: {
       pairs: [
         {
