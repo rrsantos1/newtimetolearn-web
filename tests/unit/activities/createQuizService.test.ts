@@ -13,7 +13,6 @@ const input: CreateQuizFormValues = {
   name: "  Ciências  ",
   description: "  Revisão da matéria  ",
   difficulty: "EASY",
-  timeLimitSeconds: 900,
   content: {
     questions: [
       {
@@ -50,7 +49,6 @@ describe("createQuizService", () => {
       name: "Ciências",
       description: "Revisão da matéria",
       difficulty: "EASY",
-      timeLimitSeconds: 900,
       content: {
         questions: [{
           id: "question-1",
