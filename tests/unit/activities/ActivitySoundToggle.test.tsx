@@ -24,8 +24,8 @@ describe("ActivitySoundToggle", () => {
 
     render(<ActivitySoundToggle />);
 
-    const button = screen.getByRole("button", { name: "Ativar efeitos sonoros" });
-    await waitFor(() => expect(button).toHaveAttribute("aria-pressed", "false"));
+    const button = await screen.findByRole("button", { name: "Ativar efeitos sonoros" });
+    expect(button).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByText("Som desligado")).toBeInTheDocument();
   });
 
