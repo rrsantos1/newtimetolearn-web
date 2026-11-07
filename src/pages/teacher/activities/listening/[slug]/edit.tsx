@@ -68,7 +68,6 @@ export default function EditListeningPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("MEDIUM");
-  const [timeLimitMinutes, setTimeLimitMinutes] = useState("15");
   const [instructions, setInstructions] = useState("Ouça o áudio e preencha as lacunas.");
   const [language, setLanguage] = useState("pt-BR");
   const [passages, setPassages] = useState<PassageDraft[]>([]);
@@ -109,11 +108,6 @@ export default function EditListeningPage() {
         setName(activity.version.name);
         setDescription(activity.version.description ?? "");
         setDifficulty(activity.version.difficulty);
-        setTimeLimitMinutes(
-          activity.version.timeLimitSeconds == null
-            ? ""
-            : String(Math.floor(activity.version.timeLimitSeconds / 60)),
-        );
         setInstructions(activity.version.content.instructions ?? "");
         setLanguage(activity.version.content.language ?? "pt-BR");
         setPassages(
@@ -199,12 +193,10 @@ export default function EditListeningPage() {
       setError("Cada texto precisa ter conteúdo e pelo menos uma lacuna."); return;
     }
     if (passages.some((passage) => passage.text.length > 4096)) { setError("Cada texto pode ter no máximo 4.096 caracteres."); return; }
-    if (timeLimitMinutes.trim() && (!Number.isInteger(Number(timeLimitMinutes)) || Number(timeLimitMinutes) < 1 || Number(timeLimitMinutes) > 240)) { setError("O tempo limite deve estar entre 1 e 240 minutos ou ficar vazio."); return; }
     setSaving(true);
     try {
       await listeningService.edit(slug, {
         name: name.trim(), description: description.trim(), difficulty,
-        timeLimitSeconds: timeLimitMinutes.trim() ? Math.round(Number(timeLimitMinutes) * 60) : null,
         content: {
           language, instructions: instructions.trim(),
           passages: passages.map(({ id, title, text, blanks }) => ({ id, title: title.trim(), text, blanks })),
@@ -314,7 +306,7 @@ export default function EditListeningPage() {
               <div className="md:col-span-2"><label htmlFor="listening-name" className="block text-sm font-medium text-dark">Nome *</label><input id="listening-name" value={name} onChange={(event) => setName(event.target.value)} maxLength={120} required className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark" /></div>
               <div className="md:col-span-2"><label htmlFor="listening-description" className="block text-sm font-medium text-dark">Descrição</label><textarea id="listening-description" value={description} onChange={(event) => setDescription(event.target.value)} rows={2} maxLength={2000} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-dark" /></div>
               <div><label htmlFor="listening-difficulty" className="block text-sm font-medium text-dark">Dificuldade</label><select id="listening-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as Difficulty)} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark"><option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option></select></div>
-              <div><label htmlFor="listening-time" className="block text-sm font-medium text-dark">Tempo limite (minutos, opcional)</label><input id="listening-time" type="number" min={1} max={240} value={timeLimitMinutes} onChange={(event) => setTimeLimitMinutes(event.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark" /></div>
+              
               <div className="md:col-span-2"><label htmlFor="listening-instructions" className="block text-sm font-medium text-dark">Instruções</label><textarea id="listening-instructions" value={instructions} onChange={(event) => setInstructions(event.target.value)} rows={2} maxLength={2000} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-dark" /></div>
             </div>
           </section>
