@@ -23,7 +23,6 @@ interface Response {
       name: string;
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
-      timeLimitSeconds: number | null;
       content: { pairs: Array<{ id: string; source: MemoryItemValue; target: MemoryItemValue }> };
     };
   };
@@ -61,7 +60,6 @@ export default function EditWordMatchingPage() {
           name: activity.version.name,
           description: activity.version.description ?? "",
           difficulty: activity.version.difficulty,
-          timeLimitSeconds: activity.version.timeLimitSeconds,
           content: { pairs: activity.version.content.pairs.map((pair) => ({ id: pair.id || createDragDropId("pair"), source: pair.source, target: pair.target })) },
         });
       } catch (loadError: unknown) {
