@@ -293,7 +293,7 @@ export default function MoleHitPlayPage() {
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
-                className="relative mx-auto h-[min(68vh,560px)] min-h-[440px] w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
+                className="relative mx-auto h-[min(68vh,560px)] min-h-110 w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
                 style={{
                   backgroundImage: "url(/moles/background.jpg)",
                   backgroundPosition: "center bottom",
@@ -330,10 +330,10 @@ export default function MoleHitPlayPage() {
                       />
                       {mole && (
                         <>
-                          <span className="absolute bottom-2 left-1/2 z-10 h-[88px] w-[88px] -translate-x-1/2 sm:h-[104px] sm:w-[104px]">
+                          <span className="absolute bottom-2 left-1/2 z-10 h-22 w-22 -translate-x-1/2 sm:h-26 sm:w-26">
                             <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 88px, 104px" className="object-contain" />
                           </span>
-                          <span className="absolute -top-5 left-1/2 z-20 w-max max-w-[min(220px,38vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.62rem,1.8vw,0.84rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
+                          <span className="absolute -top-5 left-1/2 z-20 w-max max-w-[min(220px,38vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.62rem,1.8vw,0.84rem)] font-extrabold leading-tight text-gray-900 shadow-md wrap-anywhere">
                             {mole.option}
                           </span>
                         </>
