@@ -19,12 +19,26 @@ interface ActivityResponse {
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
       timeLimitSeconds: number | null;
-      content: { holeCount: 6 | 9 | 12 };
+      content: { holeCount: 6 | 9 | 12; theme: string; correctOptions: string[]; incorrectOptions: string[] };
     };
   };
 }
 
 type GamePhase = "ready" | "playing" | "finished";
+type ActiveMole = { index: number; option: string; isCorrect: boolean; resolved: "correct" | "incorrect" | null };
+
+function shuffleOptions(options: string[], previousFirst: string): string[] {
+  const shuffled = [...options];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  if (shuffled.length > 1 && shuffled[0] === previousFirst) {
+    const swapIndex = 1 + Math.floor(Math.random() * (shuffled.length - 1));
+    [shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]];
+  }
+  return shuffled;
+}
 
 const DIFFICULTY_SETTINGS = {
   EASY: { spawnMs: 1000, visibleMs: 850 },
@@ -63,7 +77,7 @@ export default function MoleHitPlayPage() {
   const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState<GamePhase>("ready");
-  const [activeHole, setActiveHole] = useState<number | null>(null);
+  const [activeHole, setActiveHole] = useState<ActiveMole | null>(null);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [remaining, setRemaining] = useState(30);
@@ -81,7 +95,7 @@ export default function MoleHitPlayPage() {
   const gameEndedRef = useRef(false);
   const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
-  const visibleTimeoutRef = useRef<number | null>(null);
+  const visibleTimeoutRef = useRef<number | null>(null);\n  const optionQueueRef = useRef<string[]>([]);\n  const previousCycleFirstRef = useRef(\"\");
 
   const holeCount = activity?.version.content.holeCount ?? 6;
   const duration = activity?.version.timeLimitSeconds ?? 30;
@@ -151,13 +165,21 @@ export default function MoleHitPlayPage() {
     const nextHole = Math.floor(Math.random() * holeCount);
     const safeHole = lastSpawnRef.current === nextHole && holeCount > 1 ? (nextHole + 1) % holeCount : nextHole;
     lastSpawnRef.current = safeHole;
-    setActiveHole(safeHole);
+    const content = activity?.version.content;
+    const options = [...(content?.correctOptions ?? []), ...(content?.incorrectOptions ?? [])];
+    if (optionQueueRef.current.length === 0) {
+      optionQueueRef.current = shuffleOptions(options, previousCycleFirstRef.current);
+      previousCycleFirstRef.current = optionQueueRef.current[0] ?? "";
+    }
+    const option = optionQueueRef.current.shift() ?? "";
+    const isCorrect = content?.correctOptions.includes(option) ?? false;
+    setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
     const elapsed = (Date.now() - startAtRef.current) / 1000;
     const acceleration = Math.min(0.55, elapsed / Math.max(1, duration) * 0.55);
     const visibleMs = Math.max(260, Math.round(settings.visibleMs * (1 - acceleration)));
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     visibleTimeoutRef.current = window.setTimeout(() => setActiveHole((current) => current === safeHole ? null : current), visibleMs);
-  }, [duration, holeCount, phase, settings.visibleMs]);
+  }, [activity, duration, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
     if (phase !== "playing") return;
@@ -195,6 +217,8 @@ export default function MoleHitPlayPage() {
     missesRef.current = 0;
     remainingRef.current = duration;
     lastSpawnRef.current = null;
+    optionQueueRef.current = [];
+    previousCycleFirstRef.current = "";
     setHits(0);
     setMisses(0);
     setRemaining(duration);
@@ -209,10 +233,16 @@ export default function MoleHitPlayPage() {
 
   function hitHole(index: number): void {
     if (phase !== "playing" || gameEndedRef.current) return;
-    if (activeHole === index) {
-      hitsRef.current += 1;
-      setHits(hitsRef.current);
-      setActiveHole(null);
+    if (activeHole?.index === index && activeHole.resolved === null) {
+      if (activeHole.isCorrect) {
+        hitsRef.current += 1;
+        setHits(hitsRef.current);
+        setActiveHole({ ...activeHole, resolved: "correct" });
+      } else {
+        missesRef.current += 1;
+        setMisses(missesRef.current);
+        setActiveHole({ ...activeHole, resolved: "incorrect" });
+      }
       return;
     }
     missesRef.current += 1;
@@ -242,13 +272,20 @@ export default function MoleHitPlayPage() {
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div className="mx-auto grid max-w-3xl gap-3 rounded-2xl bg-[#d6b47b] bg-cover bg-center p-3 sm:gap-4 sm:p-5" style={{ gridTemplateColumns: `repeat(${boardCols}, minmax(0, 1fr))`, backgroundImage: "url(/moles/background.jpg)" }}>
-                {Array.from({ length: holeCount }, (_, index) => (
-                  <button type="button" key={index} onClick={() => hitHole(index)} aria-label={activeHole === index ? "Acertar toupeira" : "Buraco vazio"} className="relative flex aspect-square min-h-0 items-end justify-center overflow-hidden rounded-[50%] border-4 border-[#9a6b35] bg-[#70451f] shadow-inner focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-                    {activeHole === index && <Image src="/moles/mole_animation.gif" alt="" fill sizes="(max-width: 640px) 28vw, 160px" unoptimized className="object-contain" />}
-                  </button>
-                ))}
+                {Array.from({ length: holeCount }, (_, index) => {
+                  const mole = activeHole?.index === index ? activeHole : null;
+                  const moleImage = mole?.resolved === "correct" ? "/moles/hit.png" : mole?.resolved === "incorrect" ? "/moles/surprised.png" : "/moles/normal.png";
+                  return (
+                    <button type="button" key={index} onClick={() => hitHole(index)} aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"} className="relative flex aspect-square min-h-0 items-end justify-center overflow-hidden rounded-[50%] border-4 border-[#9a6b35] bg-[#70451f] shadow-inner focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                      {mole && <>
+                        <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 28vw, 160px" className="object-contain" />
+                        <span className="absolute inset-x-1 top-1 z-10 rounded-lg bg-white/95 px-1 py-1 text-center text-[clamp(0.55rem,2vw,0.85rem)] font-extrabold leading-tight text-gray-900 shadow-sm [overflow-wrap:anywhere]">{mole.option}</span>
+                      </>}
+                    </button>
+                  );
+                })}
               </div>
-              <p className="mt-4 text-center text-xs text-muted">A velocidade aumenta progressivamente. Toque somente nos buracos com uma toupeira.</p>
+              <p className="mt-4 text-center text-xs text-muted">Tema: <strong>{activity.version.content.theme}</strong>. Escolha as toupeiras com respostas corretas. A cada rodada, as opções são embaralhadas novamente quando todas já apareceram.</p>
               <div className="mt-4 flex justify-end"><button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button></div>
             </section>
           )}
