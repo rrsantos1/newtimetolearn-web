@@ -35,7 +35,6 @@ export interface ListedActivityVersion {
   name: string;
   description: string | null;
   difficulty: ActivityDifficulty;
-  timeLimitSeconds: number | null;
   status: ActivityVersionStatus;
   revision: number;
 }
