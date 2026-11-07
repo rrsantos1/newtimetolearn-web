@@ -36,7 +36,6 @@ export default function NewCrosswordPage() {
         name: values.name,
         description: values.description,
         difficulty: values.difficulty,
-        timeLimitSeconds: values.timeLimitSeconds,
         words: values.words,
       });
       const coverId = (values as CreateCrosswordFormValues & { coverMediaAssetId?: string | null }).coverMediaAssetId;
