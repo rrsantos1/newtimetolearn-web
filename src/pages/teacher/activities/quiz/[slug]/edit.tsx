@@ -65,7 +65,6 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
-    timeLimitSeconds: activity.version.timeLimitSeconds ?? 900,
     content: {
       questions: questions.length > 0 ? questions : [{
         id: globalThis.crypto.randomUUID(),
@@ -142,7 +141,6 @@ export default function EditQuizPage() {
           name: values.name,
           description: values.description?.trim() || null,
           difficulty: values.difficulty,
-          timeLimitSeconds: values.timeLimitSeconds ?? null,
           status: result.version.status,
           revision: result.version.revision,
           content: values.content,
