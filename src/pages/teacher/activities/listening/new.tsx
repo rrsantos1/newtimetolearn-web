@@ -78,7 +78,6 @@ export default function NewListeningPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("MEDIUM");
-  const [timeLimitMinutes, setTimeLimitMinutes] = useState("15");
   const [instructions, setInstructions] = useState("Ouça o áudio e preencha as lacunas.");
   const [passages, setPassages] = useState<PassageDraft[]>([newPassage("passage-1")]);
   const [voice, setVoice] = useState<ListeningVoice>("coral");
@@ -174,7 +173,6 @@ export default function NewListeningPage() {
         name: name.trim(),
         description: description.trim(),
         difficulty,
-        timeLimitSeconds: timeLimitMinutes.trim() ? Math.round(Number(timeLimitMinutes) * 60) : null,
         content: {
           language: "pt-BR",
           instructions: instructions.trim(),
@@ -356,11 +354,7 @@ export default function NewListeningPage() {
                   <option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option>
                 </select>
               </div>
-              <div>
-                <label htmlFor="listening-time" className="block text-sm font-medium text-dark">Tempo limite (minutos, opcional)</label>
-                <input id="listening-time" type="number" min={1} max={240} value={timeLimitMinutes} onChange={handleTimeLimitChange} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-dark" />
-                <p className="mt-1 text-xs text-muted">Deixe vazio para não definir limite.</p>
-              </div>
+              
               <div className="md:col-span-2">
                 <label htmlFor="listening-instructions" className="block text-sm font-medium text-dark">Instruções para o aluno</label>
                 <textarea id="listening-instructions" value={instructions} onChange={(event) => setInstructions(event.target.value)} rows={2} maxLength={2000} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-dark" />
