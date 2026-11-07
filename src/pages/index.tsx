@@ -237,7 +237,7 @@ export default function Home() {
               <article key={item.id} className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
                 <div className="relative flex aspect-[16/10] items-center justify-center bg-slate-100">
                   {item.preview_pages > 0 ? (
-                    <Image src={marketplaceService.coverUrl(item.slug)} alt={`Capa do material ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain p-2" />
+                    <Image src={marketplaceService.coverUrl(item.slug)} alt={`Capa do material ${item.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized={marketplaceService.shouldBypassImageOptimization()} className="object-contain p-2" />
                   ) : (
                     <span className="rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-dark">
                       {item.delivery_type === "EXTERNAL_URL" ? "Google Slides • Cópia digital" : "Material didático"}
