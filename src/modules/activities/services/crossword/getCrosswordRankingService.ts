@@ -4,7 +4,6 @@ export interface CrosswordRankingEntry {
   position: number;
   studentName: string;
   score: number;
-  elapsedSeconds: number;
   createdAt: string;
 }
 
