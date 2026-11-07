@@ -166,7 +166,7 @@ function getEditHref(activity: ListedActivity): string {
   if (activity.type === "word_matching") return "/teacher/activities/word-matching/" + slug + "/edit";
   if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";
   if (activity.type === "multiple_choice") return "/teacher/activities/multiple-choice/" + slug + "/edit";
-  if (activity.type === "mole_hit") return "/teacher/activities/mole_hit/" + slug + "/edit";
+  if (activity.type === "mole_hit") return "/teacher/activities/mole-hit/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
@@ -567,7 +567,7 @@ export default function TeacherActivitiesPage() {
                                     : activity.type === "multiple_choice"
                                     ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`
                                       : activity.type === "mole_hit"
-                                        ? `/activities/mole_hit/${encodeURIComponent(activity.slug)}/play`
+                                        ? `/activities/mole-hit/${encodeURIComponent(activity.slug)}/play`
                                         : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
