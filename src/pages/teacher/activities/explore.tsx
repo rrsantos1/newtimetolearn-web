@@ -7,7 +7,6 @@ import {
   BookOpen,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Gamepad2,
   Heart,
   Search,
