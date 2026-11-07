@@ -4,7 +4,6 @@ export interface DragDropRankingEntry {
   position: number;
   studentName: string;
   score: number;
-  elapsedSeconds: number;
   createdAt: string;
 }
 
@@ -18,11 +17,9 @@ export interface DragDropAttemptResult {
     id: string;
     score: number;
     accuracyPoints: number;
-    speedPoints: number;
     totalItems: number;
     correctCount: number;
     corrections: Array<{ itemId: string; selectedId: string | null; expectedId: string; isCorrect: boolean }>;
-    elapsedSeconds: number;
     createdAt: string;
   };
   ranking: DragDropRankingEntry[];
@@ -45,7 +42,7 @@ export const dragDropActivityService = {
     return response.data.data.ranking;
   },
 
-  async submit(slug: string, kind: "word-matching" | "sentence-completion" | "multiple-choice", answers: DragDropAnswer[], elapsedSeconds: number, attemptToken: string): Promise<DragDropAttemptResult> {
+  async submit(slug: string, kind: "word-matching" | "sentence-completion" | "multiple-choice", answers: DragDropAnswer[], attemptToken: string: Promise<DragDropAttemptResult> {
     const response = await api.post<AttemptResponse>(`/activities/${encodeURIComponent(slug)}/${kind}/attempts`, {
       answers,
       elapsedSeconds,
