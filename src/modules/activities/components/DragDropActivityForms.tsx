@@ -101,10 +101,6 @@ function ActivityDetailsFields() {
               <option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option>
             </Field>
           </div>
-          <div>
-            <label htmlFor="timeLimitSeconds" className={labelClass}>Tempo limite</label>
-            <select id="timeLimitSeconds" value={values.timeLimitSeconds === null ? "" : String(values.timeLimitSeconds)} onChange={(event) => void setFieldValue("timeLimitSeconds", event.target.value === "" ? null : Number(event.target.value))} className={inputClass}><option value={900}>15 minutos</option><option value={300}>5 minutos</option><option value={600}>10 minutos</option><option value={1200}>20 minutos</option><option value={1800}>30 minutos</option><option value="">Sem limite</option></select>
-          </div>
         </div>
       </div>
     </section>
@@ -114,7 +110,7 @@ function ActivityDetailsFields() {
 export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho", activityMode = "word_matching" }: Readonly<CommonProps<CreateWordMatchingFormValues> & { activityMode?: "word_matching" | "multiple_choice" }>) {
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
-    name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
+    name: "", description: "", difficulty: "EASY",
     content: { pairs: Array.from({ length: 3 }, () => ({ id: createDragDropId("pair"), source: { type: "text", value: "" }, target: { type: "text", value: "" } })) },
   }), []);
 
@@ -180,7 +176,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
 export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateSentenceCompletionFormValues>(() => ({
-    name: "", description: "", difficulty: "EASY", timeLimitSeconds: 900,
+    name: "", description: "", difficulty: "EASY",
     content: {
       words: [
         { id: createDragDropId("word"), text: "" },
