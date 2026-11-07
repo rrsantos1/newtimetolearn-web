@@ -27,7 +27,7 @@ interface EditableMoleHitActivity {
     timeLimitSeconds: number | null;
     status: string;
     revision: number;
-    content: { holeCount: 6 | 9 | 12 };
+    content: { holeCount: 6 | 9 | 12; theme: string; correctOptions: string[]; incorrectOptions: string[] };
     reviewFeedback: string | null;
   };
 }
