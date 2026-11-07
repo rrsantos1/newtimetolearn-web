@@ -15,7 +15,6 @@ export const updateCrosswordService = {
         name: input.name.trim(),
         description: input.description?.trim() ?? "",
         difficulty: input.difficulty,
-        timeLimitSeconds: input.timeLimitSeconds,
         words: input.words.map((entry) => ({
           word: entry.word.trim(),
           clue: entry.clue.trim(),
