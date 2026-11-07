@@ -77,7 +77,7 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
             </span>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
-              <p className="text-xs text-muted">Tempo: {formatTime(entry.elapsedSeconds)}</p>
+              
             </div>
           </div>
           <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
@@ -360,8 +360,8 @@ export default function PlayWordSearchPage() {
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
                       <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                       <p className="mt-2 text-sm text-muted">Palavras encontradas: {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
-                      <p className="mt-1 text-sm text-muted">Tempo utilizado: {formatTime(attemptResult.attempt.elapsedSeconds)}</p>
-                      <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/80 · Velocidade: {attemptResult.attempt.speedPoints}/20</p>
+                      
+                      <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/100</p>
                     </div>
                     <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
                       {attemptResult.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Desta vez, seu resultado não entrou no Top 5. Continue praticando!"}
