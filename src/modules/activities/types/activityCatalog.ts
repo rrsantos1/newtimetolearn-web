@@ -49,7 +49,7 @@ export const activityCatalog: readonly ActivityCatalogItem[] = [
   { type: "roulette", label: "Roleta", description: "Sorteie temas, perguntas ou desafios.", available: false },
   { type: "hangman", label: "Forca", description: "Descubra a palavra usando as pistas.", available: false },
   { type: "fill_in_blanks", label: "Preencher lacunas", description: "Complete vários campos dentro de uma atividade.", available: false },
-  { type: "mole_hit", label: "Acertar a toupeira", description: "Responda rapidamente aos itens apresentados.", available: false },
+  { type: "mole_hit", label: "Acertar a toupeira", description: "Acerte as toupeiras que aparecem nos buracos antes que desapareçam.", createHref: "/teacher/activities/mole-hit/new", available: true },
 ];
 
 export const activityTypeLabels: Record<ActivityType, string> = Object.fromEntries(
