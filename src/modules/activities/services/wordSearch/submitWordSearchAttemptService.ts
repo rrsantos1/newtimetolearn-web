@@ -4,7 +4,6 @@ export interface WordSearchRankingEntry {
   position: number;
   studentName: string;
   score: number;
-  elapsedSeconds: number;
   createdAt: string;
 }
 
@@ -13,10 +12,8 @@ export interface WordSearchAttemptResult {
     id: string;
     score: number;
     accuracyPoints: number;
-    speedPoints: number;
     totalWords: number;
     wordsFound: string[];
-    elapsedSeconds: number;
     createdAt: string;
   };
   ranking: WordSearchRankingEntry[];
@@ -36,7 +33,7 @@ export const submitWordSearchAttemptService = {
   ): Promise<WordSearchAttemptResult> {
     const response = await api.post<SubmitWordSearchAttemptResponse>(
       `/activities/${encodeURIComponent(slug)}/attempts`,
-      { wordsFound, elapsedSeconds },
+      { wordsFound },
     );
 
     return response.data.data;
