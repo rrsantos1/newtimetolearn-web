@@ -37,7 +37,6 @@ function toFormValues(activity: EditableMemoryActivity): CreateMemoryFormValues 
     name: activity.version.name,
     description: activity.version.description ?? "",
     difficulty: activity.version.difficulty,
-    timeLimitSeconds: activity.version.timeLimitSeconds ?? 900,
     content: { pairs: pairs.length >= 3 ? pairs : fallback },
   };
   const parsed = createMemorySchema.cast(candidate) as CreateMemoryFormValues;
