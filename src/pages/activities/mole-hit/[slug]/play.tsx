@@ -21,7 +21,6 @@ interface ActivityResponse {
       name: string;
       description: string | null;
       difficulty: "EASY" | "MEDIUM" | "HARD";
-      timeLimitSeconds: number | null;
       content: { holeCount: 6 | 9 | 12; theme?: string; correctOptions: string[]; incorrectOptions: string[] };
     };
   };
@@ -63,7 +62,7 @@ function RankingList({ ranking }: Readonly<{ ranking: MoleHitRankingEntry[] }>) 
     <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
       {ranking.slice(0, 5).map((entry) => (
         <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
-          <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p><p className="text-xs text-muted">{entry.elapsedSeconds}s</p></div>
+          <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p></div>
           <strong className="shrink-0 text-dark">{entry.score} pts</strong>
         </li>
       ))}
@@ -86,20 +85,17 @@ export default function MoleHitPlayPage() {
   const [hitEffect, setHitEffect] = useState<{ index: number; key: number } | null>(null);
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
-  const [remaining, setRemaining] = useState(30);
   const [result, setResult] = useState<MoleHitAttemptResult | null>(null);
   const [submitError, setSubmitError] = useState("");
   const [ranking, setRanking] = useState<MoleHitRankingEntry[]>([]);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [rankingError, setRankingError] = useState("");
   const [scoreSaving, setScoreSaving] = useState(false);
-  const startAtRef = useRef<number>(0);
   const gameBoardRef = useRef<HTMLElement | null>(null);
   const countdownValueRef = useRef(3);
   const lastSpawnRef = useRef<number | null>(null);
   const hitsRef = useRef(0);
   const missesRef = useRef(0);
-  const remainingRef = useRef(30);
   const gameEndedRef = useRef(false);
   const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
@@ -108,9 +104,9 @@ export default function MoleHitPlayPage() {
   const hitEffectCounterRef = useRef(0);
   const optionQueueRef = useRef<string[]>([]);
   const previousCycleFirstRef = useRef("");
+  const completedCyclesRef = useRef(0);
 
   const holeCount = selectedDifficulty === "EASY" ? 6 : selectedDifficulty === "MEDIUM" ? 9 : 12;
-  const duration = activity?.version.timeLimitSeconds ?? 30;
   const settings = useMemo(() => DIFFICULTY_SETTINGS[selectedDifficulty], [selectedDifficulty]);
 
   const loadRanking = useCallback(async (activitySlug: string): Promise<void> => {
@@ -150,7 +146,6 @@ export default function MoleHitPlayPage() {
   const finishGame = useCallback(async (): Promise<void> => {
     if (phase !== "playing" || !activity || gameEndedRef.current) return;
     gameEndedRef.current = true;
-    const elapsedSeconds = Math.min(duration, Math.max(0, Math.floor((Date.now() - startAtRef.current) / 1000)));
     setPhase("finished");
     setActiveHole(null);
     setHitEffect(null);
@@ -165,7 +160,7 @@ export default function MoleHitPlayPage() {
       return;
     }
     try {
-      const submitted = await submitMoleHitAttemptService.execute(activity.slug, attemptTokenRef.current, hitsRef.current, missesRef.current, elapsedSeconds);
+      const submitted = await submitMoleHitAttemptService.execute(activity.slug, attemptTokenRef.current, hitsRef.current, missesRef.current);
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (error: unknown) {
@@ -173,7 +168,7 @@ export default function MoleHitPlayPage() {
     } finally {
       setScoreSaving(false);
     }
-  }, [activity, duration, isStudent, phase]);
+  }, [activity, isStudent, phase]);
 
   const spawnMole = useCallback(() => {
     if (phase !== "playing" || gameEndedRef.current) return;
@@ -185,21 +180,24 @@ export default function MoleHitPlayPage() {
     const incorrectOptions = content?.incorrectOptions?.length ? content.incorrectOptions : ["Tente novamente"];
     const options = [...correctOptions, ...incorrectOptions];
     if (optionQueueRef.current.length === 0) {
+      if (completedCyclesRef.current >= 3) {
+        void finishGame();
+        return;
+      }
       optionQueueRef.current = shuffleOptions(options, previousCycleFirstRef.current);
       previousCycleFirstRef.current = optionQueueRef.current[0] ?? "";
+      completedCyclesRef.current += 1;
     }
     const option = optionQueueRef.current.shift() ?? "";
     const isCorrect = correctOptions.includes(option);
     setActiveHole({ index: safeHole, option, isCorrect, resolved: null });
     if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
-    const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-    const progress = Math.min(0.1, elapsedSeconds / Math.max(1, duration) * 0.1);
-    const visibleMs = Math.max(850, Math.round(settings.visibleMs * (1 - progress)));
+    const visibleMs = settings.visibleMs;
     visibleTimeoutRef.current = window.setTimeout(
       () => setActiveHole((current) => current?.index === safeHole ? null : current),
       visibleMs,
     );
-  }, [activity, duration, holeCount, phase, settings.visibleMs]);
+  }, [activity, finishGame, holeCount, phase, settings.visibleMs]);
 
   useEffect(() => {
     if (phase !== "countdown") return;
@@ -208,7 +206,6 @@ export default function MoleHitPlayPage() {
         window.clearInterval(timer);
         countdownValueRef.current = 0;
         setCountdown(0);
-        startAtRef.current = Date.now();
         attemptTokenRef.current = crypto.randomUUID();
         gameEndedRef.current = false;
         setPhase("playing");
@@ -222,24 +219,10 @@ export default function MoleHitPlayPage() {
 
   useEffect(() => {
     if (phase !== "playing") return;
-    const timer = window.setInterval(() => {
-      const elapsed = Math.floor((Date.now() - startAtRef.current) / 1000);
-      const nextRemaining = Math.max(0, duration - elapsed);
-      remainingRef.current = nextRemaining;
-      setRemaining(nextRemaining);
-      if (nextRemaining <= 0) void finishGame();
-    }, 100);
-    return () => window.clearInterval(timer);
-  }, [duration, finishGame, phase]);
-
-  useEffect(() => {
-    if (phase !== "playing") return;
     let timer: number;
     const scheduleNext = (): void => {
       spawnMole();
-      const elapsedSeconds = Math.max(0, (Date.now() - startAtRef.current) / 1000);
-      const progress = Math.min(0.1, elapsedSeconds / Math.max(1, duration) * 0.1);
-      const spawnMs = Math.max(900, Math.round(settings.spawnMs * (1 - progress)));
+      const spawnMs = settings.spawnMs;
       timer = window.setTimeout(scheduleNext, spawnMs);
       spawnTimeoutRef.current = timer;
     };
@@ -249,18 +232,17 @@ export default function MoleHitPlayPage() {
       if (spawnTimeoutRef.current !== null) window.clearTimeout(spawnTimeoutRef.current);
       if (visibleTimeoutRef.current !== null) window.clearTimeout(visibleTimeoutRef.current);
     };
-  }, [duration, phase, settings.spawnMs, spawnMole]);
+  }, [phase, settings.spawnMs, spawnMole]);
 
   function startGame(): void {
     hitsRef.current = 0;
     missesRef.current = 0;
-    remainingRef.current = duration;
     lastSpawnRef.current = null;
     optionQueueRef.current = [];
     previousCycleFirstRef.current = "";
+    completedCyclesRef.current = 0;
     setHits(0);
     setMisses(0);
-    setRemaining(duration);
     setActiveHole(null);
     setHitEffect(null);
     if (hitEffectTimeoutRef.current !== null) window.clearTimeout(hitEffectTimeoutRef.current);
@@ -311,10 +293,9 @@ export default function MoleHitPlayPage() {
           {phase === "ready" && (
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
-                <div className="flex items-center gap-3"><Image src="/moles/normal.png" alt="" width={64} height={64} className="object-contain" /><div><h2 className="text-xl font-bold text-dark">Preparado para o desafio?</h2><p className="mt-1 text-sm text-muted">Acerte o máximo de toupeiras em {duration} segundos!</p></div></div>
+                <div className="flex items-center gap-3"><Image src="/moles/normal.png" alt="" width={64} height={64} className="object-contain" /><div><h2 className="text-xl font-bold text-dark">Preparado para o desafio?</h2><p className="mt-1 text-sm text-muted">Encontre as opções corretas ao longo de três ciclos completos.</p></div></div>
                 <div className="mt-5 grid gap-4 rounded-xl bg-background p-4 sm:grid-cols-2">
                   <div><label htmlFor="mole-hit-difficulty" className="mb-1 block text-sm font-semibold text-dark">Escolha a dificuldade</label><select id="mole-hit-difficulty" value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(event.target.value as "EASY" | "MEDIUM" | "HARD")} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><option value="EASY">Fácil — 6 buracos</option><option value="MEDIUM">Média — 9 buracos</option><option value="HARD">Difícil — 12 buracos</option></select><p className="mt-1 text-xs text-muted">A dificuldade escolhida vale somente para esta execução.</p></div>
-                  <div><p className="text-sm text-muted">Tempo de jogo</p><p className="mt-1 font-semibold text-dark">{duration} segundos</p><p className="mt-1 text-xs text-muted">A velocidade das toupeiras também muda conforme a dificuldade.</p></div>
                 </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo" : "Testar jogo"}</button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A prévia não será registrada no ranking dos alunos.</p>}
@@ -324,7 +305,7 @@ export default function MoleHitPlayPage() {
           )}
           {(phase === "countdown" || phase === "playing") && (
             <section ref={gameBoardRef} className="scroll-mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-              <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
+              <div className="mb-5 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
                 className="relative mx-auto h-[min(68vh,560px)] min-h-110 w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
                 style={{
@@ -414,7 +395,7 @@ export default function MoleHitPlayPage() {
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.hits > 0 && result.attempt.misses === 0} />
               <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
               {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">Registrando seu resultado...</p>}
-              {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros · {result.attempt.elapsedSeconds}s</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Continue praticando para alcançar o Top 5!"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
+              {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Continue praticando para alcançar o Top 5!"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError}</p>}
               <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Jogar novamente</button>
             </section>
