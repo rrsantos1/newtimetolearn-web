@@ -79,6 +79,7 @@ export default function MoleHitPlayPage() {
   const missesRef = useRef(0);
   const remainingRef = useRef(30);
   const gameEndedRef = useRef(false);
+  const attemptTokenRef = useRef("");
   const spawnTimeoutRef = useRef<number | null>(null);
   const visibleTimeoutRef = useRef<number | null>(null);
 
@@ -134,7 +135,7 @@ export default function MoleHitPlayPage() {
       return;
     }
     try {
-      const submitted = await submitMoleHitAttemptService.execute(activity.slug, hitsRef.current, missesRef.current, elapsedSeconds);
+      const submitted = await submitMoleHitAttemptService.execute(activity.slug, attemptTokenRef.current, hitsRef.current, missesRef.current, elapsedSeconds);
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (error: unknown) {
@@ -200,6 +201,7 @@ export default function MoleHitPlayPage() {
     setResult(null);
     setSubmitError("");
     startAtRef.current = Date.now();
+    attemptTokenRef.current = crypto.randomUUID();
     gameEndedRef.current = false;
     setPhase("playing");
   }
