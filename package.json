@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test"
+    "test": "vitest run && node --experimental-strip-types --test"
   },
   "dependencies": {
     "@tiptap/extension-text-style": "3.32.2",
