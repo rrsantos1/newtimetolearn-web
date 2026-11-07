@@ -293,7 +293,7 @@ export default function MoleHitPlayPage() {
             <section className="rounded-2xl border border-border bg-surface p-4 sm:p-6">
               <div className="mb-5 grid grid-cols-3 gap-3 text-center"><div className="rounded-xl bg-background p-3"><p className="text-xs text-muted">Tempo</p><p className="text-2xl font-bold text-dark tabular-nums">{remaining}s</p></div><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">Erros</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
-                className="relative mx-auto h-[390px] w-full max-w-2xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center sm:h-[420px]"
+                className="relative mx-auto h-[min(68vh,560px)] min-h-[440px] w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
                 style={{
                   backgroundImage: "url(/moles/background.jpg)",
                   backgroundPosition: "center bottom",
@@ -306,10 +306,15 @@ export default function MoleHitPlayPage() {
                   const left = ((index % 3) + 0.5) / 3 * 100;
                   const top = 42 + (Math.floor(index / 3) + 0.5) * (53 / rows);
                   const holeSize = holeCount === 6
-                    ? "size-[88px] sm:size-[104px]"
+                    ? "w-[82px] h-[92px] sm:w-[96px] sm:h-[108px]"
                     : holeCount === 9
-                      ? "size-[72px] sm:size-[84px]"
-                      : "size-[58px] sm:size-[68px]";
+                      ? "w-[68px] h-[78px] sm:w-[80px] sm:h-[92px]"
+                      : "w-[56px] h-[66px] sm:w-[66px] sm:h-[76px]";
+                  const shadowSize = holeCount === 6
+                    ? "w-[72px] h-[22px] sm:w-[84px] sm:h-[26px]"
+                    : holeCount === 9
+                      ? "w-[60px] h-[19px] sm:w-[70px] sm:h-[22px]"
+                      : "w-[48px] h-[16px] sm:w-[58px] sm:h-[18px]";
                   return (
                     <button
                       type="button"
@@ -319,13 +324,19 @@ export default function MoleHitPlayPage() {
                       className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${holeSize}`}
                       style={{ left: `${left}%`, top: `${top}%` }}
                     >
-                      <span className="absolute inset-0 overflow-hidden rounded-full border-[3px] border-[#9a6b35] bg-[#70451f] shadow-[0_4px_0_#70451f]">
-                        {mole && <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 22vw, 104px" className="object-contain" />}
-                      </span>
+                      <span
+                        aria-hidden="true"
+                        className={`absolute bottom-1 left-1/2 -translate-x-1/2 rounded-[50%] bg-black/25 blur-[2px] ${shadowSize}`}
+                      />
                       {mole && (
-                        <span className="absolute -top-7 left-1/2 z-20 w-max max-w-[min(190px,34vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.62rem,1.8vw,0.82rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
-                          {mole.option}
-                        </span>
+                        <>
+                          <span className="absolute bottom-2 left-1/2 z-10 h-[88px] w-[88px] -translate-x-1/2 sm:h-[104px] sm:w-[104px]">
+                            <Image src={moleImage} alt="" fill sizes="(max-width: 640px) 88px, 104px" className="object-contain" />
+                          </span>
+                          <span className="absolute -top-5 left-1/2 z-20 w-max max-w-[min(220px,38vw)] -translate-x-1/2 rounded-md bg-white px-2 py-1 text-center text-[clamp(0.62rem,1.8vw,0.84rem)] font-extrabold leading-tight text-gray-900 shadow-md [overflow-wrap:anywhere]">
+                            {mole.option}
+                          </span>
+                        </>
                       )}
                       {hitEffect?.index === index && (
                         <span key={hitEffect.key} aria-hidden="true" className="pointer-events-none absolute inset-0 z-30">
