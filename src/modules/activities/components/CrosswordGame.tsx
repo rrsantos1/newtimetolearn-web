@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface CrosswordClue {
@@ -78,7 +78,6 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
   const [activeClueNumber, setActiveClueNumber] = useState<number | null>(
     clues.find((clue) => clue.direction === "across")?.number ?? clues[0]?.number ?? null,
   );
-  const startedAtRef = useRef<number | null>(null);
   const completedRef = useRef(false);
 
   function getAnswers(): string[] {
@@ -142,29 +141,6 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
     return colors;
   }, [clues, letters]);
 
-  useEffect(() => {
-    if (completedRef.current) return;
-    if (startedAtRef.current === null) {
-      startedAtRef.current = Date.now();
-    }
-
-    const intervalId = window.setInterval(() => {
-      const startedAt = startedAtRef.current;
-      if (startedAt === null || completedRef.current) return;
-
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      setElapsedSeconds(elapsed);
-      if (timeLimitSeconds !== null && elapsed >= timeLimitSeconds) {
-        completedRef.current = true;
-        setCompleted(true);
-        onComplete(getAnswers(), timeLimitSeconds);
-      }
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-    // getAnswers reads the latest letters from a ref and does not need to be a dependency.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLimitSeconds, onComplete]);
 
   function finishGame(): void {
     if (completedRef.current) return;
