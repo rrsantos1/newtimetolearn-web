@@ -14,8 +14,7 @@ export interface CrosswordClue {
 interface CrosswordGameProps {
   grid: (string | null)[][];
   clues: CrosswordClue[];
-  timeLimitSeconds: number | null;
-  onComplete: (answers: string[], elapsedSeconds: number) => void;
+  onComplete: (answers: string[]) => void;
   canAutoFill: boolean;
 }
 
@@ -70,15 +69,10 @@ const FILLED_WORD_COLORS = [
   "bg-slate-200",
 ] as const;
 
-function formatTime(seconds: number): string {
-  return `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
-}
-
-export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAutoFill }: Readonly<CrosswordGameProps>) {
+export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly<CrosswordGameProps>) {
   const bounds = useMemo(() => getBounds(grid, clues), [grid, clues]);
   const [letters, setLetters] = useState<Record<string, string>>({});
   const lettersRef = useRef<Record<string, string>>({});
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [activeDirection, setActiveDirection] = useState<"across" | "down">("across");
   const [activeClueNumber, setActiveClueNumber] = useState<number | null>(
@@ -305,7 +299,6 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
   const visibleCols = bounds.maxCol - bounds.minCol + 1;
   const acrossClues = clues.filter((clue) => clue.direction === "across").sort((a, b) => a.number - b.number);
   const downClues = clues.filter((clue) => clue.direction === "down").sort((a, b) => a.number - b.number);
-  const timedOut = timeLimitSeconds !== null && elapsedSeconds >= timeLimitSeconds;
 
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)]">
@@ -313,10 +306,7 @@ export function CrosswordGame({ grid, clues, timeLimitSeconds, onComplete, canAu
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-dark">Preencha as letras nas casas</p>
           <div className="flex items-center gap-2">
-            <p role="timer" aria-live="off" className={`rounded-full px-3 py-1 text-sm font-semibold ${timedOut ? "bg-red-100 text-red-800" : "bg-sky-100 text-sky-900"}`}>
-              {timeLimitSeconds === null ? `Tempo: ${formatTime(elapsedSeconds)}` : `Restante: ${formatTime(Math.max(0, timeLimitSeconds - elapsedSeconds))}`}
-            </p>
-            <p className="text-xs text-muted">Setas para navegar</p>
+                  <p className="text-xs text-muted">Setas para navegar</p>
           </div>
         </div>
         <div className="mx-auto w-full max-w-170">
