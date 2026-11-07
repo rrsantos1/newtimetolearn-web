@@ -253,7 +253,6 @@ export default function MoleHitPlayPage() {
     setMisses(missesRef.current);
   }
 
-  const boardCols = holeCount === 6 ? 3 : 4;
   return (
     <PublicActivityLayout title={activity?.version.name ?? "Acertar a Toupeira"} description={activity?.version.description ?? "Teste sua atenção e agilidade."}>
       {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p> : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p> : activity ? (
