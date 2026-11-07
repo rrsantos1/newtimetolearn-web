@@ -13,7 +13,6 @@ const activity = {
   version: {
     name: "Memória do Aluno E2E",
     description: "Atividade usada para validar pontuação e ranking.",
-    timeLimitSeconds: null,
     content: {
       pairs: [
         {
@@ -31,7 +30,6 @@ const ranking = [
     position: 1,
     studentName: "Aluno de Teste",
     score: 100,
-    elapsedSeconds: 8,
     createdAt: "2026-11-07T12:00:00.000Z",
   },
 ];
@@ -112,13 +110,11 @@ test("student completes a memory activity and receives the saved score and ranki
             attempt: {
               id: "e2e-memory-attempt",
               score: 100,
-              accuracyPoints: 80,
-              speedPoints: 20,
+              accuracyPoints: 100,
               totalPairs: 1,
               matchedPairs: 1,
               wrongAttempts: 0,
               penaltyPoints: 0,
-              elapsedSeconds: 0,
               createdAt: "2026-11-07T12:00:00.000Z",
             },
             ranking,
@@ -150,5 +146,4 @@ test("student completes a memory activity and receives the saved score and ranki
   const submittedAttempt = submittedAttempts[0];
   expect(submittedAttempt?.["matchedPairIds"]).toEqual(["pair-one"]);
   expect(submittedAttempt?.["wrongAttempts"]).toBe(0);
-  expect(typeof submittedAttempt?.["elapsedSeconds"]).toBe("number");
 });
