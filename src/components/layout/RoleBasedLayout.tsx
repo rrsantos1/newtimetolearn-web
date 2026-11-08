@@ -18,6 +18,7 @@ interface RoleBasedLayoutProps {
   allowedRoles: UserRole[];
   area: "teacher" | "admin" | "student";
   backLinkPlacement?: "top" | "title";
+  titleActions?: ReactNode;
 }
 
 interface LoadedTeacherEntitlements {
@@ -32,6 +33,7 @@ export function RoleBasedLayout({
   allowedRoles,
   area,
   backLinkPlacement = "top",
+  titleActions,
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
@@ -92,11 +94,12 @@ export function RoleBasedLayout({
         </header>
 
         <main className="mx-auto w-full px-5 py-8 sm:px-8 sm:py-10">
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-            <div>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">{description}</p>
             </div>
+            {titleActions}
             {backLinkPlacement === "title" && (
               <Link href="/dashboard" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background">
                 <ArrowLeft size={16} aria-hidden="true" />
