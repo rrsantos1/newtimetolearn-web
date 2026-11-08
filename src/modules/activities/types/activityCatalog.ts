@@ -46,7 +46,7 @@ export const activityCatalog: readonly ActivityCatalogItem[] = [
   { type: "drag_drop", label: "Arrastar e soltar", description: "Associe elementos arrastando-os para os lugares corretos.", available: false },
   { type: "sentence_order", label: "Ordenar frases", description: "Organize palavras ou trechos na sequência correta.", available: false },
   { type: "board_game", label: "Jogo de tabuleiro", description: "Avance pelo tabuleiro resolvendo desafios.", available: false },
-  { type: "roulette", label: "Roleta", description: "Sorteie temas, perguntas ou desafios.", available: false },
+  { type: "roulette", label: "Roleta", description: "Sorteie assuntos para estimular a conversação em sala de aula.", createHref: "/teacher/activities/roulette/new", available: true },
   { type: "hangman", label: "Forca", description: "Descubra palavras usando dicas e imagens, escolhendo as letras corretas.", createHref: "/teacher/activities/hangman/new", available: true },
   { type: "fill_in_blanks", label: "Preencher lacunas", description: "Complete vários campos dentro de uma atividade.", available: false },
   { type: "mole_hit", label: "Acertar a toupeira", description: "Acerte as toupeiras que aparecem nos buracos antes que desapareçam.", createHref: "/teacher/activities/mole-hit/new", available: true },
