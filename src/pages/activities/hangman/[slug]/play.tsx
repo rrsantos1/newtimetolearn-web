@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { LoaderCircle, Play, Trophy, ArrowRight, RotateCcw } from "lucide-react";
@@ -11,7 +11,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { getHangmanRankingService, type HangmanRankingEntry } from "@/modules/activities/services/getHangmanRankingService";
 import { submitHangmanAttemptService, type HangmanAttemptResult } from "@/modules/activities/services/submitHangmanAttemptService";
 
-interface PublicHangmanWord { id: string; clue: string; imageUrl: string | null; imageAlt: string; }
+interface PublicHangmanWord { id: string; clue: string; imageUrl: string | null; imageAlt: string; answer: string; }
 interface ActivityResponse {
   success: true;
   data: {
@@ -27,7 +27,6 @@ interface ActivityResponse {
 }
 type Phase = "ready" | "playing" | "word-complete" | "finished";
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const BODY_PARTS = ["head", "body", "rightArm", "leftArm", "rightLeg", "leftLeg"] as const;
 
 function normalizeAnswer(value: string): string {
   return value.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[\\s-]/g, "").toLocaleUpperCase("pt-BR");
@@ -84,7 +83,6 @@ export default function HangmanPlayPage() {
 
   const words = activity?.version.content.words ?? [];
   const activeWord = words[wordIndex];
-  const normalizedWord = useMemo(() => activeWord ? normalizeAnswer((activeWord as PublicHangmanWord & { answer?: string }).answer ?? "") : "", [activeWord]);
   // Answers are intentionally only loaded for the activity owner in preview; student execution receives sanitized hints.
   const loadRanking = useCallback(async (): Promise<void> => {
     if (!slug || !isStudent) return;
@@ -149,7 +147,7 @@ export default function HangmanPlayPage() {
 
   function chooseLetter(letter: string): void {
     if (phase !== "playing" || usedLetters.includes(letter) || !activeWord) return;
-    const answer = normalizeAnswer((activeWord as PublicHangmanWord & { answer?: string }).answer ?? "");
+    const answer = normalizeAnswer(activeWord.answer);
     if (!answer) {
       setLoadError("Não foi possível carregar a resposta desta palavra. Confira a publicação da atividade.");
       return;
@@ -181,7 +179,7 @@ export default function HangmanPlayPage() {
     setPhase("playing");
   }
 
-  const displayLetters = activeWord ? normalizeAnswer((activeWord as PublicHangmanWord & { answer?: string }).answer ?? "") : "";
+  const displayLetters = activeWord ? normalizeAnswer(activeWord.answer) : "";
   return <PublicActivityLayout title={activity?.version.name ?? "Jogo da Forca"} description={activity?.version.description ?? "Descubra a palavra a partir das dicas."}>
     {loading ? <div role="status" className="rounded-xl bg-surface p-6 text-sm text-muted"><LoaderCircle className="mr-2 inline animate-spin" size={18} />Carregando atividade...</div>
     : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
@@ -194,7 +192,7 @@ export default function HangmanPlayPage() {
       {(phase === "playing" || phase === "word-complete") && activeWord && <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-semibold text-dark">Palavra {wordIndex + 1} de {words.length}</p><p className="text-sm text-muted">Erros: <strong className="text-red-700">{mistakes}/6</strong></p></div>
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(240px,0.75fr)]">
-          <div className="rounded-2xl bg-background p-4 sm:p-6"><GallowsDrawing mistakes={mistakes} /><p className="mt-2 text-center text-xs text-muted">{BODY_PARTS.slice(0, mistakes).map((part) => ({ head: "cabeça", body: "tronco", rightArm: "braço direito", leftArm: "braço esquerdo", rightLeg: "perna direita", leftLeg: "perna esquerda" }[part])).join(" · ") || "Nenhuma parte desenhada"}</p></div>
+          <div className="rounded-2xl bg-background p-4 sm:p-6"><GallowsDrawing mistakes={mistakes} /><p className="mt-2 text-center text-xs text-muted">{["cabeça", "tronco", "braço direito", "braço esquerdo", "perna direita", "perna esquerda"].slice(0, mistakes).join(" · ") || "Nenhuma parte desenhada"}</p></div>
           <div className="space-y-4"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-primary">Dica</p><p className="mt-2 text-sm leading-6 text-dark">{activeWord.clue}</p>{activeWord.imageUrl && <div className="relative mt-4 aspect-video overflow-hidden rounded-lg"><Image src={activeWord.imageUrl} alt={activeWord.imageAlt || "Imagem da dica"} fill sizes="(max-width: 1024px) 100vw, 360px" unoptimized className="object-contain" /></div>}</div>
             <div className="flex flex-wrap justify-center gap-2">{Array.from({ length: displayLetters.length }, (_, index) => <span key={index} className="flex size-9 items-center justify-center border-b-4 border-primary text-lg font-bold text-dark sm:size-11 sm:text-xl">{usedLetters.includes(displayLetters[index] ?? "") ? displayLetters[index] : " "}</span>)}</div>
             {phase === "playing" ? <><p className="text-center text-xs text-muted">Escolha uma letra. As letras certas são reveladas em todas as posições.</p><div className="grid grid-cols-7 gap-2 sm:grid-cols-9">{ALPHABET.map((letter) => { const selected = usedLetters.includes(letter); return <button type="button" key={letter} onClick={() => chooseLetter(letter)} disabled={selected} aria-label={`Letra ${letter}${selected ? ", já utilizada" : ""}`} className={`min-h-10 rounded-lg border px-1 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50 ${selected ? (displayLetters.includes(letter) ? "border-green-200 bg-green-50 text-green-800 line-through" : "border-red-200 bg-red-50 text-red-700 line-through") : "border-border bg-surface text-dark hover:border-primary"}`}>{letter}</button>; })}</div></> : <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center"><p className="font-semibold text-green-800">Palavra descoberta!</p><button type="button" onClick={nextWord} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white"><ArrowRight size={17} aria-hidden="true" />{wordIndex + 1 < words.length ? "Próxima palavra" : "Ver resultado"}</button></div>}
