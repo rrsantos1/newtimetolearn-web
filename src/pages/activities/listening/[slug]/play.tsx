@@ -227,19 +227,12 @@ export default function PlayListeningPage() {
 
   return (
     <PublicActivityLayout title={activity?.version.name ?? "Listening"} description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}>
-      <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">Listening</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark sm:text-3xl">{activity?.version.name ?? "Atividade de Listening"}</h1>
-            {activity?.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}
-          </div>
-          <div className="flex items-center gap-2">
-            <ActivitySoundToggle />
-            <Link href={backHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+      <div className="space-y-3">
+        <div className="flex justify-end gap-2">
+          <ActivitySoundToggle />
+          <Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
             <ArrowLeft size={16} aria-hidden="true" />{backLabel}
-            </Link>
-          </div>
+          </Link>
         </div>
 
         {loading ? (
@@ -269,11 +262,12 @@ export default function PlayListeningPage() {
 
             {phase === "playing" && (
               <div className="space-y-5">
-                <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
+                <section className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-2.5">
                   <p className="text-sm font-semibold text-dark">{answeredCount} de {totalBlanks} lacunas preenchidas</p>
-                  
+                  <div className="h-2 w-24 overflow-hidden rounded-full bg-background sm:w-36" role="progressbar" aria-label="Progresso das lacunas" aria-valuemin={0} aria-valuemax={totalBlanks} aria-valuenow={answeredCount}>
+                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: totalBlanks > 0 ? `${(answeredCount / totalBlanks) * 100}%` : "0%" }} />
+                  </div>
                 </section>
-                {activity.version.content.instructions && <p className="rounded-xl bg-primary/5 p-4 text-sm leading-6 text-dark">{activity.version.content.instructions}</p>}
                 {passages.map((passage, passageIndex) => {
                   const audioUrl = getAudioUrl(passage);
                   return (
