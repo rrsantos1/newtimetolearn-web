@@ -216,7 +216,7 @@ export default function TeacherActivitiesPage() {
     let cancelled = false;
 
     listActivitiesService
-      .execute(page, 9, "mine", {
+      .execute(page, 12, "mine", {
         ...(search.trim() ? { search: search.trim() } : {}),
         ...(typeFilter !== "ALL" ? { type: typeFilter as ListedActivity["type"] } : {}),
         ...(difficultyFilter !== "ALL" ? { difficulty: difficultyFilter as "EASY" | "MEDIUM" | "HARD" } : {}),

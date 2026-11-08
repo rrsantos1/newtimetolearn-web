@@ -23,7 +23,7 @@ import type {
 } from "@/modules/activities/types/activityList.types";
 import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 12;
 
 const difficultyLabels: Record<ActivityDifficulty, string> = {
   EASY: "Fácil",
@@ -277,7 +277,7 @@ export default function ExploreActivitiesPage() {
 
           <section
             aria-label="Biblioteca de atividades"
-            className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
             {result.items.map((activity) => (
               <article
@@ -410,6 +410,14 @@ export default function ExploreActivitiesPage() {
                     </Link>
                   ) : activity.type === "mole_hit" ? (
                     <Link href={`/activities/mole_hit/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                    </Link>
+                  ) : activity.type === "hangman" ? (
+                    <Link href={`/activities/hangman/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
+                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                    </Link>
+                  ) : activity.type === "roulette" ? (
+                    <Link href={`/activities/roulette/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                       <Gamepad2 size={16} aria-hidden="true" /> Executar
                     </Link>
                   ) : ( 

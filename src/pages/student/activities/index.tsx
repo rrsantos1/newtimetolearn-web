@@ -22,7 +22,7 @@ import type {
 } from "@/modules/activities/types/activityList.types";
 import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 12;
 
 const difficultyLabels: Record<ActivityDifficulty, string> = {
   EASY: "Fácil",
