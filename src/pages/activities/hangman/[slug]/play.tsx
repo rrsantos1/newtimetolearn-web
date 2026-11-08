@@ -51,10 +51,10 @@ function GallowsDrawing({ mistakes }: Readonly<{ mistakes: number }>) {
     <path d="M20 215 H180 M55 215 V18 H155 V40" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
     {mistakes >= 1 && <circle cx="155" cy="65" r="24" fill="none" stroke="currentColor" strokeWidth="6" className="hangman-draw" />}
     {mistakes >= 2 && <path d="M155 89 V153" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
-    {mistakes >= 3 && <path d="M155 105 L119 135" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />}
-    {mistakes >= 4 && <path d="M155 105 L191 135" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />}
-    {mistakes >= 5 && <path d="M155 153 L125 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />}
-    {mistakes >= 6 && <path d="M155 153 L185 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />}
+    {mistakes >= 3 && <path d="M155 105 L119 135" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
+    {mistakes >= 4 && <path d="M155 105 L191 135" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
+    {mistakes >= 5 && <path d="M155 153 L125 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
+    {mistakes >= 6 && <path d="M155 153 L185 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
   </svg>;
 }
 export default function HangmanPlayPage() {
