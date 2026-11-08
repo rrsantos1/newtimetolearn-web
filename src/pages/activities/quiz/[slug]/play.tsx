@@ -7,8 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ArrowLeft, CheckCircle2, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
-import { BrandLogo } from "@/components/ui/BrandLogo";
-import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { getQuizService, type EditableQuizActivity } from "@/modules/activities/services/getQuizService";
 import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
@@ -291,15 +289,7 @@ export default function PlayQuizPage() {
   return (
     
       <div className="min-h-screen bg-background">
-        <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-4 sm:px-8">
-            <BrandLogo href="/" />
-            <div className="flex items-center gap-2">
-              <ActivitySoundToggle />
-              {user ? <LogoutButton /> : <Link href="/login" className="inline-flex min-h-9 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#142b4a]">Entrar</Link>}
-            </div>
-          </div>
-        </header>
+
         <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
           {loading ? (
             <div role="status" className="flex min-h-48 items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
@@ -319,7 +309,7 @@ export default function PlayQuizPage() {
                   <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark sm:text-3xl">{activity.version.name}</h1>
                   {activity.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}
                 </div>
-                <Link href={backHref} className="inline-flex min-h-10 shrink-0 items-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
+                <ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-10 shrink-0 items-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
               </div>
 
               {phase === "setup" && (
