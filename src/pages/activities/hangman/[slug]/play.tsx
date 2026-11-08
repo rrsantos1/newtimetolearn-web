@@ -167,7 +167,10 @@ export default function HangmanPlayPage() {
     const nextMistakes = mistakes + 1;
     setMistakes(nextMistakes);
     setTotalMistakes((current) => current + 1);
-    if (nextMistakes >= 6) void finish(true, totalMistakes + 1);
+    if (nextMistakes >= 6) {
+      setUsedLetters((current) => [...current, letter]);
+      void finish(true, totalMistakes + 1);
+    }
   }
 
   function nextWord(): void {
