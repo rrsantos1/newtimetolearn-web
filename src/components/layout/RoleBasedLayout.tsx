@@ -68,13 +68,13 @@ export function RoleBasedLayout({
     <RoleGuard allowedRoles={allowedRoles}>
       <div className="min-h-screen bg-background">
         {immersive ? (
-          <header className="border-b border-border bg-surface">
+          <header className="border-b border-[#315987] bg-[#142b4a] shadow-sm">
             <div className="mx-auto flex min-h-14 w-full items-center justify-between gap-3 px-4 sm:px-6">
               <div className="min-w-0">
-                <h1 className="truncate text-base font-bold text-dark sm:text-lg">{title}</h1>
-                <p className="hidden truncate text-xs text-muted sm:block">{description}</p>
+                <h1 className="truncate text-base font-bold text-white sm:text-lg">{title}</h1>
+                <p className="hidden truncate text-xs text-white/75 sm:block">{description}</p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">{titleActions}</div>
+              <div className="flex shrink-0 items-center gap-2 [&_a]:!border-white/30 [&_a]:!bg-white/10 [&_a]:!text-white [&_a:hover]:!bg-white/20 [&_button]:!border-white/30 [&_button]:!bg-white/10 [&_button]:!text-white [&_button:hover]:!bg-white/20">{titleActions}</div>
             </div>
           </header>
         ) : (
