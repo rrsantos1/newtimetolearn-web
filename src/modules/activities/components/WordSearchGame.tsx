@@ -331,7 +331,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-xs font-extrabold uppercase transition-all duration-150 sm:size-8 sm:text-sm md:size-9 md:text-base ${isAnimating && wordPositions.some((position) => position.word === animatingWord && getLine({ row: position.row, col: position.col }, getLineEnd(position)).some((cell) => cell.row === rowIndex && cell.col === colIndex)) ? `scale-125 z-10 shadow-md ${isCellPopped ? "scale-125" : "scale-100"}` : ""} ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
+                    className={`flex size-7 items-center justify-center rounded-sm text-xs font-extrabold uppercase transition-all duration-150 sm:size-8 sm:text-sm md:size-9 md:text-base ${isAnimating && wordPositions.some((position) => position.word === animatingWord && getLine({ row: position.row, col: position.col }, getLineEnd(position)).some((cell) => cell.row === rowIndex && cell.col === colIndex)) ? `${isCellPopped ? "scale-125 z-10 shadow-md" : "scale-100"}` : ""} ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
                   >
                     {letter}
                   </button>
