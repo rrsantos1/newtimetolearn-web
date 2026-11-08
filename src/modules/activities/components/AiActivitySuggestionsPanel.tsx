@@ -3,7 +3,7 @@ import { useFormikContext } from "formik";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
 
-type ActivityType = "word_search" | "crossword" | "quiz" | "memory" | "word_matching" | "sentence_completion";
+type ActivityType = "word_search" | "crossword" | "quiz" | "memory" | "word_matching" | "sentence_completion" | "roulette";
 type Difficulty = "easy" | "medium" | "hard";
 type Suggestion =
   | { activityType: "word_search"; words: string[] }
@@ -11,7 +11,8 @@ type Suggestion =
   | { activityType: "quiz"; questions: { question: string; options: { text: string; isCorrect: boolean }[]; explanation?: string }[] }
   | { activityType: "memory"; pairs: { firstText: string; secondText: string }[] }
   | { activityType: "word_matching"; pairs: { sourceText: string; targetText: string }[] }
-  | { activityType: "sentence_completion"; sentences: { beforeText: string; answer: string; afterText: string }[]; distractors: string[] };
+  | { activityType: "sentence_completion"; sentences: { beforeText: string; answer: string; afterText: string }[]; distractors: string[] }
+  | { activityType: "roulette"; topics: string[] };
 
 type FormValues = Record<string, unknown>;
 
@@ -101,7 +102,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         .map((entry) => ({ word: entry.answer, clue: entry.clue }));
       await setFieldValue("words", [...currentEntries, ...additions]);
       setNotice(`${additions.length} par(es) de resposta e pista adicionado(s). Revise antes de salvar.`);
-    } else if (suggestions.activityType === "memory") {
+    } else if (suggestions.activityType === "roulette") {\n      const currentTopics = Array.isArray(values.content) && false ? [] :\n        typeof values.content === "object" && values.content !== null && "topics" in values.content && Array.isArray(values.content.topics)\n          ? values.content.topics.filter((item): item is string => typeof item === "string" && item.trim().length > 0)\n          : [];\n      const existing = new Set(currentTopics.map((item) => item.trim().toLocaleLowerCase("pt-BR")));\n      const additions = selected.map((index) => suggestions.topics[index]).filter((item): item is string => typeof item === "string")\n        .filter((item) => !existing.has(item.trim().toLocaleLowerCase("pt-BR")));\n      await setFieldValue("content.topics", [...currentTopics, ...additions].slice(0, 30));\n      setNotice(`${additions.length} assunto(s) adicionado(s). Revise os assuntos antes de salvar.`);\n    } else if (suggestions.activityType === "memory") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
       const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
@@ -180,15 +181,15 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
     setSelected([]);
   }
 
-  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" || activityType === "word_matching" ? 50 : activityType === "sentence_completion" ? 20 : 10;
-  const minQuantity = activityType === "quiz" || activityType === "sentence_completion" ? 1 : 3;
+  const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" || activityType === "word_matching" ? 50 : activityType === "sentence_completion" ? 20 : activityType === "roulette" ? 30 : 10;
+  const minQuantity = activityType === "quiz" || activityType === "sentence_completion" ? 1 : activityType === "roulette" ? 2 : 3;
   const title = activityType === "word_search" ? "Sugerir palavras com IA"
-    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : activityType === "word_matching" ? "Sugerir associações com IA" : activityType === "sentence_completion" ? "Sugerir frases com lacunas com IA" : "Criar questões com IA";
+    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : activityType === "word_matching" ? "Sugerir associações com IA" : activityType === "sentence_completion" ? "Sugerir frases com lacunas com IA" : activityType === "roulette" ? "Sugerir assuntos com IA" : "Criar questões com IA";
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
       ? suggestions.entries.length : suggestions.activityType === "memory" || suggestions.activityType === "word_matching" ? suggestions.pairs.length
-        : suggestions.activityType === "sentence_completion" ? suggestions.sentences.length : suggestions.questions.length;
+        : suggestions.activityType === "sentence_completion" ? suggestions.sentences.length : suggestions.activityType === "roulette" ? suggestions.topics.length : suggestions.questions.length;
 
   if (!open) return null;
 
