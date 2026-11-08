@@ -169,7 +169,10 @@ export default function HangmanPlayPage() {
     setTotalMistakes((current) => current + 1);
     if (nextMistakes >= 6) {
       setUsedLetters((current) => [...current, letter]);
-      void finish(true, totalMistakes + 1);
+      setPhase("losing");
+      window.setTimeout(() => {
+        void finish(true, totalMistakes + 1);
+      }, 1100);
     }
   }
 
