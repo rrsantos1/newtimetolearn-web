@@ -88,14 +88,14 @@ export default function Home() {
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
-        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-10 lg:py-16">
+        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-10 lg:py-16">
           <div className="relative z-10">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
               Aprender inglês pode ser uma experiência
             </span>
 
-            <h1 className="mt-7 max-w-2xl text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.65rem] lg:text-[3.1rem]">
+            <h1 className="mt-7 w-full max-w-none text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.65rem] lg:text-[3.1rem]">
               Aprenda, pratique
               <span className="block text-accent">e evolua com o</span>
               TimeToLearn.
@@ -204,7 +204,7 @@ export default function Home() {
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
               <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
+              <p className="mt-4 text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
             </div>
             <Link href="/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
               Ver todas as atividades <ArrowRight size={16} aria-hidden="true" />
@@ -232,7 +232,7 @@ export default function Home() {
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Materiais didáticos</span>
               <h2 id="marketplace-featured-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Destaques do Marketplace</h2>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-muted">Explore materiais preparados por professores e encontre novos recursos para suas aulas.</p>
+              <p className="mt-3 text-base leading-7 text-muted">Explore materiais preparados por professores e encontre novos recursos para suas aulas.</p>
             </div>
             <Link href="/marketplace" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
               Ver todos os materiais <ArrowRight size={16} aria-hidden="true" />
