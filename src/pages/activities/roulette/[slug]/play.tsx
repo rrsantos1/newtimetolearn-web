@@ -33,7 +33,8 @@ export default function RoulettePlayPage() {
     let active = true;
     void (async () => {
       try {
-        const response = await api.get<RouletteResponse>(`/activities/public/${encodeURIComponent(slug)}`);
+        const endpoint = user ? `/activities/${encodeURIComponent(slug)}` : `/activities/public/${encodeURIComponent(slug)}`;
+        const response = await api.get<RouletteResponse>(endpoint);
         if (!active) return;
         if (response.data.data.type !== "roulette") throw new Error("Esta atividade não é uma roleta.");
         setActivity(response.data.data);
@@ -42,7 +43,7 @@ export default function RoulettePlayPage() {
       finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
-  }, [router.isReady, slug]);
+  }, [router.isReady, slug, user]);
   function spin(): void {
     if (spinning || remaining.length === 0) return;
     const index = Math.floor(Math.random() * remaining.length);
