@@ -28,7 +28,9 @@ interface ActivityResponse {
 type Phase = "ready" | "playing" | "word-complete" | "finished";
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-function normalizeAnswer(value?: string | null): string {\n  return (value ?? "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[\\s-]/g, "").toLocaleUpperCase("pt-BR");\n}
+function normalizeAnswer(value?: string | null): string {
+  return (value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s-]/g, "").toLocaleUpperCase("pt-BR");
+}
 function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
