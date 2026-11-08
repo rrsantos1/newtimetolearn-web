@@ -151,6 +151,7 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   if (type === "sentence_completion") return "Complete as frases";
   if (type === "multiple_choice") return "Múltipla escolha";
   if (type === "mole_hit") return "Acerte a toupeira";
+  if (type === "roulette") return "Roleta";
 
   return type.replaceAll("_", " ");
 }
@@ -534,7 +535,7 @@ export default function TeacherActivitiesPage() {
 
                   <div className="flex flex-wrap items-center gap-1.5">
                     <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error)); } }} aria-label={activity.isFavorite ? `Remover ${getActivityName(activity)} dos favoritos` : `Favoritar ${getActivityName(activity)}`} title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman" || activity.type === "roulette") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
@@ -545,7 +546,7 @@ export default function TeacherActivitiesPage() {
                       </Link>
                     )}
 
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman" || activity.type === "roulette") && (
                       <Link
                         href={activity.type === "quiz"
                           ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
@@ -565,7 +566,9 @@ export default function TeacherActivitiesPage() {
                                         ? `/activities/mole-hit/${encodeURIComponent(activity.slug)}/play`
                                         : activity.type === "hangman"
                                           ? `/activities/hangman/${encodeURIComponent(activity.slug)}/play`
-                                          : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                                          : activity.type === "roulette"
+                                            ? `/activities/roulette/${encodeURIComponent(activity.slug)}/play`
+                                            : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
@@ -576,7 +579,7 @@ export default function TeacherActivitiesPage() {
                     )}
 
                     {activity.latestVersion?.status === "DRAFT" &&
-                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman" || activity.type === "roulette") && (
                         <button
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
