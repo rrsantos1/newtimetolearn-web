@@ -83,9 +83,9 @@ export default function RoulettePlayPage() {
       <div className="grid w-full items-start gap-6 lg:grid-cols-[minmax(0,620px)_minmax(260px,320px)] lg:justify-center">
         <div className="flex min-w-0 flex-col items-center">
           <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
-          <div className="relative mt-6 aspect-square w-full max-w-[620px]">
-            <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
-            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4.02s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
+          <div className="relative mt-6 aspect-square w-full max-w-155">
+            <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-16 border-t-28 border-x-transparent border-t-primary drop-shadow" />
+            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-8 border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4.02s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
               {wheelTopics.map((topic, index) => {
                 const angle = (index + 0.5) * (360 / wheelTopics.length);
                 const labelWidth = Math.max(58, Math.min(130, 2 * 0.35 * 310 * Math.sin(Math.PI / wheelTopics.length) * 0.82));
