@@ -576,7 +576,7 @@ export default function TeacherActivitiesPage() {
                     )}
 
                     {activity.latestVersion?.status === "DRAFT" &&
-                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit") && (
+                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
                         <button
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
