@@ -64,7 +64,7 @@ export function RoleBasedLayout({
     <RoleGuard allowedRoles={allowedRoles}>
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
+          <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
             <BrandLogo href="/dashboard" />
             <div className="flex items-center gap-2 sm:gap-3">
               {isTeacher && area === "admin" && (
@@ -85,13 +85,13 @@ export function RoleBasedLayout({
             </div>
           </div>
           <div className="border-t border-white/15 bg-white">
-            <div className="mx-auto flex min-h-16 max-w-7xl items-center px-5 sm:px-8 lg:px-10">
+            <div className="mx-auto flex min-h-16 w-full items-center px-5 sm:px-8 lg:px-10">
               <AuthenticatedNavigation />
             </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-10">
+        <main className="mx-auto w-full px-5 py-8 sm:px-8 sm:py-10">
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
