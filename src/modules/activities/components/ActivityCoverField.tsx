@@ -135,7 +135,7 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
   }
 
   const visibleCover = cover ?? (coverMediaAssetId && coverImageUrl
-    ? { id: coverMediaAssetId, publicUrl: coverImageUrl, altText: coverAltText ?? "" }
+    ? { id: coverMediaAssetId, publicUrl: coverImageUrl, thumbnailPublicUrl: coverImageUrl, altText: coverAltText ?? "" }
     : null);
 
   return (
