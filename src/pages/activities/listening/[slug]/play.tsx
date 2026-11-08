@@ -349,7 +349,6 @@ export default function PlayListeningPage() {
                       </>
                     )}
                     <div className="flex flex-col gap-3 sm:flex-row">
-                      <Link href={backHref} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
                       <button type="button" onClick={startActivity} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>Tentar novamente</button>
                     </div>
                   </>
