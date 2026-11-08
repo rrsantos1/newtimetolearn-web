@@ -226,14 +226,19 @@ export default function PlayListeningPage() {
   }
 
   return (
-    <PublicActivityLayout title={activity?.version.name ?? "Listening"} description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}>
-      <div className="space-y-3">
-        <div className="flex justify-end gap-2">
+    <PublicActivityLayout
+      title={activity?.version.name ?? "Listening"}
+      description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}
+      titleActions={
+        <div className="flex shrink-0 items-center gap-2">
           <ActivitySoundToggle />
           <Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
             <ArrowLeft size={16} aria-hidden="true" />{backLabel}
           </Link>
         </div>
+      }
+    >
+      <div className="space-y-3">
 
         {loading ? (
           <div role="status" className="flex min-h-40 items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
