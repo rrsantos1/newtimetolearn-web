@@ -75,7 +75,7 @@ export default function NewActivityPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {activityCatalog.map((activity) => {
           const Icon = activityIcons[activity.type];
           const cardClassName = "flex h-full flex-col rounded-2xl border border-border bg-surface p-5 text-left shadow-sm transition";

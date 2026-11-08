@@ -33,7 +33,7 @@ export default function TeacherPage() {
       title="Área do professor"
       description="Organize conteúdos e atividades e acompanhe a aprendizagem dos seus alunos."
     >
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {features.map(({ title, description, icon: Icon }) => {
           if (title === "Atividades") {
             return (

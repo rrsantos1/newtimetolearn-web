@@ -10,6 +10,7 @@ const defaultCovers: Partial<Record<ActivityType, string>> = {
   sentence_completion: "/images/activities/sentence-completion.png",
   multiple_choice: "/images/activities/multiple-choice.png",
   mole_hit: "/images/activities/mole.png",
+  hangman: "/images/activities/hangman.png",
 };
 
 export function getActivityCoverImage(
