@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 
-export interface HangmanWordForm { id: string; word: string; clue: string; imageUrl: string; imageAlt: string; }
+export interface HangmanWordForm { id: string; word: string; clue: string; imageUrl: string; imageAlt: string; coverMediaAssetId?: string | null; coverImageUrl?: string | null; coverAltText?: string | null; }
 export interface CreateHangmanFormValues {
   name: string; description: string; difficulty: "EASY" | "MEDIUM" | "HARD";
   content: { words: HangmanWordForm[] };
@@ -18,6 +18,9 @@ export const createHangmanSchema = Yup.object({
       clue: Yup.string().trim().required("Informe uma dica.").min(3).max(240),
       imageUrl: Yup.string().trim().url("Informe uma URL válida.").max(2048).default(""),
       imageAlt: Yup.string().max(180).default(""),
+      coverMediaAssetId: Yup.string().nullable().optional(),
+      coverImageUrl: Yup.string().nullable().optional(),
+      coverAltText: Yup.string().nullable().optional(),
     }).required()).min(3, "Cadastre pelo menos 3 palavras.").max(30).required(),
   }).required(),
 });
