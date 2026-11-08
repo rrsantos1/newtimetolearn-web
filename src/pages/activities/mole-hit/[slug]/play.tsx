@@ -286,7 +286,7 @@ export default function MoleHitPlayPage() {
   }
 
   return (
-    <PublicActivityLayout
+    <PublicActivityLayout immersive
         title={activity?.version.name ?? "Acertar a Toupeira"}
         description={activity?.version.description ?? "Teste sua atenção e agilidade."}
         titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
