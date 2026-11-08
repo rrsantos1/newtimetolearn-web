@@ -47,7 +47,7 @@ function RankingList({ ranking }: Readonly<{ ranking: HangmanRankingEntry[] }>) 
     </li>)}</ol>;
 }
 function GallowsDrawing({ mistakes }: Readonly<{ mistakes: number }>) {
-  return <svg viewBox="0 0 240 230" role="img" aria-label={`Forca: ${mistakes} de 6 partes desenhadas`} className="mx-auto h-52 w-full max-w-xs">\n    <style jsx>{`@keyframes hangman-draw { from { stroke-dashoffset: 180; } to { stroke-dashoffset: 0; } } .hangman-draw { stroke-dasharray: 180; stroke-dashoffset: 180; animation: hangman-draw 650ms ease-out forwards; }`}</style>
+  return <svg viewBox="0 0 240 230" role="img" aria-label={`Forca: ${mistakes} de 6 partes desenhadas`} className="mx-auto h-64 w-full max-w-sm sm:h-72">\n    <style jsx>{`@keyframes hangman-draw { from { stroke-dashoffset: 180; } to { stroke-dashoffset: 0; } } .hangman-draw { stroke-dasharray: 180; stroke-dashoffset: 180; animation: hangman-draw 650ms ease-out forwards; }`}</style>
     <path d="M20 215 H180 M55 215 V18 H155 V40" fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
     {mistakes >= 1 && <circle cx="155" cy="65" r="24" fill="none" stroke="currentColor" strokeWidth="6" className="hangman-draw" />}
     {mistakes >= 2 && <path d="M155 89 V153" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
@@ -55,6 +55,7 @@ function GallowsDrawing({ mistakes }: Readonly<{ mistakes: number }>) {
     {mistakes >= 4 && <path d="M155 105 L191 135" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
     {mistakes >= 5 && <path d="M155 153 L125 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
     {mistakes >= 6 && <path d="M155 153 L185 195" stroke="currentColor" strokeWidth="6" strokeLinecap="round" className="hangman-draw" />}
+    {mistakes >= 6 && <g aria-label="Derrota" className="hangman-draw"><path d="M128 99 L182 153 M182 99 L128 153" fill="none" stroke="#dc2626" strokeWidth="11" strokeLinecap="round" /></g>}
   </svg>;
 }
 export default function HangmanPlayPage() {
@@ -170,10 +171,14 @@ export default function HangmanPlayPage() {
     if (nextMistakes >= 6) {
       setUsedLetters((current) => [...current, letter]);
       setPhase("losing");
-      window.setTimeout(() => {
-        void finish(true, totalMistakes + 1);
-      }, 1100);
     }
+  }
+
+  function retryWord(): void {
+    if (phase !== "losing") return;
+    setUsedLetters([]);
+    setMistakes(0);
+    setPhase("playing");
   }
 
   function nextWord(): void {
@@ -202,7 +207,7 @@ export default function HangmanPlayPage() {
           <div className="rounded-2xl bg-background p-4 sm:p-6"><GallowsDrawing mistakes={mistakes} /><p className="mt-2 text-center text-xs text-muted">{["cabeça", "tronco", "braço direito", "braço esquerdo", "perna direita", "perna esquerda"].slice(0, mistakes).join(" · ") || "Nenhuma parte desenhada"}</p></div>
           <div className="space-y-4"><div className="rounded-xl border border-border bg-surface p-4"><p className="text-xs font-semibold uppercase tracking-wide text-primary">Dica</p><p className="mt-2 text-sm leading-6 text-dark">{activeWord.clue}</p>{activeWord.imageUrl && <div className="relative mt-4 aspect-video overflow-hidden rounded-lg"><Image src={activeWord.imageUrl} alt={activeWord.imageAlt || "Imagem da dica"} fill sizes="(max-width: 1024px) 100vw, 360px" loading="eager" unoptimized className="object-contain" /></div>}</div>
             <div className="flex flex-wrap justify-center gap-2">{Array.from({ length: displayLetters.length }, (_, index) => <span key={index} className="flex size-9 items-center justify-center border-b-4 border-primary text-lg font-bold text-dark sm:size-11 sm:text-xl">{displayLetters[index] === " " || displayLetters[index] === "-" ? displayLetters[index] : usedLetters.includes(displayLetters[index] ?? "") ? displayLetters[index] : " "}</span>)}</div>
-            {phase === "playing" ? <><p className="text-center text-xs text-muted">Escolha uma letra. As letras certas são reveladas em todas as posições.</p><div className="grid grid-cols-7 gap-2 sm:grid-cols-9">{ALPHABET.map((letter) => { const selected = usedLetters.includes(letter); return <button type="button" key={letter} onClick={() => chooseLetter(letter)} disabled={selected} aria-label={`Letra ${letter}${selected ? ", já utilizada" : ""}`} className={`min-h-10 rounded-lg border px-1 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50 ${selected ? (displayLetters.includes(letter) ? "border-green-200 bg-green-50 text-green-800 line-through" : "border-red-200 bg-red-50 text-red-700 line-through") : "border-border bg-surface text-dark hover:border-primary"}`}>{letter}</button>; })}</div></> : phase === "losing" ? <div role="status" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 p-4 text-center"><p className="font-semibold text-red-800">Você atingiu os seis erros. Confira o resultado...</p><p className="mt-1 text-sm text-red-700">A palavra era: {activeWord.answer ?? activeWord.word}</p></div> : <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center"><p className="font-semibold text-green-800">Palavra descoberta!</p><button type="button" onClick={nextWord} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white"><ArrowRight size={17} aria-hidden="true" />{wordIndex + 1 < words.length ? "Próxima palavra" : "Ver resultado"}</button></div>}
+            {phase === "playing" ? <><p className="text-center text-xs text-muted">Escolha uma letra. As letras certas são reveladas em todas as posições.</p><div className="grid grid-cols-7 gap-2 sm:grid-cols-9">{ALPHABET.map((letter) => { const selected = usedLetters.includes(letter); return <button type="button" key={letter} onClick={() => chooseLetter(letter)} disabled={selected} aria-label={`Letra ${letter}${selected ? ", já utilizada" : ""}`} className={`min-h-10 rounded-lg border px-1 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50 ${selected ? (displayLetters.includes(letter) ? "border-green-200 bg-green-50 text-green-800 line-through" : "border-red-200 bg-red-50 text-red-700 line-through") : "border-border bg-surface text-dark hover:border-primary"}`}>{letter}</button>; })}</div></> : phase === "losing" ? <div role="status" aria-live="polite" className="rounded-xl border border-red-200 bg-red-50 p-4 text-center"><p className="font-semibold text-red-800">Você atingiu os seis erros!</p><p className="mt-1 text-sm text-red-700">Não desanime. Você pode tentar descobrir esta palavra novamente ou encerrar a atividade.</p><div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row"><button type="button" onClick={retryWord} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-primary bg-white px-5 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><RotateCcw size={17} aria-hidden="true" />Tentar novamente</button><button type="button" onClick={() => void finish(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Trophy size={17} aria-hidden="true" />Encerrar e ver resultado</button></div></div> : <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center"><p className="font-semibold text-green-800">Palavra descoberta!</p><button type="button" onClick={nextWord} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white"><ArrowRight size={17} aria-hidden="true" />{wordIndex + 1 < words.length ? "Próxima palavra" : "Ver resultado"}</button></div>}
           </div>
         </div>
       </section>}
