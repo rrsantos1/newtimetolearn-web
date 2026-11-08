@@ -292,7 +292,7 @@ export default function PlayQuizPage() {
     
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
+          <div className="mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/" />
             <div className="flex items-center gap-2">
               <ActivitySoundToggle />
