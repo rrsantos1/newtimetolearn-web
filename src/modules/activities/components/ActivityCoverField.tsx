@@ -20,10 +20,16 @@ interface CoverFormValues {
   coverAltText?: string | null;
 }
 
+interface ActivityCoverFieldProps { fieldPrefix?: string; title?: string; description?: string; }
+
 const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50";
 
-export function ActivityCoverField() {
+export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa", description = "Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade." }: Readonly<ActivityCoverFieldProps>) {
   const { values, setFieldValue, isSubmitting } = useFormikContext<CoverFormValues>();
+  const fieldName = (name: string): string => fieldPrefix ? `${fieldPrefix}.${name}` : name;
+  const coverMediaAssetId = values[fieldName("coverMediaAssetId") as keyof CoverFormValues];
+  const coverImageUrl = values[fieldName("coverImageUrl") as keyof CoverFormValues];
+  const coverAltText = values[fieldName("coverAltText") as keyof CoverFormValues];
   const [cover, setCover] = useState<SelectedCover | null>(null);
   const [pendingGeneratedCover, setPendingGeneratedCover] = useState<SelectedCover | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -63,9 +69,9 @@ export function ActivityCoverField() {
   function selectCover(asset: SelectedCover): void {
     setCover(asset);
     setError("");
-    void setFieldValue("coverMediaAssetId", asset.id);
-    void setFieldValue("coverImageUrl", asset.publicUrl);
-    void setFieldValue("coverAltText", asset.altText);
+    void setFieldValue(fieldName("coverMediaAssetId"), asset.id);
+    void setFieldValue(fieldName("coverImageUrl"), asset.publicUrl);
+    void setFieldValue(fieldName("coverAltText"), asset.altText);
   }
 
   function selectLibraryAsset(asset: MediaLibraryAsset): void {
@@ -123,20 +129,20 @@ export function ActivityCoverField() {
   function clearCover(): void {
     setCover(null);
     setError("");
-    void setFieldValue("coverMediaAssetId", null);
-    void setFieldValue("coverImageUrl", null);
-    void setFieldValue("coverAltText", null);
+    void setFieldValue(fieldName("coverMediaAssetId"), null);
+    void setFieldValue(fieldName("coverImageUrl"), null);
+    void setFieldValue(fieldName("coverAltText"), null);
   }
 
-  const visibleCover = cover ?? (values.coverMediaAssetId && values.coverImageUrl
-    ? { id: values.coverMediaAssetId, publicUrl: values.coverImageUrl, altText: values.coverAltText ?? "" }
+  const visibleCover = cover ?? (coverMediaAssetId && coverImageUrl
+    ? { id: coverMediaAssetId, publicUrl: coverImageUrl, altText: coverAltText ?? "" }
     : null);
 
   return (
     <section ref={sectionRef} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-dark">Imagem de capa <span className="text-sm font-normal text-muted">(opcional)</span></h2>
-        <p className="mt-1 text-sm leading-6 text-muted">Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade.</p>
+        <h2 className="text-lg font-semibold text-dark">{title} <span className="text-sm font-normal text-muted">(opcional)</span></h2>
+        <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
       </div>
 
       {pendingGeneratedCover && (
