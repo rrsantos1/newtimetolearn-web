@@ -174,11 +174,11 @@ export default function TeacherStudentsPage() {
                     Nenhum aluno encontrado para essa pesquisa.
                   </p>
                 ) : (
-                  <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredActive.map((relationship) => (
                       <article key={relationship.id} className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border p-4">
                         <div className="min-w-0 flex-1">
-                          <h3 className="break-words font-semibold text-dark">{relationship.student.name}</h3>
+                          <h3 className="wrap-break-word font-semibold text-dark">{relationship.student.name}</h3>
                           <p className="mt-1 break-all text-sm text-muted">{relationship.student.email}</p>
                           <span className="mt-3 inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">{statusLabels[relationship.status]}</span>
                         </div>

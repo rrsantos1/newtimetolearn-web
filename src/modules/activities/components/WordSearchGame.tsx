@@ -342,9 +342,11 @@ export function WordSearchGame({
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted">
-            Cada palavra encontrada recebe uma cor diferente.
-          </p>
+          {message && (
+            <p role="status" className="mt-3 rounded-xl bg-background p-3 text-base text-dark">
+              <strong>{message}</strong>
+            </p>
+          )}
           {!completed && (
             <button
               type="button"
@@ -355,13 +357,7 @@ export function WordSearchGame({
               Reiniciar
             </button>
           )}
-        </div>
-
-        {message && (
-          <p role="status" className="mt-3 rounded-xl bg-background p-3 text-sm text-dark">
-            {message}
-          </p>
-        )}
+        </div>        
 
         {completed && (
           <div role="status" className={`mt-4 rounded-xl border p-4 ${completed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
@@ -395,7 +391,7 @@ export function WordSearchGame({
             return (
               <li
                 key={normalized}
-                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-base font-medium transition-all duration-200 ${foundColor}`}
+                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-3xl font-medium transition-all duration-200 ${foundColor}`}
               >
                 <span className={found ? "line-through decoration-2" : ""}>
                   {original}

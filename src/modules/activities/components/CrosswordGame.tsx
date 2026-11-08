@@ -324,8 +324,7 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
             })}
           </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-muted">{Object.keys(letters).length} casas preenchidas</p>
+        <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {canAutoFill && (
               <button type="button" onClick={fillGrid} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">

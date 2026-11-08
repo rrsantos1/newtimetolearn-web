@@ -277,7 +277,7 @@ export default function PlayWordSearchPage() {
                   </section>
 
                   {isStudent && (
-                    <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-7">
+                    <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
                       <div className="flex items-center gap-2">
                         <Trophy size={21} className="text-primary" aria-hidden="true" />
                         <h2 className="text-lg font-bold text-dark">Record atual — Top 5</h2>
