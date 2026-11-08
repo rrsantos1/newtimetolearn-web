@@ -1,78 +1,769 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
-import { ArrowLeft, RotateCw, Sparkles } from "lucide-react";
-import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
-import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import api from "@/lib/api";
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Search,
+  SlidersHorizontal,
+  Heart,
+  Gamepad2,
+  History,
+  Plus,
+  RefreshCw,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
+import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { deleteActivityService } from "@/modules/activities/services/deleteActivityService";
+import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
+import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
+import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
+import { favoriteActivityService } from "@/modules/activities/services/favoriteActivityService";
+import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
+import type {
+  ActivityListData,
+  ListedActivity,
+} from "@/modules/activities/types/activityList.types";
 
-interface RouletteResponse {
-  success: true;
-  data: { slug: string; type: string; version: { name: string; description: string | null; content: { topics: string[] } } };
+const CREATE_ACTIVITY_ROUTE = "/teacher/activities/new";
+
+const versionStatusLabels: Record<string, string> = {
+  DRAFT: "Rascunho",
+  PENDING_REVIEW: "Aguardando aprovação",
+  PUBLISHED: "Publicada",
+  REJECTED: "Rejeitada",
+  CHANGES_REQUESTED: "Alterações solicitadas",
+};
+
+const activityStatusLabels: Record<string, string> = {
+  DRAFT: "Rascunho",
+  PUBLISHED: "Publicada",
+  ARCHIVED: "Arquivada",
+};
+
+const difficultyLabels: Record<string, string> = {
+  EASY: "Fácil",
+  MEDIUM: "Média",
+  HARD: "Difícil",
+};
+
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data as
+      | { error?: { message?: string }; message?: string }
+      | undefined;
+
+    return (
+      responseData?.error?.message ??
+      responseData?.message ??
+      "Não foi possível carregar suas atividades. Tente novamente."
+    );
+  }
+
+  return "Ocorreu um erro inesperado ao carregar as atividades.";
 }
-const COLORS = ["#facc15", "#111827", "#eab308", "#374151", "#f59e0b", "#1f2937", "#fde047", "#4b5563"];
-function getMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? "Não foi possível carregar a roleta."; }
-  return "Não foi possível carregar a roleta.";
+
+function getDeleteErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data as
+      | { error?: { message?: string }; message?: string }
+      | undefined;
+
+    return (
+      responseData?.error?.message ??
+      responseData?.message ??
+      "Não foi possível excluir a atividade. Tente novamente."
+    );
+  }
+
+  return "Ocorreu um erro inesperado ao excluir a atividade.";
 }
-export default function RoulettePlayPage() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const slug = typeof router.query.slug === "string" ? router.query.slug : "";
-  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
-  const [activity, setActivity] = useState<RouletteResponse["data"] | null>(null);
-  const [remaining, setRemaining] = useState<string[]>([]);
-  const [rotation, setRotation] = useState(0);
-  const [selected, setSelected] = useState("");
-  const [spinning, setSpinning] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+function getStatusLabel(activity: ListedActivity): string {
+  return activity.latestVersion
+    ? versionStatusLabels[activity.latestVersion.status] ??
+        activityStatusLabels[activity.status] ??
+        activity.status
+    : activityStatusLabels[activity.status] ?? activity.status;
+}
+
+function getStatusClass(activity: ListedActivity): string {
+  const status = activity.latestVersion?.status ?? activity.status;
+
+  if (status === "PUBLISHED") {
+    return "border-green-200 bg-green-50 text-green-800";
+  }
+
+  if (status === "PENDING_REVIEW") {
+    return "border-amber-200 bg-amber-50 text-amber-800";
+  }
+
+  if (status === "REJECTED" || status === "CHANGES_REQUESTED") {
+    return "border-red-200 bg-red-50 text-red-800";
+  }
+
+  return "border-border bg-background text-muted";
+}
+
+function canEditActivity(activity: ListedActivity): boolean {
+  if (
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion" && activity.type !== "multiple_choice" && activity.type !== "mole_hit" && activity.type !== "hangman" && activity.type !== "roulette") ||
+    !activity.latestVersion
+  ) {
+    return false;
+  }
+
+  return [
+    "DRAFT",
+    "PUBLISHED",
+    "REJECTED",
+    "CHANGES_REQUESTED",
+  ].includes(activity.latestVersion.status);
+}
+
+function getActivityTypeLabel(type: ListedActivity["type"]): string {
+  if (type === "word_search") {
+    return "Caça-palavras";
+  }
+
+  if (type === "crossword") {
+    return "Palavras cruzadas";
+  }
+
+  if (type === "quiz") {
+    return "Quiz";
+  }
+
+  if (type === "memory") {
+    return "Jogo da memória";
+  }
+
+  if (type === "listening") {
+    return "Listening";
+  }
+
+  if (type === "word_matching") return "Associação de palavras";
+  if (type === "sentence_completion") return "Complete as frases";
+  if (type === "multiple_choice") return "Múltipla escolha";
+  if (type === "mole_hit") return "Acerte a toupeira";
+
+  return type.replaceAll("_", " ");
+}
+
+
+function getEditHref(activity: ListedActivity): string {
+  const slug = encodeURIComponent(activity.slug);
+  if (activity.type === "quiz") return "/teacher/activities/quiz/" + slug + "/edit";
+  if (activity.type === "crossword") return "/teacher/activities/crossword/" + slug + "/edit";
+  if (activity.type === "memory") return "/teacher/activities/memory/" + slug + "/edit";
+  if (activity.type === "listening") return "/teacher/activities/listening/" + slug + "/edit";
+  if (activity.type === "word_matching") return "/teacher/activities/word-matching/" + slug + "/edit";
+  if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";
+  if (activity.type === "multiple_choice") return "/teacher/activities/multiple-choice/" + slug + "/edit";
+  if (activity.type === "mole_hit") return "/teacher/activities/mole-hit/" + slug + "/edit";
+  if (activity.type === "hangman") return "/teacher/activities/hangman/" + slug + "/edit";
+  if (activity.type === "roulette") return "/teacher/activities/roulette/" + slug + "/edit";
+  return "/teacher/activities/word-search/" + slug + "/edit";
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Data indisponível";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function getActivityName(activity: ListedActivity): string {
+  return (
+    activity.latestVersion?.name ??
+    activity.publishedVersion?.name ??
+    "Atividade sem título"
+  );
+}
+
+export default function TeacherActivitiesPage() {
+  const [result, setResult] = useState<ActivityListData | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("ALL");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+  const [activityToDelete, setActivityToDelete] =
+    useState<ListedActivity | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState("");
+  const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
+  const [submittingSlug, setSubmittingSlug] = useState<string | null>(null);
+  const [submissionErrorMessage, setSubmissionErrorMessage] = useState("");
+
   useEffect(() => {
-    if (!router.isReady || !slug) return;
-    let active = true;
-    void (async () => {
-      try {
-        const response = await axios.get<RouletteResponse>(`${process.env.NEXT_PUBLIC_API_URL ?? ""}/api/v1/activities/public/${encodeURIComponent(slug)}`);
-        if (!active) return;
-        if (response.data.data.type !== "roulette") throw new Error("Esta atividade não é uma roleta.");
-        setActivity(response.data.data);
-        setRemaining(response.data.data.version.content.topics);
-      } catch (cause: unknown) { if (active) setError(getMessage(cause)); }
-      finally { if (active) setLoading(false); }
-    })();
-    return () => { active = false; };
-  }, [router.isReady, slug]);
-  function spin(): void {
-    if (spinning || remaining.length === 0) return;
-    const index = Math.floor(Math.random() * remaining.length);
-    const sector = 360 / remaining.length;
-    const target = 360 * 6 + (360 - (index + 0.5) * sector);
-    setSelected(remaining[index] ?? "");
-    setRotation((current) => current + target);
-    setSpinning(true);
+    let cancelled = false;
+
+    listActivitiesService
+      .execute(page, 9, "mine", {
+        ...(search.trim() ? { search: search.trim() } : {}),
+        ...(typeFilter !== "ALL" ? { type: typeFilter as ListedActivity["type"] } : {}),
+        ...(difficultyFilter !== "ALL" ? { difficulty: difficultyFilter as "EASY" | "MEDIUM" | "HARD" } : {}),
+        ...(favoritesOnly ? { favoritesOnly: true } : {}),
+      })
+      .then((data) => {
+        if (cancelled) return;
+
+        setResult(data);
+        setErrorMessage("");
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return;
+
+        setErrorMessage(getErrorMessage(error));
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [page, reloadKey, search, typeFilter, difficultyFilter, favoritesOnly]);
+
+  async function handleSubmitForApproval(activity: ListedActivity): Promise<void> {
+    if (submittingSlug || activity.latestVersion?.status !== "DRAFT") {
+      return;
+    }
+
+    setSubmittingSlug(activity.slug);
+    setSubmissionErrorMessage("");
+    setSuccessMessage("");
+
+    try {
+      await submitActivityVersionService.execute(activity.slug);
+      setSuccessMessage(
+        `A atividade "${getActivityName(activity)}" foi enviada para aprovação.`,
+      );
+      setReloadKey((current) => current + 1);
+    } catch (error: unknown) {
+      setSubmissionErrorMessage(getErrorMessage(error));
+    } finally {
+      setSubmittingSlug(null);
+    }
   }
-  function finishSpin(): void {
-    if (!spinning) return;
-    setRemaining((current) => current.filter((topic) => topic !== selected));
-    setSpinning(false);
+
+  async function handleDeleteActivity() {
+    if (!activityToDelete || deletingSlug) {
+      return;
+    }
+
+    const activity = activityToDelete;
+    setDeletingSlug(activity.slug);
+    setDeleteErrorMessage("");
+
+    try {
+      await deleteActivityService.execute(activity.slug);
+
+      setResult((current) => {
+        if (!current) return current;
+
+        const items = current.items.filter(
+          (item) => item.slug !== activity.slug,
+        );
+        const total = Math.max(0, current.pagination.total - 1);
+        const totalPages = Math.max(1, Math.ceil(total / 9));
+
+        return {
+          ...current,
+          items,
+          pagination: {
+            ...current.pagination,
+            total,
+            totalPages,
+          },
+        };
+      });
+
+      setActivityToDelete(null);
+      setSuccessMessage(
+        `A atividade "${getActivityName(activity)}" foi excluída. O histórico foi preservado.`,
+      );
+      setErrorMessage("");
+
+      if (result && result.items.length === 1 && page > 1) {
+        setIsLoading(true);
+        setPage((currentPage) => Math.max(1, currentPage - 1));
+      } else {
+        setReloadKey((current) => current + 1);
+      }
+    } catch (error: unknown) {
+      setDeleteErrorMessage(getDeleteErrorMessage(error));
+    } finally {
+      setDeletingSlug(null);
+    }
   }
-  const colors = remaining.map((_, index) => COLORS[index % COLORS.length]);
-  const gradient = remaining.length > 0 ? `conic-gradient(${remaining.map((_, index) => `${colors[index]} ${(index / remaining.length) * 100}% ${((index + 1) / remaining.length) * 100}%`).join(", ")})` : "conic-gradient(#e5e7eb 0% 100%)";
-  return <PublicActivityLayout title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link>}>
-    {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">Carregando roleta...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <section className="flex flex-col items-center rounded-2xl border border-border bg-surface p-5 text-center sm:p-8">
-        <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
-        <div className="relative mt-6 size-[min(78vw,420px)]">
-          <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
-          <div onTransitionEnd={finishSpin} role="img" aria-label="Roleta de assuntos" className="absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 5s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
-            <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
-          </div>
+
+  return (
+    <RoleBasedLayout
+      area="teacher"
+      allowedRoles={["TEACHER"]}
+      backLinkPlacement="title"
+      title="Minhas atividades"
+      description="Consulte suas atividades, acompanhe o status de aprovação e gerencie seus materiais pedagógicos."
+    >
+      <div className="mb-6 flex justify-end">
+        <Link
+          href={CREATE_ACTIVITY_ROUTE}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
+        >
+          <Plus size={18} aria-hidden="true" />
+          Criar atividade
+        </Link>
+      </div>
+
+      <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades</div>
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="relative block">
+            <span className="sr-only">Buscar por título ou descrição</span>
+            <Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
+              placeholder="Buscar atividade..."
+              className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+            />
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por tipo</span>
+            <select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
+              <option value="ALL">Todos os tipos</option>
+              {Object.entries(activityTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
+          </label>
+          <label>
+            <span className="sr-only">Filtrar por dificuldade</span>
+            <select value={difficultyFilter} onChange={(event) => { setDifficultyFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
+              <option value="ALL">Todas as dificuldades</option>
+              <option value="EASY">Fácil</option>
+              <option value="MEDIUM">Média</option>
+              <option value="HARD">Difícil</option>
+            </select>
+          </label>
         </div>
-        {selected && !spinning && <div aria-live="polite" className="mt-6 max-w-xl rounded-2xl border border-primary/30 bg-primary/10 p-5"><p className="text-xs font-bold uppercase tracking-wider text-muted">Assunto escolhido</p><h2 className="mt-2 text-2xl font-bold text-dark">{selected}</h2><p className="mt-2 text-sm text-muted">Conversem sobre esse assunto. Quando terminarem, gire novamente.</p></div>}
-        {remaining.length > 0 ? <button type="button" onClick={spin} disabled={spinning} className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-dark px-8 py-3 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"><RotateCw size={19} aria-hidden="true" />{spinning ? "Girando..." : selected ? "Sortear próximo assunto" : "Girar roleta"}</button> : <div className="mt-6 rounded-xl bg-green-50 p-4 text-sm font-semibold text-green-800">Todos os assuntos foram sorteados!</div>}
-        {remaining.length === 0 && <button type="button" onClick={() => { setRemaining(activity.version.content.topics); setSelected(""); setRotation(0); }} className="mt-3 min-h-10 rounded-xl border border-border px-5 text-sm font-semibold text-dark">Reiniciar roleta</button>}
+        <label className="mt-3 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-dark">
+          <input type="checkbox" checked={favoritesOnly} onChange={(event) => { setFavoritesOnly(event.target.checked); setPage(1); }} className="size-4 accent-current" />
+          Somente atividades favoritas
+        </label>
       </section>
-      <aside className="rounded-2xl border border-border bg-surface p-5"><h2 className="font-semibold text-dark">Assuntos disponíveis</h2><p className="mt-1 text-sm text-muted">Os assuntos desaparecem desta lista após serem sorteados.</p><ol className="mt-4 space-y-2">{remaining.map((topic, index) => <li key={topic} className="flex items-start gap-3 rounded-xl bg-background p-3 text-sm text-dark"><span className="font-bold text-muted">{index + 1}.</span><span>{topic}</span></li>)}</ol>{remaining.length === 0 && <p className="mt-4 text-sm text-muted">Não há mais assuntos disponíveis.</p>}</aside>
-    </div> : null}
-  </PublicActivityLayout>;
+
+      {successMessage && (
+        <div
+          role="status"
+          className="mb-6 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"
+        >
+          <CheckCircle2 size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+          <p className="flex-1 leading-6">{successMessage}</p>
+          <button
+            type="button"
+            onClick={() => setSuccessMessage("")}
+            aria-label="Fechar mensagem de sucesso"
+            className="rounded-md p-1 transition hover:bg-green-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          >
+            <X size={16} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
+      {submissionErrorMessage && (
+        <section
+          role="alert"
+          className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+        >
+          {submissionErrorMessage}
+        </section>
+      )}
+
+      {errorMessage && (
+        <section
+          role="alert"
+          className="mb-6 flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-800 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              size={20}
+              className="mt-0.5 shrink-0"
+              aria-hidden="true"
+            />
+            <p className="text-sm leading-6">{errorMessage}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsLoading(true);
+              setReloadKey((current) => current + 1);
+            }}
+            disabled={isLoading}
+            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-red-300 px-3 text-sm font-semibold transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+          >
+            <RefreshCw size={15} aria-hidden="true" />
+            Tentar novamente
+          </button>
+        </section>
+      )}
+
+      {isLoading && !result ? (
+        <section
+          aria-live="polite"
+          className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
+        >
+          <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
+          <p className="text-sm text-muted">Carregando atividades...</p>
+        </section>
+      ) : result && result.items.length === 0 ? (
+        <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
+          <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <ClipboardList size={26} aria-hidden="true" />
+          </span>
+
+          <h2 className="mt-5 text-lg font-semibold text-dark">
+            Você ainda não tem atividades
+          </h2>
+
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
+            Crie seu primeiro caça-palavras, palavras cruzadas ou Quiz para começar a organizar atividades para seus alunos.
+          </p>
+
+          <Link
+            href={CREATE_ACTIVITY_ROUTE}
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}
+          >
+            <Plus size={18} aria-hidden="true" />
+            Criar atividade
+          </Link>
+        </section>
+      ) : result ? (
+        <>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="text-sm text-muted" aria-live="polite">
+              {result.pagination.total === 1
+                ? "1 atividade encontrada"
+                : `${result.pagination.total} atividades encontradas`}
+            </p>
+
+            {isLoading && (
+              <span className="text-xs text-muted">Atualizando...</span>
+            )}
+          </div>
+
+          <section
+            aria-label="Lista de atividades"
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          >
+            {result.items.map((activity) => (
+              <article
+                key={activity.slug}
+                className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
+              >
+                <div className="mb-4 flex items-start gap-4">
+                  <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                  <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
+                    {activity.latestVersion && (
+                      <span>
+                        Dificuldade:{" "}
+                        <strong className="font-semibold text-dark">
+                          {difficultyLabels[activity.latestVersion.difficulty] ?? activity.latestVersion.difficulty}
+                        </strong>
+                      </span>
+                    )}
+                    
+                    <span>Criada em {formatDate(activity.createdAt)}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      {getActivityTypeLabel(activity.type)}
+                    </p>
+
+                    <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
+                      {getActivityName(activity)}
+                    </h2>
+
+                    {activity.latestVersion?.description && (
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">
+                        {activity.latestVersion.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <span
+                    className={`inline-flex w-fit shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(activity)}`}
+                  >
+                    {getStatusLabel(activity)}
+                  </span>
+                </div>
+
+                {activity.latestVersion?.status === "REJECTED" &&
+                  activity.latestVersion.revision > 0 && (
+                    <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800">
+                      Esta versão foi rejeitada. Os detalhes da revisão estarão
+                      disponíveis ao abrir a atividade.
+                    </p>
+                  )}
+
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-xs text-muted">
+                    {activity.executionCount}{" "}
+                    {activity.executionCount === 1 ? "execução" : "execuções"}
+                  </span>
+
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error)); } }} aria-label={activity.isFavorite ? `Remover ${getActivityName(activity)} dos favoritos` : `Favoritar ${getActivityName(activity)}`} title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                      <Link
+                        href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
+                        title="Ver histórico"
+                        aria-label={`Ver histórico de ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                      >
+                        <History size={16} aria-hidden="true" />
+                      </Link>
+                    )}
+
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                      <Link
+                        href={activity.type === "quiz"
+                          ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
+                          : activity.type === "crossword"
+                            ? `/activities/crossword/${encodeURIComponent(activity.slug)}/play`
+                            : activity.type === "memory"
+                              ? `/activities/memory/${encodeURIComponent(activity.slug)}/play`
+                              : activity.type === "listening"
+                                ? `/activities/listening/${encodeURIComponent(activity.slug)}/play`
+                                : activity.type === "word_matching"
+                                  ? `/activities/word-matching/${encodeURIComponent(activity.slug)}/play`
+                                  : activity.type === "sentence_completion"
+                                    ? `/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`
+                                    : activity.type === "multiple_choice"
+                                    ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`
+                                      : activity.type === "mole_hit"
+                                        ? `/activities/mole-hit/${encodeURIComponent(activity.slug)}/play`
+                                        : activity.type === "hangman"
+                                          ? `/activities/hangman/${encodeURIComponent(activity.slug)}/play`
+                                          : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                        title="Executar atividade"
+                        aria-label={`Executar ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        style={{ color: "var(--primary-foreground)" }}
+                      >
+                        <Gamepad2 size={16} aria-hidden="true" />
+                      </Link>
+                    )}
+
+                    {activity.latestVersion?.status === "DRAFT" &&
+                      (activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
+                        <button
+                          type="button"
+                          onClick={() => void handleSubmitForApproval(activity)}
+                          disabled={Boolean(submittingSlug)}
+                          title="Enviar para aprovação"
+                          aria-label={`Enviar ${getActivityName(activity)} para aprovação`}
+                          className="inline-flex size-9 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
+                          style={{ color: "var(--primary-foreground)" }}
+                        >
+                          {submittingSlug === activity.slug
+                            ? <RefreshCw size={16} className="animate-spin" aria-hidden="true" />
+                            : <Send size={16} aria-hidden="true" />}
+                        </button>
+                      )}
+
+                    {canEditActivity(activity) && (
+                      <Link
+                        href={getEditHref(activity)}
+                        title="Editar atividade"
+                        aria-label={`Editar ${getActivityName(activity)}`}
+                        className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                      >
+                        <ClipboardList size={16} aria-hidden="true" />
+                      </Link>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivityToDelete(activity);
+                        setDeleteErrorMessage("");
+                      }}
+                      title="Excluir atividade"
+                      aria-label={`Excluir atividade ${getActivityName(activity)}`}
+                      className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    >
+                      <Trash2 size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </section>
+
+          {result.pagination.totalPages > 1 && (
+            <nav
+              aria-label="Paginação das atividades"
+              className="mt-8 flex items-center justify-center gap-3"
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoading(true);
+                  setPage((currentPage) => Math.max(1, currentPage - 1));
+                }}
+                disabled={page <= 1 || isLoading}
+                className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronLeft size={17} aria-hidden="true" />
+                Anterior
+              </button>
+
+              <span className="text-sm text-muted">
+                Página {result.pagination.page} de {result.pagination.totalPages}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoading(true);
+                  setPage((currentPage) =>
+                    Math.min(result.pagination.totalPages, currentPage + 1),
+                  );
+                }}
+                disabled={
+                  page >= result.pagination.totalPages || isLoading
+                }
+                className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Próxima
+                <ChevronRight size={17} aria-hidden="true" />
+              </button>
+            </nav>
+          )}
+        </>
+      ) : null}
+
+      {activityToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !deletingSlug) {
+              setActivityToDelete(null);
+              setDeleteErrorMessage("");
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-activity-title"
+            aria-describedby="delete-activity-description"
+            className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-xl"
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700">
+                <Trash2 size={21} aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2
+                  id="delete-activity-title"
+                  className="text-lg font-semibold text-dark"
+                >
+                  Excluir atividade?
+                </h2>
+                <p className="mt-2 wrap-break-word text-sm font-semibold text-dark">
+                  {getActivityName(activityToDelete)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setActivityToDelete(null);
+                  setDeleteErrorMessage("");
+                }}
+                disabled={Boolean(deletingSlug)}
+                aria-label="Fechar confirmação"
+                className="rounded-lg p-1.5 text-muted transition hover:bg-background hover:text-dark disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
+
+            <p
+              id="delete-activity-description"
+              className="mt-4 text-sm leading-6 text-muted"
+            >
+              A atividade deixará de ficar disponível para os alunos. O
+              histórico de versões, execuções e resultados será preservado.
+              Esta ação não pode ser desfeita pela tela.
+            </p>
+
+            {deleteErrorMessage && (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-5 text-red-800"
+              >
+                {deleteErrorMessage}
+              </p>
+            )}
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setActivityToDelete(null);
+                  setDeleteErrorMessage("");
+                }}
+                disabled={Boolean(deletingSlug)}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteActivity}
+                disabled={Boolean(deletingSlug)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletingSlug ? (
+                  <>
+                    <span className="size-4 animate-spin rounded-full border-2 border-white border-r-transparent" />
+                    Excluindo...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} aria-hidden="true" />
+                    Confirmar exclusão
+                  </>
+                )}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </RoleBasedLayout>
+  );
 }
