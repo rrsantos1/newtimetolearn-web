@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import axios from "axios";
-import { LoaderCircle, Play, Trophy } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
@@ -74,6 +75,8 @@ export default function MoleHitPlayPage() {
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar ao painel" : "Voltar às atividades";
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -283,13 +286,13 @@ export default function MoleHitPlayPage() {
   }
 
   return (
-    <PublicActivityLayout title={activity?.version.name ?? "Acertar a Toupeira"} description={activity?.version.description ?? "Teste sua atenção e agilidade."}>
+    <PublicActivityLayout
+        title={activity?.version.name ?? "Acertar a Toupeira"}
+        description={activity?.version.description ?? "Teste sua atenção e agilidade."}
+        titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
+      >
       {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p> : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p> : activity ? (
         <div className="space-y-5">
-          <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6">
-            <div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Acertar a toupeira</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">{activity.version.description}</p>}</div>
-            <ActivitySoundToggle />
-          </header>
           {phase === "ready" && (
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
