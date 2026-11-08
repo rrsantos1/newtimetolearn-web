@@ -223,13 +223,13 @@ export default function PlayWordSearchPage() {
     
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
+          <div className="mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-4 sm:px-8">
             <BrandLogo href="/" />
             <div className="flex items-center gap-2"><ActivitySoundToggle />{user ? <LogoutButton /> : <Link href="/login" className="inline-flex min-h-9 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#142b4a]">Entrar</Link>}</div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-4 sm:px-8 sm:py-5">
+        <main className="mx-auto w-full px-4 py-4 sm:px-8 sm:py-5">
           {loading ? (
             <div role="status" className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6">
               <LoaderCircle className="size-8 animate-spin text-primary" aria-hidden="true" />
