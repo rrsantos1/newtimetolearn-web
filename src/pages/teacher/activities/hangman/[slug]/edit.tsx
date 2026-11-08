@@ -61,7 +61,7 @@ export default function EditHangmanPage() {
           name: loaded.version.name,
           description: loaded.version.description ?? "",
           difficulty: loaded.version.difficulty,
-          content: { words: loaded.version.content.words.map((word) => ({ ...word, imageUrl: word.imageUrl ?? "" })) },
+          content: { words: loaded.version.content.words.map((word) => ({ ...word, imageUrl: word.coverImageUrl ?? word.imageUrl ?? "", coverMediaAssetId: word.coverMediaAssetId ?? null, coverImageUrl: word.coverImageUrl ?? null, coverAltText: word.coverAltText ?? word.imageAlt ?? null })) },
         });
       } catch (cause: unknown) { if (active) setError(getErrorMessage(cause)); }
       finally { if (active) setLoading(false); }
