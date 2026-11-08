@@ -29,7 +29,7 @@ type Phase = "ready" | "playing" | "word-complete" | "losing" | "finished";
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 function normalizeAnswer(value?: string | null): string {
-  return (value ?? "").normalize("NFD").replace(/\s/g, "").replace(/[\s-]/g, "").toLocaleUpperCase("pt-BR");
+  return (value ?? "").normalize("NFD").replace(/\s/g, "").replace(/\s/g, "").toLocaleUpperCase("pt-BR");
 }
 function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
