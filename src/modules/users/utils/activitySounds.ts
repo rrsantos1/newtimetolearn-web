@@ -18,6 +18,7 @@ export function areActivitySoundsEnabled(): boolean {
 export function setActivitySoundsEnabled(enabled: boolean): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(SOUND_PREFERENCE_KEY, String(enabled));
+  if (!enabled) stopActivitySpinSound();
 }
 
 export function startActivitySpinSound(): void {
