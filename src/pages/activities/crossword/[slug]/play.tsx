@@ -73,6 +73,135 @@ function RankingList({ ranking }: Readonly<{ ranking: CrosswordRankingEntry[] }>
   }
 
   return (
+    <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
+      {ranking.map((entry) => (
+        <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
+              
+            </div>
+          </div>
+          <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export default function PlayCrosswordPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const isTeacher = user?.roles.includes("TEACHER") ?? false;
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
+
+  const [activity, setActivity] = useState<EditableCrosswordActivity | null>(null);
+  const [grid, setGrid] = useState<CrosswordGrid>([]);
+  const [clues, setClues] = useState<CrosswordClue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [phase, setPhase] = useState<GamePhase>("ready");
+  const [gameKey, setGameKey] = useState(0);
+  const [ranking, setRanking] = useState<CrosswordRankingEntry[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  const [rankingError, setRankingError] = useState("");
+  const [attemptResult, setAttemptResult] = useState<CrosswordAttemptResult | null>(null);
+  const [submittingAttempt, setSubmittingAttempt] = useState(false);
+  const [attemptError, setAttemptError] = useState("");
+  const [pendingAttempt, setPendingAttempt] = useState<{ answers: string[] } | null>(null);
+
+  const loadRanking = useCallback(async (slug: string): Promise<void> => {
+    setRankingLoading(true);
+    setRankingError("");
+    try {
+      setRanking(await getCrosswordRankingService.execute(slug));
+    } catch (loadError: unknown) {
+      setRankingError(getErrorMessage(loadError, "Não foi possível carregar o recorde agora."));
+    } finally {
+      setRankingLoading(false);
+    }
+  }, []);
+
+  const handleComplete = useCallback(async (answers: string[]): Promise<void> => {
+    if (!activity) return;
+    if (!isStudent) {
+      setPhase("finished");
+      return;
+    }
+    if (attemptResult || submittingAttempt) return;
+
+    setPendingAttempt({ answers });
+    setSubmittingAttempt(true);
+    setAttemptError("");
+    setPhase("finished");
+
+    try {
+      const result = await submitCrosswordAttemptService.execute(activity.slug, answers);
+      setAttemptResult(result);
+      setRanking(result.ranking);
+      setPendingAttempt(null);
+    } catch (submitError: unknown) {
+      setAttemptError(getErrorMessage(submitError, "Não foi possível registrar sua pontuação. Tente novamente."));
+    } finally {
+      setSubmittingAttempt(false);
+    }
+  }, [activity, attemptResult, isStudent, submittingAttempt]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const querySlug = router.query.slug;
+    const slug = Array.isArray(querySlug) ? querySlug[0] : querySlug;
+    let cancelled = false;
+
+    async function load(): Promise<void> {
+      if (!slug) {
+        setError("Não foi possível identificar a atividade.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const result = user
+          ? await getCrosswordService.execute(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableCrosswordActivity>(slug);
+        if (cancelled) return;
+        if (result.type !== "crossword") {
+          setError("Esta atividade não é uma cruzadinha.");
+          return;
+        }
+        const generatedData = result.version.generatedData;
+        const rawGrid = generatedData?.grid;
+        const rawClues = normalizeCrosswordClues(generatedData?.clues);
+        if (!isCrosswordGrid(rawGrid) || !rawClues || rawClues.length === 0) {
+          setError("A grade ou as pistas desta cruzadinha estão indisponíveis ou inválidas.");
+          return;
+        }
+        setActivity(result);
+        setGrid(rawGrid);
+        setClues(rawClues);
+        if (user?.roles.includes("STUDENT")) void loadRanking(result.slug);
+      } catch (loadError: unknown) {
+        if (!cancelled) setError(getErrorMessage(loadError));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => { cancelled = true; };
+  }, [router.isReady, router.query.slug, user, loadRanking]);
+
+  function startGame(): void {
+    setAttemptResult(null);
+    setAttemptError("");
+    setPendingAttempt(null);
+    setPhase("playing");
+    setGameKey((current) => current + 1);
+  }
+
+  return (
     <PublicActivityLayout immersive
       title={activity?.version.name ?? "Palavras cruzadas"}
       description={activity?.version.description ?? "Complete as palavras usando as pistas horizontais e verticais."}
