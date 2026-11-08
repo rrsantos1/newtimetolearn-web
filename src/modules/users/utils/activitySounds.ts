@@ -21,6 +21,17 @@ export function setActivitySoundsEnabled(enabled: boolean): void {
   if (!enabled) stopActivitySpinSound();
 }
 
+export function prepareActivitySpinSound(): void {
+  if (typeof window === "undefined" || !areActivitySoundsEnabled()) return;
+  if (!spinAudio) {
+    spinAudio = new Audio("/audios/spin.mp3");
+    spinAudio.loop = true;
+    spinAudio.preload = "auto";
+    spinAudio.volume = 0.45;
+  }
+  spinAudio.load();
+}
+
 export function startActivitySpinSound(): void {
   if (typeof window === "undefined" || !areActivitySoundsEnabled()) return;
   if (!spinAudio) {
