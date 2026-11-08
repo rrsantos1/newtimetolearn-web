@@ -76,6 +76,7 @@ export default function Home() {
     if (activity.type === "sentence_completion") return `/activities/sentence-completion/${slug}/play`;
     if (activity.type === "mole_hit") return `/activities/mole-hit/${slug}/play`;
     if (activity.type === "hangman") return `/activities/hangman/${slug}/play`;
+    if (activity.type === "roulette") return `/activities/roulette/${slug}/play`;
     return `/activities/word-search/${slug}/play`;
   }
 

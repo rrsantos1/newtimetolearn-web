@@ -21,6 +21,7 @@ test("uses the default image for each supported activity type", () => {
     ["multiple_choice", "/images/activities/multiple-choice.png"],
     ["mole_hit", "/images/activities/mole-hit.png"],
     ["hangman", "/images/activities/hangman.png"],
+    ["roulette", "/images/activities/roulette.png"],
   ]);
 
   for (const [type, image] of expected) {
@@ -53,5 +54,12 @@ test("uses the default cover when the optional URL is null", () => {
   assert.equal(
     getActivityCoverImage("hangman", null),
     "/images/activities/hangman.png",
+  );
+});
+
+test("uses the default cover when the optional URL is null", () => {
+  assert.equal(
+    getActivityCoverImage("roulette", null),
+    "/images/activities/roulette.png",
   );
 });
