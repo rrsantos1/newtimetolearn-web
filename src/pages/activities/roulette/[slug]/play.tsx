@@ -75,12 +75,12 @@ export default function RoulettePlayPage() {
       <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
       <div className="relative mt-6 aspect-square w-[min(92vw,620px)]">
         <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
-        <div onTransitionEnd={finishSpin} role="img" aria-label="Roleta de assuntos" className="absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 3s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
+        <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 3s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
           {wheelTopics.map((topic, index) => {
             const angle = (index + 0.5) * (360 / wheelTopics.length);
             const labelWidth = Math.max(58, Math.min(130, 2 * 0.35 * 310 * Math.sin(Math.PI / wheelTopics.length) * 0.82));
             const isAvailable = remaining.includes(topic);
-            return <span key={topic} className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[10px] font-bold leading-tight drop-shadow sm:text-xs ${isAvailable ? "text-white" : "text-white/40"}`} style={{ width: `${labelWidth}px`, transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-min(34vw, 215px)) rotate(-${angle}deg) rotate(-${rotation}deg)` }}>{topic}</span>;
+            return <span key={topic} className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[10px] font-bold leading-tight drop-shadow sm:text-xs ${isAvailable ? "text-white" : "text-white/40"}`} style={{ width: `${labelWidth}px`, transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-min(34vw, 215px)) rotate(-${angle}deg) rotate(-${rotation}deg)`, transition: spinning ? "transform 3s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>{topic}</span>;
           })}
           <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
         </div>
