@@ -88,7 +88,7 @@ export default function Home() {
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-10 lg:py-16">
+        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-10 lg:py-16">
           <div className="relative z-10">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
@@ -161,7 +161,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
+      <section className="mx-auto w-full px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
             O que você encontra
@@ -199,7 +199,7 @@ export default function Home() {
 
 
       {publicActivities.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
+        <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
@@ -227,7 +227,7 @@ export default function Home() {
       )}
 
       {marketplaceItems.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="marketplace-featured-title">
+        <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="marketplace-featured-title">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Materiais didáticos</span>
@@ -268,7 +268,7 @@ export default function Home() {
       )}
 
       <section className="bg-[#142b4a]">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
+        <div className="mx-auto flex w-full flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f3a6b1]">
               Seu próximo passo começa aqui
