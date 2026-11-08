@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { LoaderCircle, Play, Trophy, ArrowRight, RotateCcw } from "lucide-react";
+import { ArrowLeft, LoaderCircle, Play, Trophy, ArrowRight, RotateCcw } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
@@ -62,6 +63,8 @@ export default function HangmanPlayPage() {
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar ao painel" : "Voltar às atividades";
   const isTeacherOrAdmin = user?.roles.some((role) => role === "TEACHER" || role === "ADMIN") ?? false;
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
@@ -193,11 +196,14 @@ export default function HangmanPlayPage() {
   }
 
   const displayLetters = activeWord ? normalizeAnswer(activeWord.answer ?? activeWord.word) : "";
-  return <PublicActivityLayout title={activity?.version.name ?? "Jogo da Forca"} description={activity?.version.description ?? "Descubra a palavra a partir das dicas."}>
+  return <PublicActivityLayout
+      title={activity?.version.name ?? "Jogo da Forca"}
+      description={activity?.version.description ?? "Descubra a palavra a partir das dicas."}
+      titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
+    >
     {loading ? <div role="status" className="rounded-xl bg-surface p-6 text-sm text-muted"><LoaderCircle className="mr-2 inline animate-spin" size={18} />Carregando atividade...</div>
     : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
     : activity ? <div className="space-y-5">
-      <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Jogo da Forca</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 max-w-3xl text-sm text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
       {phase === "ready" && (isStudent || isTeacherOrAdmin) && <div className="grid gap-5 lg:grid-cols-2">
         <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8"><h2 className="text-xl font-bold text-dark">Pronto para jogar?</h2><p className="mt-2 text-sm leading-6 text-muted">Descubra cada palavra escolhendo letras no banco. Você terá seis erros por palavra; a cada erro, uma parte do desenho será formada.</p><div className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{words.length} palavras • 6 erros por palavra • Dica e imagem quando cadastradas</div><button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo" : "Testar jogo"}</button>{!isStudent && <p className="mt-3 text-xs text-muted">A prévia não altera o ranking dos alunos.</p>}</section>
         {isStudent && <section className="rounded-2xl border border-primary/20 bg-primary/5 p-6"><div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>{rankingLoading ? <p className="mt-4 text-sm text-muted">Carregando ranking...</p> : rankingError ? <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p> : <RankingList ranking={ranking} />}</section>}
