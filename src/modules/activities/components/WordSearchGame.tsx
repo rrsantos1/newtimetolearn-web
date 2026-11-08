@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
 import { playActivitySound } from "@/modules/users/utils/activitySounds";
 
@@ -153,6 +153,14 @@ export function WordSearchGame({
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
   const [selection, setSelection] = useState<CellPosition[]>([]);
   const [message, setMessage] = useState("");
+  const [animatingWord, setAnimatingWord] = useState<string | null>(null);
+  const [isCellPopped, setIsCellPopped] = useState(false);
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isAnimating = animatingWord !== null;
+
+  useEffect(() => () => {
+    if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+  }, []);
 
   const normalizedWords = useMemo(
     () => words.map((word) => ({ original: word, normalized: normalizeWord(word) })),
@@ -223,17 +231,24 @@ export function WordSearchGame({
       const nextFoundWords = foundWords.includes(match.word)
         ? foundWords
         : [...foundWords, match.word];
-      setFoundWords(nextFoundWords);
+      setAnimatingWord(match.word);
+      setIsCellPopped(true);
       const original = normalizedWords.find(
         (word) => word.normalized === match.word,
       )?.original ?? match.word;
       setMessage(`Boa! Você encontrou: ${original}.`);
       playActivitySound("success");
-
-      if (nextFoundWords.length === words.length && !finishedRef.current) {
-        finishedRef.current = true;
-        onComplete(nextFoundWords);
-      }
+      animationTimerRef.current = setTimeout(() => {
+        setIsCellPopped(false);
+        animationTimerRef.current = setTimeout(() => {
+          setFoundWords(nextFoundWords);
+          setAnimatingWord(null);
+          if (nextFoundWords.length === words.length && !finishedRef.current) {
+            finishedRef.current = true;
+            onComplete(nextFoundWords);
+          }
+        }, 160);
+      }, 160);
     } else {
       setMessage("Essa seleção não corresponde a uma palavra da lista.");
       playActivitySound("error");
@@ -244,7 +259,7 @@ export function WordSearchGame({
   }
 
   function handleCellPointerDown(row: number, col: number): void {
-    if (finishedRef.current || completed) return;
+    if (finishedRef.current || completed || isAnimating) return;
 
     const start = { row, col };
     setSelectionStart(start);
@@ -253,13 +268,17 @@ export function WordSearchGame({
   }
 
   function handleCellPointerEnter(row: number, col: number): void {
-    if (!selectionStart) return;
+    if (!selectionStart || isAnimating) return;
 
     setSelection(getLine(selectionStart, { row, col }));
   }
 
   function resetGame(): void {
+    if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+    animationTimerRef.current = null;
     finishedRef.current = false;
+    setAnimatingWord(null);
+    setIsCellPopped(false);
     setFoundWords([]);
     setSelectionStart(null);
     setSelection([]);
@@ -312,7 +331,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase transition-colors sm:size-8 sm:text-sm md:size-9 ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
+                    className={`flex size-7 items-center justify-center rounded-sm text-xs font-extrabold uppercase transition-all duration-150 sm:size-8 sm:text-sm md:size-9 md:text-base ${isAnimating && wordPositions.some((position) => position.word === animatingWord && getLine({ row: position.row, col: position.col }, getLineEnd(position)).some((cell) => cell.row === rowIndex && cell.col === colIndex)) ? `scale-125 z-10 shadow-md ${isCellPopped ? "scale-125" : "scale-100"}` : ""} ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
                   >
                     {letter}
                   </button>
@@ -376,7 +395,7 @@ export function WordSearchGame({
             return (
               <li
                 key={normalized}
-                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-sm ${foundColor}`}
+                className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-base font-medium transition-all duration-200 ${foundColor}`}
               >
                 <span className={found ? "line-through decoration-2" : ""}>
                   {original}
