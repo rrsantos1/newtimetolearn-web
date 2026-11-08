@@ -303,7 +303,7 @@ export default function PlayQuizPage() {
             </section>
           ) : activity ? (
             <>
-              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="mb-5 flex flex-col gap-3 rounded-xl border border-[#315987] bg-[#142b4a] p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between [&_h1]:text-white [&_p]:text-white/75 [&_button]:!border-white/30 [&_button]:!bg-white/10 [&_button]:!text-white [&_button:hover]:!bg-white/20 [&_a]:!border-white/30 [&_a]:!bg-white/10 [&_a]:!text-white [&_a:hover]:!bg-white/20">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-wide text-primary">Quiz</p>
                   <h1 className="mt-1 text-2xl font-bold tracking-tight text-dark sm:text-3xl">{activity.version.name}</h1>
