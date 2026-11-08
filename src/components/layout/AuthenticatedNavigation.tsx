@@ -103,7 +103,7 @@ export function AuthenticatedNavigation() {
 
         {isMenuOpen && (
           <div id="authenticated-mobile-menu" className="absolute inset-x-0 top-full z-50 border-b border-border bg-white p-4 shadow-lg">
-            <div className="mx-auto flex max-w-7xl flex-col gap-2">
+            <div className="mx-auto flex w-full flex-col gap-2">
               {navigationItems.map(({ label, href, icon: Icon, disabled }) => (
                 <Link
                   key={href}
