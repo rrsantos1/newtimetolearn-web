@@ -98,9 +98,7 @@ export default function HangmanPlayPage() {
     let alive = true;
     void (async () => {
       try {
-        const loaded = user
-          ? (await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
-          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
+        const loaded = (await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data;
         if (!alive) return;
         if (loaded.type !== "hangman") throw new Error("Esta atividade não é um Jogo da Forca.");
         setActivity(loaded);
