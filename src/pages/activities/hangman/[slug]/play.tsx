@@ -11,7 +11,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { getHangmanRankingService, type HangmanRankingEntry } from "@/modules/activities/services/getHangmanRankingService";
 import { submitHangmanAttemptService, type HangmanAttemptResult } from "@/modules/activities/services/submitHangmanAttemptService";
 
-interface PublicHangmanWord { id: string; clue: string; imageUrl: string | null; imageAlt: string; answer: string; }
+interface PublicHangmanWord { id: string; clue: string; imageUrl: string | null; imageAlt: string; }
 interface ActivityResponse {
   success: true;
   data: {
@@ -147,7 +147,7 @@ export default function HangmanPlayPage() {
 
   function chooseLetter(letter: string): void {
     if (phase !== "playing" || usedLetters.includes(letter) || !activeWord) return;
-    const answer = normalizeAnswer(activeWord.answer);
+    const answer = "";
     if (!answer) {
       setLoadError("Não foi possível carregar a resposta desta palavra. Confira a publicação da atividade.");
       return;
@@ -179,7 +179,7 @@ export default function HangmanPlayPage() {
     setPhase("playing");
   }
 
-  const displayLetters = activeWord ? normalizeAnswer(activeWord.answer) : "";
+  const displayLetters = activeWord ? usedLetters.filter((letter) => ALPHABET.includes(letter)).length ? "" : "" : "";
   return <PublicActivityLayout title={activity?.version.name ?? "Jogo da Forca"} description={activity?.version.description ?? "Descubra a palavra a partir das dicas."}>
     {loading ? <div role="status" className="rounded-xl bg-surface p-6 text-sm text-muted"><LoaderCircle className="mr-2 inline animate-spin" size={18} />Carregando atividade...</div>
     : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
