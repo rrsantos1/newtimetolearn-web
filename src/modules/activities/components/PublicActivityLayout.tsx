@@ -8,13 +8,14 @@ interface PublicActivityLayoutProps {
   children: ReactNode;
   title: string;
   description: string;
+  titleActions?: ReactNode;
 }
 
-export function PublicActivityLayout({ children, title, description }: PublicActivityLayoutProps) {
+export function PublicActivityLayout({ children, title, description, titleActions }: PublicActivityLayoutProps) {
   const { user } = useAuth();
   if (user) {
     return (
-      <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={title} description={description}>
+      <RoleBasedLayout area="student" allowedRoles={["STUDENT", "TEACHER", "ADMIN"]} title={title} description={description} titleActions={titleActions}>
         {children}
       </RoleBasedLayout>
     );
@@ -29,9 +30,12 @@ export function PublicActivityLayout({ children, title, description }: PublicAct
         </div>
       </header>
       <main className="mx-auto w-full px-5 py-8 sm:px-8 sm:py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">{description}</p>
+          </div>
+          {titleActions}
           <p className="mt-3 inline-flex rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary">Você está testando como visitante. Seu resultado não será salvo nem entrará no ranking.</p>
         </div>
         {children}
