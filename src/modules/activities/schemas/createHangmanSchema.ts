@@ -16,7 +16,7 @@ export const createHangmanSchema = Yup.object({
       id: Yup.string().uuid().required(),
       word: Yup.string().trim().required("Informe a palavra.").max(50).test("letter-limit", "A palavra deve ter até 20 letras.", (value) => (value ?? "").replace(/[\\s-]/g, "").length <= 20),
       clue: Yup.string().trim().required("Informe uma dica.").min(3).max(240),
-      imageUrl: Yup.string().trim().max(2048).default("").test("optional-url", "Informe uma URL válida.", (value) => !value || /^(https?):\\/\\//i.test(value)),
+      imageUrl: Yup.string().trim().max(2048).default("").test("optional-url", "Informe uma URL válida.", (value) => !value || /^(https?):\/\//i.test(value)),
       imageAlt: Yup.string().max(180).default(""),
       coverMediaAssetId: Yup.string().nullable().optional(),
       coverImageUrl: Yup.string().nullable().optional(),
