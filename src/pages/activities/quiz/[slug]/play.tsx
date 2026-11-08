@@ -53,6 +53,241 @@ function shuffleQuiz(questions: QuizQuestion[]): QuizQuestion[] {
 function RankingList({ ranking }: Readonly<{ ranking: QuizRankingEntry[] }>) {
   if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
   return (
+    <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
+      {ranking.map((entry) => (
+        <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p></div>
+          </div>
+          <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function parseImages(value: unknown): QuizImage[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): QuizImage[] => {
+    if (!isRecord(item) || typeof item.storageKey !== "string") return [];
+    return [{
+      storageKey: item.storageKey,
+      altText: typeof item.altText === "string" ? item.altText : "",
+      ...(typeof item.publicUrl === "string" ? { publicUrl: item.publicUrl } : {}),
+    }];
+  });
+}
+function parseQuestions(value: unknown): QuizQuestion[] | null {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  const questions = value.flatMap((item): QuizQuestion[] => {
+    if (!isRecord(item) || typeof item.id !== "string" || typeof item.statement !== "string" ||
+      typeof item.correctOptionId !== "string" || !Array.isArray(item.options)) return [];
+    const options = item.options.flatMap((option): QuizOption[] => {
+      if (!isRecord(option) || typeof option.id !== "string") return [];
+      return [{
+        id: option.id,
+        text: typeof option.text === "string" ? option.text : "",
+        images: parseImages(option.images),
+      }];
+    });
+    if (options.length < 3 || !options.some((option) => option.id === item.correctOptionId)) return [];
+    return [{
+      id: item.id,
+      statement: item.statement,
+      images: parseImages(item.images),
+      options,
+      correctOptionId: item.correctOptionId,
+      explanation: typeof item.explanation === "string" ? item.explanation : "",
+    }];
+  });
+  return questions.length === value.length ? questions : null;
+}
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
+    return data?.error?.message ?? data?.message ?? "Não foi possível carregar o Quiz.";
+  }
+  return "Não foi possível carregar o Quiz.";
+}
+function imageUrl(image: QuizImage): string | null {
+  if (image.publicUrl) return image.publicUrl;
+  const base = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  return base ? `${base}/${image.storageKey}` : null;
+}
+function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
+  if (images.length === 0) return null;
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {images.map((image, index) => {
+        const src = imageUrl(image);
+        return src ? (
+          <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
+            <Image src={src} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" />
+          </div>
+        ) : (
+          <p key={image.storageKey} className="rounded-xl bg-background p-3 text-xs text-muted">Imagem indisponível para visualização.</p>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function PlayQuizPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const isTeacher = user?.roles.includes("TEACHER") ?? false;
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar ao painel";
+  const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [phase, setPhase] = useState<Phase>("setup");
+  const [mode, setMode] = useState<RunMode>("question");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [attemptResult, setAttemptResult] = useState<QuizAttemptResult | null>(null);
+  const [ranking, setRanking] = useState<QuizRankingEntry[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  const [rankingError, setRankingError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+
+  const loadRanking = useCallback(async (slug: string): Promise<void> => {
+    setRankingLoading(true);
+    setRankingError("");
+    try { setRanking(await getQuizRankingService.execute(slug)); }
+    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", "Não foi possível carregar o ranking agora.")); }
+    finally { setRankingLoading(false); }
+  }, []);
+  const correctCount = useMemo(
+    () => questions.filter((question) => answers[question.id] === question.correctOptionId).length,
+    [answers, questions],
+  );
+  const localScore = questions.length === 0 ? 0 : Math.round((correctCount / questions.length) * 100);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const rawSlug = router.query.slug;
+    const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+    let cancelled = false;
+    async function load(): Promise<void> {
+      if (!slug) {
+        setError("Não foi possível identificar o Quiz.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const result = user
+          ? await getQuizService.execute(slug)
+          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableQuizActivity>(slug);
+        if (cancelled) return;
+        if (result.type !== "quiz") {
+          setError("Esta atividade não é um Quiz.");
+          return;
+        }
+        const parsedQuestions = parseQuestions(result.version.content.questions);
+        if (!parsedQuestions) {
+          setError("As questões deste Quiz estão indisponíveis ou possuem dados inválidos.");
+          return;
+        }
+        setActivity(result);
+        setQuestions(shuffleQuiz(parsedQuestions));
+        if (user?.roles.includes("STUDENT")) void loadRanking(result.slug);
+      } catch (loadError: unknown) {
+        if (!cancelled) setError(getErrorMessage(loadError));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void load();
+    return () => { cancelled = true; };
+  }, [router.isReady, router.query.slug, user, loadRanking]);
+
+  const finishQuiz = useCallback(async (finalAnswers: Record<string, string>): Promise<void> => {
+    if (!activity || phase !== "playing" || submitting) return;
+    setPhase("finished");
+    setSubmitError("");
+    if (!isStudent) return;
+    setSubmitting(true);
+    try {
+      const selectedOptionIds = questions.flatMap((question) => {
+        const answer = finalAnswers[question.id];
+        return answer ? [answer] : [];
+      });
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds);
+      setAttemptResult(result);
+      setRanking(result.ranking);
+      const correctAnswers = questions.filter((question) => finalAnswers[question.id] === question.correctOptionId).length;
+      if (correctAnswers === questions.length && questions.length > 0) {
+        playActivitySound("applause");
+      } else if (correctAnswers > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
+    } catch (submitFailure: unknown) {
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+    } finally {
+      setSubmitting(false);
+    }
+  }, [activity, isStudent, phase, questions, submitting]);
+
+  async function retrySubmission(): Promise<void> {
+    if (!activity || submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const selectedOptionIds = questions.flatMap((question) => {
+        const answer = answers[question.id];
+        return answer ? [answer] : [];
+      });
+      const result = await submitQuizAttemptService.execute(activity.slug, selectedOptionIds);
+      setAttemptResult(result);
+      setRanking(result.ranking);
+      const correctAnswers = questions.filter((question) => answers[question.id] === question.correctOptionId).length;
+      if (correctAnswers === questions.length && questions.length > 0) {
+        playActivitySound("applause");
+      } else if (correctAnswers > 0) {
+        playActivitySound("success");
+      } else {
+        playActivitySound("error");
+      }
+    } catch (submitFailure: unknown) {
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function startQuiz(): void {
+    setAnswers({});
+    setCurrentIndex(0);
+    setAttemptResult(null);
+    setSubmitError("");
+    setPhase("playing");
+  }
+  function chooseAnswer(questionId: string, optionId: string): void {
+    setAnswers((previous) => ({ ...previous, [questionId]: optionId }));
+  }
+  function abandonQuiz(): void {
+    if (window.confirm("Deseja abandonar o Quiz? O progresso atual não será registrado.")) {
+      setPhase("abandoned");
+    }
+  }
+  function finishFromButton(): void {
+    void finishQuiz(answers);
+  }
+
+  const currentQuestion = questions[currentIndex];
+  const answeredCount = Object.keys(answers).length;
+
+  return (
     <PublicActivityLayout immersive
       title={activity?.version.name ?? "Quiz"}
       description={activity?.version.description ?? "Responda às perguntas e confira seu resultado."}
