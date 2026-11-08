@@ -94,7 +94,9 @@ export default function EditHangmanPage() {
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
       for (const word of values.content.words) {
-        await updateHangmanWordImageService.execute(activity.slug, word.id, word.coverMediaAssetId ?? null);
+        if (word.coverMediaAssetId !== undefined || word.coverImageUrl !== undefined) {
+          await updateHangmanWordImageService.execute(activity.slug, word.id, word.coverMediaAssetId ?? null);
+        }
       }
       setInitialValues(values);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, reviewFeedback: null } } : current);
