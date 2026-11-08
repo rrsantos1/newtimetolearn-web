@@ -7,6 +7,7 @@ import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { HangmanForm } from "@/modules/activities/components/HangmanForm";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
+import { updateHangmanWordImageService } from "@/modules/activities/services/updateHangmanWordImageService";
 import type { CreateHangmanFormValues } from "@/modules/activities/schemas/createHangmanSchema";
 
 interface EditableHangmanActivity {
@@ -93,11 +94,7 @@ export default function EditHangmanPage() {
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
       for (const word of values.content.words) {
-        if (word.coverMediaAssetId !== undefined || word.coverImageUrl !== undefined) {
-          await api.patch(`/activities/${encodeURIComponent(activity.slug)}/hangman/words/${encodeURIComponent(word.id)}/image`, {
-            coverMediaAssetId: word.coverMediaAssetId ?? null,
-          });
-        }
+        await updateHangmanWordImageService.execute(activity.slug, word.id, word.coverMediaAssetId ?? null);
       }
       setInitialValues(values);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, reviewFeedback: null } } : current);
