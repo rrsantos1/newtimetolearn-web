@@ -277,8 +277,8 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
                   : suggestions.activityType === "memory" ? `${suggestions.pairs[index]?.firstText} ↔ ${suggestions.pairs[index]?.secondText}`
                   : suggestions.activityType === "word_matching" ? `${suggestions.pairs[index]?.sourceText} ↔ ${suggestions.pairs[index]?.targetText}`
                     : suggestions.activityType === "sentence_completion" ? `${suggestions.sentences[index]?.beforeText} [${suggestions.sentences[index]?.answer}] ${suggestions.sentences[index]?.afterText}`
-                    : suggestions.activityType === "roulette" ? suggestions.topics[index]
-                  : `${suggestions.questions[index]?.question} — ${suggestions.questions[index]?.options.map((option) => `${option.isCorrect ? "✓ " : ""}${option.text}`).join(" | ")}`;
+                      : suggestions.activityType === "roulette" ? suggestions.topics[index]
+                        : `${suggestions.questions[index]?.question} — ${suggestions.questions[index]?.options.map((option) => `${option.isCorrect ? "✓ " : ""}${option.text}`).join(" | ")}`;
               return <label key={index} className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-white p-3 text-sm text-dark">
                 <input type="checkbox" checked={selected.includes(index)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, index] : current.filter((item) => item !== index))} className="mt-1 size-4 shrink-0 accent-yellow-500" />
                 <span>{label}</span>
