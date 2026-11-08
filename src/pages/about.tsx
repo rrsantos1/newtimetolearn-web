@@ -41,7 +41,7 @@ export default function AboutPage() {
           aria-hidden="true"
           className="absolute -right-24 -top-28 size-96 rounded-full bg-accent/25 blur-3xl"
         />
-        <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
+        <div className="relative mx-auto w-full px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#f3a6b1]">
             Sobre o TimeToLearn
           </p>
@@ -56,7 +56,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-10 lg:py-20">
+      <section className="mx-auto grid w-full items-center gap-10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-10 lg:py-20">
         <div className="relative overflow-hidden rounded-3xl border border-border bg-white p-2 shadow-xl shadow-[#142b4a]/10">
           <Image
             src="/images/learning.jpg"
@@ -90,7 +90,7 @@ export default function AboutPage() {
       </section>
 
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-10 lg:py-20">
+        <div className="mx-auto grid w-full items-center gap-10 px-5 py-16 sm:px-8 md:grid-cols-2 lg:gap-16 lg:px-10 lg:py-20">
           <div className="order-2 md:order-1">
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
               Para quem ensina
@@ -122,7 +122,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+      <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
             Nossa abordagem
@@ -149,7 +149,7 @@ export default function AboutPage() {
       </section>
 
       <section className="bg-accent">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
+        <div className="mx-auto flex w-full flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-white/80">
               <UsersRound size={15} aria-hidden="true" />
