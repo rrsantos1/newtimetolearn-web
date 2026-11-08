@@ -6,7 +6,7 @@ import { HangmanAiSuggestionsPanel } from "@/modules/activities/components/Hangm
 import { createHangmanSchema, type CreateHangmanFormValues } from "@/modules/activities/schemas/createHangmanSchema";
 
 interface Props { onSubmit: (values: CreateHangmanFormValues) => Promise<void>; submitError: string; initialValues?: CreateHangmanFormValues; submitLabel?: string; }
-const defaultValues: CreateHangmanFormValues = { name: "", description: "", difficulty: "EASY", content: { words: [0,1,2].map(() => ({ id: crypto.randomUUID(), word: "", clue: "", imageUrl: "", imageAlt: "" })) } };
+const defaultValues: CreateHangmanFormValues = { name: "", description: "", difficulty: "EASY", content: { words: [0,1,2].map(() => ({ id: "", word: "", clue: "", imageUrl: "", imageAlt: "" })) } };
 const inputClass = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none focus:border-accent focus:ring-2 focus:ring-accent/20";
 const errorClass = "mt-1 text-sm text-red-600";
 
@@ -20,10 +20,10 @@ function ScrollToFirstError() {
   }, [errors, handled, isValidating, submitCount]);
   return null;
 }
-function newWord(): CreateHangmanFormValues["content"]["words"][number] { return { id: crypto.randomUUID(), word: "", clue: "", imageUrl: "", imageAlt: "" }; }
+function newWord(): CreateHangmanFormValues["content"]["words"][number] { return { id: "", word: "", clue: "", imageUrl: "", imageAlt: "" }; }
 
 export function HangmanForm({ onSubmit, submitError, initialValues = defaultValues, submitLabel = "Criar atividade" }: Readonly<Props>) {
-  return <Formik<CreateHangmanFormValues> initialValues={initialValues} enableReinitialize validationSchema={createHangmanSchema} onSubmit={(values) => onSubmit({ ...values, content: { words: values.content.words.map((item) => ({ ...item, word: item.word.trim(), clue: item.clue.trim(), imageUrl: item.imageUrl.trim() })) } })}>
+  return <Formik<CreateHangmanFormValues> initialValues={initialValues} enableReinitialize validationSchema={createHangmanSchema} onSubmit={(values) => onSubmit({ ...values, content: { words: values.content.words.map((item) => ({ ...item, id: item.id || crypto.randomUUID(), word: item.word.trim(), clue: item.clue.trim(), imageUrl: item.imageUrl.trim() || null })) } })}>
     {({ isSubmitting, values, errors, submitCount }) => <Form noValidate className="space-y-6"><ScrollToFirstError /><ActivityCoverField />
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7"><h2 className="text-lg font-semibold text-dark">Informações da atividade</h2><div className="mt-5 grid gap-5 sm:grid-cols-2">
         <div className="sm:col-span-2"><label htmlFor="name" className="mb-2 block text-sm font-medium text-dark">Nome da atividade *</label><Field id="name" name="name" maxLength={120} className={inputClass} aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} /><ErrorMessage name="name" component="p" className={errorClass} /></div>
