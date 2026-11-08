@@ -111,8 +111,8 @@ export default function PlayListeningPage() {
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
-  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
-  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar ao painel" : "Voltar às atividades";
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
+  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar às atividades" : "Voltar às atividades";
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ListeningExecutionActivity | null>(null);
   const [loading, setLoading] = useState(true);
