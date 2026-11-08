@@ -63,7 +63,7 @@ export default function PublicActivitiesPage() {
       </Head>
       <PublicHeader />
       <section className="mx-auto w-full px-5 py-12 sm:px-8 lg:px-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Experimente sem cadastro</p>
             <h1 className="mt-2 text-3xl font-extrabold text-dark sm:text-4xl">Atividades públicas</h1>
