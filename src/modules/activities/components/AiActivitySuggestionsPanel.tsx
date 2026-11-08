@@ -31,7 +31,7 @@ function createId(): string {
 export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Readonly<Props>) {
   const { values, setFieldValue } = useFormikContext<FormValues>();
   const [topic, setTopic] = useState("");
-  const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : activityType === "memory" ? 6 : 10);
+  const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : activityType === "memory" ? 6 : activityType === "roulette" ? 8 : 10);
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [gradeLevel, setGradeLevel] = useState("");
   const [optionCount, setOptionCount] = useState(4);
@@ -67,7 +67,9 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
             ? response.data.data.pairs.length
             : response.data.data.activityType === "sentence_completion"
               ? response.data.data.sentences.length
-              : response.data.data.questions.length;
+              : response.data.data.activityType === "roulette"
+                ? response.data.data.topics.length
+                : response.data.data.questions.length;
       setSelected(Array.from({ length: itemsCount }, (_, index) => index));
     } catch (cause: unknown) {
       const message = typeof cause === "object" && cause !== null && "response" in cause
@@ -102,7 +104,18 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         .map((entry) => ({ word: entry.answer, clue: entry.clue }));
       await setFieldValue("words", [...currentEntries, ...additions]);
       setNotice(`${additions.length} par(es) de resposta e pista adicionado(s). Revise antes de salvar.`);
-    } else if (suggestions.activityType === "roulette") {\n      const currentTopics = Array.isArray(values.content) && false ? [] :\n        typeof values.content === "object" && values.content !== null && "topics" in values.content && Array.isArray(values.content.topics)\n          ? values.content.topics.filter((item): item is string => typeof item === "string" && item.trim().length > 0)\n          : [];\n      const existing = new Set(currentTopics.map((item) => item.trim().toLocaleLowerCase("pt-BR")));\n      const additions = selected.map((index) => suggestions.topics[index]).filter((item): item is string => typeof item === "string")\n        .filter((item) => !existing.has(item.trim().toLocaleLowerCase("pt-BR")));\n      await setFieldValue("content.topics", [...currentTopics, ...additions].slice(0, 30));\n      setNotice(`${additions.length} assunto(s) adicionado(s). Revise os assuntos antes de salvar.`);\n    } else if (suggestions.activityType === "memory") {
+    } else if (suggestions.activityType === "roulette") {
+      const rawContent = values.content;
+      const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { topics?: unknown } : {};
+      const currentTopics = Array.isArray(content.topics)
+        ? content.topics.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        : [];
+      const existing = new Set(currentTopics.map((item) => item.trim().toLocaleLowerCase("pt-BR")));
+      const additions = selected.map((index) => suggestions.topics[index]).filter((item): item is string => typeof item === "string")
+        .filter((item) => !existing.has(item.trim().toLocaleLowerCase("pt-BR")));
+      await setFieldValue("content.topics", [...currentTopics, ...additions].slice(0, 30));
+      setNotice(`${additions.length} assunto(s) adicionado(s). Revise os assuntos antes de salvar.`);
+    } else if (suggestions.activityType === "memory") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
       const currentPairs = Array.isArray(content.pairs) ? content.pairs : [];
@@ -264,6 +277,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
                   : suggestions.activityType === "memory" ? `${suggestions.pairs[index]?.firstText} ↔ ${suggestions.pairs[index]?.secondText}`
                   : suggestions.activityType === "word_matching" ? `${suggestions.pairs[index]?.sourceText} ↔ ${suggestions.pairs[index]?.targetText}`
                     : suggestions.activityType === "sentence_completion" ? `${suggestions.sentences[index]?.beforeText} [${suggestions.sentences[index]?.answer}] ${suggestions.sentences[index]?.afterText}`
+                    : suggestions.activityType === "roulette" ? suggestions.topics[index]
                   : `${suggestions.questions[index]?.question} — ${suggestions.questions[index]?.options.map((option) => `${option.isCorrect ? "✓ " : ""}${option.text}`).join(" | ")}`;
               return <label key={index} className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-white p-3 text-sm text-dark">
                 <input type="checkbox" checked={selected.includes(index)} onChange={(event) => setSelected((current) => event.target.checked ? [...current, index] : current.filter((item) => item !== index))} className="mt-1 size-4 shrink-0 accent-yellow-500" />
