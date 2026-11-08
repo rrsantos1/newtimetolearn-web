@@ -112,7 +112,7 @@ function getStatusClass(activity: ListedActivity): string {
 
 function canEditActivity(activity: ListedActivity): boolean {
   if (
-    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion" && activity.type !== "multiple_choice" && activity.type !== "mole_hit" && activity.type !== "hangman") ||
+    (activity.type !== "word_search" && activity.type !== "crossword" && activity.type !== "quiz" && activity.type !== "memory" && activity.type !== "listening" && activity.type !== "word_matching" && activity.type !== "sentence_completion" && activity.type !== "multiple_choice" && activity.type !== "mole_hit" && activity.type !== "hangman" && activity.type !== "roulette") ||
     !activity.latestVersion
   ) {
     return false;
@@ -167,6 +167,7 @@ function getEditHref(activity: ListedActivity): string {
   if (activity.type === "multiple_choice") return "/teacher/activities/multiple-choice/" + slug + "/edit";
   if (activity.type === "mole_hit") return "/teacher/activities/mole-hit/" + slug + "/edit";
   if (activity.type === "hangman") return "/teacher/activities/hangman/" + slug + "/edit";
+  if (activity.type === "roulette") return "/teacher/activities/roulette/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
