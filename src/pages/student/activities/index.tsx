@@ -121,17 +121,16 @@ export default function ExploreActivitiesPage() {
       allowedRoles={["STUDENT"]}
       title="Atividades disponíveis"
       description="Encontre atividades publicadas e pratique seus conhecimentos."
-    >
-      <div className="mb-6">
+      titleActions={(
         <Link
           href="/dashboard"
-          className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
+          className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           <ArrowLeft size={16} aria-hidden="true" />
           Painel inicial
         </Link>
-      </div>
-
+      )}
+    >
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark">
           <SlidersHorizontal size={17} aria-hidden="true" />
