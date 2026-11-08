@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
-import { BrandLogo } from "@/components/ui/BrandLogo";
-import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { CrosswordGame, type CrosswordClue } from "@/modules/activities/components/CrosswordGame";
 import { getCrosswordService } from "@/modules/activities/services/crossword/getCrosswordService";
@@ -205,15 +203,7 @@ export default function PlayCrosswordPage() {
   return (
     
       <div className="min-h-screen bg-background">
-        <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-4 sm:px-8">
-            <BrandLogo href="/" />
-            <div className="flex items-center gap-2">
-              <ActivitySoundToggle />
-              {user ? <LogoutButton /> : <Link href="/login" className="inline-flex min-h-9 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#142b4a]">Entrar</Link>}
-            </div>
-          </div>
-        </header>
+
 
         <main className="mx-auto max-w-[1600px] px-3 py-4 sm:px-6 sm:py-5 xl:px-8">
           {loading ? (
@@ -237,7 +227,7 @@ export default function PlayCrosswordPage() {
                   </div>
                   {activity.version.description && <p className="mt-1 max-w-3xl text-sm leading-5 text-muted">{activity.version.description}</p>}
                 </div>
-                <Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
+                <ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link>
               </div>
 
               {phase === "ready" && (
