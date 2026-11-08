@@ -67,7 +67,7 @@ export default function PublicActivitiesPage() {
           <div>
             <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Experimente sem cadastro</p>
             <h1 className="mt-2 text-3xl font-extrabold text-dark sm:text-4xl">Atividades públicas</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">Explore atividades compartilhadas por professores e pratique de forma interativa.</p>
+            <p className="mt-3 text-sm leading-6 text-muted">Explore atividades compartilhadas por professores e pratique de forma interativa.</p>
           </div>
           <Link href="/" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
             <ArrowLeft size={16} aria-hidden="true" /> Voltar ao início
