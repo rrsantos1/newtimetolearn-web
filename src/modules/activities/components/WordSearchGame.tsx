@@ -286,7 +286,7 @@ export function WordSearchGame({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_280px]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.42fr)] 2xl:grid-cols-[minmax(0,1fr)_minmax(420px,0.38fr)]">
       <section className="min-w-0 rounded-2xl border border-sky-200 bg-sky-50/50 p-3 shadow-sm sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -331,7 +331,7 @@ export function WordSearchGame({
                       handleCellPointerDown(rowIndex, colIndex);
                     }}
                     onPointerEnter={() => handleCellPointerEnter(rowIndex, colIndex)}
-                    className={`flex size-7 items-center justify-center rounded-sm text-xs font-extrabold uppercase transition-all duration-150 sm:size-8 sm:text-sm md:size-9 md:text-base ${isAnimating && wordPositions.some((position) => position.word === animatingWord && getLine({ row: position.row, col: position.col }, getLineEnd(position)).some((cell) => cell.row === rowIndex && cell.col === colIndex)) ? `${isCellPopped ? "scale-125 z-10 shadow-md" : "scale-100"}` : ""} ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
+                    className={`flex size-9 items-center justify-center rounded-sm text-sm font-extrabold uppercase transition-all duration-150 sm:size-10 sm:text-base lg:size-11 lg:text-lg xl:size-12 ${isAnimating && wordPositions.some((position) => position.word === animatingWord && getLine({ row: position.row, col: position.col }, getLineEnd(position)).some((cell) => cell.row === rowIndex && cell.col === colIndex)) ? `${isCellPopped ? "scale-125 z-10 shadow-md" : "scale-100"}` : ""} ${isFound ? FOUND_WORD_COLORS[(foundColorIndex ?? 0) % FOUND_WORD_COLORS.length].cell : isSelected ? "bg-amber-300 text-amber-950" : "bg-white text-slate-800 hover:bg-sky-100"}`}
                   >
                     {letter}
                   </button>
@@ -384,7 +384,7 @@ export function WordSearchGame({
         <p className="mt-1 text-sm text-muted">
           Encontre todas para concluir o desafio.
         </p>
-        <ul className="mt-4 space-y-2">
+        <ul className="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-2">
           {normalizedWords.map(({ original, normalized }) => {
             const foundIndex = foundWords.indexOf(normalized);
             const found = foundIndex >= 0;
