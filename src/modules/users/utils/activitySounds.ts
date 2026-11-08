@@ -1,5 +1,7 @@
 export type ActivitySound = "success" | "error" | "applause";
 
+let spinAudio: HTMLAudioElement | null = null;
+
 const SOUND_PATHS: Record<ActivitySound, string> = {
   success: "/audios/success.mp3",
   error: "/audios/error.mp3",
@@ -16,6 +18,24 @@ export function areActivitySoundsEnabled(): boolean {
 export function setActivitySoundsEnabled(enabled: boolean): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(SOUND_PREFERENCE_KEY, String(enabled));
+}
+
+export function startActivitySpinSound(): void {
+  if (typeof window === "undefined" || !areActivitySoundsEnabled()) return;
+  if (!spinAudio) {
+    spinAudio = new Audio("/audios/spin.mp3");
+    spinAudio.loop = true;
+    spinAudio.preload = "auto";
+    spinAudio.volume = 0.45;
+  }
+  spinAudio.currentTime = 0;
+  void spinAudio.play().catch(() => undefined);
+}
+
+export function stopActivitySpinSound(): void {
+  if (!spinAudio) return;
+  spinAudio.pause();
+  spinAudio.currentTime = 0;
 }
 
 export function playActivitySound(sound: ActivitySound): void {
