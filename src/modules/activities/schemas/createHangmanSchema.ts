@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 
-export interface HangmanWordForm { id: string; word: string; clue: string; imageUrl: string; imageAlt: string; coverMediaAssetId?: string | null; coverImageUrl?: string | null; coverAltText?: string | null; }
+export interface HangmanWordForm { id: string; word: string; clue: string; imageUrl: string | null; imageAlt: string; coverMediaAssetId?: string | null; coverImageUrl?: string | null; coverAltText?: string | null; }
 export interface CreateHangmanFormValues {
   name: string; description: string; difficulty: "EASY" | "MEDIUM" | "HARD";
   content: { words: HangmanWordForm[] };
