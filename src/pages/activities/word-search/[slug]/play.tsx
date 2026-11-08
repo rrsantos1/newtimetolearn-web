@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { ArrowLeft, LoaderCircle, Play, Trophy } from "lucide-react";
-import { BrandLogo } from "@/components/ui/BrandLogo";
-import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { WordSearchGame } from "@/modules/activities/components/WordSearchGame";
 import { getWordSearchActivityService } from "@/modules/activities/services/wordSearch/getWordSearchActivityService";
@@ -222,12 +220,7 @@ export default function PlayWordSearchPage() {
   return (
     
       <div className="min-h-screen bg-background">
-        <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-16 w-full items-center justify-between gap-4 px-4 sm:px-8">
-            <BrandLogo href="/" />
-            <div className="flex items-center gap-2"><ActivitySoundToggle />{user ? <LogoutButton /> : <Link href="/login" className="inline-flex min-h-9 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#142b4a]">Entrar</Link>}</div>
-          </div>
-        </header>
+
 
         <main className="mx-auto w-full px-4 py-4 sm:px-8 sm:py-5">
           {loading ? (
@@ -248,7 +241,7 @@ export default function PlayWordSearchPage() {
                   <h1 className="mt-1 text-xl font-bold tracking-tight text-dark sm:text-2xl">{activity.version.name}</h1>
                   {activity.version.description && <p className="mt-1 max-w-3xl text-sm leading-5 text-muted">{activity.version.description}</p>}
                 </div>
-                <Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark">
+                <ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark">
                   <ArrowLeft size={16} aria-hidden="true" />{backLabel}
                 </Link>
               </div>
