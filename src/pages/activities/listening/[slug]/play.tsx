@@ -226,7 +226,7 @@ export default function PlayListeningPage() {
   }
 
   return (
-    <PublicActivityLayout
+    <PublicActivityLayout immersive
       title={activity?.version.name ?? "Listening"}
       description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}
       titleActions={
