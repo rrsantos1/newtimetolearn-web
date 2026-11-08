@@ -76,7 +76,7 @@ export default function RoulettePlayPage() {
           {remaining.map((topic, index) => {
             const angle = (index + 0.5) * (360 / remaining.length);
             const readableAngle = angle > 90 && angle < 270 ? angle + 180 : angle;
-            return <span key={topic} className="absolute left-1/2 top-1/2 flex w-[min(30%,150px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[10px] font-bold leading-tight text-white drop-shadow sm:text-xs" style={{ transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${remaining.length > 10 ? 34 : 36}%) rotate(${readableAngle - angle}deg)` }}>{topic}</span>;
+            return <span key={topic} className="absolute left-1/2 top-1/2 flex w-[min(25%,120px)] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[10px] font-bold leading-tight text-white drop-shadow sm:text-xs" style={{ transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(calc(-1 * min(35vw, 220px))) rotate(${readableAngle - angle}deg)` }}>{topic}</span>;
           })}
           <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
         </div>
