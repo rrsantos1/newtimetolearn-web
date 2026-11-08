@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";

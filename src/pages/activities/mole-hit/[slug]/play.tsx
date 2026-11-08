@@ -6,7 +6,7 @@ import { LoaderCircle, Play, Trophy } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMoleHitAttemptService, type MoleHitAttemptResult } from "@/modules/activities/services/submitMoleHitAttemptService";
 import { getMoleHitRankingService } from "@/modules/activities/services/getMoleHitRankingService";

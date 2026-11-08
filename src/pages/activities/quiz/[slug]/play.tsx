@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import Image from "next/image";

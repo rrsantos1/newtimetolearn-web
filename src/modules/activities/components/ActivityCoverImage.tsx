@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { ActivityType } from "@/modules/activities/types/activityList.types";
-import { getActivityCoverImage } from "@/modules/activities/utils/activityCover";
+import { getActivityCoverImage } from "@/modules/users/utils/activityCover";
 
 interface Props {
   type: ActivityType;

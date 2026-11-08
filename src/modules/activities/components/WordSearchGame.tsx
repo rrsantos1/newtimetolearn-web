@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { playActivitySound } from "@/modules/users/utils/activitySounds";
 
 export interface WordSearchPosition {
   word: string;

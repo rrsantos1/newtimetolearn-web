@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
-import { areActivitySoundsEnabled, setActivitySoundsEnabled } from "@/modules/activities/utils/activitySounds";
+import { areActivitySoundsEnabled, setActivitySoundsEnabled } from "@/modules/users/utils/activitySounds";
 
 export function ActivitySoundToggle() {
   const [enabled, setEnabled] = useState(true);

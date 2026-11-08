@@ -9,7 +9,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { submitMemoryAttemptService, type MemoryAttemptResult } from "@/modules/activities/services/submitMemoryAttemptService";
 import { getMemoryRankingService, type MemoryRankingEntry } from "@/modules/activities/services/getMemoryRankingService";
 import type { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
-import { playActivitySound } from "@/modules/activities/utils/activitySounds";
+import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 
 interface Pair {
