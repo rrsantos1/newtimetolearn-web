@@ -128,7 +128,7 @@ export default function ProfilePage() {
           )}
 
           {profile && (
-            <>
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
               <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
                 <div className="mb-6 flex items-center gap-3">
                   <span className="flex size-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
@@ -216,7 +216,7 @@ export default function ProfilePage() {
 
                 <ChangePasswordForm />
               </section>
-            </>
+            </div>
           )}
         </div>
       )}
