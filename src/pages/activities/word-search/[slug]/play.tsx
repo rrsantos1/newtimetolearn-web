@@ -11,6 +11,7 @@ import { getWordSearchRankingService, type WordSearchRankingEntry } from "@/modu
 import type { EditableWordSearchActivity } from "@/modules/activities/types/activities.types";
 import { submitWordSearchAttemptService, type WordSearchAttemptResult } from "@/modules/activities/services/wordSearch/submitWordSearchAttemptService";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
+import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 
 interface GeneratedData {
   grid?: unknown;
@@ -60,169 +61,12 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
   }
 
   return (
-    <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
-      {ranking.map((entry) => (
-        <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-4 py-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">
-              {entry.position}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p>
-              
-            </div>
-          </div>
-          <span className="shrink-0 font-bold text-dark">{entry.score} pts</span>
-        </li>
-      ))}
-    </ol>
-  );
-}
+    <PublicActivityLayout immersive
+      title={activity?.version.name ?? "Caça-palavras"}
+      description={activity?.version.description ?? "Encontre todas as palavras escondidas na grade."}
+      titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
+    >
 
-export default function PlayWordSearchPage() {
-  const router = useRouter();
-  const { user } = useAuth();
-  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
-  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || user.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar ao painel";
-  const isStudent = user?.roles.includes("STUDENT") ?? false;
-
-  const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
-  const [grid, setGrid] = useState<string[][]>([]);
-  const [wordPositions, setWordPositions] = useState<WordPosition[]>([]);
-  const [words, setWords] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [phase, setPhase] = useState<GamePhase>("ready");
-  const [gameKey, setGameKey] = useState(0);
-  const [ranking, setRanking] = useState<WordSearchRankingEntry[]>([]);
-  const [rankingLoading, setRankingLoading] = useState(false);
-  const [rankingError, setRankingError] = useState("");
-  const [attemptResult, setAttemptResult] = useState<WordSearchAttemptResult | null>(null);
-  const [submittingAttempt, setSubmittingAttempt] = useState(false);
-  const [attemptError, setAttemptError] = useState("");
-  const [pendingAttempt, setPendingAttempt] = useState<{
-    wordsFound: string[];
-  } | null>(null);
-
-  const loadRanking = useCallback(async (slug: string): Promise<void> => {
-    setRankingLoading(true);
-    setRankingError("");
-    try {
-      setRanking(await getWordSearchRankingService.execute(slug));
-    } catch (loadError: unknown) {
-      setRankingError(getErrorMessage(loadError, "Não foi possível carregar o ranking agora."));
-    } finally {
-      setRankingLoading(false);
-    }
-  }, []);
-
-  const handleComplete = useCallback(
-    async (wordsFound: string[]): Promise<void> => {
-      if (!activity) return;
-
-      if (!isStudent) {
-        setPhase("finished");
-        return;
-      }
-
-      if (attemptResult || submittingAttempt) return;
-
-      setPendingAttempt({ wordsFound });
-      setSubmittingAttempt(true);
-      setAttemptError("");
-
-      try {
-        const result = await submitWordSearchAttemptService.execute(
-          activity.slug,
-          wordsFound,
-
-        );
-        setAttemptResult(result);
-        setRanking(result.ranking);
-        setPhase("finished");
-        setPendingAttempt(null);
-      } catch (submitError: unknown) {
-        setAttemptError(getErrorMessage(
-          submitError,
-          "Não foi possível registrar sua pontuação. Tente novamente mais tarde.",
-        ));
-      } finally {
-        setSubmittingAttempt(false);
-      }
-    },
-    [activity, attemptResult, isStudent, submittingAttempt],
-  );
-
-  useEffect(() => {
-    if (!router.isReady) return;
-    const querySlug = router.query.slug;
-    const slug = Array.isArray(querySlug) ? querySlug[0] : querySlug;
-    let cancelled = false;
-
-    async function load(): Promise<void> {
-      if (!slug) {
-        setError("Não foi possível identificar a atividade.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const result = user
-          ? await getWordSearchActivityService.execute(slug)
-          : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableWordSearchActivity>(slug);
-        if (cancelled) return;
-        if (result.type !== "word_search") {
-          setError("Esta atividade não é um caça-palavras.");
-          return;
-        }
-
-        const generatedData = result.version.generatedData as GeneratedData | null;
-        const generatedGrid = generatedData?.grid;
-        const generatedPositions = generatedData?.wordPositions;
-        const contentWords = result.version.content.words;
-
-        if (!isGrid(generatedGrid) || !isWordPositions(generatedPositions)) {
-          setError("A grade desta atividade não está disponível ou está inválida.");
-          return;
-        }
-        if (!Array.isArray(contentWords) ||
-          !contentWords.every((word) => typeof word === "string")) {
-          setError("Não foi possível carregar a lista de palavras desta atividade.");
-          return;
-        }
-
-        setActivity(result);
-        setGrid(generatedGrid);
-        setWordPositions(generatedPositions);
-        setWords(contentWords);
-        if (user?.roles.includes("STUDENT")) {
-          void loadRanking(result.slug);
-        }
-      } catch (loadError: unknown) {
-        if (!cancelled) setError(getErrorMessage(loadError));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    void load();
-    return () => { cancelled = true; };
-  }, [router.isReady, router.query.slug, user, loadRanking]);
-
-  function startGame(): void {
-    setAttemptResult(null);
-    setAttemptError("");
-    setPendingAttempt(null);
-    setPhase("playing");
-    setGameKey((current) => current + 1);
-  }
-
-  return (
-    
-      <div className="min-h-screen bg-background">
-
-
-        <main className="mx-auto w-full px-4 py-4 sm:px-8 sm:py-5">
           {loading ? (
             <div role="status" className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6">
               <LoaderCircle className="size-8 animate-spin text-primary" aria-hidden="true" />
@@ -235,17 +79,6 @@ export default function PlayWordSearchPage() {
             </section>
           ) : activity ? (
             <>
-              <div className="mb-5 flex flex-col gap-3 rounded-xl border border-[#315987] bg-[#142b4a] p-4 shadow-sm sm:flex-row sm:items-start sm:justify-between [&_h1]:text-white [&_p]:text-white/75 [&_button]:!border-white/30 [&_button]:!bg-white/10 [&_button]:!text-white [&_button:hover]:!bg-white/20 [&_a]:!border-white/30 [&_a]:!bg-white/10 [&_a]:!text-white [&_a:hover]:!bg-white/20">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">Caça-palavras</p>
-                  <h1 className="mt-1 text-xl font-bold tracking-tight text-dark sm:text-2xl">{activity.version.name}</h1>
-                  {activity.version.description && <p className="mt-1 max-w-3xl text-sm leading-5 text-muted">{activity.version.description}</p>}
-                </div>
-                <ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted transition hover:border-primary hover:text-dark">
-                  <ArrowLeft size={16} aria-hidden="true" />{backLabel}
-                </Link>
-              </div>
-
               {phase === "ready" && (
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]">
                   <section className="rounded-2xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm sm:p-8">
@@ -363,8 +196,6 @@ export default function PlayWordSearchPage() {
               )}
             </>
           ) : null}
-        </main>
-      </div>
-
+    </PublicActivityLayout>
   );
 }
