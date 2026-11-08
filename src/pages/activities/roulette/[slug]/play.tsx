@@ -4,6 +4,8 @@ import Link from "next/link";
 import axios from "axios";
 import { ArrowLeft, RotateCw, Sparkles } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
+import { startActivitySpinSound, stopActivitySpinSound } from "@/modules/users/utils/activitySounds";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import api from "@/lib/api";
 
@@ -44,6 +46,7 @@ export default function RoulettePlayPage() {
     })();
     return () => { active = false; };
   }, [router.isReady, slug, user]);
+  useEffect(() => () => stopActivitySpinSound(), []);
   function spin(): void {
     if (spinning || remaining.length === 0) return;
     const index = Math.floor(Math.random() * remaining.length);
@@ -51,18 +54,20 @@ export default function RoulettePlayPage() {
     const sectorCenter = (index + 0.5) * sector;
     const alignment = (360 - ((rotation % 360 + sectorCenter) % 360)) % 360;
     setSelected(remaining[index] ?? "");
+    startActivitySpinSound();
     setRotation(rotation + 360 * 6 + alignment);
     setSpinning(true);
   }
   function finishSpin(): void {
     if (!spinning) return;
+    stopActivitySpinSound();
     setRemaining((current) => current.filter((topic) => topic !== selected));
     setSpinning(false);
   }
   const gradient = remaining.length > 0
     ? `conic-gradient(${remaining.map((_, index) => `${COLORS[index % COLORS.length]} ${(index / remaining.length) * 100}% ${((index + 1) / remaining.length) * 100}%`).join(", ")})`
     : "conic-gradient(#e5e7eb 0% 100%)";
-  return <PublicActivityLayout title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link>}>
+  return <PublicActivityLayout title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link></>}>
     {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">Carregando roleta...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
       <section className="flex flex-col items-center rounded-2xl border border-border bg-surface p-5 text-center sm:p-8">
         <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
