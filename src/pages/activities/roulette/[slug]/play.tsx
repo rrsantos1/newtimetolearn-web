@@ -22,7 +22,7 @@ export default function RoulettePlayPage() {
   const router = useRouter();
   const { user } = useAuth();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
-  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
   const [activity, setActivity] = useState<RouletteResponse["data"] | null>(null);
   const [remaining, setRemaining] = useState<string[]>([]);
   const [rotation, setRotation] = useState(0);
