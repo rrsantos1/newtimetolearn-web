@@ -88,7 +88,7 @@ export default function Home() {
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
-        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-14 lg:px-10 lg:py-16">
+        <div className="relative mx-auto grid w-full max-w-[1720px] items-center gap-12 px-6 py-12 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-14 lg:px-14 lg:py-16 xl:px-16">
           <div className="relative z-10 w-full min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
@@ -268,8 +268,8 @@ export default function Home() {
       )}
 
       <section className="bg-[#142b4a]">
-        <div className="mx-auto flex w-full flex-col items-start justify-between gap-6 px-5 py-12 sm:px-8 md:flex-row md:items-center lg:px-10">
-          <div className="max-w-2xl">
+        <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center justify-between gap-6 px-6 py-12 text-center sm:px-10 md:px-14 lg:flex-row lg:px-16 lg:text-center">
+          <div className="w-full max-w-2xl text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f3a6b1]">
               Seu próximo passo começa aqui
             </p>
