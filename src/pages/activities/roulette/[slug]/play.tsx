@@ -50,12 +50,20 @@ export default function RoulettePlayPage() {
   const wheelTopics = remaining;
   function spin(): void {
     if (spinning || remaining.length === 0 || wheelTopics.length === 0) return;
-    const topic = remaining[Math.floor(Math.random() * remaining.length)];
-    const index = remaining.indexOf(topic ?? "");
+    const availableTopics = selected
+      ? remaining.filter((topic) => topic !== selected)
+      : remaining;
+    if (availableTopics.length === 0) {
+      setRemaining([]);
+      return;
+    }
+    const topic = availableTopics[Math.floor(Math.random() * availableTopics.length)];
+    const index = availableTopics.indexOf(topic ?? "");
     if (index < 0) return;
-    const sector = 360 / wheelTopics.length;
+    const sector = 360 / availableTopics.length;
     const sectorCenter = (index + 0.5) * sector;
     const alignment = (360 - ((rotation % 360 + sectorCenter) % 360)) % 360;
+    setRemaining(availableTopics);
     setSelected(topic ?? "");
     startActivitySpinSound();
     setRotation(rotation + 360 * 6 + alignment);
@@ -64,7 +72,6 @@ export default function RoulettePlayPage() {
   function finishSpin(): void {
     if (!spinning) return;
     stopActivitySpinSound();
-    setRemaining((current) => current.filter((topic) => topic !== selected));
     setRotation((current) => current % 360);
     setSpinning(false);
   }
@@ -78,7 +85,7 @@ export default function RoulettePlayPage() {
           <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
           <div className="relative mt-6 aspect-square w-full max-w-[620px]">
             <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
-            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
+            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4.02s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
               {wheelTopics.map((topic, index) => {
                 const angle = (index + 0.5) * (360 / wheelTopics.length);
                 const labelWidth = Math.max(58, Math.min(130, 2 * 0.35 * 310 * Math.sin(Math.PI / wheelTopics.length) * 0.82));
