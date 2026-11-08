@@ -321,20 +321,19 @@ export default function TeacherActivitiesPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      backLinkPlacement="title"
       title="Minhas atividades"
       description="Consulte suas atividades, acompanhe o status de aprovação e gerencie seus materiais pedagógicos."
-    >
-      <div className="mb-6 flex justify-end">
+      titleActions={(
         <Link
           href={CREATE_ACTIVITY_ROUTE}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
+          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          style={{ color: "var(--primary-foreground)" }}
         >
           <Plus size={18} aria-hidden="true" />
           Criar atividade
         </Link>
-      </div>
-
+      )}
+    >
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades</div>
         <div className="grid gap-3 md:grid-cols-3">
