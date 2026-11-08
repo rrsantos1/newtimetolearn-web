@@ -62,7 +62,7 @@ export default function PublicActivitiesPage() {
         <meta name="description" content="Explore atividades públicas e pratique inglês gratuitamente." />
       </Head>
       <PublicHeader />
-      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
+      <section className="mx-auto w-full px-5 py-12 sm:px-8 lg:px-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Experimente sem cadastro</p>
