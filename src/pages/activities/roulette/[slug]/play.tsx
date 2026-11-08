@@ -47,9 +47,10 @@ export default function RoulettePlayPage() {
     if (spinning || remaining.length === 0) return;
     const index = Math.floor(Math.random() * remaining.length);
     const sector = 360 / remaining.length;
-    const target = 360 * 6 + (360 - (index + 0.5) * sector);
+    const sectorCenter = (index + 0.5) * sector;
+    const alignment = (360 - ((rotation % 360 + sectorCenter) % 360)) % 360;
     setSelected(remaining[index] ?? "");
-    setRotation((current) => current + target);
+    setRotation(rotation + 360 * 6 + alignment);
     setSpinning(true);
   }
   function finishSpin(): void {
