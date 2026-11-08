@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -50,6 +51,8 @@ export default function MultipleChoicePlayPage() {
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
+  const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/dashboard";
+  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar ao painel" : "Voltar às atividades";
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
   const [questions, setQuestions] = useState<Pair[]>([]);
@@ -145,9 +148,12 @@ export default function MultipleChoicePlayPage() {
 
   const correctCount = result?.attempt.correctCount ?? 0;
   return (
-    <PublicActivityLayout title={activity?.version.name ?? "Atividade"} description={activity?.version.description ?? "Experimente esta atividade."}>
+    <PublicActivityLayout
+        title={activity?.version.name ?? "Atividade"}
+        description={activity?.version.description ?? "Experimente esta atividade."}
+        titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
+      >
       {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : activity ? <div className="space-y-5">
-        <header className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-5 sm:p-6"><div><p className="text-xs font-semibold uppercase tracking-wide text-primary">Múltipla escolha</p><h1 className="mt-1 text-2xl font-bold text-dark">{activity.version.name}</h1>{activity.version.description && <p className="mt-2 text-sm leading-6 text-muted">{activity.version.description}</p>}</div><ActivitySoundToggle /></header>
         {phase === "ready" && <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]" : ""}>
           <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 shadow-sm sm:p-8"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div><h2 className="mt-4 text-xl font-bold text-dark">Pronto para começar?</h2><p className="mt-2 text-sm leading-6 text-muted">Uma questão será exibida por vez. Escolha uma das correspondências; todas as opções permanecerão disponíveis durante a atividade.</p><div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">Questões</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div></div><button type="button" onClick={start} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? "Iniciar atividade" : "Testar atividade"}</button>{!isStudent && <p className="mt-3 text-xs text-muted">O teste não será registrado no ranking dos alunos.</p>}</section>
           {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking — Top 5</h2></div><Ranking entries={ranking} /></section>}
