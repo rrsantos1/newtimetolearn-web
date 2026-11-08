@@ -25,7 +25,7 @@ export function prepareActivitySpinSound(): void {
   if (typeof window === "undefined" || !areActivitySoundsEnabled()) return;
   if (!spinAudio) {
     spinAudio = new Audio("/audios/spin.mp3");
-    spinAudio.loop = true;
+    spinAudio.loop = false;
     spinAudio.preload = "auto";
     spinAudio.volume = 0.45;
   }
