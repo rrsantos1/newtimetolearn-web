@@ -166,6 +166,7 @@ function getEditHref(activity: ListedActivity): string {
   if (activity.type === "sentence_completion") return "/teacher/activities/sentence-completion/" + slug + "/edit";
   if (activity.type === "multiple_choice") return "/teacher/activities/multiple-choice/" + slug + "/edit";
   if (activity.type === "mole_hit") return "/teacher/activities/mole-hit/" + slug + "/edit";
+  if (activity.type === "hangman") return "/teacher/activities/hangman/" + slug + "/edit";
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
@@ -533,7 +534,7 @@ export default function TeacherActivitiesPage() {
 
                   <div className="flex flex-wrap items-center gap-1.5">
                     <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error)); } }} aria-label={activity.isFavorite ? `Remover ${getActivityName(activity)} dos favoritos` : `Favoritar ${getActivityName(activity)}`} title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title="Ver histórico"
@@ -544,7 +545,7 @@ export default function TeacherActivitiesPage() {
                       </Link>
                     )}
 
-                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit") && (
+                    {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
                       <Link
                         href={activity.type === "quiz"
                           ? `/activities/quiz/${encodeURIComponent(activity.slug)}/play`
@@ -562,7 +563,9 @@ export default function TeacherActivitiesPage() {
                                     ? `/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`
                                       : activity.type === "mole_hit"
                                         ? `/activities/mole-hit/${encodeURIComponent(activity.slug)}/play`
-                                        : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
+                                        : activity.type === "hangman"
+                                          ? `/activities/hangman/${encodeURIComponent(activity.slug)}/play`
+                                          : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title="Executar atividade"
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"

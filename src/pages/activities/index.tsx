@@ -26,6 +26,7 @@ function getPlayHref(activity: ListedActivity): string {
     sentence_completion: "sentence-completion",
     word_search: "word-search",
     mole_hit: "mole-hit",
+    hangman: "hangman",
   };
   return `/activities/${routes[activity.type] ?? "word-search"}/${slug}/play`;
 }
