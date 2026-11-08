@@ -160,7 +160,7 @@ export default function RegisterPage() {
     <main className="min-h-screen bg-background">
       <PublicHeader />
 
-      <section className="mx-auto flex max-w-7xl justify-center px-5 py-10 sm:px-8 sm:py-16">
+      <section className="mx-auto flex w-full justify-center px-5 py-10 sm:px-8 sm:py-16">
         <div className="w-full max-w-xl">
           <div className="mb-8 text-center">
             <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-yellow-100 text-dark">
