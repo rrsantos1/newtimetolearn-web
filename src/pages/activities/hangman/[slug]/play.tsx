@@ -111,7 +111,7 @@ export default function HangmanPlayPage() {
     return () => { alive = false; };
   }, [router.isReady, slug, user, loadRanking]);
 
-  const finish = useCallback(async (lost: boolean): Promise<void> => {
+  const finish = useCallback(async (lost: boolean, mistakesOverride?: number): Promise<void> => {
     if (resultRef.current || !activity) return;
     resultRef.current = true;
     setPhase("finished");
@@ -123,7 +123,7 @@ export default function HangmanPlayPage() {
     }
     setScoreSaving(true);
     try {
-      const submitted = await submitHangmanAttemptService.execute(activity.slug, attemptToken, solvedIds, totalMistakes);
+      const submitted = await submitHangmanAttemptService.execute(activity.slug, attemptToken, solvedIds, mistakesOverride ?? totalMistakes);
       setResult(submitted);
       setRanking(submitted.ranking);
       if (!lost && submitted.score > 0) playActivitySound("applause");
@@ -167,7 +167,7 @@ export default function HangmanPlayPage() {
     const nextMistakes = mistakes + 1;
     setMistakes(nextMistakes);
     setTotalMistakes((current) => current + 1);
-    if (nextMistakes >= 6) void finish(true);
+    if (nextMistakes >= 6) void finish(true, totalMistakes + 1);
   }
 
   function nextWord(): void {
