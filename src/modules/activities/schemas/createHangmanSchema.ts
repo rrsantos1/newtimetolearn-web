@@ -21,6 +21,6 @@ export const createHangmanSchema = Yup.object({
       coverMediaAssetId: Yup.string().nullable().optional(),
       coverImageUrl: Yup.string().nullable().optional(),
       coverAltText: Yup.string().nullable().optional(),
-    }).required()).min(3, "Cadastre pelo menos 3 palavras.").max(30).required(),
+    }).required()).min(1, "Cadastre pelo menos 1 palavra.").max(30).required(),
   }).required(),
 });
