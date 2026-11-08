@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { LoaderCircle, Play, Trophy, ArrowRight, RotateCcw } from "lucide-react";
@@ -126,7 +126,7 @@ export default function HangmanPlayPage() {
       const submitted = await submitHangmanAttemptService.execute(activity.slug, attemptToken, solvedIds, mistakesOverride ?? totalMistakes);
       setResult(submitted);
       setRanking(submitted.ranking);
-      if (!lost && submitted.score > 0) playActivitySound("applause");
+      if (!lost && submitted.attempt.score > 0) playActivitySound("applause");
     } catch (error: unknown) { setSubmitError(getErrorMessage(error, "Não foi possível registrar seu resultado.")); }
     finally { setScoreSaving(false); }
   }, [activity, attemptToken, isStudent, solvedIds, totalMistakes]);
