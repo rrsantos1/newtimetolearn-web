@@ -11,7 +11,7 @@ export function PublicHeader() {
 
   return (
     <header className="relative z-20 border-b border-[#315987] bg-[#142b4a]">
-      <div className="mx-auto flex min-h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
+      <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
         <BrandLogo href={user ? "/dashboard" : "/"} />
         <nav aria-label="Navegação principal" className="flex items-center gap-2 sm:gap-4">
           {!user && !isLoading && (
@@ -55,7 +55,7 @@ export function PublicHeader() {
       </div>
       {user && (
         <div className="border-t border-white/15 bg-white">
-          <div className="mx-auto flex min-h-16 max-w-7xl items-center px-5 sm:px-8 lg:px-10">
+          <div className="mx-auto flex min-h-16 w-full items-center px-5 sm:px-8 lg:px-10">
             <AuthenticatedNavigation />
           </div>
         </div>
