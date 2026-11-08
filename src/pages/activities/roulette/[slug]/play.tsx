@@ -5,7 +5,7 @@ import axios from "axios";
 import { ArrowLeft, RotateCw, Sparkles } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
-import { startActivitySpinSound, stopActivitySpinSound } from "@/modules/users/utils/activitySounds";
+import { prepareActivitySpinSound, startActivitySpinSound, stopActivitySpinSound } from "@/modules/users/utils/activitySounds";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import api from "@/lib/api";
 
@@ -46,7 +46,7 @@ export default function RoulettePlayPage() {
     })();
     return () => { active = false; };
   }, [router.isReady, slug, user]);
-  useEffect(() => () => stopActivitySpinSound(), []);
+  useEffect(() => { prepareActivitySpinSound(); return () => stopActivitySpinSound(); }, []);
   const wheelTopics = activity?.version.content.topics ?? [];
   function spin(): void {
     if (spinning || remaining.length === 0 || wheelTopics.length === 0) return;
@@ -73,7 +73,7 @@ export default function RoulettePlayPage() {
   return <PublicActivityLayout title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link></>}>
     {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">Carregando roleta...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <section className="relative z-0 flex w-full flex-col items-center rounded-2xl border border-border bg-surface p-4 text-center sm:p-8">
       <p className="text-sm text-muted">Assuntos restantes: <strong className="text-dark">{remaining.length}</strong></p>
-      <div className="relative mt-6 aspect-square w-[min(92vw,620px)]">
+      <div className="mt-6 grid w-full items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">\n        <div className="relative mx-auto aspect-square w-[min(92vw,620px)]">
         <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
         <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
           {wheelTopics.map((topic, index) => {
@@ -86,7 +86,7 @@ export default function RoulettePlayPage() {
                 aria-hidden="true"
                 className="absolute inset-0"
                 style={{
-                  transform: `rotate(${angle + rotation}deg)`,
+                  transform: `rotate(${angle}deg)`,
                   transition: spinning ? "transform 4s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none",
                 }}
               >
@@ -104,9 +104,7 @@ export default function RoulettePlayPage() {
           })}
           <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
         </div>
-      </div>
-      {selected && !spinning && <div aria-live="polite" className="mt-6 max-w-xl rounded-2xl border border-primary/30 bg-primary/10 p-5"><p className="text-xs font-bold uppercase tracking-wider text-muted">Assunto escolhido</p><h2 className="mt-2 text-2xl font-bold text-dark">{selected}</h2><p className="mt-2 text-sm text-muted">Conversem sobre esse assunto. Quando terminarem, gire novamente.</p></div>}
-      {remaining.length > 0 ? <button type="button" onClick={spin} disabled={spinning} className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-dark px-8 py-3 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"><RotateCw size={19} aria-hidden="true" />{spinning ? "Girando..." : selected ? "Sortear próximo assunto" : "Girar roleta"}</button> : <div className="mt-6 rounded-xl bg-green-50 p-4 text-sm font-semibold text-green-800">Todos os assuntos foram sorteados!</div>}
+        </div>\n        {selected && !spinning && <div aria-live="polite" className="w-full rounded-2xl border border-primary/30 bg-primary/10 p-5 text-left"><p className="text-xs font-bold uppercase tracking-wider text-muted">Assunto escolhido</p><h2 className="mt-2 text-2xl font-bold text-dark">{selected}</h2><p className="mt-2 text-sm text-muted">Conversem sobre esse assunto. Quando terminarem, gire novamente.</p></div>}\n      </div>\n      {remaining.length > 0 ? <button type="button" onClick={spin} disabled={spinning} className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-dark px-8 py-3 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"><RotateCw size={19} aria-hidden="true" />{spinning ? "Girando..." : selected ? "Sortear próximo assunto" : "Girar roleta"}</button> : <div className="mt-6 rounded-xl bg-green-50 p-4 text-sm font-semibold text-green-800">Todos os assuntos foram sorteados!</div>}
       {remaining.length === 0 && <button type="button" onClick={() => { setRemaining(activity.version.content.topics); setSelected(""); setRotation(0); }} className="mt-3 min-h-10 rounded-xl border border-border px-5 text-sm font-semibold text-dark">Reiniciar roleta</button>}
     </section> : null}
   </PublicActivityLayout>;
