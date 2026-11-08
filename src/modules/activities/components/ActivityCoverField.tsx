@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { useFormikContext } from "formik";
+import { getIn, useFormikContext } from "formik";
 import { ImagePlus, LoaderCircle, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import type { MediaLibraryAsset } from "@/modules/activities/services/mediaLibraryService";
@@ -27,9 +27,9 @@ const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 roun
 export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa", description = "Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade." }: Readonly<ActivityCoverFieldProps>) {
   const { values, setFieldValue, isSubmitting } = useFormikContext<CoverFormValues>();
   const fieldName = (name: string): string => fieldPrefix ? `${fieldPrefix}.${name}` : name;
-  const coverMediaAssetId = values[fieldName("coverMediaAssetId") as keyof CoverFormValues];
-  const coverImageUrl = values[fieldName("coverImageUrl") as keyof CoverFormValues];
-  const coverAltText = values[fieldName("coverAltText") as keyof CoverFormValues];
+  const coverMediaAssetId = fieldPrefix ? getIn(values, fieldName("coverMediaAssetId")) as string | null | undefined : values.coverMediaAssetId;
+  const coverImageUrl = fieldPrefix ? getIn(values, fieldName("coverImageUrl")) as string | null | undefined : values.coverImageUrl;
+  const coverAltText = fieldPrefix ? getIn(values, fieldName("coverAltText")) as string | null | undefined : values.coverAltText;
   const [cover, setCover] = useState<SelectedCover | null>(null);
   const [pendingGeneratedCover, setPendingGeneratedCover] = useState<SelectedCover | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
