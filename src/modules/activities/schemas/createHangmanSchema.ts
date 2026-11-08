@@ -13,7 +13,7 @@ export const createHangmanSchema = Yup.object({
   difficulty: Yup.mixed<"EASY" | "MEDIUM" | "HARD">().oneOf(["EASY", "MEDIUM", "HARD"]).required(),
   content: Yup.object({
     words: Yup.array().of(Yup.object({
-      id: Yup.string().uuid().required(),
+      id: Yup.string().transform((value) => value || undefined).uuid().optional(),
       word: Yup.string().trim().required("Informe a palavra.").max(50).test("letter-limit", "A palavra deve ter até 20 letras.", (value) => (value ?? "").replace(/[\\s-]/g, "").length <= 20),
       clue: Yup.string().trim().required("Informe uma dica.").min(3).max(240),
       imageUrl: Yup.string().trim().max(2048).default("").test("optional-url", "Informe uma URL válida.", (value) => !value || /^(https?):\/\//i.test(value)),
