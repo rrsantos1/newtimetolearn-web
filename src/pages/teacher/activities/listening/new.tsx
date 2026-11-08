@@ -265,14 +265,7 @@ export default function NewListeningPage() {
     } finally {
       setGeneratingId("");
     }
-  }
-
-  function handleTimeLimitChange(event: ChangeEvent<HTMLInputElement>): void {
-    const value = event.target.value;
-    if (value === "" || (/^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 240)) {
-      setTimeLimitMinutes(value);
-    }
-  }
+  }  
 
   function addPassage(): void {
     setPassages((current) => [...current, newPassage()]);

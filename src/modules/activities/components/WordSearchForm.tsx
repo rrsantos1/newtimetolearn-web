@@ -81,7 +81,7 @@ export function WordSearchForm({
       validationSchema={createWordSearchSchema}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, values, errors, submitCount, setFieldValue }) => (
+      {({ isSubmitting, values, errors, submitCount }) => (
         <Form noValidate className="space-y-6">
           <ScrollToFirstError />
           <ActivityCoverField />

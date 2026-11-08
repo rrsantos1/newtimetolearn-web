@@ -80,7 +80,7 @@ function ValidationErrorSummary() {
 }
 
 function ActivityDetailsFields() {
-  const { values, errors, submitCount, setFieldValue } = useFormikContext<DragDropBaseValues>();
+  const { errors, submitCount } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>

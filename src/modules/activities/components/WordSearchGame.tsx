@@ -260,7 +260,6 @@ export function WordSearchGame({
 
   function resetGame(): void {
     finishedRef.current = false;
-    foundWordsRef.current = [];
     setFoundWords([]);
     setSelectionStart(null);
     setSelection([]);

@@ -29,7 +29,6 @@ export const submitWordSearchAttemptService = {
   async execute(
     slug: string,
     wordsFound: string[],
-    elapsedSeconds: number,
   ): Promise<WordSearchAttemptResult> {
     const response = await api.post<SubmitWordSearchAttemptResponse>(
       `/activities/${encodeURIComponent(slug)}/attempts`,
