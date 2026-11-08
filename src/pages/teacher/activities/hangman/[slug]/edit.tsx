@@ -80,12 +80,23 @@ export default function EditHangmanPage() {
         name: values.name.trim(),
         description: values.description.trim() || null,
         difficulty: values.difficulty,
-        content: values.content,
+        content: { words: values.content.words.map((word) => ({
+          id: word.id,
+          word: word.word,
+          clue: word.clue,
+          imageUrl: null,
+          imageAlt: word.coverAltText ?? "",
+          coverMediaAssetId: null,
+          coverImageUrl: null,
+          coverAltText: null,
+        })) },
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
       for (const word of values.content.words) {
-        if (word.coverMediaAssetId !== undefined && word.coverMediaAssetId !== null) {
-          await activityCoverService.update(activity.slug, word.coverMediaAssetId);
+        if (word.coverMediaAssetId !== undefined || word.coverImageUrl !== undefined) {
+          await api.patch(`/activities/${encodeURIComponent(activity.slug)}/hangman/words/${encodeURIComponent(word.id)}/image`, {
+            coverMediaAssetId: word.coverMediaAssetId ?? null,
+          });
         }
       }
       setInitialValues(values);
