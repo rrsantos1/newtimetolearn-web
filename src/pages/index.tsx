@@ -200,7 +200,7 @@ export default function Home() {
 
       {publicActivities.length > 0 && (
         <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
               <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
@@ -228,7 +228,7 @@ export default function Home() {
 
       {marketplaceItems.length > 0 && (
         <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="marketplace-featured-title">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Materiais didáticos</span>
               <h2 id="marketplace-featured-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Destaques do Marketplace</h2>
