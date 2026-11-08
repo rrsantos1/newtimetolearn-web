@@ -88,20 +88,20 @@ export default function Home() {
           className="pointer-events-none absolute -left-36 -top-36 size-96 rounded-full bg-[#c6283d]/[0.07] blur-3xl"
         />
 
-        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-10 lg:py-16">
-          <div className="relative z-10">
+        <div className="relative mx-auto grid w-full items-center gap-12 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-14 lg:px-10 lg:py-16">
+          <div className="relative z-10 w-full min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
               Aprender inglês pode ser uma experiência
             </span>
 
-            <h1 className="mt-7 w-full max-w-none text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.65rem] lg:text-[3.1rem]">
+            <h1 className="mt-7 w-full max-w-none text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.8rem] lg:text-[3.6rem] xl:text-[4.1rem]">
               Aprenda, pratique
               <span className="block text-accent">e evolua com o</span>
               TimeToLearn.
             </h1>
 
-            <p className="mt-5 max-w-xl text-base leading-7 text-muted sm:text-[1.05rem]">
+            <p className="mt-5 w-full max-w-3xl text-base leading-7 text-muted sm:text-[1.1rem]">
               Um ambiente de aprendizagem de inglês que aproxima professores
               e alunos por meio de atividades interativas, prática constante e
               experiências que tornam o aprendizado mais envolvente.
