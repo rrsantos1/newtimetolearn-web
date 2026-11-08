@@ -69,6 +69,10 @@ export default function RoulettePlayPage() {
         <div className="relative mt-6 size-[min(78vw,420px)]">
           <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-[16px] border-t-[28px] border-x-transparent border-t-primary drop-shadow" />
           <div onTransitionEnd={finishSpin} role="img" aria-label="Roleta de assuntos" className="absolute inset-0 rounded-full border-[8px] border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 5s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
+            {remaining.map((topic, index) => {
+              const angle = (index + 0.5) * (360 / remaining.length);
+              return <span key={topic} className="absolute left-1/2 top-1/2 flex w-[88px] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[10px] font-bold leading-tight text-white drop-shadow sm:text-xs" style={{ transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-145px) rotate(-${angle}deg)` }}>{topic}</span>;
+            })}
             <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
           </div>
         </div>
