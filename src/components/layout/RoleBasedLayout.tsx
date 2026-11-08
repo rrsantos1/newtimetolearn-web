@@ -19,6 +19,7 @@ interface RoleBasedLayoutProps {
   area: "teacher" | "admin" | "student";
   backLinkPlacement?: "top" | "title";
   titleActions?: ReactNode;
+  immersive?: boolean;
 }
 
 interface LoadedTeacherEntitlements {
@@ -34,6 +35,7 @@ export function RoleBasedLayout({
   area,
   backLinkPlacement = "top",
   titleActions,
+  immersive = false,
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
@@ -65,48 +67,48 @@ export function RoleBasedLayout({
   return (
     <RoleGuard allowedRoles={allowedRoles}>
       <div className="min-h-screen bg-background">
-        <header className="border-b border-[#315987] bg-[#142b4a]">
-          <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
-            <BrandLogo href="/dashboard" />
-            <div className="flex items-center gap-2 sm:gap-3">
-              {isTeacher && area === "admin" && (
-                <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">
-                  Área do professor
-                </Link>
-              )}
-              {isAdmin && area !== "admin" && (
-                <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">
-                  <ShieldCheck size={16} aria-hidden="true" />
-                  Administração
-                </Link>
-              )}
-              <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">
-                {user?.name}
-              </span>
-              <LogoutButton />
+        {immersive ? (
+          <header className="border-b border-border bg-surface">
+            <div className="mx-auto flex min-h-14 w-full items-center justify-between gap-3 px-4 sm:px-6">
+              <div className="min-w-0">
+                <h1 className="truncate text-base font-bold text-dark sm:text-lg">{title}</h1>
+                <p className="hidden truncate text-xs text-muted sm:block">{description}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">{titleActions}</div>
             </div>
-          </div>
-          <div className="border-t border-white/15 bg-white">
-            <div className="mx-auto flex min-h-16 w-full items-center px-5 sm:px-8 lg:px-10">
-              <AuthenticatedNavigation />
+          </header>
+        ) : (
+          <header className="border-b border-[#315987] bg-[#142b4a]">
+            <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
+              <BrandLogo href="/dashboard" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                {isTeacher && area === "admin" && (
+                  <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">Área do professor</Link>
+                )}
+                {isAdmin && area !== "admin" && (
+                  <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm"><ShieldCheck size={16} aria-hidden="true" />Administração</Link>
+                )}
+                <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">{user?.name}</span>
+                <LogoutButton />
+              </div>
             </div>
-          </div>
-        </header>
+            <div className="border-t border-white/15 bg-white">
+              <div className="mx-auto flex min-h-16 w-full items-center px-5 sm:px-8 lg:px-10"><AuthenticatedNavigation /></div>
+            </div>
+          </header>
+        )}
 
-        <main className="mx-auto w-full px-5 py-8 sm:px-8 sm:py-10">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <main className={immersive ? "mx-auto w-full px-3 py-4 sm:px-6 sm:py-6" : "mx-auto w-full px-5 py-8 sm:px-8 sm:py-10"}>
+          {!immersive && <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h1 className="text-2xl font-bold tracking-tight text-dark sm:text-3xl">{title}</h1>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-muted">{description}</p>
             </div>
             {titleActions}
             {backLinkPlacement === "title" && (
-              <Link href="/dashboard" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background">
-                <ArrowLeft size={16} aria-hidden="true" />
-                Área autenticada
-              </Link>
+              <Link href="/dashboard" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background"><ArrowLeft size={16} aria-hidden="true" />Área autenticada</Link>
             )}
-          </div>
+          </div>}
 
           {shouldShowAds && <TeacherAdSlot placement="teacher-top" />}
           {children}
