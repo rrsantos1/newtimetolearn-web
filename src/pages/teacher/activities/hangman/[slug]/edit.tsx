@@ -83,6 +83,11 @@ export default function EditHangmanPage() {
         content: values.content,
       });
       if (values.coverMediaAssetId !== undefined) await activityCoverService.update(activity.slug, values.coverMediaAssetId);
+      for (const word of values.content.words) {
+        if (word.coverMediaAssetId !== undefined && word.coverMediaAssetId !== null) {
+          await activityCoverService.update(activity.slug, word.coverMediaAssetId);
+        }
+      }
       setInitialValues(values);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, reviewFeedback: null } } : current);
       setNotice("Alterações salvas com sucesso.");
