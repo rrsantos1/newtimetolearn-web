@@ -80,7 +80,7 @@ export function AuthenticatedNavigation() {
         ))}
         {renderTeacherLink()}
         {user?.roles.includes("STUDENT") && (
-          <Link href="/student/teachers" aria-current={isActive("/student/teachers") ? "page" : undefined} className={getLinkClass("/student/teachers")}>
+          <Link href="/student/teachers" aria-current={isActive("/student/teachers") ? "page" : undefined} className={getLinkClass("/student/teachers")} style={isActive("/student/teachers") ? { color: "var(--primary-foreground)" } : undefined}>
             <GraduationCap size={17} aria-hidden="true" />
             Meus professores
           </Link>
@@ -139,7 +139,7 @@ export function AuthenticatedNavigation() {
                 </Link>
               )}
               {user?.roles.includes("STUDENT") && (
-                <Link href="/student/teachers" aria-current={isActive("/student/teachers") ? "page" : undefined} className={getLinkClass("/student/teachers")} onClick={closeMenu}>
+                <Link href="/student/teachers" aria-current={isActive("/student/teachers") ? "page" : undefined} className={getLinkClass("/student/teachers")} style={isActive("/student/teachers") ? { color: "var(--primary-foreground)" } : undefined} onClick={closeMenu}>
                   <GraduationCap size={18} aria-hidden="true" />
                   Meus professores
                 </Link>
