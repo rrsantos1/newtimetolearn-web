@@ -78,7 +78,7 @@ export default function RoulettePlayPage() {
   const gradient = wheelTopics.length > 0
     ? `conic-gradient(${wheelTopics.map((_, index) => `${COLORS[index % COLORS.length]} ${(index / wheelTopics.length) * 100}% ${((index + 1) / wheelTopics.length) * 100}%`).join(", ")})`
     : "conic-gradient(#e5e7eb 0% 100%)";
-  return <PublicActivityLayout title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link></>}>
+  return <PublicActivityLayout immersive title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link></>}>
     {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">Carregando roleta...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <section className="relative z-0 w-full rounded-2xl border border-border bg-surface p-4 sm:p-8">
       <div className="grid w-full items-start gap-6 lg:grid-cols-[minmax(0,620px)_minmax(260px,320px)] lg:justify-center">
         <div className="flex min-w-0 flex-col items-center">
