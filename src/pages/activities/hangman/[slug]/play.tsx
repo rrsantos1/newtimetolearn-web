@@ -84,7 +84,6 @@ export default function HangmanPlayPage() {
 
   const words = activity?.version.content.words ?? [];
   const activeWord = words[wordIndex];
-  // Answers are intentionally only loaded for the activity owner in preview; student execution receives sanitized hints.
   const loadRanking = useCallback(async (): Promise<void> => {
     if (!slug || !isStudent) return;
     setRankingLoading(true);
