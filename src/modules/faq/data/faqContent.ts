@@ -49,6 +49,53 @@ export const homeFaq: FaqItem[] = [
   },
 ];
 
+export const activitiesFaqEn: FaqItem[] = [
+  {
+    question: "Which types of activities are available?",
+    answer: "The current catalog includes Word Search, Crossword, Quiz, Memory, Listening, Word Matching, Sentence Completion, Multiple Choice, Roulette, Hangman and Whack-a-mole. Availability may vary depending on the area and account permissions.",
+  },
+  {
+    question: "How does Word Search work?",
+    answer: "Students find and select the words added by the teacher in a letter grid. This activity can be used to practice vocabulary and word recognition.",
+  },
+  {
+    question: "How does Crossword work?",
+    answer: "Students fill in the grid with words based on across and down clues prepared by the teacher.",
+  },
+  {
+    question: "How does Quiz work?",
+    answer: "Students answer multiple-choice questions with automatic grading. They can review their answers when they finish.",
+  },
+  {
+    question: "How does Memory work?",
+    answer: "Students find matching pairs. Depending on the teacher's settings, pairs can combine text and images.",
+  },
+  {
+    question: "What is a Listening activity?",
+    answer: "It is a listening comprehension activity. Students listen to one or more narrated passages and fill in the corresponding blanks.",
+  },
+  {
+    question: "How do Word Matching and Multiple Choice work?",
+    answer: "In Word Matching, students connect corresponding items. In Multiple Choice, they review each item and select the correct option from the choices shown.",
+  },
+  {
+    question: "How does Sentence Completion work?",
+    answer: "Students complete sentences by filling in the blanks with words from an available word bank.",
+  },
+  {
+    question: "How do Roulette, Hangman and Whack-a-mole work?",
+    answer: "Roulette draws topics or challenges; in Hangman, students guess a word using clues; and in Whack-a-mole, they identify the correct answers among the items shown during the game.",
+  },
+  {
+    question: "Who can create and publish activities?",
+    answer: "Teachers can create activities and submit them for review. Publishing an activity publicly requires administrative approval.",
+  },
+  {
+    question: "Do public activities add results to the leaderboard?",
+    answer: "No. When played anonymously without signing in, public activities do not record results or contribute to the leaderboard.",
+  },
+];
+
 export const activitiesFaq: FaqItem[] = [
   {
     question: "Quais tipos de atividades estão disponíveis?",
