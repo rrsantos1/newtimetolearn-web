@@ -32,9 +32,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function formatDate(value: string, locale: string): string {
+function formatDate(value: string, locale: string, fallback: string): string {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) return fallback;
 
   return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
@@ -183,7 +183,7 @@ export default function ActivityAttemptsPage() {
                           : `${attempt.wordsFound?.length ?? 0} de ${attempt.totalWords ?? 0}`}
                       </td>
                       <td className="px-5 py-4 text-muted">
-                        {formatDate(attempt.createdAt, locale)}
+                        {formatDate(attempt.createdAt, locale, t("attempts.dateUnavailable"))}
                       </td>
                     </tr>
                   ))}
