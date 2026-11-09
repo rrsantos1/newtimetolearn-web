@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getIn, useFormikContext } from "formik";
 import { ImagePlus, LoaderCircle, Sparkles, Trash2, Upload, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
@@ -24,7 +25,10 @@ interface ActivityCoverFieldProps { fieldPrefix?: string; title?: string; descri
 
 const buttonClass = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50";
 
-export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa", description = "Escolha uma imagem da biblioteca, envie uma imagem ou gere uma capa com IA. Se não escolher, será usada a capa padrão deste tipo de atividade." }: Readonly<ActivityCoverFieldProps>) {
+export function ActivityCoverField({ fieldPrefix = "", title, description }: Readonly<ActivityCoverFieldProps>) {
+  const { t } = useTranslation();
+  const coverTitle = title ?? t("activity.cover.title");
+  const coverDescription = description ?? t("activity.cover.description");
   const { values, setFieldValue, isSubmitting } = useFormikContext<CoverFormValues>();
   const fieldName = (name: string): string => fieldPrefix ? `${fieldPrefix}.${name}` : name;
   const coverMediaAssetId = fieldPrefix ? getIn(values, fieldName("coverMediaAssetId")) as string | null | undefined : values.coverMediaAssetId;
@@ -51,10 +55,10 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
       event.preventDefault();
       event.stopImmediatePropagation();
       setError(state === "generating"
-        ? "Aguarde a geração da capa terminar antes de salvar a atividade."
+        ? "{t("activity.cover.processingHelp")}"
         : state === "awaiting_selection"
-          ? "A capa foi gerada. Escolha “Usar esta capa” ou “Descartar” antes de salvar."
-          : "A geração da capa não foi concluída. Tente novamente ou descarte a tentativa antes de salvar.");
+          ? "{t("activity.cover.generatedReady")}"
+          : "{t("activity.cover.generateError")}");
     }
 
     form.addEventListener("submit", preventInvalidSubmit, true);
@@ -88,7 +92,7 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
       const uploaded = await uploadMediaImageService.execute(file, "Capa da atividade");
       selectCover({ id: uploaded.id, publicUrl: uploaded.publicUrl, thumbnailPublicUrl: uploaded.thumbnailPublicUrl, altText: uploaded.altText });
     } catch (uploadError: unknown) {
-      setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar a imagem.");
+      setError(uploadError instanceof Error ? uploadError.message : "{t("activity.cover.uploadError")}");
     }
   }
 
@@ -107,7 +111,7 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
       setPrompt("");
     } catch (generationError: unknown) {
       updateGenerationState("failed");
-      setError(generationError instanceof Error ? generationError.message : "Não foi possível gerar a imagem.");
+      setError(generationError instanceof Error ? generationError.message : "{t("activity.cover.generateError")}");
     } finally {
       setIsGenerating(false);
     }
@@ -147,13 +151,13 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
 
       {pendingGeneratedCover && (
         <div className="mb-4 max-w-xl rounded-xl border border-accent/30 bg-background p-4">
-          <p className="mb-2 text-sm font-semibold text-dark">Sua capa gerada está pronta</p>
+          <p className="mb-2 text-sm font-semibold text-dark">{t("activity.cover.generatedReady")}</p>
           <div className="relative aspect-video overflow-hidden rounded-xl border border-border">
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" onClick={useGeneratedCover} disabled={isSubmitting} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
-            <button type="button" onClick={() => setPendingGeneratedCover(null)} disabled={isSubmitting} className={buttonClass}>Descartar</button>
+            <button type="button" onClick={() => setPendingGeneratedCover(null)} disabled={isSubmitting} className={buttonClass}>{t("activity.cover.discard")}</button>
           </div>
         </div>
       )}
@@ -176,7 +180,7 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
         </label>
         <MediaLibraryPicker disabled={isSubmitting} onSelect={selectLibraryAsset} />
         <button type="button" onClick={() => setIsAiModalOpen(true)} disabled={isSubmitting || isGenerating} className={buttonClass}>
-          <Sparkles size={16} aria-hidden="true" /> {isGenerating ? "Gerando em segundo plano..." : "Gerar com IA"}
+          <Sparkles size={16} aria-hidden="true" /> {isGenerating ? t("activity.cover.generating") : t("activity.cover.generate")}
         </button>
       </div>
 
@@ -185,17 +189,17 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
           <div className="flex items-center gap-3">
             <LoaderCircle size={22} className="shrink-0 animate-spin text-blue-700" aria-hidden="true" />
             <div>
-              <p className="text-sm font-semibold">{generationStatus === "PENDING" ? "Preparando sua solicitação..." : "A IA está criando sua capa..."}</p>
-              <p className="mt-1 text-sm text-blue-800">{generationStatus === "PENDING" ? "Sua solicitação entrou na fila e será processada em instantes." : "A imagem está sendo gerada e validada. Esse processo pode levar alguns minutos."}</p>
+              <p className="text-sm font-semibold">{generationStatus === "PENDING" ? t("activity.cover.pending") : t("activity.cover.processing")}</p>
+              <p className="mt-1 text-sm text-blue-800">{generationStatus === "PENDING" ? t("activity.cover.queued") : t("activity.cover.processingHelp")}</p>
             </div>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-blue-200">
             <div className="h-full w-2/5 animate-pulse rounded-full bg-blue-700" />
           </div>
-          <p className="mt-2 text-xs text-blue-800">Você pode continuar preenchendo a atividade. Avisaremos aqui quando a prévia estiver pronta.</p>
+          <p className="mt-2 text-xs text-blue-800">{t("activity.cover.continue")}</p>
         </div>
       )}
-      {generationFailed && <button type="button" onClick={discardGeneration} className={`${buttonClass} mt-3`}>Descartar tentativa de geração</button>}
+      {generationFailed && <button type="button" onClick={discardGeneration} className={`${buttonClass} mt-3`}>{t("activity.cover.discardAttempt")}</button>}
       {error && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       {isAiModalOpen && (
@@ -203,20 +207,20 @@ export function ActivityCoverField({ fieldPrefix = "", title = "Imagem de capa",
           <section role="dialog" aria-modal="true" aria-labelledby="activity-cover-ai-title" className="w-full max-w-xl rounded-2xl border border-border bg-surface p-5 shadow-xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 id="activity-cover-ai-title" className="text-lg font-semibold text-dark">Gerar capa com IA</h3>
-                <p className="mt-1 text-sm leading-6 text-muted">Descreva a ilustração que deseja. A imagem será validada e armazenada na biblioteca de mídia.</p>
+                <h3 id="activity-cover-ai-title" className="text-lg font-semibold text-dark">{t("activity.cover.modalTitle")}</h3>
+                <p className="mt-1 text-sm leading-6 text-muted">{t("activity.cover.modalDescription")}</p>
                 {isGenerating && <p role="status" className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">A imagem está sendo gerada e validada. Você pode fechar este modal e continuar preenchendo a atividade; o salvamento ficará bloqueado até a imagem estar pronta.</p>}
               </div>
               <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
             </div>
-            <label htmlFor="activity-cover-prompt" className="mt-5 block text-sm font-medium text-dark">Descrição da imagem</label>
-            <textarea id="activity-cover-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder="Ex.: uma ilustração alegre sobre o sistema solar, com planetas coloridos e fundo espacial..." className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
+            <label htmlFor="activity-cover-prompt" className="mt-5 block text-sm font-medium text-dark">{t("activity.cover.imageDescription")}</label>
+            <textarea id="activity-cover-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder={t("activity.cover.promptPlaceholder")} className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
             <p className="mt-1 text-right text-xs text-muted">{prompt.length}/1000</p>
             {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
             <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setIsAiModalOpen(false)} className={buttonClass}>Fechar</button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} className={buttonClass}>{t("activity.cover.close")}</button>
               <button type="button" onClick={() => void handleGenerate()} disabled={isGenerating || prompt.trim().length < 5} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
-                <ImagePlus size={16} aria-hidden="true" /> {isGenerating ? "Gerando imagem..." : "Gerar imagem"}
+                <ImagePlus size={16} aria-hidden="true" /> {isGenerating ? t("activity.cover.generatingImage") : t("activity.cover.generateImage")}
               </button>
             </div>
           </section>
