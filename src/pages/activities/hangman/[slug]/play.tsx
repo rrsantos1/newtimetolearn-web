@@ -98,7 +98,7 @@ export default function HangmanPlayPage() {
     try { setRanking(await getHangmanRankingService.execute(slug)); }
     catch (error: unknown) { setRankingError(getErrorMessage(error, t("play.loadingRanking"))); }
     finally { setRankingLoading(false); }
-  }, [isStudent, slug]);
+  }, [isStudent, slug, t]);
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
@@ -116,7 +116,7 @@ export default function HangmanPlayPage() {
       finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
-  }, [router.isReady, slug, user, loadRanking]);
+  }, [router.isReady, slug, user, loadRanking, t]);
 
   const finish = useCallback(async (lost: boolean, mistakesOverride?: number): Promise<void> => {
     if (resultRef.current || !activity) return;
@@ -136,7 +136,7 @@ export default function HangmanPlayPage() {
       if (!lost && submitted.attempt.score > 0) playActivitySound("applause");
     } catch (error: unknown) { setSubmitError(getErrorMessage(error, "Não foi possível registrar seu resultado.")); }
     finally { setScoreSaving(false); }
-  }, [activity, attemptToken, isStudent, solvedIds, totalMistakes]);
+  }, [activity, attemptToken, isStudent, solvedIds, totalMistakes, t]);
 
   function startGame(): void {
     setWordIndex(0);
