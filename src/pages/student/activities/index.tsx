@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import type {
   ActivityDifficulty,
@@ -61,7 +62,7 @@ function formatDate(value: string): string {
     return "Data indisponível";
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -69,6 +70,7 @@ function formatDate(value: string): string {
 }
 
 export default function ExploreActivitiesPage() {
+  const { t, locale } = useTranslation();
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<ActivityType | "ALL">("ALL");
@@ -119,27 +121,27 @@ export default function ExploreActivitiesPage() {
     <RoleBasedLayout
       area="student"
       allowedRoles={["STUDENT"]}
-      title="Atividades disponíveis"
-      description="Encontre atividades publicadas e pratique seus conhecimentos."
+      title={t("activities.student.title")}
+      description={t("activities.student.description")}
       titleActions={(
         <Link
           href="/dashboard"
           className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           <ArrowLeft size={16} aria-hidden="true" />
-          Painel inicial
+          {t("activities.dashboard")}
         </Link>
       )}
     >
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark">
           <SlidersHorizontal size={17} aria-hidden="true" />
-          Buscar e filtrar atividades
+          {t("activities.filters")}
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="relative block md:col-span-1">
-            <span className="sr-only">Buscar por título ou descrição</span>
+            <span className="sr-only">{t("activities.searchLabel")}</span>
             <Search
               size={17}
               aria-hidden="true"
@@ -152,13 +154,13 @@ export default function ExploreActivitiesPage() {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Buscar atividade..."
+              placeholder={t("activities.searchPlaceholder")}
               className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
           </label>
 
           <label className="block">
-            <span className="sr-only">Filtrar por tipo</span>
+            <span className="sr-only">{t("activities.filterType")}</span>
             <select
               value={typeFilter}
               onChange={(event) => {
@@ -167,7 +169,7 @@ export default function ExploreActivitiesPage() {
               }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
-              <option value="ALL">Todos os tipos</option>
+              <option value="ALL">{t("activities.allTypes")}</option>
               {Object.entries(activityTypeLabels).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
@@ -177,7 +179,7 @@ export default function ExploreActivitiesPage() {
           </label>
 
           <label className="block">
-            <span className="sr-only">Filtrar por dificuldade</span>
+            <span className="sr-only">{t("activities.filterDifficulty")}</span>
             <select
               value={difficultyFilter}
               onChange={(event) => {
@@ -188,7 +190,7 @@ export default function ExploreActivitiesPage() {
               }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
-              <option value="ALL">Todas as dificuldades</option>
+              <option value="ALL">{t("activities.allDifficulties")}</option>
               {Object.entries(difficultyLabels).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
@@ -222,7 +224,7 @@ export default function ExploreActivitiesPage() {
           className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
         >
           <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
-          <p className="text-sm text-muted">Carregando atividades...</p>
+          <p className="text-sm text-muted">{t("activities.loading")}</p>
         </section>
       ) : !errorMessage && result && result.items.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
@@ -230,12 +232,12 @@ export default function ExploreActivitiesPage() {
             <BookOpen size={26} aria-hidden="true" />
           </span>
           <h2 className="mt-5 text-lg font-semibold text-dark">
-            Nenhuma atividade encontrada
+            {t("activities.noneFound")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             {search || typeFilter !== "ALL" || difficultyFilter !== "ALL"
-              ? "Tente alterar os termos da busca ou os filtros selecionados."
-              : "Quando novas atividades forem publicadas, elas aparecerão aqui."}
+              ? t("activities.adjustFilters")
+              : t("activities.awaitPublication")}
           </p>
           {(search || typeFilter !== "ALL" || difficultyFilter !== "ALL") && (
             <button
@@ -257,13 +259,13 @@ export default function ExploreActivitiesPage() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted" aria-live="polite">
               {result.pagination.total === 1
-                ? "1 atividade encontrada"
-                : `${result.pagination.total} atividades encontradas`}
+                ? t("activities.countOne")
+                : t("activities.countMany").replace("{count}", String(result.pagination.total))}
             </p>
           </div>
 
           <section
-            aria-label="Atividades disponíveis"
+            aria-label={t("activities.availableList")}
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
             {result.items.map((activity) => (
@@ -276,14 +278,14 @@ export default function ExploreActivitiesPage() {
                 <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                   {activity.latestVersion && (
                     <span>
-                      Dificuldade:{" "}
+                      {t("activities.difficulty")}{" "}
                       <strong className="font-semibold text-dark">
                         {difficultyLabels[activity.latestVersion.difficulty]}
                       </strong>
                     </span>
                   )}
                   
-                  <span>Publicada em {formatDate(activity.createdAt)}</span>
+                  <span>{t("activities.publishedAt").replace("{date}", formatDate(activity.createdAt))}</span>
                 </div>
               </div>
                 <div className="flex-1">
@@ -310,7 +312,7 @@ export default function ExploreActivitiesPage() {
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <span className="text-xs text-muted">
                     {activity.executionCount}{" "}
-                    {activity.executionCount === 1 ? "execução" : "execuções"}
+                    {activity.executionCount === 1 ? t("activities.executionCountOne") : t("activities.executionCountMany")}
                   </span>
 
                   {activity.type === "word_search" ? (
@@ -382,7 +384,7 @@ export default function ExploreActivitiesPage() {
 
           {result.pagination.totalPages > 1 && (
             <nav
-              aria-label="Paginação da biblioteca"
+              aria-label={t("activities.libraryPagination")}
               className="mt-8 flex items-center justify-center gap-3"
             >
               <button
@@ -395,7 +397,7 @@ export default function ExploreActivitiesPage() {
                 Anterior
               </button>
               <span className="text-sm text-muted">
-                Página {result.pagination.page} de {result.pagination.totalPages}
+                {t("activities.pageOf").replace("{page}", String(result.pagination.page)).replace("{total}", String(result.pagination.totalPages))}
               </span>
               <button
                 type="button"
