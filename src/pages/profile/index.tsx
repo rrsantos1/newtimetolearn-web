@@ -55,7 +55,7 @@ export default function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
+  }, [reloadKey, t]);
 
   const handleSave = async (values: UpdateUserProfileFormValues) => {
     setIsSaving(true);
