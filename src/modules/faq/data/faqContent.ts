@@ -130,3 +130,97 @@ export const studentFaq: FaqItem[] = [
     answer: "O vínculo deixa de ficar ativo. Se precisar de acompanhamento novamente, será necessário estabelecer um novo vínculo por convite.",
   },
 ];
+
+
+export const subscriptionFaq: FaqItem[] = [
+  {
+    question: "Quais planos estão disponíveis para professores?",
+    answer: "O plano Gratuito oferece até 500 MB de armazenamento, até 5 alunos ativos ou convidados e exibição de anúncios. O plano Professor custa R$ 5,90 por mês, oferece 5 GB de armazenamento, alunos ilimitados e remove os anúncios.",
+  },
+  {
+    question: "Como faço para contratar o plano Professor?",
+    answer: "Na página Plano e assinatura, selecione a opção para assinar. Quando a integração de pagamento estiver habilitada, você será direcionado ao checkout para concluir a contratação.",
+  },
+  {
+    question: "Como acompanho minha assinatura?",
+    answer: "A página Plano e assinatura exibe o plano atual, o status da assinatura, o limite de armazenamento, a quantidade de alunos e a situação dos anúncios.",
+  },
+  {
+    question: "Como cancelar minha assinatura?",
+    answer: "Quando houver uma assinatura gerenciável, a página Plano e assinatura exibirá a opção Cancelar assinatura. O sistema solicitará confirmação antes de enviar o pedido.",
+  },
+  {
+    question: "O que acontece se meu pagamento ficar pendente ou a assinatura expirar?",
+    answer: "O status será apresentado na página Plano e assinatura. A disponibilidade dos benefícios pagos depende da situação atual da assinatura confirmada pelo sistema.",
+  },
+  {
+    question: "A assinatura é necessária para vender materiais no Marketplace?",
+    answer: "Sim. Para professores, a publicação de materiais para venda exige uma assinatura Professor ativa. Materiais cadastrados pela administração seguem regras próprias.",
+  },
+];
+
+export const marketplaceFaq: FaqItem[] = [
+  {
+    question: "O que é o Marketplace?",
+    answer: "É um espaço para encontrar materiais didáticos preparados por professores, consultar suas prévias e adquirir arquivos ou materiais disponibilizados como cópia no Google Slides.",
+  },
+  {
+    question: "Como faço para comprar um material?",
+    answer: "Abra a página do material, confira a descrição, o preço e as páginas de prévia. Informe um e-mail válido e selecione Comprar material para iniciar o pagamento.",
+  },
+  {
+    question: "Preciso ter uma conta para comprar?",
+    answer: "A compra pode ser iniciada informando um e-mail. Para consultar Minhas compras dentro da plataforma, entre ou crie uma conta usando o mesmo endereço informado na compra e confirme esse e-mail.",
+  },
+  {
+    question: "Como recebo um material comprado?",
+    answer: "Para materiais em arquivo, a área Minhas compras disponibiliza o download do original após a confirmação do pagamento. Para materiais Google Slides, ela apresenta o link para criar sua própria cópia.",
+  },
+  {
+    question: "Como funciona a prévia dos materiais?",
+    answer: "As páginas disponibilizadas pelo vendedor podem ser consultadas antes da compra. As prévias exibidas pela plataforma recebem marca d'água do TimeToLearn.",
+  },
+  {
+    question: "Como vender materiais no Marketplace?",
+    answer: "O professor precisa conectar sua própria conta do Mercado Pago e ter uma assinatura Professor ativa. Depois, pode cadastrar um arquivo PDF, PPT ou PPTX, ou disponibilizar um link do Google Slides acompanhado de um PDF para prévia.",
+  },
+  {
+    question: "Os materiais enviados pelos professores são publicados imediatamente?",
+    answer: "Não. Os materiais enviados por professores passam por análise administrativa e só aparecem publicamente depois da aprovação. Materiais cadastrados pela administração são publicados imediatamente.",
+  },
+  {
+    question: "Qual é a comissão sobre as vendas?",
+    answer: "O TimeToLearn retém uma comissão de 20% sobre cada venda realizada por professores. As tarifas de processamento do Mercado Pago são cobradas separadamente.",
+  },
+  {
+    question: "Como funciona a entrega de um material do Google Slides?",
+    answer: "O comprador recebe acesso ao link para criar uma cópia no próprio Google Drive. É necessário estar conectado a uma conta Google e o compartilhamento do material precisa estar configurado pelo vendedor para permitir a cópia.",
+  },
+  {
+    question: "Onde encontro minhas compras?",
+    answer: "Acesse Minhas compras no Marketplace. Essa área exige que você esteja conectado à conta associada ao e-mail utilizado na compra.",
+  },
+];
+
+export const adminFaq: FaqItem[] = [
+  {
+    question: "Como funciona a aprovação de atividades?",
+    answer: "As atividades enviadas pelos professores ficam disponíveis na área administrativa para revisão. A administração pode aprovar, solicitar alterações ou rejeitar uma atividade.",
+  },
+  {
+    question: "Como disponibilizar uma atividade na página inicial?",
+    answer: "Na administração de atividades, atividades publicadas podem ter sua visibilidade pública ativada ou desativada pela ação correspondente.",
+  },
+  {
+    question: "Como funciona a moderação do Marketplace?",
+    answer: "Os materiais enviados por professores ficam na fila de moderação. A administração pode revisar a descrição e o material e então aprovar para publicar ou rejeitar.",
+  },
+  {
+    question: "Materiais cadastrados pela administração também precisam de aprovação?",
+    answer: "Não. Materiais cadastrados pela administração são publicados imediatamente e não exigem assinatura de professor.",
+  },
+  {
+    question: "O que acontece quando um material é rejeitado?",
+    answer: "Ele não é publicado no Marketplace. O professor poderá consultar o status do material na área Marketplace do professor.",
+  },
+];
