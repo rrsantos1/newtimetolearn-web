@@ -130,7 +130,7 @@ export default function RegisterPage() {
       <main className="min-h-screen bg-background">
         <PublicHeader />
         <section className="flex min-h-[calc(100vh-5.5rem)] items-center justify-center px-5 py-12">
-        <section className="w-full max-w-lg rounded-3xl border border-border bg-white p-7 text-center shadow-xl shadow-zinc-200/40 sm:p-10">
+          <section className="w-full max-w-lg rounded-3xl border border-border bg-white p-7 text-center shadow-xl shadow-zinc-200/40 sm:p-10">
           <span className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-green-50 text-green-700">
             <CheckCircle2 size={32} aria-hidden="true" />
           </span>
@@ -154,6 +154,7 @@ export default function RegisterPage() {
             {t("register.backHome")}
             <ArrowRight size={18} aria-hidden="true" />
           </Link>
+          </section>
         </section>
       </main>
     );
