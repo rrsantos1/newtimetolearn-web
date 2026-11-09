@@ -47,7 +47,8 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 function RankingList({ ranking }: Readonly<{ ranking: DragDropRankingEntry[] }>) {
-  if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">Ainda não há resultados para esta atividade.</p>;
+  const { t } = useTranslation();
+  if (ranking.length === 0) return <p className="mt-3 text-sm text-muted">{t("play.noRanking")}</p>;
   return <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">{ranking.slice(0, 5).map((entry) => <li key={`${entry.position}-${entry.createdAt}`} className="flex items-center justify-between gap-3 px-3 py-3"><div className="flex min-w-0 items-center gap-3"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-dark">{entry.position}</span><div className="min-w-0"><p className="truncate text-sm font-semibold text-dark">{entry.studentName}</p></div></div><span className="shrink-0 text-sm font-bold text-dark">{entry.score} pts</span></li>)}</ol>;
 }
 
@@ -83,7 +84,7 @@ export default function SentenceCompletionPlayPage() {
     setRankingLoading(true);
     setRankingError("");
     try { setRanking(await dragDropActivityService.getRanking(activitySlug, "sentence-completion")); }
-    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError, "Não foi possível carregar o ranking.")); }
+    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError, t("play.loadingRanking"))); }
     finally { setRankingLoading(false); }
   }, [isStudent]);
 
@@ -96,12 +97,12 @@ export default function SentenceCompletionPlayPage() {
           ? (await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (loaded.type !== "sentence_completion") throw new Error("Esta atividade não é do tipo Complete as Frases.");
+        if (loaded.type !== "sentence_completion") throw new Error(t("activities.type.sentenceCompletion"));
         setActivity(loaded);
         setWords(shuffle(loaded.version.content.words));
         if (isStudent) void loadRanking(loaded.slug);
       } catch (loadError: unknown) {
-        if (active) setError(getErrorMessage(loadError, "Não foi possível carregar a atividade."));
+        if (active) setError(getErrorMessage(loadError, t("play.loading")));
       } finally {
         if (active) setLoading(false);
       }
@@ -197,7 +198,7 @@ export default function SentenceCompletionPlayPage() {
             </div>
           </div>}
           {phase === "finished" && <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7"><ConfettiCelebration active={isStudent && result !== null && result.attempt.totalItems > 0 && result.attempt.correctCount === result.attempt.totalItems} />
-                      <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />{t("play.correcting")}</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.correctCount} de {result.attempt.totalItems} lacunas corretas</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das lacunas</h3>{result.attempt.corrections.map((correction, index) => { const selectedWord = correction.selectedId ? words.find((word) => word.id === correction.selectedId) : undefined; const expectedWord = words.find((word) => word.id === correction.expectedId); return <div key={correction.itemId} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[auto_1fr_1fr] sm:items-center"><span className={`text-sm font-bold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>Lacuna {index + 1}: {correction.isCorrect ? "Correta" : "Incorreta"}</span><div><p className="text-xs text-muted">{t("play.yourAnswer")}</p><p className="text-sm font-semibold text-dark">{selectedWord?.text ?? "Não preenchida"}</p></div><div><p className="text-xs text-muted">{t("play.correctAnswer")}</p><p className="text-sm font-semibold text-dark">{expectedWord?.text ?? "Indisponível"}</p></div></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? "{t("play.rankingSuccess")}" : "{t("play.rankingMiss")}"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "A prévia foi concluída sem registrar resultado."}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.retry") : "Testar novamente"}</button></section>}
+                      <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />{t("play.correcting")}</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.correctCount} de {result.attempt.totalItems} lacunas corretas</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das lacunas</h3>{result.attempt.corrections.map((correction, index) => { const selectedWord = correction.selectedId ? words.find((word) => word.id === correction.selectedId) : undefined; const expectedWord = words.find((word) => word.id === correction.expectedId); return <div key={correction.itemId} className="grid gap-2 rounded-xl border border-border p-3 sm:grid-cols-[auto_1fr_1fr] sm:items-center"><span className={`text-sm font-bold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>Lacuna {index + 1}: {correction.isCorrect ? "Correta" : "Incorreta"}</span><div><p className="text-xs text-muted">{t("play.yourAnswer")}</p><p className="text-sm font-semibold text-dark">{selectedWord?.text ?? "Não preenchida"}</p></div><div><p className="text-xs text-muted">{t("play.correctAnswer")}</p><p className="text-sm font-semibold text-dark">{expectedWord?.text ?? "Indisponível"}</p></div></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? "{t("play.rankingSuccess")}" : "{t("play.rankingMiss")}"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || t("play.previewFinished")}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.retry") : "Testar novamente"}</button></section>}
         </div>
       ) : null}
     </PublicActivityLayout>
