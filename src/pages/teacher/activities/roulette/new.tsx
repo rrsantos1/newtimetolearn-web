@@ -32,7 +32,7 @@ function ScrollToFirstError() {
 const initialValues: CreateRouletteFormValues = { name: "", description: "", difficulty: "MEDIUM", content: { topics: [""] } };
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? t("activity.creation.error"); }
-  return "Ocorreu um erro inesperado.";
+  return t("activity.creation.unexpectedError");
 }
 export default function NewRoulettePage() {
   const { t, locale } = useTranslation();
