@@ -90,6 +90,7 @@ export default function TeacherMarketplacePage() {
         <PublicHeader />
         <p className="mx-auto max-w-4xl px-5 py-16 text-sm text-muted">Verificando acesso...</p>
         <FaqSection title="Dúvidas para vender no Marketplace" description="Consulte informações sobre cadastro, aprovação, recebimentos e entrega dos materiais." items={marketplaceFaq} />
+      <FaqSection title="Dúvidas para vender no Marketplace" description="Consulte informações sobre cadastro, aprovação, recebimentos e entrega dos materiais." items={marketplaceFaq} />
       <PublicFooter />      <PublicFooter />
       </main>
     );
