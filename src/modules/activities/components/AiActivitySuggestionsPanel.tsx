@@ -169,7 +169,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const distractors = suggestions.distractors.map((text) => ({ id: createId(), text }));
       await setFieldValue("content.words", [...existingWords, ...additionsWords, ...distractors].slice(0, 200));
       await setFieldValue("content.sentences", [...existingSentences, ...additions.map((item) => item.sentence)].slice(0, 100));
-      setNotice(additions.length + " frase(s) adicionada(s). Revise respostas e distratores antes de salvar.");
+      setNotice(t("activity.ai.addedSentencesCount").replace("{count}", String(additions.length)));
     } else {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { questions?: unknown } : {};
@@ -199,7 +199,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
   const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" || activityType === "word_matching" ? 50 : activityType === "sentence_completion" ? 20 : activityType === "roulette" ? 30 : 10;
   const minQuantity = activityType === "quiz" || activityType === "sentence_completion" ? 1 : activityType === "roulette" ? 2 : 3;
   const title = activityType === "word_search" ? t("activity.ai.generateIdeas")
-    : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : activityType === "word_matching" ? "Sugerir associações com IA" : activityType === "sentence_completion" ? "Sugerir frases com lacunas com IA" : activityType === "roulette" ? "Sugerir assuntos com IA" : "Criar questões com IA";
+    : activityType === "crossword" ? t("activity.ai.suggestCrossword") : activityType === "memory" ? t("activity.ai.suggestMemory") : activityType === "word_matching" ? t("activity.ai.suggestMatches") : activityType === "sentence_completion" ? t("activity.ai.suggestSentences") : activityType === "roulette" ? t("activity.ai.suggestTopics") : t("activity.ai.createQuestions");
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
     ? suggestions.words.length : suggestions.activityType === "crossword"
@@ -221,18 +221,18 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
           <p className="mt-1 text-sm leading-6 text-muted">{t("activity.ai.optional")}</p>
         </div>
         </div>
-        <button type="button" onClick={onClose} aria-label="Fechar sugestões com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-amber-300 text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
+        <button type="button" onClick={onClose} aria-label={t("activity.ai.closeSuggestions")} className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-amber-300 text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
           <X aria-hidden="true" size={18} />
         </button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label htmlFor="ai-topic" className="mb-2 block text-sm font-medium text-dark">Tema *</label>
+          <label htmlFor="ai-topic" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.topic")} *</label>
           <input id="ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} placeholder={t("activity.ai.topicPlaceholder")} className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="ai-quantity" className="mb-2 block text-sm font-medium text-dark">Quantidade</label>
+          <label htmlFor="ai-quantity" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.quantity")}</label>
           <input id="ai-quantity" type="number" min={minQuantity} max={maxQuantity} value={quantity} onChange={(event) => setQuantity(Number(event.target.value))} className={fieldClass} />
         </div>
         <div>
@@ -243,13 +243,13 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         </div>
         <div>
           <label htmlFor="ai-grade" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.grade")}</label>
-          <input id="ai-grade" value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} maxLength={80} placeholder="Ex.: 6º ano do Ensino Fundamental" className={fieldClass} />
+          <input id="ai-grade" value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} maxLength={80} placeholder={t("activity.ai.gradePlaceholder")} className={fieldClass} />
         </div>
         {activityType === "quiz" && (
           <div>
             <label htmlFor="ai-option-count" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.optionCount")}</label>
             <select id="ai-option-count" value={optionCount} onChange={(event) => setOptionCount(Number(event.target.value))} className={fieldClass}>
-              {[3, 4, 5, 6].map((count) => <option key={count} value={count}>{count} alternativas</option>)}
+              {[3, 4, 5, 6].map((count) => <option key={count} value={count}>{count} {t("activity.ai.alternatives")}</option>)}
             </select>
           </div>
         )}
