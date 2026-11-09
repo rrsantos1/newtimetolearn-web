@@ -14,9 +14,11 @@ import type { UpdateUserProfileFormValues } from "@/modules/users/schemas/update
 import { userProfileService } from "@/modules/users/services/userProfileService";
 import { EmailChangeRequestForm } from "@/modules/auth/components/EmailChangeRequestForm";
 import { ChangePasswordForm } from "@/modules/auth/components/ChangePasswordForm";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ProfilePage() {
   const { refreshProfile } = useAuth();
+  const { t } = useTranslation();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function ProfilePage() {
         if (cancelled) return;
 
         setErrorMessage(
-          "Não foi possível carregar seu perfil. Tente novamente."
+          t("profile.loadFailed")
         );
       })
       .finally(() => {
@@ -66,7 +68,7 @@ export default function ProfilePage() {
       setProfile(updatedProfile);
       await refreshProfile();
 
-      setSuccessMessage("Seu perfil foi atualizado com sucesso.");
+      setSuccessMessage(t("profile.updated"));
     } catch (error: unknown) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const response = error.response?.data;
@@ -76,12 +78,12 @@ export default function ProfilePage() {
         } else {
           setErrorMessage(
             error.response
-              ? "Não foi possível atualizar seu perfil."
-              : "Falha de conexão. Verifique sua internet e tente novamente.",
+              ? t("profile.updateFailed")
+              : t("profile.connectionFailed"),
           );
         }
       } else {
-        setErrorMessage("Ocorreu um erro inesperado ao atualizar o perfil.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsSaving(false);
@@ -89,9 +91,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <AuthenticatedLayout title="Meu perfil">
+    <AuthenticatedLayout title={t("profile.title")}>
       {isLoading ? (
-        <LoadingState label="Carregando seu perfil..." />
+        <LoadingState label={t("profile.loading")} />
       ) : (
         <div className="space-y-6">
           {errorMessage && (
@@ -137,10 +139,10 @@ export default function ProfilePage() {
 
                   <div>
                     <h2 className="text-lg font-bold text-dark">
-                      Dados pessoais
+                      {t("profile.personal")}
                     </h2>
                     <p className="mt-1 text-sm text-muted">
-                      Atualize o nome associado à sua conta.
+                      {t("profile.personalDescription")}
                     </p>
                   </div>
                 </div>
@@ -155,7 +157,7 @@ export default function ProfilePage() {
 
               <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
                 <h2 className="mb-5 text-lg font-bold text-dark">
-                  Informações da conta
+                  {t("profile.accountInfo")}
                 </h2>
 
                 <UserProfileDetails profile={profile} />
@@ -169,10 +171,10 @@ export default function ProfilePage() {
 
                     <div>
                     <h2 className="text-lg font-bold text-dark">
-                        Alterar e-mail
+                        {t("profile.changeEmail")}
                     </h2>
                     <p className="mt-1 text-sm text-muted">
-                        E-mail atual: {profile.email}
+                        {t("profile.currentEmail")} {profile.email}
                     </p>
                     </div>
                 </div>
@@ -187,8 +189,7 @@ export default function ProfilePage() {
                 )}
 
                 <p className="mb-5 text-sm leading-6 text-muted">
-                    Após solicitar a alteração, confira sua caixa de entrada e siga as
-                    instruções da mensagem de confirmação.
+                    {t("profile.emailInstructions")}
                 </p>
 
                 <EmailChangeRequestForm
@@ -205,11 +206,11 @@ export default function ProfilePage() {
 
                     <div>
                     <h2 className="text-lg font-bold text-dark">
-                        Alterar senha
+                        {t("profile.changePassword")}
                     </h2>
 
                     <p className="mt-1 text-sm text-muted">
-                        Mantenha sua conta protegida utilizando uma senha segura.
+                        {t("profile.passwordDescription")}
                     </p>
                     </div>
                 </div>
