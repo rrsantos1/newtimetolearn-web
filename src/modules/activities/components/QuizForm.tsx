@@ -173,7 +173,7 @@ const initialValues: CreateQuizFormValues = {
   content: { questions: [createQuestion()] },
 };
 
-export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues }: Readonly<QuizFormProps>) {
+export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<QuizFormProps>) {
   const { t } = useTranslation();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
