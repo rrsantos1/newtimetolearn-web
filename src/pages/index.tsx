@@ -10,6 +10,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { homeFaq } from "@/modules/faq/data/faqContent";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useEffect, useState } from "react";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
@@ -266,6 +268,8 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      <FaqSection title="Dúvidas sobre o TimeToLearn" description="Entenda como a plataforma funciona e conheça os recursos disponíveis para professores e alunos." items={homeFaq} />
 
       <section className="bg-[#142b4a]">
         <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center justify-between gap-6 px-6 py-12 text-center sm:px-10 md:px-14 lg:flex-row lg:px-16 lg:text-center">
