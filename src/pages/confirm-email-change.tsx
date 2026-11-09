@@ -6,16 +6,18 @@ import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { emailChangeService } from "@/modules/auth/services/emailChangeService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type ConfirmationStatus = "loading" | "success" | "error";
 
 export default function ConfirmEmailChangePage() {
   const router = useRouter();
   const { refreshProfile } = useAuth();
+  const { t } = useTranslation();
 
   const [status, setStatus] = useState<ConfirmationStatus>("loading");
   const [message, setMessage] = useState(
-    "Estamos confirmando a alteração do seu e-mail.",
+    t("confirm.loading"),
   );
 
   const token = router.query.token;
@@ -29,7 +31,7 @@ export default function ConfirmEmailChangePage() {
     : status;
 
   const visibleMessage = isInvalidToken
-    ? "O link de confirmação é inválido ou está incompleto."
+    ? t("confirm.invalid")
     : message;
 
   useEffect(() => {
@@ -64,12 +66,12 @@ export default function ConfirmEmailChangePage() {
           } else {
             setMessage(
               error.response
-                ? "Não foi possível confirmar a alteração do e-mail."
-                : "Falha de conexão. Verifique sua internet e tente novamente.",
+                ? t("confirm.failed")
+                : t("profile.connectionFailed"),
             );
           }
         } else {
-          setMessage("Ocorreu um erro inesperado ao confirmar o e-mail.");
+          setMessage(t("auth.unexpected"));
         }
 
         setStatus("error");
@@ -109,10 +111,10 @@ export default function ConfirmEmailChangePage() {
 
           <h1 className="mt-6 text-2xl font-bold text-dark">
             {visibleStatus === "loading"
-              ? "Confirmando seu e-mail"
+              ? t("confirm.titleLoading")
               : visibleStatus === "success"
-                ? "E-mail alterado"
-                : "Não foi possível confirmar"}
+                ? t("confirm.titleSuccess")
+                : t("confirm.titleError")}
           </h1>
 
           <p
@@ -133,10 +135,10 @@ export default function ConfirmEmailChangePage() {
               {status === "success" ? (
                 <>
                   <Mail size={17} aria-hidden="true" />
-                  Voltar ao perfil
+                  {t("confirm.backProfile")}
                 </>
               ) : (
-                "Ir para o login"
+                t("verify.login")
               )}
             </button>
           )}
