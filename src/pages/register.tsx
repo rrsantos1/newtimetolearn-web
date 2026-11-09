@@ -51,7 +51,7 @@ export default function RegisterPage() {
           },
         );
 
-        setSuccessMessage(response.data.data.message);
+        setSuccessMessage(t("register.successFallback"));
         helpers.resetForm();
       } catch (error: unknown) {
         if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -67,7 +67,7 @@ export default function RegisterPage() {
             }
 
             if (data.error.code === "VERIFICATION_EMAIL_FAILED") {
-              setNotice(data.error.message);
+              setNotice(t("register.failed"));
               return;
             }
 
