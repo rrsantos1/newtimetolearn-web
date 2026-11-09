@@ -752,7 +752,7 @@ export function NotebookWorkspace({
                               </div>
                             ) : entry.kind === "ACTIVITY_LINK" ? (
                               <div className="p-2">
-                                  <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
+                                  <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || t("notebook.activity")}</p>
                                   <a href={contentText(entry.content.url)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
                                     {t("notebook.openActivity")} <ExternalLink size={14} aria-hidden="true" />
                                   </a>
@@ -1133,7 +1133,7 @@ export function NotebookWorkspace({
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setEditingLink(null)} disabled={isSavingEdit} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">{t("notebook.cancel")}</button>
               <button type="submit" disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : editingLink.id ? t("notebook.saveChanges")  : t("notebook.publishLink")}
+                <Save size={15} aria-hidden="true" /> {isSavingEdit ? t("notebook.saving") : editingLink.id ? t("notebook.saveChanges")  : t("notebook.publishLink")}
               </button>
             </div>
           </form>
