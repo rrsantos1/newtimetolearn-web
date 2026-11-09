@@ -414,7 +414,7 @@ export default function NewListeningPage() {
               </div>
               <div className="mt-4">
                 <label htmlFor={`passage-text-${passage.id}`} className="block text-sm font-medium text-dark">Texto completo * <span className="font-normal text-muted">({passage.text.length}/4096)</span></label>
-                <textarea ref={(element) => { textareas.current[passage.id] = element; }} id={`passage-text-${passage.id}`} value={passage.text} onChange={(event) => handleTextChange(passage.id, event)} maxLength={4096} rows={7} required className="mt-1 w-full rounded-xl border border-border bg-background p-3 leading-7 text-dark" placeholder=t("activity.listening.passageTextPlaceholder") />
+                <textarea ref={(element) => { textareas.current[passage.id] = element; }} id={`passage-text-${passage.id}`} value={passage.text} onChange={(event) => handleTextChange(passage.id, event)} maxLength={4096} rows={7} required className="mt-1 w-full rounded-xl border border-border bg-background p-3 leading-7 text-dark" placeholder={t("activity.listening.passageTextPlaceholder")} />
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <button type="button" onMouseDown={ignoreSelection} onClick={() => addSelectedBlank(passage)} disabled={!passage.text} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-dark px-3 text-sm font-semibold text-white disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><CirclePlus aria-hidden="true" size={17} /> Adicionar lacuna da seleção</button>
                   <span className="text-xs text-muted">A narração inclui também as palavras ocultas.</span>
@@ -440,7 +440,7 @@ export default function NewListeningPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-dark">{blankIndex + 1}. “{blank.expectedAnswer}”</p>
                         <label htmlFor={`blank-alternatives-${blank.id}`} className="mt-2 block text-xs font-medium text-muted">Respostas alternativas, separadas por ponto e vírgula (opcional)</label>
-                        <input id={`blank-alternatives-${blank.id}`} value={blank.alternatives.join("; ")} onChange={(event) => updateBlank(passage.id, blank.id, event.target.value)} className="mt-1 min-h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm text-dark" placeholder=t("activity.listening.alternativePlaceholder") />
+                        <input id={`blank-alternatives-${blank.id}`} value={blank.alternatives.join("; ")} onChange={(event) => updateBlank(passage.id, blank.id, event.target.value)} className="mt-1 min-h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm text-dark" placeholder={t("activity.listening.alternativePlaceholder")} />
                       </div>
                       <button type="button" aria-label={`Remover lacuna ${blank.expectedAnswer}`} onClick={() => updatePassage(passage.id, (current) => ({ ...current, blanks: current.blanks.filter((item) => item.id !== blank.id) }))} className="inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-lg px-3 text-sm text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Trash2 aria-hidden="true" size={16} /> Remover</button>
                     </div>
