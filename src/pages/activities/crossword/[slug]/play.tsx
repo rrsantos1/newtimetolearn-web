@@ -281,7 +281,7 @@ export default function PlayCrosswordPage() {
                           <p className="mt-1 text-sm text-muted">{t("play.accuracy")}:  {attemptResult.attempt.accuracyPoints}/100</p>
                         </div>
                         <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
-                          {attemptResult.isInRanking ? "{t("activities.play.congratsTop5")}" : "{t("activities.play.notTop5")}"}
+                          {attemptResult.isInRanking ? t("activities.play.congratsTop5") : t("activities.play.notTop5")}
                         </p>
                       </div>
                       <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("activities.play.recordUpdated")}</h2></div><RankingList ranking={ranking} /></div>
