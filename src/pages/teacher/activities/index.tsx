@@ -475,13 +475,13 @@ export default function TeacherActivitiesPage() {
             aria-label="Lista de atividades"
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
-            {result.items.map((activity) => (
+            {result.items.map((activity, index) => (
               <article
                 key={activity.slug}
                 className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
               >
                 <div className="mb-4 flex items-start gap-4">
-                  <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                  <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" loading={index === 0 ? "eager" : "lazy"} />
                   <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                     {activity.latestVersion && (
                       <span>
