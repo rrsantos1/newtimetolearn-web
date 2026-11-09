@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -9,7 +10,7 @@ import { MemoryForm } from "@/modules/activities/components/MemoryForm";
 import { createMemoryService } from "@/modules/activities/services/createMemoryService";
 import type { CreateMemoryFormValues } from "@/modules/activities/schemas/createMemorySchema";
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
     return data?.error?.message ?? data?.message ?? t("activity.creation.error");
@@ -29,7 +30,7 @@ export default function NewMemoryPage() {
       if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     }
-    catch (error: unknown) { setSubmitError(getErrorMessage(error)); }
+    catch (error: unknown) { setSubmitError(getErrorMessage(error, t)); }
   }
   return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.memory")} description={t("activity.page.description.memory")}>
     {success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-6 text-center shadow-sm sm:p-8" aria-labelledby="memory-created-title">
