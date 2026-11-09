@@ -20,6 +20,7 @@ import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { useRouter } from "next/router";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 interface LoginFormValues {
   email: string;
@@ -32,7 +33,7 @@ export default function LoginPage() {
   const [requiresEmailVerification, setRequiresEmailVerification] = useState(false);
   const { setSession } = useAuth();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const loginSchema = Yup.object({
     email: Yup.string().trim().email(t("auth.email") === "Email address" ? "Enter a valid email address." : "Informe um e-mail válido.").required(t("auth.email") === "Email address" ? "Enter your email address." : "Informe seu e-mail."),
     password: Yup.string().required(t("auth.password") === "Password" ? "Enter your password." : "Informe sua senha."),
@@ -80,7 +81,7 @@ export default function LoginPage() {
                 );
                 break;
               default:
-                setNotice(data.error.message);
+                setNotice(translateApiError(error, locale, "auth.loginFailed"));
             }
           } else {
             setNotice(
