@@ -1567,9 +1567,7 @@ const translations = {
 
 export type TranslationKey = keyof typeof translations.en;
 
-export function transla    "forgot.sentNotice": "Se houver uma conta associada a este e-mail, as instruções de recuperação serão enviadas em instantes.",
-    "confirm.success": "Seu endereço de e-mail foi atualizado com sucesso.",
-te(locale: string | undefined, key: TranslationKey): string {
+export function translate(locale: string | undefined, key: TranslationKey): string {
   const normalizedLocale: AppLocale = locale === "pt-BR" ? "pt-BR" : "en";
   return translations[normalizedLocale][key];
 }
