@@ -143,6 +143,16 @@ export const activitiesFaq: FaqItem[] = [
   },
 ];
 
+
+export const teacherStudentsFaqEn: FaqItem[] = [
+  { question: "How do I invite a student?", answer: "In the My students area, enter the email address the student used to register and send the invitation. The student must sign in and accept it to activate the connection." },
+  { question: "What happens after an invitation is sent?", answer: "The invitation appears as pending for the teacher and becomes available to the student in the My teachers area. The connection remains inactive until the student accepts." },
+  { question: "Can a student decline or cancel an invitation?", answer: "Yes. Students can accept or decline received invitations. They can also cancel a pending invitation, and teachers can cancel invitations they sent." },
+  { question: "How do I open a student's digital notebook?", answer: "In the list of students with an active connection, select Open notebook to access that student's shared notebook." },
+  { question: "What can be organized in the digital notebook?", answer: "The notebook organizes records by date, supports content and attachments, and allows messages related to those records. It is a shared space for teachers and students." },
+  { question: "Can a teacher end a connection?", answer: "Yes. In the My students area, teachers can end an active connection when ongoing support between the teacher and student is no longer needed." },
+];
+
 export const teacherStudentsFaq: FaqItem[] = [
   {
     question: "Como convidar um aluno?",
