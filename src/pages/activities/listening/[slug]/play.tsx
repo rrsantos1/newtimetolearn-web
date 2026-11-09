@@ -85,8 +85,9 @@ function PassageText({
 }
 
 function RankingList({ result }: Readonly<{ result: ListeningAttemptResult }>) {
+  const { t } = useTranslation();
   if (result.ranking.length === 0) {
-    return <p className="mt-3 text-sm text-muted">Ainda não há resultados no ranking.</p>;
+    return <p className="mt-3 text-sm text-muted">{t("play.noRanking")}</p>;
   }
 
   return (
@@ -229,7 +230,7 @@ export default function PlayListeningPage() {
   return (
     <PublicActivityLayout immersive
       title={activity?.version.name ?? "Listening"}
-      description={activity?.version.description ?? "Ouça os áudios e preencha as lacunas."}
+      description={activity?.version.description ?? t("play.readyDescription")}
       titleActions={
         <div className="flex shrink-0 items-center gap-2">
           <ActivitySoundToggle />
@@ -262,7 +263,7 @@ export default function PlayListeningPage() {
                 <button type="button" onClick={startActivity} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                 </button>
-                {!isStudent && <p className="mt-3 text-xs text-muted">A prévia não será registrada no histórico dos alunos.</p>}
+                {!isStudent && <p className="mt-3 text-xs text-muted">{t("play.previewOnly")}</p>}
               </section>
             )}
 
@@ -303,7 +304,7 @@ export default function PlayListeningPage() {
             {phase === "finished" && (
               <section className="space-y-6 rounded-2xl border border-cyan-200 bg-cyan-50/50 p-5 shadow-sm sm:p-8">
                 {submitting ? (
-                  <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />Corrigindo as respostas e registrando o resultado...</div>
+                  <div role="status" className="flex items-center gap-3 text-sm font-medium text-muted"><LoaderCircle size={20} className="animate-spin" aria-hidden="true" />{t("play.correcting")}</div>
                 ) : submitError ? (
                   <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                     <p>{submitError}</p>
@@ -316,10 +317,10 @@ export default function PlayListeningPage() {
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
                       {result ? (
                         <>
-                          <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
+                          <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 {t("play.scoreSuffix")}</span></p>
                           <p className="mt-2 text-sm text-muted">Respostas corretas: {result.attempt.correctBlanks} de {result.attempt.totalBlanks}</p>
                           
-                          <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
+                          <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingRecorded")}</p>
                         </>
                       ) : (
                         <p className="mt-2 text-sm text-muted">{previewNotice || t("play.previewFinished")}.</p>
@@ -333,7 +334,7 @@ export default function PlayListeningPage() {
                           <RankingList result={result} />
                         </div>
                         <div className="space-y-3">
-                          <h2 className="text-lg font-bold text-dark">Revisão das respostas</h2>
+                          <h2 className="text-lg font-bold text-dark">{t("play.correction")}</h2>
                           {result.review.map((item, index) => (
                             <article key={answerKey(item.passageId, item.blankId)} className="rounded-xl border border-cyan-200 bg-cyan-50/40 p-4">
                               <div className="flex items-start gap-2">
