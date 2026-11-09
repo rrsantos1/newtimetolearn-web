@@ -54,7 +54,7 @@ export default function ConfirmEmailChangePage() {
         if (!isMounted) return;
 
         setStatus("success");
-        setMessage(result);
+        setMessage(t("confirm.success"));
       } catch (error: unknown) {
         if (!isMounted) return;
 
@@ -62,7 +62,7 @@ export default function ConfirmEmailChangePage() {
           const response = error.response?.data;
 
           if (response?.success === false) {
-            setMessage(response.error.message);
+            setMessage(t("confirm.failed"));
           } else {
             setMessage(
               error.response
