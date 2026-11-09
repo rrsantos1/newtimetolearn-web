@@ -21,7 +21,7 @@ import type {
   ActivityListData,
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
-import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
+import { activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
 
 const PAGE_SIZE = 12;
 
@@ -170,7 +170,7 @@ export default function ExploreActivitiesPage() {
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">{t("activities.allTypes")}</option>
-              {Object.entries(activityTypeLabels).map(([value, label]) => (
+              {Object.entries(activityTypeTranslationKeys).map(([value, key]) => (
                 <option key={value} value={value}>
                   {t(key)}
                 </option>
@@ -193,7 +193,7 @@ export default function ExploreActivitiesPage() {
               <option value="ALL">{t("activities.allDifficulties")}</option>
               {Object.entries(difficultyKeys).map(([value, key]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(key)}
                 </option>
               ))}
             </select>
@@ -291,7 +291,7 @@ export default function ExploreActivitiesPage() {
                 <div className="flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                      {activityTypeLabels[activity.type] ?? activity.type}
+                      {t(activityTypeTranslationKeys[activity.type])}
                     </p>
                     <span className="inline-flex shrink-0 items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
                       Publicada
