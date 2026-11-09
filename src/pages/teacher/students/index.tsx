@@ -3,6 +3,8 @@ import axios from "axios";
 import Link from "next/link";
 import { BookOpen, Mail, RefreshCw, Search, UserMinus, Users } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { teacherStudentsFaq } from "@/modules/faq/data/faqContent";
 import {
   cancelInvitation,
   endTeacherStudentRelationship,
@@ -281,6 +283,7 @@ export default function TeacherStudentsPage() {
           </p>
         </aside>
       </div>
+      <FaqSection title="Dúvidas sobre o gerenciamento de alunos" description="Saiba como convidar alunos, acompanhar os vínculos e utilizar o caderno virtual compartilhado." items={teacherStudentsFaq} />
     </RoleBasedLayout>
   );
 }
