@@ -1523,6 +1523,10 @@ const translations = {
     "teacherStudents.loading": "Loading students...",
     "teacherStudents.history": "History",
     "teacherExplore.manyResults": "{count} activities found",
+    "activities.student.loadError": "Unable to load the activity library.",
+    "activities.student.unexpectedError": "An unexpected error occurred while loading the library.",
+    "activities.student.untitled": "Untitled activity",
+    "activities.student.dateUnavailable": "Date unavailable",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -3043,6 +3047,10 @@ const translations = {
     "teacherStudents.loading": "Carregando alunos...",
     "teacherStudents.history": "Histórico",
     "teacherExplore.manyResults": "{count} atividades encontradas",
+    "activities.student.loadError": "Não foi possível carregar a biblioteca de atividades.",
+    "activities.student.unexpectedError": "Ocorreu um erro inesperado ao carregar a biblioteca.",
+    "activities.student.untitled": "Atividade sem título",
+    "activities.student.dateUnavailable": "Data indisponível",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
