@@ -23,8 +23,9 @@ function ScrollToFirstError() {
 }
 function newWord(): CreateHangmanFormValues["content"]["words"][number] { return { id: "", word: "", clue: "", imageUrl: "", imageAlt: "", coverMediaAssetId: null, coverImageUrl: null, coverAltText: null }; }
 
-export function HangmanForm({ onSubmit, submitError, initialValues = defaultValues, submitLabel = "Criar atividade" }: Readonly<Props>) {
+export function HangmanForm({ onSubmit, submitError, initialValues = defaultValues, submitLabel }: Readonly<Props>) {
   const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.create");
   return <Formik<CreateHangmanFormValues> initialValues={initialValues} enableReinitialize validationSchema={createHangmanSchema} onSubmit={(values) => onSubmit({ ...values, content: { words: values.content.words.map((item) => ({ ...item, id: item.id || crypto.randomUUID(), word: item.word.trim(), clue: item.clue.trim(), imageUrl: null, imageAlt: item.coverAltText?.trim() || item.imageAlt, coverMediaAssetId: item.coverMediaAssetId ?? null, coverImageUrl: item.coverImageUrl?.trim() || null, coverAltText: item.coverAltText ?? null })) } })}>
     {({ isSubmitting, values, errors, submitCount }) => <Form noValidate className="space-y-6"><ScrollToFirstError /><ActivityCoverField title={t("activity.cover.title")} description={t("activity.form.coverHangman")} />
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7"><h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2><div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -41,7 +42,7 @@ export function HangmanForm({ onSubmit, submitError, initialValues = defaultValu
         </article>)}<button type="button" onClick={() => push(newWord())} disabled={values.content.words.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" />{t("activity.form.addWord")}</button><p className="text-xs text-muted">{values.content.words.length} de 30 palavras</p></div>}</FieldArray>
       </section>
       {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-      <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white disabled:opacity-50">{isSubmitting ? t("activity.form.savingChanges") : submitLabel}</button></div>
+      <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white disabled:opacity-50">{isSubmitting ? t("activity.form.saving") : effectiveSubmitLabel}</button></div>
     </Form>}
   </Formik>;
 }
