@@ -127,7 +127,7 @@ export default function PublicActivitiesPage() {
                   <ArrowLeft size={16} aria-hidden="true" /> {t("activities.previous")}
                 </button>
                 <button type="button" onClick={() => setPage((current) => Math.min(result.pagination.totalPages, current + 1))} disabled={page >= result.pagination.totalPages} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">
-                  Próxima <ArrowRight size={16} aria-hidden="true" />
+                  {t("activities.next")} <ArrowRight size={16} aria-hidden="true" />
                 </button>
               </div>
             </div>
