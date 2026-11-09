@@ -875,10 +875,6 @@ const translations = {
     "marketplace.downloadOriginal": "Download original",
     "marketplace.purchasesFaqTitle": "Questions about your purchases",
     "marketplace.purchasesFaqDescription": "Learn how to access purchased files and create copies of Google Slides resources.",
-    "faq.helpCenter": "Help center",
-    "faq.searchLabel": "Search frequently asked questions",
-    "faq.searchPlaceholder": "Search questions...",
-    "faq.empty": "No questions found. Try another search."
 
     "marketplace.productFallbackTitle": "Resource | Marketplace",
     "marketplace.notFound": "Resource not found or unavailable.",
@@ -1857,10 +1853,6 @@ const translations = {
     "marketplace.downloadOriginal": "Baixar original",
     "marketplace.purchasesFaqTitle": "Dúvidas sobre suas compras",
     "marketplace.purchasesFaqDescription": "Veja como acessar arquivos adquiridos e criar cópias de materiais do Google Slides.",
-    "faq.helpCenter": "Central de ajuda",
-    "faq.searchLabel": "Buscar perguntas frequentes",
-    "faq.searchPlaceholder": "Buscar perguntas...",
-    "faq.empty": "Nenhuma pergunta encontrada. Tente outra busca."
 
     "marketplace.productFallbackTitle": "Material | Marketplace",
     "marketplace.notFound": "Material não encontrado ou indisponível.",
