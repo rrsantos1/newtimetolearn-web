@@ -1,30 +1,37 @@
 import { CalendarDays, Mail, ShieldCheck, UserRound } from "lucide-react";
 import type { UserProfile } from "@/modules/auth/types/auth.types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserProfileDetailsProps {
   profile: UserProfile;
 }
 
-const roleLabels: Record<UserProfile["roles"][number], string> = {
-  ADMIN: "Administrador",
-  TEACHER: "Professor",
-  STUDENT: "Aluno",
-};
+function getRoleLabel(role: UserProfile["roles"][number], t: ReturnType<typeof useTranslation>["t"]): string {
+  const labels = {
+    ADMIN: t("profile.role.admin"),
+    TEACHER: t("profile.role.teacher"),
+    STUDENT: t("profile.role.student"),
+  };
+  return labels[role];
+}
 
-const statusLabels: Record<UserProfile["status"], string> = {
-  PENDING_VERIFICATION: "Aguardando verificação",
-  ACTIVE: "Ativa",
-  BLOCKED: "Bloqueada",
-};
+function getStatusLabel(status: UserProfile["status"], t: ReturnType<typeof useTranslation>["t"]): string {
+  const labels = {
+    PENDING_VERIFICATION: t("profile.status.pending"),
+    ACTIVE: t("profile.status.active"),
+    BLOCKED: t("profile.status.blocked"),
+  };
+  return labels[status];
+}
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Data indisponível";
+    return locale === "pt-BR" ? "Data indisponível" : "Date unavailable";
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -34,30 +41,31 @@ function formatDate(value: string): string {
 export function UserProfileDetails({
   profile,
 }: UserProfileDetailsProps) {
+  const { t, locale } = useTranslation();
   const roles = (profile.roles ?? [])
-    .map((role) => roleLabels[role])
+    .map((role) => getRoleLabel(role, t))
     .filter(Boolean)
     .join(", ");
 
   const details = [
     {
-      label: "E-mail",
+      label: t("auth.email"),
       value: profile.email,
       icon: Mail,
     },
     {
-        label: "Perfil de acesso",
-        value: roles || "Não definido",
+        label: t("profile.role"),
+        value: roles || t("profile.notDefined"),
         icon: ShieldCheck,
     },
     {
-      label: "Situação da conta",
-      value: statusLabels[profile.status],
+      label: t("profile.status"),
+      value: getStatusLabel(profile.status, t),
       icon: UserRound,
     },
     {
-      label: "Data de cadastro",
-      value: formatDate(profile.createdAt),
+      label: t("profile.createdAt"),
+      value: formatDate(profile.createdAt, locale),
       icon: CalendarDays,
     },
   ];
