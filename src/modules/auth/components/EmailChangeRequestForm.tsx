@@ -4,6 +4,7 @@ import { LoaderCircle, Send } from "lucide-react";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { emailChangeService } from "@/modules/auth/services/emailChangeService";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 interface EmailChangeRequestFormProps {
   currentEmail: string;
@@ -18,7 +19,7 @@ export function EmailChangeRequestForm({
   const [currentPassword, setCurrentPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -45,7 +46,7 @@ export function EmailChangeRequestForm({
         const response = error.response?.data;
 
         if (response?.success === false) {
-          setErrorMessage(response.error.message);
+          setErrorMessage(translateApiError(error, locale, "profile.email.failed"));
         } else {
           setErrorMessage(
             error.response
