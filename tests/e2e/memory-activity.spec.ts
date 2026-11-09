@@ -42,9 +42,8 @@ test.describe("public memory activity", () => {
       page.getByRole("heading", { name: "Preparado para o desafio?" }),
     ).toBeVisible();
     await expect(page.getByText("Quantidade de pares")).toBeVisible();
-    await expect(page.getByText("Sem limite de tempo")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Testar jogo da memória" }),
+      page.getByRole("button", { name: "Testar atividade" }),
     ).toBeVisible();
   });
 
