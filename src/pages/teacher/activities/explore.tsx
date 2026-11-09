@@ -21,7 +21,7 @@ import type {
   ActivityListData,
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
-import { activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
+import { activityTypeLabels, activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const PAGE_SIZE = 12;
@@ -245,8 +245,8 @@ export default function ExploreActivitiesPage() {
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             {search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly
-              ? "{t("teacherExplore.adjustFilters")}"
-              : "{t("teacherExplore.emptyDescription")}"}
+              ? t("teacherExplore.adjustFilters")
+              : t("teacherExplore.emptyDescription")}
           </p>
           {(search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly) && (
             <button
