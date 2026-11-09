@@ -3,8 +3,10 @@ import { useRouter } from "next/router";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { NotebookWorkspace } from "@/modules/notebooks/components/NotebookWorkspace";
 import { listTeacherRelationships } from "@/modules/teacher-students/services/teacherStudentService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function TeacherNotebookPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const relationshipId = typeof router.query.relationshipId === "string"
     ? router.query.relationshipId
@@ -35,14 +37,14 @@ export default function TeacherNotebookPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title={studentName || "Caderno virtual"}
-      description="Acompanhe os conteúdos, atividades e observações deste aluno."
+      title={studentName || t("notebook.teacher.title")}
+      description={t("notebook.teacher.description")}
       backLinkPlacement="title"
     >
       {router.isReady && relationshipId ? (
         <NotebookWorkspace relationshipId={relationshipId} mode="teacher" />
       ) : (
-        <p className="text-sm text-muted">Carregando caderno...</p>
+        <p className="text-sm text-muted">{t("notebook.loading")}</p>
       )}
     </RoleBasedLayout>
   );
