@@ -131,7 +131,7 @@ export function WordSearchForm({
                   name="description"
                   rows={3}
                   maxLength={2000}
-                  placeholder="Descreva o objetivo da atividade..."
+                  placeholder={t("activity.form.descriptionPlaceholder")}
                   className={`${inputClassName} resize-y`}
                 />
 
@@ -179,8 +179,7 @@ export function WordSearchForm({
               </h2>
 
               <p className="mt-1 text-sm leading-6 text-muted">
-                Informe de 3 a 30 palavras. Cada palavra deve ter entre 2 e 20
-                letras, desconsiderando espaços e hífens.
+                {t("activity.form.wordSearchHelp")}
               </p>
             </div>
 
@@ -222,7 +221,7 @@ export function WordSearchForm({
                         type="button"
                         onClick={() => remove(index)}
                         disabled={values.words.length <= 3}
-                        aria-label={`Remover palavra ${index + 1}`}
+                        aria-label={`${t("activity.form.removeWord")} ${index + 1}`}
                         title={
                           values.words.length <= 3
                             ? t("activity.form.minimumWords")
