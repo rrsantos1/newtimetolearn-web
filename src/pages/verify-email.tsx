@@ -98,7 +98,7 @@ export default function VerifyEmailPage() {
     }
 
     void verifyEmail();
-  }, [router.isReady, token, isInvalidToken]);
+  }, [router.isReady, token, isInvalidToken, t]);
 
   async function handleResend() {
     setResendMessage("");
