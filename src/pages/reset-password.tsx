@@ -18,6 +18,7 @@ import api from "@/lib/api";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 const TOKEN_PATTERN = /^[a-f0-9]{64}$/i;
 
@@ -43,7 +44,7 @@ export default function ResetPasswordPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [notice, setNotice] = useState("");
   const [completed, setCompleted] = useState(false);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const validToken =
     router.isReady && typeof token === "string" && TOKEN_PATTERN.test(token);
@@ -66,7 +67,7 @@ export default function ResetPasswordPage() {
           { token, password: values.password },
         );
 
-        setNotice(response.data.data.message);
+        setNotice(t("reset.successDescription"));
         setCompleted(true);
         helpers.resetForm();
       } catch (error: unknown) {
@@ -74,7 +75,7 @@ export default function ResetPasswordPage() {
           const data = error.response?.data;
           setNotice(
             data?.success === false
-              ? data.error.message
+              ? translateApiError(error, locale, "reset.expired")
               : error.response
                 ? t("reset.expired")
                 : t("auth.connectionFailed"),
