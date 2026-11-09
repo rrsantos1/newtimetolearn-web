@@ -775,6 +775,13 @@ const translations = {
     "activity.roulette.saving": "Saving...",
     "activity.roulette.saveChanges": "Save changes",
     "activity.roulette.backFormats": "Back to activity formats",
+    "activity.ai.addedWordsCount": "{count} word(s) added. Review the fields before saving.",
+    "activity.ai.addedCluesCount": "{count} answer-and-clue pair(s) added. Review before saving.",
+    "activity.ai.addedTopicsCount": "{count} topic(s) added. Review the topics before saving.",
+    "activity.ai.addedPairsCount": "{count} pair(s) added. Review the pairs before saving.",
+    "activity.ai.addedMatchesCount": "{count} match(es) added. Review before saving.",
+    "activity.ai.addedSentencesCount": "{count} sentence(s) added. Review the answers and distractors before saving.",
+    "activity.ai.addedQuestionsCount": "{count} question(s) added. Review the statements and options before saving.",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -1548,6 +1555,13 @@ const translations = {
     "activity.roulette.saving": "Salvando...",
     "activity.roulette.saveChanges": "Salvar alterações",
     "activity.roulette.backFormats": "Voltar aos formatos",
+    "activity.ai.addedWordsCount": "{count} palavra(s) adicionada(s). Revise os campos antes de salvar.",
+    "activity.ai.addedCluesCount": "{count} par(es) de resposta e pista adicionado(s). Revise antes de salvar.",
+    "activity.ai.addedTopicsCount": "{count} assunto(s) adicionado(s). Revise os assuntos antes de salvar.",
+    "activity.ai.addedPairsCount": "{count} par(es) adicionado(s). Revise os pares antes de salvar.",
+    "activity.ai.addedMatchesCount": "{count} associação(ões) adicionada(s). Revise antes de salvar.",
+    "activity.ai.addedSentencesCount": "{count} frase(s) adicionada(s). Revise respostas e distratores antes de salvar.",
+    "activity.ai.addedQuestionsCount": "{count} questão(ões) adicionada(s). Revise enunciados e alternativas antes de salvar.",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
