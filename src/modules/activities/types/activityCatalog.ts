@@ -1,4 +1,13 @@
 import type { ActivityType } from "@/modules/activities/types/activityList.types";
+import type { TranslationKey } from "@/lib/i18n/translations";
+
+export const activityTypeTranslationKeys: Record<ActivityType, TranslationKey> = {
+  listening: "activities.type.listening", word_search: "activities.type.wordSearch", crossword: "activities.type.crossword", quiz: "activities.type.quiz", memory: "activities.type.memory", word_matching: "activities.type.wordMatching", sentence_completion: "activities.type.sentenceCompletion", cloze: "activities.type.cloze", multiple_choice: "activities.type.multipleChoice", fill_in_the_blank: "activities.type.fillBlank", drag_drop: "activities.type.dragDrop", sentence_order: "activities.type.sentenceOrder", board_game: "activities.type.boardGame", roulette: "activities.type.roulette", hangman: "activities.type.hangman", fill_in_blanks: "activities.type.fillBlanks", mole_hit: "activities.type.moleHit",
+};
+
+export const activityDescriptionTranslationKeys: Record<ActivityType, TranslationKey> = {
+  listening: "activities.desc.listening", word_search: "activities.desc.wordSearch", crossword: "activities.desc.crossword", quiz: "activities.desc.quiz", memory: "activities.desc.memory", word_matching: "activities.desc.wordMatching", sentence_completion: "activities.desc.sentenceCompletion", cloze: "activities.desc.cloze", multiple_choice: "activities.desc.multipleChoice", fill_in_the_blank: "activities.desc.fillBlank", drag_drop: "activities.desc.dragDrop", sentence_order: "activities.desc.sentenceOrder", board_game: "activities.desc.boardGame", roulette: "activities.desc.roulette", hangman: "activities.desc.hangman", fill_in_blanks: "activities.desc.fillBlanks", mole_hit: "activities.desc.moleHit",
+};
 
 export interface ActivityCatalogItem {
   type: ActivityType;
