@@ -625,7 +625,6 @@ const translations = {
     "activities.type.wordMatching": "Associação de palavras",
     "activities.type.sentenceCompletion": "Complete as frases",
     "activities.type.multipleChoice": "Múltipla escolha",
-    "activities.type.moleHit": "Acerte a toupeira",
     "activities.type.hangman": "Jogo da Forca",
     "activities.type.roulette": "Roleta",
     "activities.executionOne": "execução",
