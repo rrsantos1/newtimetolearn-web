@@ -107,10 +107,10 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                       <div key={index} className="flex items-start gap-2">
                         <div className="min-w-0 flex-1">
                           <label htmlFor={`content.correctOptions.${index}`} className="sr-only">{t("activity.form.correctOptions")} {index + 1}</label>
-                          <Field id={`content.correctOptions.${index}`} name={`content.correctOptions.${index}`} maxLength={80} placeholder={`{t("activity.form.correctOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.correctOptions.${index}`) && submitCount > 0)} />
+                          <Field id={`content.correctOptions.${index}`} name={`content.correctOptions.${index}`} maxLength={80} placeholder={`${t("activity.form.correctOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.correctOptions.${index}`) && submitCount > 0)} />
                           <LocalizedErrorMessage name={`content.correctOptions.${index}`} component="p" className={errorClassName} />
                         </div>
-                        <button type="button" onClick={() => remove(index)} disabled={values.content.correctOptions.length <= 2} aria-label={`Remover opção correta ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
+                        <button type="button" onClick={() => remove(index)} disabled={values.content.correctOptions.length <= 2} aria-label={`${t("activity.form.removeCorrectOption")} ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
                       </div>
                     ))}
                     <LocalizedErrorMessage name="content.correctOptions" component="p" className={errorClassName} />
@@ -122,15 +122,15 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
               <FieldArray name="content.incorrectOptions">
                 {({ push, remove }) => (
                   <div className="space-y-3">
-                    <div><h3 className="text-sm font-semibold text-red-800">Opções incorretas <span className="text-red-600">*</span></h3><p className="mt-1 text-xs text-muted">{t("activity.form.incorrectItemsHelp")}</p></div>
+                    <div><h3 className="text-sm font-semibold text-red-800">{t("activity.form.incorrectOptions")} <span className="text-red-600">*</span></h3><p className="mt-1 text-xs text-muted">{t("activity.form.incorrectItemsHelp")}</p></div>
                     {values.content.incorrectOptions.map((_, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <div className="min-w-0 flex-1">
                           <label htmlFor={`content.incorrectOptions.${index}`} className="sr-only">{t("activity.form.incorrectOptions")} {index + 1}</label>
-                          <Field id={`content.incorrectOptions.${index}`} name={`content.incorrectOptions.${index}`} maxLength={80} placeholder={`{t("activity.form.incorrectOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.incorrectOptions.${index}`) && submitCount > 0)} />
+                          <Field id={`content.incorrectOptions.${index}`} name={`content.incorrectOptions.${index}`} maxLength={80} placeholder={`${t("activity.form.incorrectOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.incorrectOptions.${index}`) && submitCount > 0)} />
                           <LocalizedErrorMessage name={`content.incorrectOptions.${index}`} component="p" className={errorClassName} />
                         </div>
-                        <button type="button" onClick={() => remove(index)} disabled={values.content.incorrectOptions.length <= 2} aria-label={`Remover opção incorreta ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
+                        <button type="button" onClick={() => remove(index)} disabled={values.content.incorrectOptions.length <= 2} aria-label={`${t("activity.form.removeIncorrectOption")} ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
                       </div>
                     ))}
                     <LocalizedErrorMessage name="content.incorrectOptions" component="p" className={errorClassName} />
