@@ -132,11 +132,11 @@ export default function MemoryGamePage() {
           ? (await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (loaded.type !== "memory") throw new Error("Esta atividade não é um jogo da memória.");
+        if (loaded.type !== "memory") throw new Error(t("activities.play.memory.typeError"));
         setActivity(loaded);
         if (user?.roles.includes("STUDENT")) void loadRanking(loaded.slug);
       } catch (error: unknown) {
-        if (active) setLoadError(getErrorMessage(error, t("play.loading")));
+        if (active) setLoadError(error instanceof Error && error.message === t("activities.play.memory.typeError") ? error.message : getErrorMessage(error, t("activities.play.memory.loadError")));
       } finally {
         if (active) setLoading(false);
       }
@@ -154,7 +154,7 @@ export default function MemoryGamePage() {
     setPhase("finished");
     setSubmitError("");
     if (!isStudent) {
-      setSubmitError(`${t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.`);
+      setSubmitError(`${t("play.previewFinished")}. ${t("activities.play.memory.previewNotice")}`);
       return;
     }
     try {
@@ -162,7 +162,7 @@ export default function MemoryGamePage() {
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (error: unknown) {
-      setSubmitError(getErrorMessage(error, "Não foi possível salvar seu resultado."));
+      setSubmitError(getErrorMessage(error, t("activities.play.memory.submitError")));
     }
   }, [activity, isStudent, matchedIds, phase, wrongAttempts, t]);
 
@@ -220,9 +220,9 @@ export default function MemoryGamePage() {
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
                 <h2 className="mt-4 text-xl font-bold text-dark">{t("play.readyTitle")}</h2>
-                <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas e conclua a atividade no seu ritmo.</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{t("activities.play.memory.instruction")}</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2">
-                  <div><p className="text-sm text-muted">Quantidade de pares</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
+                  <div><p className="text-sm text-muted">{t("activities.play.memory.pairCount")}</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
                   
                 </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
@@ -248,17 +248,17 @@ export default function MemoryGamePage() {
           {phase === "playing" && (
             <>
               <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5">
-                <div><p className="text-sm text-muted">Pares encontrados</p><p className="text-xl font-bold text-dark">{matchedIds.length} / {activity.version.content.pairs.length}</p></div>
+                <div><p className="text-sm text-muted">{t("activities.play.memory.pairsFound")}</p><p className="text-xl font-bold text-dark">{matchedIds.length} / {activity.version.content.pairs.length}</p></div>
                 <div><p className="text-sm text-muted">{t("play.errors")}</p><p className="text-xl font-bold text-dark">{wrongAttempts}</p></div>
                 
-                <button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button>
+                <button type="button" onClick={() => { if (window.confirm(t("activities.play.memory.endConfirm"))) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">{t("activities.play.memory.endGame")}</button>
               </section>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
                 {cards.map((card) => {
                   const visible = visibleIds.has(card.id);
                   return (
-                    <button type="button" key={card.id} onClick={() => selectCard(card)} disabled={matchedIds.includes(card.pairId) || (openIds.length >= 2 && !openIds.includes(card.id))} aria-label={visible ? (card.item.type === "text" ? card.item.value : card.item.altText || "Imagem") : "Revelar carta"} className={`flex min-h-32 items-center justify-center overflow-hidden rounded-2xl border p-3 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:min-h-40 ${visible ? "border-amber-400 bg-amber-100 text-amber-950" : "border-slate-300 bg-violet-700 text-white hover:bg-violet-800"}`}>
-                      {visible ? card.item.type === "text" ? <span className="wrap-break-word text-sm font-semibold sm:text-base">{card.item.value}</span> : imageUrl(card.item) ? <span className="relative block h-24 w-full sm:h-32"><Image src={imageUrl(card.item)!} alt={card.item.altText} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw" className="object-contain" /></span> : <span className="text-xs text-red-700">Imagem indisponível</span> : <span aria-hidden="true" className="text-3xl font-bold">?</span>}
+                    <button type="button" key={card.id} onClick={() => selectCard(card)} disabled={matchedIds.includes(card.pairId) || (openIds.length >= 2 && !openIds.includes(card.id))} aria-label={visible ? (card.item.type === "text" ? card.item.value : card.item.altText || t("activities.play.memory.imageAlt")) : t("activities.play.memory.revealCard")} className={`flex min-h-32 items-center justify-center overflow-hidden rounded-2xl border p-3 text-center transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:min-h-40 ${visible ? "border-amber-400 bg-amber-100 text-amber-950" : "border-slate-300 bg-violet-700 text-white hover:bg-violet-800"}`}>
+                      {visible ? card.item.type === "text" ? <span className="wrap-break-word text-sm font-semibold sm:text-base">{card.item.value}</span> : imageUrl(card.item) ? <span className="relative block h-24 w-full sm:h-32"><Image src={imageUrl(card.item)!} alt={card.item.altText} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw" className="object-contain" /></span> : <span className="text-xs text-red-700">{t("activities.play.memory.unavailableImage")}</span> : <span aria-hidden="true" className="text-3xl font-bold">?</span>}
                     </button>
                   );
                 })}
@@ -272,13 +272,13 @@ export default function MemoryGamePage() {
                       <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>
               {result ? (
                 <>
-                  <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
-                  <p className="mt-2 text-sm text-muted">{result.attempt.matchedPairs} de {result.attempt.totalPairs} pares · {result.attempt.wrongAttempts} erro(s) · penalidade de {result.attempt.penaltyPoints} pontos.</p>
+                  <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 {t("activities.play.memory.points")}</p>
+                  <p className="mt-2 text-sm text-muted">{t("activities.play.memory.resultSummary", { matched: result.attempt.matchedPairs, total: result.attempt.totalPairs, errors: result.attempt.wrongAttempts, penalty: result.attempt.penaltyPoints })}</p>
                   <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div>
                   <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p>
                 </>
-              ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
-              {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
+              ) : <p className="mt-3 text-sm text-muted">{submitError || t("activities.play.memory.savingResult")}</p>}
+              {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || t("activities.play.memory.teacherPreview")}</p>}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.playAgain") : t("play.tryAgain")}</button>
               </div>
