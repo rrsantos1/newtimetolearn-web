@@ -41,6 +41,7 @@ describe("RoleGuard", () => {
     replace.mockReset();
     vi.mocked(useRouter).mockReturnValue({
       pathname: "/teacher",
+      locale: "pt-BR",
       replace,
     } as never);
     configureAuth();
