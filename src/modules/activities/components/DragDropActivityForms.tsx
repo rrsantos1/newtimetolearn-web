@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateValidationMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { MemoryItemEditor } from "@/modules/activities/components/MemoryForm";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -81,7 +82,7 @@ function ValidationErrorSummary() {
 }
 
 function ActivityDetailsFields() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { errors, submitCount } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
@@ -90,7 +91,7 @@ function ActivityDetailsFields() {
         <div>
           <label htmlFor="name" className={labelClass}>{t("activity.form.title")} *</label>
           <Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} />
-          {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p> : <p className="mt-1 text-xs text-muted">{t("activity.form.required")}</p>}
+          {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{translateValidationMessage(String(getIn(errors, "name")), locale)}</p> : <p className="mt-1 text-xs text-muted">{t("activity.form.required")}</p>}
         </div>
         <div>
           <label htmlFor="description" className={labelClass}>{t("activity.form.instructions")}</label>
@@ -110,7 +111,7 @@ function ActivityDetailsFields() {
 }
 
 export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel, activityMode = "word_matching" }: Readonly<CommonProps<CreateWordMatchingFormValues> & { activityMode?: "word_matching" | "multiple_choice" }>) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
@@ -148,7 +149,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                           invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0))}
                           onChange={(item) => void setFieldValue(`content.pairs.${index}.source`, item)}
                         />
-                        {getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.source`))}</p>}
+                        {getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{translateValidationMessage(String(getIn(errors, `content.pairs.${index}.source`)), locale)}</p>}
                       </div>
                       <div>
                         <MemoryItemEditor
@@ -158,7 +159,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                           invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0))}
                           onChange={(item) => void setFieldValue(`content.pairs.${index}.target`, item)}
                         />
-                        {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
+                        {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{translateValidationMessage(String(getIn(errors, `content.pairs.${index}.target`)), locale)}</p>}
                       </div>
                       <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? t("activity.form.removeQuestion") : t("activity.form.removePair")} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> {t("activity.form.removeAnswer")}</button>
                     </fieldset>
@@ -178,7 +179,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
 }
 
 export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateSentenceCompletionFormValues>(() => ({
@@ -216,7 +217,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
                 <div className="space-y-3">
                   {values.content.words.map((word, index) => (
                     <div key={word.id} className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                      <div><label htmlFor={`word-${index}`} className={labelClass}>Palavra {index + 1} *</label><Field id={`word-${index}`} name={`content.words.${index}.text`} maxLength={150} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.words.${index}.text`) && submitCount > 0)} />{getIn(errors, `content.words.${index}.text`) && submitCount > 0 && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.words.${index}.text`))}</p>}</div>
+                      <div><label htmlFor={`word-${index}`} className={labelClass}>Palavra {index + 1} *</label><Field id={`word-${index}`} name={`content.words.${index}.text`} maxLength={150} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.words.${index}.text`) && submitCount > 0)} />{getIn(errors, `content.words.${index}.text`) && submitCount > 0 && <p role="alert" className="mt-1 text-sm text-red-600">{translateValidationMessage(String(getIn(errors, `content.words.${index}.text`)), locale)}</p>}</div>
                       <button type="button" onClick={() => remove(index)} disabled={values.content.words.length <= 1} aria-label={`Remover palavra ${index + 1}`} className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
                     </div>
                   ))}
