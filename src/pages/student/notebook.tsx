@@ -31,13 +31,12 @@ export default function StudentNotebookPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   return (
     <RoleBasedLayout
       area="student"
       allowedRoles={["STUDENT"]}
-      title="Meu caderno virtual"
       title={t("notebook.student.title")}
       description={t("notebook.student.description")}
       backLinkPlacement="title"
