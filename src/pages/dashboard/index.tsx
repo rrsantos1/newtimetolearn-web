@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { BookOpen, GraduationCap, UserRound } from "lucide-react";
+import { BookOpen, GraduationCap, UserRound, Users } from "lucide-react";
 import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import Link from "next/link";
@@ -77,12 +77,40 @@ export default function DashboardPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-dark">
-          Acesso rápido
-        </h2>
+        <h2 className="text-lg font-semibold text-dark">Acesso rápido</h2>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {user.roles.includes("STUDENT") ? (
+        <div className={`mt-4 grid gap-4 ${isTeacher && !isAdmin ? "sm:grid-cols-2 xl:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {isTeacher && !isAdmin ? (
+            <>
+              <Link
+                href="/teacher/activities"
+                className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                <BookOpen size={23} className="text-primary" aria-hidden="true" />
+                <h3 className="mt-4 font-semibold text-dark">Atividades</h3>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Crie, organize e acompanhe suas atividades pedagógicas.
+                </p>
+                <span className="mt-4 inline-block text-xs font-semibold text-accent">
+                  Gerenciar atividades
+                </span>
+              </Link>
+
+              <Link
+                href="/teacher/students"
+                className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                <Users size={23} className="text-accent" aria-hidden="true" />
+                <h3 className="mt-4 font-semibold text-dark">Alunos</h3>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Consulte seus alunos e acompanhe o vínculo com suas turmas.
+                </p>
+                <span className="mt-4 inline-block text-xs font-semibold text-accent">
+                  Acessar alunos
+                </span>
+              </Link>
+            </>
+          ) : user.roles.includes("STUDENT") ? (
             <Link
               href="/student/activities"
               className="block rounded-2xl border border-border bg-surface p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
