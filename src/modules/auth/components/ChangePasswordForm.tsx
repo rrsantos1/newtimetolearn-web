@@ -6,6 +6,7 @@ import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { changePasswordSchema } from "@/modules/auth/schemas/changePasswordSchema";
 import { changePasswordService } from "@/modules/auth/services/changePasswordService";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 interface ChangePasswordFormValues {
   currentPassword: string;
@@ -22,7 +23,7 @@ const initialValues: ChangePasswordFormValues = {
 export function ChangePasswordForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [requestError, setRequestError] = useState("");
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const formik = useFormik<ChangePasswordFormValues>({
     initialValues,
@@ -44,7 +45,7 @@ export function ChangePasswordForm() {
           const response = error.response?.data;
 
           if (response?.success === false) {
-            setRequestError(response.error.message);
+            setRequestError(translateApiError(error, locale, "profile.password.failed"));
           } else {
             setRequestError(
               error.response
