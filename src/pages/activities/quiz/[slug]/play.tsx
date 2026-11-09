@@ -381,7 +381,7 @@ export default function PlayQuizPage() {
                       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button type="button" onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))} disabled={currentIndex === 0} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">Anterior</button>
                         {currentIndex < questions.length - 1 ? (
-                          <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>Responder e avançar</button>
+                          <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>{t("play.answerAndNext")}</button>
                         ) : (
                           <button type="button" onClick={finishFromButton} disabled={!answers[currentQuestion.id]} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>{t("activities.play.finishQuiz")}</button>
                         )}
