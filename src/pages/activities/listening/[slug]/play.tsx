@@ -9,7 +9,6 @@ import axios from "axios";
 import { ArrowLeft, CheckCircle2, Headphones, LoaderCircle, Play, Trophy, XCircle } from "lucide-react";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import type {
@@ -212,7 +211,7 @@ export default function PlayListeningPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [activity, answers, isStudent, passages, phase]);
+  }, [activity, answers, isStudent, passages, phase, t]);
 
 
 
