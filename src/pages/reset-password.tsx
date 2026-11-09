@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
       }
 
       try {
-        const response = await api.post<{ success: true; data: { message: string } }>(
+        await api.post<{ success: true; data: { message: string } }>(
           "/auth/reset-password",
           { token, password: values.password },
         );
