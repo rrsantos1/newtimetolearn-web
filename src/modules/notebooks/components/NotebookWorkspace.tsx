@@ -288,7 +288,7 @@ export function NotebookWorkspace({
     return () => {
       isMounted = false;
     };
-  }, [relationshipId]);
+  }, [relationshipId, t]);
 
 
   async function moveEntry(day: NotebookDay, entryIndex: number, direction: -1 | 1): Promise<void> {
