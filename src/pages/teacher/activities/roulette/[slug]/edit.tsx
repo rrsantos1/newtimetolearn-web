@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateValidationMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -20,7 +21,7 @@ function getErrorMessage(error: unknown): string {
   return "Ocorreu um erro inesperado.";
 }
 export default function EditRoulettePage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const [activity, setActivity] = useState<EditableRouletteActivity | null>(null);
   const [initialValues, setInitialValues] = useState<CreateRouletteFormValues | null>(null);
@@ -77,13 +78,13 @@ export default function EditRoulettePage() {
       <Formik initialValues={initialValues} enableReinitialize validationSchema={createRouletteSchema} onSubmit={async (values, helpers) => { await handleSubmit(values); helpers.setSubmitting(false); }}>
         {({ values, errors, touched, handleChange, setFieldValue, isSubmitting }) => <Form className="space-y-6">
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><h2 className="text-lg font-semibold text-dark">{t("activity.roulette.details")}</h2>
-            <label htmlFor="roulette-name" className="mt-5 block text-sm font-medium text-dark">{t("activity.form.title")}</label><input id="roulette-name" name="name" value={values.name} onChange={handleChange} maxLength={120} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" />{touched.name && errors.name && <p className="mt-1 text-sm text-red-700">{errors.name}</p>}
+            <label htmlFor="roulette-name" className="mt-5 block text-sm font-medium text-dark">{t("activity.form.title")}</label><input id="roulette-name" name="name" value={values.name} onChange={handleChange} maxLength={120} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" />{touched.name && errors.name && <p className="mt-1 text-sm text-red-700">{translateValidationMessage(String(errors.name), locale)}</p>}
             <label htmlFor="roulette-description" className="mt-4 block text-sm font-medium text-dark">{t("activity.roulette.descriptionOptional")}</label><textarea id="roulette-description" name="description" value={values.description} onChange={handleChange} rows={3} maxLength={2000} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-sm" />
             <label htmlFor="roulette-difficulty" className="mt-4 block text-sm font-medium text-dark">{t("activity.form.difficulty")}</label><select id="roulette-difficulty" name="difficulty" value={values.difficulty} onChange={handleChange} className="mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm"><option value="EASY">{t("activity.form.easy")}</option><option value="MEDIUM">{t("activity.form.medium")}</option><option value="HARD">{t("activity.form.hard")}</option></select>
           </section>
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><div className="flex items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">{t("activity.roulette.topics")}</h2><p className="mt-1 text-sm text-muted">{t("activity.roulette.topicHelpEdit")}</p></div><span className="text-sm text-muted">{values.content.topics.length}/30</span></div>
             <FieldArray name="content.topics">{({ push, remove }) => <div className="mt-4 space-y-3">{values.content.topics.map((topic, index) => <div key={index} className="flex items-center gap-2"><label htmlFor={`roulette-topic-${index}`} className="sr-only">{t("activity.roulette.topic")} {index + 1}</label><input id={`roulette-topic-${index}`} value={topic} maxLength={100} onChange={(event) => setFieldValue(`content.topics[${index}]`, event.target.value)} className="min-h-11 min-w-0 flex-1 rounded-xl border border-border bg-background px-3 text-sm" /><button type="button" onClick={() => remove(index)} disabled={values.content.topics.length <= 1} aria-label={`${t("activity.roulette.removeTopic")} ${index + 1}`} className="flex size-10 items-center justify-center rounded-xl border border-border text-muted disabled:opacity-40"><Trash2 size={17} aria-hidden="true" /></button></div>)}<button type="button" onClick={() => push("")} disabled={values.content.topics.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={16} aria-hidden="true" />{t("activity.roulette.addTopic")}</button></div>}</FieldArray>
-            {typeof errors.content === "object" && errors.content !== null && "topics" in errors.content && typeof errors.content.topics === "string" && <p className="mt-2 text-sm text-red-700">{errors.content.topics}</p>}
+            {typeof errors.content === "object" && errors.content !== null && "topics" in errors.content && typeof errors.content.topics === "string" && <p className="mt-2 text-sm text-red-700">{translateValidationMessage(String(errors.content.topics), locale)}</p>}
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{submitError}</p>}
           <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="min-h-11 rounded-xl bg-dark px-6 text-sm font-semibold text-white disabled:opacity-50">{isSubmitting ? t("activity.page.saving") : t("activity.roulette.saveChanges")}</button></div>
