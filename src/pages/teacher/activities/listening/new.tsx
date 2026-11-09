@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ActivityCoverSelector, type ActivityCoverSelection } from "@/modules/activities/components/ActivityCoverSelector";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import type { ChangeEvent, MouseEvent } from "react";
@@ -75,6 +76,7 @@ function errorMessage(error: unknown): string {
 }
 
 export default function NewListeningPage() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("MEDIUM");
@@ -280,7 +282,7 @@ export default function NewListeningPage() {
   }
 
   return (
-    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Criar atividade de Listening" description="Monte textos com lacunas e gere uma narração para seus alunos praticarem compreensão auditiva.">
+    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.listening")} description={t("activity.page.description.listening")}>
       <div className="mb-6">
         <Link href="/teacher/activities/new" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
           <ArrowLeft aria-hidden="true" size={16} /> Voltar aos formatos
@@ -295,7 +297,7 @@ export default function NewListeningPage() {
               <div>
                 <h2 className="font-semibold text-green-900">Rascunho salvo</h2>
                 <p className="mt-1 text-sm leading-6 text-green-800">Os textos e as lacunas foram salvos. Gere o áudio de cada texto abaixo; a atividade continuará como rascunho até ser enviada para aprovação.</p>
-                <Link href="/teacher/activities" className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-sm font-semibold text-green-900 ring-1 ring-green-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Ver minhas atividades</Link>
+                <Link href="/teacher/activities" className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-white px-4 text-sm font-semibold text-green-900 ring-1 ring-green-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">{t("activity.page.viewActivities")}</Link>
               </div>
             </div>
           </div>
