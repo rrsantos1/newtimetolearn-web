@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -33,6 +34,7 @@ function getErrorMessage(error: unknown): string {
   return "Ocorreu um erro inesperado.";
 }
 export default function EditHangmanPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activity, setActivity] = useState<EditableHangmanActivity | null>(null);
   const [initialValues, setInitialValues] = useState<CreateHangmanFormValues | undefined>();
@@ -100,7 +102,7 @@ export default function EditHangmanPage() {
       }
       setInitialValues(values);
       setActivity((current) => current ? { ...current, version: { ...current.version, ...values, status: response.data.data.version.status, reviewFeedback: null } } : current);
-      setNotice("Alterações salvas com sucesso.");
+      setNotice(t("activity.page.updatedTitle"));
     } catch (cause: unknown) { setSubmitError(getErrorMessage(cause)); }
   }
 
@@ -111,13 +113,13 @@ export default function EditHangmanPage() {
     try {
       await submitActivityVersionService.execute(activity.slug);
       setActivity((current) => current ? { ...current, version: { ...current.version, status: "PENDING_REVIEW", reviewFeedback: null } } : current);
-      setNotice("Atividade enviada para aprovação.");
+      setNotice(t("activity.page.resubmitSuccess"));
     } catch (cause: unknown) { setSubmitError(getErrorMessage(cause)); }
     finally { setSubmitting(false); }
   }
 
   const canSubmit = activity !== null && ["DRAFT", "REJECTED", "CHANGES_REQUESTED"].includes(activity.version.status);
-  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Editar Jogo da Forca" description="Atualize as palavras, pistas e imagens da atividade.">
+  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.edit.hangman")} description={t("activity.page.editDescription.hangman")}>
     <div className="mb-6"><Link href="/teacher/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar às atividades</Link></div>
     {loading ? <div role="status" className="flex min-h-40 items-center justify-center gap-2 rounded-xl border border-border bg-surface"><LoaderCircle size={20} className="animate-spin" />Carregando atividade...</div>
     : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
@@ -125,7 +127,7 @@ export default function EditHangmanPage() {
       {notice && <p role="status" className="mb-5 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><CheckCircle2 size={18} aria-hidden="true" />{notice}</p>}
       {activity.version.reviewFeedback && <section className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4"><h2 className="font-semibold text-amber-900">Observações da revisão</h2><p className="mt-2 whitespace-pre-wrap text-sm text-amber-800">{activity.version.reviewFeedback}</p></section>}
       <HangmanForm initialValues={initialValues} onSubmit={handleSubmit} submitError={submitError} submitLabel="Salvar alterações" />
-      {canSubmit && <section className="mt-6 rounded-2xl border border-border bg-surface p-5"><h2 className="font-semibold text-dark">Enviar para aprovação</h2><p className="mt-1 text-sm text-muted">Salve as alterações antes de enviar a versão para análise administrativa.</p><button type="button" onClick={() => void handleResubmit()} disabled={submitting} className="mt-4 min-h-11 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{submitting ? "Enviando..." : "Enviar para aprovação"}</button></section>}
+      {canSubmit && <section className="mt-6 rounded-2xl border border-border bg-surface p-5"><h2 className="font-semibold text-dark">Enviar para aprovação</h2><p className="mt-1 text-sm text-muted">Salve as alterações antes de enviar a versão para análise administrativa.</p><button type="button" onClick={() => void handleResubmit()} disabled={submitting} className="mt-4 min-h-11 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">{submitting ? "Enviando..." : t("activity.page.sendApproval")}</button></section>}
     </> : null}
   </RoleBasedLayout>;
 }
