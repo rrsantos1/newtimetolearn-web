@@ -19,15 +19,7 @@ import type {
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { useRouter } from "next/router";
 import { PublicHeader } from "@/components/layout/PublicHeader";
-
-const loginSchema = Yup.object({
-  email: Yup.string()
-    .trim()
-    .email("Informe um e-mail válido.")
-    .required("Informe seu e-mail."),
-  password: Yup.string()
-    .required("Informe sua senha."),
-});
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface LoginFormValues {
   email: string;
@@ -39,6 +31,11 @@ export default function LoginPage() {
   const [notice, setNotice] = useState("");
   const { setSession } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
+  const loginSchema = Yup.object({
+    email: Yup.string().trim().email(t("auth.email") === "Email address" ? "Enter a valid email address." : "Informe um e-mail válido.").required(t("auth.email") === "Email address" ? "Enter your email address." : "Informe seu e-mail."),
+    password: Yup.string().required(t("auth.password") === "Password" ? "Enter your password." : "Informe sua senha."),
+  });
 
   const formik = useFormik<LoginFormValues>({
     initialValues: {
@@ -67,16 +64,16 @@ export default function LoginPage() {
           if (data?.success === false) {
             switch (data.error.code) {
               case "INVALID_CREDENTIALS":
-                setNotice("E-mail ou senha inválidos.");
+                setNotice(t("auth.invalidCredentials"));
                 break;
               case "EMAIL_NOT_VERIFIED":
                 setNotice(
-                  "Confirme seu e-mail antes de entrar. Acesse o link enviado para sua caixa de entrada.",
+                  t("auth.verifyEmail"),
                 );
                 break;
               case "ACCOUNT_BLOCKED":
                 setNotice(
-                  "Esta conta está bloqueada. Entre em contato com o suporte.",
+                  t("auth.blocked"),
                 );
                 break;
               default:
@@ -85,15 +82,15 @@ export default function LoginPage() {
           } else {
             setNotice(
               error.response
-                ? "Não foi possível realizar o login. Tente novamente."
-                : "Não foi possível conectar ao servidor. Verifique sua conexão.",
+                ? t("auth.loginFailed")
+                : t("auth.connectionFailed"),
             );
           }
 
           return;
         }
 
-        setNotice("Ocorreu um erro inesperado. Tente novamente.");
+        setNotice(t("auth.unexpected"));
       } finally {
         helpers.setSubmitting(false);
       }
@@ -111,10 +108,10 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold tracking-tight text-dark sm:text-4xl">
-              Bem-vindo de volta
+              {t("auth.welcomeBack")}
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
-              Entre na sua conta para continuar.
+              {t("auth.loginDescription")}
             </p>
           </div>
 
@@ -128,8 +125,7 @@ export default function LoginPage() {
 
                 {notice.includes("Confirme seu e-mail") && (
                   <p className="mt-2">
-                    Se precisar de outro link, volte à página de verificação
-                    ou solicite um novo envio.
+                    {t("auth.verifyEmailAgain")}
                   </p>
                 )}
               </div>
@@ -190,7 +186,7 @@ export default function LoginPage() {
                     href="/forgot-password"
                     className="text-xs font-semibold text-zinc-600 underline-offset-4 hover:text-dark hover:underline"
                   >
-                    Esqueceu a senha?
+                    {t("auth.forgotPassword")}
                   </Link>
                 </div>
 
@@ -205,7 +201,7 @@ export default function LoginPage() {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
-                    placeholder="Digite sua senha"
+                    placeholder={t("auth.passwordPlaceholder")}
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -219,7 +215,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
                     aria-label={
-                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                      showPassword ? t("auth.hidePassword") : t("auth.showPassword")
                     }
                     className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-dark"
                   >
@@ -249,11 +245,11 @@ export default function LoginPage() {
                       className="animate-spin"
                       aria-hidden="true"
                     />
-                    Entrando...
+                    {t("auth.loggingIn")}
                   </>
                 ) : (
                   <>
-                    Entrar
+                    {t("auth.login")}
                     <ArrowRight size={18} aria-hidden="true" />
                   </>
                 )}
@@ -262,12 +258,12 @@ export default function LoginPage() {
 
             <div className="mt-7 border-t border-border pt-6 text-center">
               <p className="text-sm text-muted">
-                Ainda não tem uma conta?{" "}
+                {t("auth.noAccount")}{" "}
                 <Link
                   href="/register"
                   className="font-semibold text-dark underline decoration-amber-400 decoration-2 underline-offset-4 hover:text-amber-700"
                 >
-                  Cadastre-se
+                  {t("auth.signUp")}
                 </Link>
               </p>
             </div>
