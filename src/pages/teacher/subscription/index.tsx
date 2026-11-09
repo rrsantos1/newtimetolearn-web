@@ -85,7 +85,7 @@ export default function TeacherSubscriptionPage() {
       const result = await teacherSubscriptionService.createCheckout();
       window.location.assign(result.checkoutUrl);
     } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
+      setErrorMessage(getErrorMessage(error, t("subscription.error.operation"), t("subscription.error.unexpected")));
       setIsSubmitting(false);
     }
   }
@@ -102,7 +102,7 @@ export default function TeacherSubscriptionPage() {
       setSuccessMessage(t("subscription.cancelSuccess"));
       await loadEntitlements();
     } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
+      setErrorMessage(getErrorMessage(error, t("subscription.error.operation"), t("subscription.error.unexpected")));
     } finally {
       setIsSubmitting(false);
     }
