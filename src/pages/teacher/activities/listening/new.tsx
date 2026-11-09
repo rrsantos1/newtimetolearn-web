@@ -241,7 +241,7 @@ export default function NewListeningPage() {
       }));
       setNotice(t("activity.listening.previewGenerated").replace("{title}", passage.title.trim() || t("activity.listening.untitled")));
     } catch (caught: unknown) {
-      setError(errorMessage(caught));
+      setError(errorMessage(caught, t));
     } finally {
       setPreviewingId("");
     }
@@ -265,7 +265,7 @@ export default function NewListeningPage() {
       setAudioPreviews((current) => { const next = { ...current }; delete next[passage.id]; return next; });
       setNotice(t("activity.listening.audioStored").replace("{title}", passage.title.trim() || t("activity.listening.untitled")));
     } catch (caught: unknown) {
-      setError(errorMessage(caught));
+      setError(errorMessage(caught, t));
     } finally {
       setGeneratingId("");
     }
