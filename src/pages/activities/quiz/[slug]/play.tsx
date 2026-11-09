@@ -13,7 +13,6 @@ import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/acti
 import { getQuizRankingService, type QuizRankingEntry } from "@/modules/activities/services/getQuizRankingService";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useTranslation } from "@/hooks/useTranslation";
 
 interface QuizImage {
   storageKey: string;
