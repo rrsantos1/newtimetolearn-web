@@ -15,9 +15,9 @@ interface RouletteResponse {
   data: { slug: string; type: string; version: { name: string; description: string | null; content: { topics: string[] } } };
 }
 const COLORS = ["#facc15", "#111827", "#eab308", "#374151", "#f59e0b", "#1f2937", "#fde047", "#4b5563"];
-function getMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? t("play.loading"); }
-  return t("play.loading");
+function getMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? fallback; }
+  return fallback;
 }
 export default function RoulettePlayPage() {
   const { t } = useTranslation();
@@ -43,7 +43,7 @@ export default function RoulettePlayPage() {
         if (response.data.data.type !== "roulette") throw new Error(t("play.notAvailable"));
         setActivity(response.data.data);
         setRemaining(response.data.data.version.content.topics);
-      } catch (cause: unknown) { if (active) setError(getMessage(cause)); }
+      } catch (cause: unknown) { if (active) setError(getMessage(cause, t("play.loading")) ); }
       finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
