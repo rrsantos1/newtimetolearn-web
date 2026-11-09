@@ -1664,6 +1664,19 @@ const translations = {
     "wordSearch.preview.description": "Review the generated grid before continuing.",
     "wordSearch.preview.gridLabel": "Word search grid with {count} rows",
     "wordSearch.preview.wordsCount": "Words added ({count})",
+    "adminActivities.pendingListLabel": "Activities awaiting approval",
+    "adminActivities.difficulty": "Difficulty",
+    "adminActivities.version": "Version {version}",
+    "adminActivities.approved": "\"{name}\" was approved and published.",
+    "adminActivities.rejected": "\"{name}\" was rejected.",
+    "adminActivities.changesRequested": "Changes were requested for \"{name}\".",
+    "adminActivities.approveTitle": "Approve and publish",
+    "adminActivities.approveAria": "Approve {name}",
+    "adminActivities.requestChangesTitle": "Request changes",
+    "adminActivities.requestChangesAria": "Request changes to {name}",
+    "adminActivities.rejectTitle": "Reject activity",
+    "adminActivities.rejectAria": "Reject {name}",
+    "adminActivities.pagination": "Pending activities pagination",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -3325,6 +3338,7 @@ const translations = {
     "wordSearch.preview.description": "Confira a grade gerada antes de prosseguir.",
     "wordSearch.preview.gridLabel": "Grade do caça-palavras com {count} linhas",
     "wordSearch.preview.wordsCount": "Palavras cadastradas ({count})",
+
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
