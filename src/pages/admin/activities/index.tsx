@@ -10,6 +10,7 @@ import { listActivitiesService } from "@/modules/activities/services/listActivit
 import type { ActivityDifficulty, ListedActivity } from "@/modules/activities/types/activityList.types";
 import api from "@/lib/api";
 import { updateActivityVisibilityService } from "@/modules/activities/services/updateActivityVisibilityService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -56,7 +57,7 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   return type;
 }
 
-export default function PendingActivitiesPage() {
+export default function PendingActivitiesPage() {\n  const { t } = useTranslation();
   const [activities, setActivities] = useState<ListedActivity[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,13 +131,13 @@ export default function PendingActivitiesPage() {
     if (decision !== "approve") {
       const promptLabel =
         decision === "request-changes"
-          ? "Descreva as alterações necessárias (mínimo de 10 caracteres):"
-          : "Informe o motivo da rejeição (mínimo de 10 caracteres):";
+          ? t("adminActivities.requestChangesPrompt")
+          : t("adminActivities.rejectPrompt");
       const enteredFeedback = window.prompt(promptLabel);
       if (enteredFeedback === null) return;
       feedback = enteredFeedback.trim();
       if (feedback.length < 10) {
-        setErrorMessage("O feedback deve conter pelo menos 10 caracteres.");
+        setErrorMessage(t("adminActivities.feedbackTooShort"));
         return;
       }
     }
@@ -173,12 +174,12 @@ export default function PendingActivitiesPage() {
     <RoleBasedLayout
       area="admin"
       allowedRoles={["ADMIN"]}
-      title="Atividades pendentes"
-      description="Revise as atividades enviadas pelos professores e aprove, solicite alterações ou rejeite cada versão."
+      title={t("adminActivities.title")}
+      description={t("adminActivities.description")}
     >
       <div className="mb-5 flex justify-end">
         <Link href="/admin/activities/public" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5">
-          <Globe size={16} aria-hidden="true" /> Gerenciar atividades públicas
+          <Globe size={16} aria-hidden="true" /> {t("adminActivities.managePublic")}
         </Link>
       </div>
       {successMessage && (
@@ -194,18 +195,18 @@ export default function PendingActivitiesPage() {
 
       {isLoading ? (
         <div className="rounded-2xl border border-border bg-surface p-10 text-center text-sm text-muted" aria-live="polite">
-          Carregando atividades pendentes...
+          {t("adminActivities.loading")}
         </div>
       ) : activities.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface p-8 text-center shadow-sm">
           <CheckCircle2 className="mx-auto text-green-600" size={30} aria-hidden="true" />
-          <h2 className="mt-3 font-semibold text-dark">Nenhuma atividade pendente</h2>
-          <p className="mt-2 text-sm text-muted">As novas solicitações de aprovação aparecerão aqui.</p>
+          <h2 className="mt-3 font-semibold text-dark">{t("adminActivities.emptyTitle")}</h2>
+          <p className="mt-2 text-sm text-muted">{t("adminActivities.emptyDescription")}</p>
           <button type="button" onClick={() => {
               setIsLoading(true);
               setReloadKey((current) => current + 1);
             }} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">
-            <RefreshCw size={15} aria-hidden="true" /> Atualizar
+            <RefreshCw size={15} aria-hidden="true" /> {t("adminActivities.refresh")}
           </button>
         </section>
       ) : (
@@ -230,7 +231,7 @@ export default function PendingActivitiesPage() {
               <div className="flex items-start justify-between gap-3">
                 <span className="text-xs font-semibold uppercase tracking-wide text-muted">{getActivityTypeLabel(activity.type)}</span>
                 <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">
-                  <Clock3 size={13} aria-hidden="true" /> Aguardando aprovação
+                  <Clock3 size={13} aria-hidden="true" /> {t("adminActivities.awaitingApproval")}
                 </span>
               </div>
               <h2 className="mt-2 text-lg font-semibold text-dark">{getActivityName(activity)}</h2>
@@ -259,7 +260,7 @@ export default function PendingActivitiesPage() {
                 className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <Play size={16} aria-hidden="true" />
-                Testar atividade
+                {t("adminActivities.testActivity")}
               </Link>
               {activity.status === "PUBLISHED" && (
                 <div className="mt-4">
@@ -279,7 +280,7 @@ export default function PendingActivitiesPage() {
                   <XCircle size={16} aria-hidden="true" />
                 </button>
               </div>
-              {busySlug === activity.slug && <p className="mt-3 text-xs text-muted" aria-live="polite">Processando decisão...</p>}
+              {busySlug === activity.slug && <p className="mt-3 text-xs text-muted" aria-live="polite">{t("adminActivities.processing")}</p>}
             </article>
           ))}
         </section>
@@ -305,7 +306,7 @@ export default function PendingActivitiesPage() {
           </button>
         </nav>
       )}
-      <FaqSection title="Dúvidas sobre a moderação de atividades" description="Entenda as opções de revisão, aprovação e visibilidade das atividades." items={adminFaq} />
+      <FaqSection title="{t("adminActivities.faqTitle")}" description="{t("adminActivities.faqDescription")}" items={adminFaq} />
     </RoleBasedLayout>
   );
 }
