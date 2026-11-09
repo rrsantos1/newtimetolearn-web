@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -30,6 +31,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function NewWordSearchPage() {
+  const { t } = useTranslation();
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -52,8 +54,8 @@ export default function NewWordSearchPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Criar caça-palavras"
-      description="Crie uma atividade personalizada para seus alunos."
+      title={t("activity.page.create.wordSearch")}
+      description={t("activity.page.description.wordSearch")}
     >
       {success ? (
         <section
@@ -74,7 +76,7 @@ export default function NewWordSearchPage() {
             </h2>
 
             <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">
-              Seu caça-palavras foi salvo como rascunho. Para enviá-lo à aprovação do administrador, abra Minhas atividades, clique em Editar e selecione Enviar para aprovação.
+              Seu caça-palavras foi salvo como rascunho. Para enviá-lo à aprovação do administrador, abra {t("navigation.myActivities")}, clique em Editar e selecione Enviar para aprovação.
             </p>
 
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
@@ -83,7 +85,7 @@ export default function NewWordSearchPage() {
               </p>
 
               <p className="mt-1 text-sm leading-6 text-amber-800">
-                Depois do envio, a atividade ficará disponível para você e para os administradores durante a análise. Os demais professores só poderão acessá-la após a aprovação.
+                {t("activity.page.savedDraft")}
               </p>
             </div>
 
@@ -93,7 +95,7 @@ export default function NewWordSearchPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-5 py-3 font-semibold text-gray-900 transition hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
               >
                 <ClipboardList aria-hidden="true" className="size-5" />
-                Ver minhas atividades
+                {t("activity.page.viewActivities")}
               </Link>
 
               <Link
@@ -101,7 +103,7 @@ export default function NewWordSearchPage() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-5 py-3 font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
               >
                 <ArrowLeft aria-hidden="true" className="size-5" />
-                Voltar à área do professor
+                {t("activity.page.backToTeacher")}
               </Link>
             </div>
           </div>
@@ -114,7 +116,7 @@ export default function NewWordSearchPage() {
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition hover:text-gray-900"
             >
               <ArrowLeft aria-hidden="true" className="size-4" />
-              Voltar à área do professor
+              {t("activity.page.backToTeacher")}
             </Link>
           </div>
 
