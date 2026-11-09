@@ -50,15 +50,6 @@ const defaultInitialValues: CreateWordSearchFormValues = {
   words: ["", "", ""],
 };
 
-const difficulties: {
-  value: ActivityDifficulty;
-  label: string;
-}[] = [
-  { value: "EASY", label: "Fácil" },
-  { value: "MEDIUM", label: "Média" },
-  { value: "HARD", label: "Difícil" },
-];
-
 const inputClassName =
   "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
 
@@ -73,6 +64,11 @@ export function WordSearchForm({
   mode = "create",
 }: Readonly<WordSearchFormProps>) {
   const { t } = useTranslation();
+  const difficulties: { value: ActivityDifficulty; label: string }[] = [
+    { value: "EASY", label: t("activity.form.easy") },
+    { value: "MEDIUM", label: t("activity.form.medium") },
+    { value: "HARD", label: t("activity.form.hard") },
+  ];
   const isEditing = mode === "edit";
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
@@ -92,12 +88,11 @@ export function WordSearchForm({
             <div className="mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
-                <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
+                <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> {t("activity.ai.generateIdeas")}</button>
               </div>
 
               <p className="mt-1 text-sm leading-6 text-muted">
-                Defina o título, a dificuldade e o tempo disponível para os
-                alunos.
+                {t("activity.form.descriptionPlaceholder")}
               </p>
             </div>
 
@@ -202,7 +197,7 @@ export function WordSearchForm({
                           htmlFor={`words.${index}`}
                           className="sr-only"
                         >
-                          Palavra {index + 1}
+                          {t("activity.form.word")} {index + 1}
                         </label>
 
                         <Field
@@ -210,9 +205,9 @@ export function WordSearchForm({
                           name={`words.${index}`}
                           type="text"
                           maxLength={50}
-                          placeholder={`Palavra ${index + 1}`}
+                          placeholder={`${t("activity.form.word")} ${index + 1}`}
                           className={inputClassName}
-                          aria-label={`Palavra ${index + 1}`}
+                          aria-label={`${t("activity.form.word")} ${index + 1}`}
                           aria-invalid={Boolean(getIn(errors, `words.${index}`) && submitCount > 0)}
                         />
 
@@ -253,11 +248,11 @@ export function WordSearchForm({
                     className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus size={17} aria-hidden="true" />
-                    Adicionar palavra
+                    {t("activity.form.addWord")}
                   </button>
 
                   <p className="text-xs text-muted">
-                    {values.words.length} de 30 palavras
+                    {values.words.length} / 30 {t("activity.form.words")}
                   </p>
                 </div>
               )}
