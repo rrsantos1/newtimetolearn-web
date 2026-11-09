@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ActivityCoverSelector, type ActivityCoverSelection } from "@/modules/activities/components/ActivityCoverSelector";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import type { ChangeEvent, MouseEvent } from "react";
@@ -63,6 +64,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function EditListeningPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [name, setName] = useState("");
@@ -288,7 +290,7 @@ export default function EditListeningPage() {
   function ignoreSelection(event: MouseEvent<HTMLButtonElement>): void { event.preventDefault(); }
 
   return (
-    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Editar atividade de Listening" description="Edite os textos, revise as lacunas e atualize as narrações.">
+    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.edit.listening")} description={t("activity.page.editDescription.listening")}>
       <div className="mb-6">
         <Link href="/teacher/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
           <ArrowLeft aria-hidden="true" size={16} /> Voltar às atividades
@@ -326,7 +328,7 @@ export default function EditListeningPage() {
               {passage.audio?.disclosure && <p className="mt-2 text-xs text-muted">{passage.audio.disclosure}</p>}
             </article>
           ))}
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p><button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Save aria-hidden="true" size={18} />{saving ? "Salvando..." : "Salvar alterações"}</button></div>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p><button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Save aria-hidden="true" size={18} />{saving ? t("activity.page.saving") : "Salvar alterações"}</button></div>
         </div>
       )}
     </RoleBasedLayout>
