@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -57,8 +58,9 @@ function isWordPositions(value: unknown): value is WordPosition[] {
 }
 
 function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }>) {
+  const { t } = useTranslation();
   if (ranking.length === 0) {
-    return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
+    return <p className="mt-3 text-sm text-muted">{t("activities.play.noRanking")}</p>;
   }
 
   return (
@@ -82,6 +84,7 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
 }
 
 export default function PlayWordSearchPage() {
+  const { t } = useTranslation();
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
@@ -113,7 +116,7 @@ export default function PlayWordSearchPage() {
     try {
       setRanking(await getWordSearchRankingService.execute(slug));
     } catch (loadError: unknown) {
-      setRankingError(getErrorMessage(loadError, "Não foi possível carregar o ranking agora."));
+      setRankingError(getErrorMessage(loadError, t("activities.play.loadingRanking")));
     } finally {
       setRankingLoading(false);
     }
@@ -147,7 +150,7 @@ export default function PlayWordSearchPage() {
       } catch (submitError: unknown) {
         setAttemptError(getErrorMessage(
           submitError,
-          "Não foi possível registrar sua pontuação. Tente novamente mais tarde.",
+          t("activities.play.retrySubmit"),
         ));
       } finally {
         setSubmittingAttempt(false);
@@ -222,19 +225,19 @@ export default function PlayWordSearchPage() {
 
   return (
     <PublicActivityLayout immersive
-      title={activity?.version.name ?? "Caça-palavras"}
-      description={activity?.version.description ?? "Encontre todas as palavras escondidas na grade."}
+      title={activity?.version.name ?? t("activities.type.wordSearch")}
+      description={activity?.version.description ?? t("activities.play.wordSearchInstruction")}
       titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
     >
 
           {loading ? (
             <div role="status" className="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6">
               <LoaderCircle className="size-8 animate-spin text-primary" aria-hidden="true" />
-              <p className="text-sm text-muted">Carregando caça-palavras...</p>
+              <p className="text-sm text-muted">{t("activities.play.loadingGame")}</p>
             </div>
           ) : error ? (
             <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6">
-              <h1 className="text-lg font-semibold text-red-900">Não foi possível abrir o jogo</h1>
+              <h1 className="text-lg font-semibold text-red-900">{t("activities.play.openError")}</h1>
               <p className="mt-2 text-sm leading-6 text-red-800">{error}</p>
             </section>
           ) : activity ? (
@@ -247,19 +250,19 @@ export default function PlayWordSearchPage() {
                     </div>
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">
-                      Encontre todas as palavras escondidas na grade.
+                      {t("activities.play.wordSearchInstruction")}
                     </p>
                                         {(user?.roles.includes("TEACHER") || user?.roles.includes("ADMIN")) && (
                       <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" style={{ color: "var(--primary-foreground)" }}>
-                        <Play size={18} aria-hidden="true" /> Testar caça-palavras
+                        <Play size={18} aria-hidden="true" /> {t("activities.play.testWordSearch")}
                       </button>
                     )}
                     {isStudent && (
                       <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" style={{ color: "var(--primary-foreground)" }}>
-                        <Play size={18} aria-hidden="true" /> Iniciar caça-palavras
+                        <Play size={18} aria-hidden="true" /> {t("activities.play.startWordSearch")}
                       </button>
                     )}
-                    {!isStudent && !user?.roles.includes("TEACHER") && <p className="mt-5 text-sm text-muted">A prévia está disponível. A execução pontuada é exclusiva para alunos.</p>}
+                    {!isStudent && !user?.roles.includes("TEACHER") && <p className="mt-5 text-sm text-muted">{t("activities.play.previewOnly")}</p>}
                   </section>
 
                   {isStudent && (
@@ -268,7 +271,7 @@ export default function PlayWordSearchPage() {
                         <Trophy size={21} className="text-primary" aria-hidden="true" />
                         <h2 className="text-lg font-bold text-dark">{t("play.rankingRecord")}</h2>
                       </div>
-                      <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
+                      <p className="mt-1 text-sm text-muted">{t("activities.play.rankingHint")}</p>
                       {rankingLoading ? (
                         <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted">
                           <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> {t("play.loadingRanking")}
@@ -311,9 +314,9 @@ export default function PlayWordSearchPage() {
 
               {phase === "finished" && !isStudent && (
                 <section className="rounded-2xl border border-sky-200 bg-sky-50/60 p-6 shadow-sm sm:p-8">
-                  <h2 className="text-xl font-bold text-dark">Teste concluído</h2>
+                  <h2 className="text-xl font-bold text-dark">{t("activities.play.previewDone")}</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">
-                    Você terminou a prévia desta atividade. Testes de professor não são registrados no ranking dos alunos.
+                    {t("activities.play.previewDoneText")}
                   </p>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                     <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>
@@ -330,13 +333,13 @@ export default function PlayWordSearchPage() {
                     <div>
                       <ConfettiCelebration active={attemptResult.attempt.wordsFound.length === attemptResult.attempt.totalWords} />
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
-                      <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
+                      <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 {t("activities.play.points")}</span></p>
                       <p className="mt-2 text-sm text-muted">{t("play.wordsFound")}:  {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
                       
                       <p className="mt-1 text-sm text-muted">{t("play.accuracy")}:  {attemptResult.attempt.accuracyPoints}/100</p>
                     </div>
                     <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
-                      {attemptResult.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Desta vez, seu resultado não entrou no Top 5. Continue praticando!"}
+                      {attemptResult.isInRanking ? "{t("activities.play.congratsTop5")}" : "{t("activities.play.notTop5")}"}
                     </p>
                   </div>
                   <div className="mt-6">
