@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { AuthenticatedNavigation } from "@/components/layout/AuthenticatedNavigation";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
@@ -51,6 +52,7 @@ export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProp
         <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
           <BrandLogo href="/dashboard" />
           <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher />
             {isAdmin && (
               <Link
                 href="/admin"
