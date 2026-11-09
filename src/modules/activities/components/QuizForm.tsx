@@ -3,7 +3,8 @@ import { ActivityCoverField } from "@/modules/activities/components/ActivityCove
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
+import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
+import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Eye, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
@@ -257,12 +258,12 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
               <div>
                 <label htmlFor="name" className={labelClassName}>Nome do Quiz *</label>
                 <Field id="name" name="name" maxLength={120} className={fieldClassName("name")} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0))} />
-                <ErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
+                <LocalizedErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
               </div>
               <div>
                 <label htmlFor="description" className={labelClassName}>{t("activity.form.description")}</label>
                 <Field as="textarea" id="description" name="description" rows={3} maxLength={2000} className={fieldClassName("description")} aria-invalid={Boolean(getIn(errors, "description") && (getIn(touched, "description") || submitCount > 0))} />
-                <ErrorMessage name="description" component="p" className="mt-1 text-sm text-red-600" />
+                <LocalizedErrorMessage name="description" component="p" className="mt-1 text-sm text-red-600" />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
@@ -293,7 +294,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <div>
                       <label htmlFor={`content.questions.${questionIndex}.statement`} className={labelClassName}>Enunciado *</label>
                       <Field as="textarea" id={`content.questions.${questionIndex}.statement`} name={`content.questions.${questionIndex}.statement`} rows={3} maxLength={2000} className={fieldClassName(`content.questions.${questionIndex}.statement`)} aria-required="true" aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.statement`) && (getIn(touched, `content.questions.${questionIndex}.statement`) || submitCount > 0))} />
-                      <ErrorMessage name={`content.questions.${questionIndex}.statement`} component="p" className="mt-1 text-sm text-red-600" />
+                      <LocalizedErrorMessage name={`content.questions.${questionIndex}.statement`} component="p" className="mt-1 text-sm text-red-600" />
                     </div>
                     <ImageAttachments
                       idPrefix={`question-${question.id}-images`}
@@ -315,7 +316,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                               <div className="min-w-0 flex-1">
                                 <label htmlFor={`content.questions.${questionIndex}.options.${optionIndex}.text`} className="sr-only">Texto da alternativa {optionIndex + 1}</label>
                                 <Field id={`content.questions.${questionIndex}.options.${optionIndex}.text`} name={`content.questions.${questionIndex}.options.${optionIndex}.text`} maxLength={1000} placeholder={`${t("activity.form.alternative")} ${optionIndex + 1}`} className={fieldClassName(`content.questions.${questionIndex}.options.${optionIndex}.text`)} aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.options.${optionIndex}.text`) && (getIn(touched, `content.questions.${questionIndex}.options.${optionIndex}.text`) || submitCount > 0))} />
-                                <ErrorMessage name={`content.questions.${questionIndex}.options.${optionIndex}.text`} component="p" className="mt-1 text-sm text-red-600" />
+                                <LocalizedErrorMessage name={`content.questions.${questionIndex}.options.${optionIndex}.text`} component="p" className="mt-1 text-sm text-red-600" />
                                 <ImageAttachments
                                   idPrefix={`question-${question.id}-option-${option.id}-images`}
                                   label="Imagens da alternativa"
@@ -335,8 +336,8 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                               </button>
                             </div>
                           ))}
-                          <ErrorMessage name={`content.questions.${questionIndex}.options`} component="p" className="text-sm text-red-600" />
-                          <ErrorMessage name={`content.questions.${questionIndex}.correctOptionId`} component="p" className="text-sm text-red-600" />
+                          <LocalizedErrorMessage name={`content.questions.${questionIndex}.options`} component="p" className="text-sm text-red-600" />
+                          <LocalizedErrorMessage name={`content.questions.${questionIndex}.correctOptionId`} component="p" className="text-sm text-red-600" />
                           <button type="button" onClick={() => pushOption(createOption(question.options.length))} disabled={question.options.length >= 6}
                             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40">
                             <Plus aria-hidden="true" size={16} /> Adicionar alternativa
@@ -348,7 +349,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <div className="mt-5">
                       <label htmlFor={`content.questions.${questionIndex}.explanation`} className={labelClassName}>{t("activity.form.explanation")}</label>
                       <Field as="textarea" id={`content.questions.${questionIndex}.explanation`} name={`content.questions.${questionIndex}.explanation`} rows={2} maxLength={2000} className={inputClassName} />
-                      <ErrorMessage name={`content.questions.${questionIndex}.explanation`} component="p" className="mt-1 text-sm text-red-600" />
+                      <LocalizedErrorMessage name={`content.questions.${questionIndex}.explanation`} component="p" className="mt-1 text-sm text-red-600" />
                     </div>
                   </section>
                 ))}
