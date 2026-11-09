@@ -25,7 +25,6 @@ export const createQuizService = {
           options: question.options.map((option) => ({
             ...option,
             text: option.text?.trim() ?? "",
-            images: option.images ?? [],
           })),
           images: question.images ?? [],
         })),
