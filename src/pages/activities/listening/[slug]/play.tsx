@@ -108,11 +108,12 @@ function RankingList({ result }: Readonly<{ result: ListeningAttemptResult }>) {
 }
 
 export default function PlayListeningPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar às atividades" : "Voltar às atividades";
+  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ListeningExecutionActivity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -180,7 +181,7 @@ export default function PlayListeningPage() {
 
     if (!isStudent) {
       setSubmitting(false);
-      setPreviewNotice("Prévia concluída. O resultado não foi registrado no histórico dos alunos.");
+      setPreviewNotice("{t("play.previewFinished")}. O resultado não foi registrado no histórico dos alunos.");
       return;
     }
 
@@ -242,7 +243,7 @@ export default function PlayListeningPage() {
 
         {loading ? (
           <div role="status" className="flex min-h-40 items-center justify-center gap-3 rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
-            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />Carregando atividade...
+            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />{t("play.loading")}
           </div>
         ) : loadError ? (
           <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{loadError}</section>
@@ -259,7 +260,7 @@ export default function PlayListeningPage() {
                   
                 </div>
                 <button type="button" onClick={startActivity} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                  <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar atividade" : "Testar atividade"}
+                  <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                 </button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A prévia não será registrada no histórico dos alunos.</p>}
               </section>
@@ -293,7 +294,7 @@ export default function PlayListeningPage() {
                 <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
                   <p className="text-sm text-muted">Você pode revisar as respostas antes de enviar.</p>
                   <button type="button" onClick={() => void finishAttempt(false)} disabled={submitting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                    {submitting && <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />}Finalizar atividade
+                    {submitting && <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />}{t("play.finish")}
                   </button>
                 </div>
               </div>
@@ -306,13 +307,13 @@ export default function PlayListeningPage() {
                 ) : submitError ? (
                   <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                     <p>{submitError}</p>
-                    <button type="button" onClick={() => void finishAttempt(true)} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">Tentar registrar novamente</button>
+                    <button type="button" onClick={() => void finishAttempt(true)} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100">{t("play.submitRetry")}</button>
                   </div>
                 ) : (
                   <>
                     <div>
                       <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalBlanks > 0 && result.attempt.correctBlanks === result.attempt.totalBlanks} />
-                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
                       {result ? (
                         <>
                           <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
@@ -321,14 +322,14 @@ export default function PlayListeningPage() {
                           <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
                         </>
                       ) : (
-                        <p className="mt-2 text-sm text-muted">{previewNotice || "Prévia concluída."}.</p>
+                        <p className="mt-2 text-sm text-muted">{previewNotice || "{t("play.previewFinished")}."}.</p>
                       )}
                     </div>
 
                     {result && (
                       <>
                         <div>
-                          <div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking — Top 5</h2></div>
+                          <div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.ranking")}</h2></div>
                           <RankingList result={result} />
                         </div>
                         <div className="space-y-3">
@@ -339,8 +340,8 @@ export default function PlayListeningPage() {
                                 {item.isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
                                   <p className="text-sm font-semibold text-dark">Lacuna {index + 1}: {item.isCorrect ? "correta" : "incorreta"}</p>
-                                  <p className="mt-1 text-sm text-muted">Sua resposta: <span className="font-medium text-dark">{item.answer.trim() || "Não respondida"}</span></p>
-                                  {!item.isCorrect && <p className="mt-1 text-sm text-emerald-700">Resposta correta: {item.expectedAnswer}</p>}
+                                  <p className="mt-1 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{item.answer.trim() || "{t("play.unanswered")}"}</span></p>
+                                  {!item.isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {item.expectedAnswer}</p>}
                                 </div>
                               </div>
                             </article>
@@ -349,7 +350,7 @@ export default function PlayListeningPage() {
                       </>
                     )}
                     <div className="flex flex-col gap-3 sm:flex-row">
-                      <button type="button" onClick={startActivity} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>Tentar novamente</button>
+                      <button type="button" onClick={startActivity} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>{t("play.retry")}</button>
                     </div>
                   </>
                 )}
