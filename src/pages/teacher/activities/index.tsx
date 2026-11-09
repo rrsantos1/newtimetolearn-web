@@ -24,7 +24,9 @@ import { listActivitiesService } from "@/modules/activities/services/listActivit
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { submitActivityVersionService } from "@/modules/activities/services/wordSearch/submitActivityVersionService";
 import { favoriteActivityService } from "@/modules/activities/services/favoriteActivityService";
-import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
+import { activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
+import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import type {
   ActivityListData,
   ListedActivity,
@@ -32,24 +34,19 @@ import type {
 
 const CREATE_ACTIVITY_ROUTE = "/teacher/activities/new";
 
-const versionStatusLabels: Record<string, string> = {
-  DRAFT: "Rascunho",
-  PENDING_REVIEW: "Aguardando aprovação",
-  PUBLISHED: "Publicada",
-  REJECTED: "Rejeitada",
-  CHANGES_REQUESTED: "Alterações solicitadas",
+const statusTranslationKeys: Record<string, TranslationKey> = {
+  DRAFT: "activities.status.draft",
+  PENDING_REVIEW: "activities.status.pending",
+  PUBLISHED: "activities.status.published",
+  REJECTED: "activities.status.rejected",
+  CHANGES_REQUESTED: "activities.status.changes",
+  ARCHIVED: "activities.status.archived",
 };
 
-const activityStatusLabels: Record<string, string> = {
-  DRAFT: "Rascunho",
-  PUBLISHED: "Publicada",
-  ARCHIVED: "Arquivada",
-};
-
-const difficultyLabels: Record<string, string> = {
-  EASY: "Fácil",
-  MEDIUM: "Média",
-  HARD: "Difícil",
+const difficultyTranslationKeys: Record<string, TranslationKey> = {
+  EASY: "activities.difficulty.easy",
+  MEDIUM: "activities.difficulty.medium",
+  HARD: "activities.difficulty.hard",
 };
 
 function getErrorMessage(error: unknown): string {
@@ -84,12 +81,10 @@ function getDeleteErrorMessage(error: unknown): string {
   return "Ocorreu um erro inesperado ao excluir a atividade.";
 }
 
-function getStatusLabel(activity: ListedActivity): string {
-  return activity.latestVersion
-    ? versionStatusLabels[activity.latestVersion.status] ??
-        activityStatusLabels[activity.status] ??
-        activity.status
-    : activityStatusLabels[activity.status] ?? activity.status;
+function getStatusLabel(activity: ListedActivity, t: (key: TranslationKey) => string): string {
+  const status = activity.latestVersion?.status ?? activity.status;
+  const key = statusTranslationKeys[status];
+  return key ? t(key) : status;
 }
 
 function getStatusClass(activity: ListedActivity): string {
@@ -126,34 +121,9 @@ function canEditActivity(activity: ListedActivity): boolean {
   ].includes(activity.latestVersion.status);
 }
 
-function getActivityTypeLabel(type: ListedActivity["type"]): string {
-  if (type === "word_search") {
-    return "Caça-palavras";
-  }
-
-  if (type === "crossword") {
-    return "Palavras cruzadas";
-  }
-
-  if (type === "quiz") {
-    return "Quiz";
-  }
-
-  if (type === "memory") {
-    return "Jogo da memória";
-  }
-
-  if (type === "listening") {
-    return "Listening";
-  }
-
-  if (type === "word_matching") return "Associação de palavras";
-  if (type === "sentence_completion") return "Complete as frases";
-  if (type === "multiple_choice") return "Múltipla escolha";
-  if (type === "mole_hit") return "Acerte a toupeira";
-  if (type === "roulette") return "Roleta";
-
-  return type.replaceAll("_", " ");
+function getActivityTypeLabel(type: ListedActivity["type"], t: (key: TranslationKey) => string): string {
+  const key = activityTypeTranslationKeys[type];
+  return t(key);
 }
 
 
@@ -172,14 +142,14 @@ function getEditHref(activity: ListedActivity): string {
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return "Data indisponível";
   }
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -195,6 +165,7 @@ function getActivityName(activity: ListedActivity): string {
 }
 
 export default function TeacherActivitiesPage() {
+  const { t, locale } = useTranslation();
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -321,8 +292,8 @@ export default function TeacherActivitiesPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Minhas atividades"
-      description="Consulte suas atividades, acompanhe o status de aprovação e gerencie seus materiais pedagógicos."
+      title={t("activities.teacher.title")}
+      description={t("activities.teacher.description")}
       titleActions={(
         <Link
           href={CREATE_ACTIVITY_ROUTE}
@@ -335,39 +306,39 @@ export default function TeacherActivitiesPage() {
       )}
     >
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> Buscar e filtrar atividades</div>
+        <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark"><SlidersHorizontal size={17} aria-hidden="true" /> {t("activities.filters")}</div>
         <div className="grid gap-3 md:grid-cols-3">
           <label className="relative block">
-            <span className="sr-only">Buscar por título ou descrição</span>
+            <span className="sr-only">{t("activities.searchLabel")}</span>
             <Search size={17} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="search"
               value={search}
               onChange={(event) => { setSearch(event.target.value); setPage(1); }}
-              placeholder="Buscar atividade..."
+              placeholder={t("activities.searchPlaceholder")}
               className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
           </label>
           <label>
-            <span className="sr-only">Filtrar por tipo</span>
+            <span className="sr-only">{t("activities.filterType")}</span>
             <select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
-              <option value="ALL">Todos os tipos</option>
-              {Object.entries(activityTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              <option value="ALL">{t("activities.allTypes")}</option>
+              {Object.entries(activityTypeTranslationKeys).map(([value, label]) => <option key={value} value={value}>{t(label)}</option>)}
             </select>
           </label>
           <label>
-            <span className="sr-only">Filtrar por dificuldade</span>
+            <span className="sr-only">{t("activities.filterDifficulty")}</span>
             <select value={difficultyFilter} onChange={(event) => { setDifficultyFilter(event.target.value); setPage(1); }} className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark">
-              <option value="ALL">Todas as dificuldades</option>
-              <option value="EASY">Fácil</option>
-              <option value="MEDIUM">Média</option>
-              <option value="HARD">Difícil</option>
+              <option value="ALL">{t("activities.allDifficulties")}</option>
+              <option value="EASY">{t("activities.difficulty.easy")}</option>
+              <option value="MEDIUM">{t("activities.difficulty.medium")}</option>
+              <option value="HARD">{t("activities.difficulty.hard")}</option>
             </select>
           </label>
         </div>
         <label className="mt-3 inline-flex min-h-10 items-center gap-2 text-sm font-medium text-dark">
           <input type="checkbox" checked={favoritesOnly} onChange={(event) => { setFavoritesOnly(event.target.checked); setPage(1); }} className="size-4 accent-current" />
-          Somente atividades favoritas
+          {t("activities.favoritesOnly")}
         </label>
       </section>
 
@@ -381,7 +352,7 @@ export default function TeacherActivitiesPage() {
           <button
             type="button"
             onClick={() => setSuccessMessage("")}
-            aria-label="Fechar mensagem de sucesso"
+            aria-label={t("activities.closeSuccess")}
             className="rounded-md p-1 transition hover:bg-green-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
           >
             <X size={16} aria-hidden="true" />
@@ -433,7 +404,7 @@ export default function TeacherActivitiesPage() {
           className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
         >
           <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
-          <p className="text-sm text-muted">Carregando atividades...</p>
+          <p className="text-sm text-muted">{t("activities.loading")}</p>
         </section>
       ) : result && result.items.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
@@ -442,11 +413,11 @@ export default function TeacherActivitiesPage() {
           </span>
 
           <h2 className="mt-5 text-lg font-semibold text-dark">
-            Você ainda não tem atividades
+            {t("activities.emptyTeacherTitle")}
           </h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            Crie seu primeiro caça-palavras, palavras cruzadas ou Quiz para começar a organizar atividades para seus alunos.
+            {t("activities.emptyTeacherDescription")}
           </p>
 
           <Link
@@ -462,12 +433,12 @@ export default function TeacherActivitiesPage() {
           <div className="mb-4 flex items-center justify-between gap-3">
             <p className="text-sm text-muted" aria-live="polite">
               {result.pagination.total === 1
-                ? "1 atividade encontrada"
-                : `${result.pagination.total} atividades encontradas`}
+                ? t("activities.countOne")
+                : t("activities.countMany").replace("{count}", String(result.pagination.total))}
             </p>
 
             {isLoading && (
-              <span className="text-xs text-muted">Atualizando...</span>
+              <span className="text-xs text-muted">{t("activities.updating")}</span>
             )}
           </div>
 
@@ -485,20 +456,20 @@ export default function TeacherActivitiesPage() {
                   <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                     {activity.latestVersion && (
                       <span>
-                        Dificuldade:{" "}
+                        {t("activities.difficulty")}{" "}
                         <strong className="font-semibold text-dark">
-                          {difficultyLabels[activity.latestVersion.difficulty] ?? activity.latestVersion.difficulty}
+                          {t(difficultyTranslationKeys[activity.latestVersion.difficulty] ?? "activities.difficulty.medium")}
                         </strong>
                       </span>
                     )}
                     
-                    <span>Criada em {formatDate(activity.createdAt)}</span>
+                    <span>Criada em {formatDate(activity.createdAt, locale)}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                      {getActivityTypeLabel(activity.type)}
+                      {getActivityTypeLabel(activity.type, t)}
                     </p>
 
                     <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
@@ -515,22 +486,21 @@ export default function TeacherActivitiesPage() {
                   <span
                     className={`inline-flex w-fit shrink-0 items-center rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(activity)}`}
                   >
-                    {getStatusLabel(activity)}
+                    {getStatusLabel(activity, t)}
                   </span>
                 </div>
 
                 {activity.latestVersion?.status === "REJECTED" &&
                   activity.latestVersion.revision > 0 && (
                     <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs leading-5 text-red-800">
-                      Esta versão foi rejeitada. Os detalhes da revisão estarão
-                      disponíveis ao abrir a atividade.
+                      {t("activities.rejectedNotice")}
                     </p>
                   )}
 
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                   <span className="text-xs text-muted">
                     {activity.executionCount}{" "}
-                    {activity.executionCount === 1 ? "execução" : "execuções"}
+                    {activity.executionCount === 1 ? t("activities.executionOne") : t("activities.executionMany")}
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
@@ -538,7 +508,7 @@ export default function TeacherActivitiesPage() {
                     {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
-                        title="Ver histórico"
+                        title={t("activities.history")}
                         aria-label={`Ver histórico de ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
@@ -569,7 +539,7 @@ export default function TeacherActivitiesPage() {
                                           : activity.type === "roulette"
                                             ? `/activities/roulette/${encodeURIComponent(activity.slug)}/play`
                                             : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
-                        title="Executar atividade"
+                        title={t("activities.run")}
                         aria-label={`Executar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                         style={{ color: "var(--primary-foreground)" }}
@@ -584,7 +554,7 @@ export default function TeacherActivitiesPage() {
                           type="button"
                           onClick={() => void handleSubmitForApproval(activity)}
                           disabled={Boolean(submittingSlug)}
-                          title="Enviar para aprovação"
+                          title={t("activities.submitApproval")}
                           aria-label={`Enviar ${getActivityName(activity)} para aprovação`}
                           className="inline-flex size-9 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
                           style={{ color: "var(--primary-foreground)" }}
@@ -598,7 +568,7 @@ export default function TeacherActivitiesPage() {
                     {canEditActivity(activity) && (
                       <Link
                         href={getEditHref(activity)}
-                        title="Editar atividade"
+                        title={t("activities.edit")}
                         aria-label={`Editar ${getActivityName(activity)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
@@ -612,7 +582,7 @@ export default function TeacherActivitiesPage() {
                         setActivityToDelete(activity);
                         setDeleteErrorMessage("");
                       }}
-                      title="Excluir atividade"
+                      title={t("activities.delete")}
                       aria-label={`Excluir atividade ${getActivityName(activity)}`}
                       className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                     >
@@ -626,7 +596,7 @@ export default function TeacherActivitiesPage() {
 
           {result.pagination.totalPages > 1 && (
             <nav
-              aria-label="Paginação das atividades"
+              aria-label={t("activities.pagination")}
               className="mt-8 flex items-center justify-center gap-3"
             >
               <button
@@ -643,7 +613,7 @@ export default function TeacherActivitiesPage() {
               </button>
 
               <span className="text-sm text-muted">
-                Página {result.pagination.page} de {result.pagination.totalPages}
+                {t("activities.pageOf").replace("{page}", String(result.pagination.page)).replace("{total}", String(result.pagination.totalPages))}
               </span>
 
               <button
@@ -706,7 +676,7 @@ export default function TeacherActivitiesPage() {
                   setDeleteErrorMessage("");
                 }}
                 disabled={Boolean(deletingSlug)}
-                aria-label="Fechar confirmação"
+                aria-label="{t("activities.confirmClose")}"
                 className="rounded-lg p-1.5 text-muted transition hover:bg-background hover:text-dark disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X size={18} aria-hidden="true" />
@@ -717,9 +687,7 @@ export default function TeacherActivitiesPage() {
               id="delete-activity-description"
               className="mt-4 text-sm leading-6 text-muted"
             >
-              A atividade deixará de ficar disponível para os alunos. O
-              histórico de versões, execuções e resultados será preservado.
-              Esta ação não pode ser desfeita pela tela.
+              {t("activities.deleteDescription")}
             </p>
 
             {deleteErrorMessage && (
@@ -757,7 +725,7 @@ export default function TeacherActivitiesPage() {
                 ) : (
                   <>
                     <Trash2 size={16} aria-hidden="true" />
-                    Confirmar exclusão
+                    {t("activities.confirmDelete")}
                   </>
                 )}
               </button>
