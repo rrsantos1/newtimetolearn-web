@@ -213,7 +213,7 @@ export default function TeacherActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, reloadKey, search, typeFilter, difficultyFilter, favoritesOnly]);
+  }, [page, reloadKey, search, typeFilter, difficultyFilter, favoritesOnly, t]);
 
   async function handleSubmitForApproval(activity: ListedActivity): Promise<void> {
     if (submittingSlug || activity.latestVersion?.status !== "DRAFT") {
