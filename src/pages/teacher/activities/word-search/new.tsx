@@ -23,11 +23,11 @@ function getErrorMessage(error: unknown): string {
     return (
       responseData?.error?.message ??
       responseData?.message ??
-      "Não foi possível criar a atividade. Tente novamente."
+      t("activity.creation.error")
     );
   }
 
-  return "Ocorreu um erro inesperado ao criar a atividade.";
+  return t("activity.creation.unexpectedError");
 }
 
 export default function NewWordSearchPage() {
@@ -72,16 +72,16 @@ export default function NewWordSearchPage() {
               id="creation-success-title"
               className="text-2xl font-semibold text-gray-900"
             >
-              Atividade criada com sucesso!
+              {t("activity.page.savedTitle")}
             </h2>
 
             <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">
-              Seu caça-palavras foi salvo como rascunho. Para enviá-lo à aprovação do administrador, abra {t("navigation.myActivities")}, clique em Editar e selecione Enviar para aprovação.
+              {t("activity.page.savedDraft")}
             </p>
 
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
               <p className="font-medium text-amber-900">
-                O que acontece agora?
+                {t("activity.page.nextSteps")}
               </p>
 
               <p className="mt-1 text-sm leading-6 text-amber-800">
