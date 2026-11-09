@@ -290,7 +290,7 @@ const translations = {
     "activities.type.wordMatching": "Word matching",
     "activities.type.sentenceCompletion": "Sentence completion",
     "activities.type.multipleChoice": "Multiple choice",
-    "activities.type.moleHit": "Whack-a-mole",
+
     "activities.type.hangman": "Hangman",
     "activities.type.roulette": "Roulette",
     "activities.executionOne": "attempt",
