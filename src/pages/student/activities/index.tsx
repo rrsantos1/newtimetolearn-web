@@ -25,10 +25,10 @@ import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
 
 const PAGE_SIZE = 12;
 
-const difficultyLabels: Record<ActivityDifficulty, string> = {
-  EASY: "Fácil",
-  MEDIUM: "Média",
-  HARD: "Difícil",
+const difficultyKeys: Record<ActivityDifficulty, "activities.difficulty.easy" | "activities.difficulty.medium" | "activities.difficulty.hard"> = {
+  EASY: "activities.difficulty.easy",
+  MEDIUM: "activities.difficulty.medium",
+  HARD: "activities.difficulty.hard",
 };
 
 function getErrorMessage(error: unknown): string {
@@ -55,7 +55,7 @@ function getActivityName(activity: ListedActivity): string {
   );
 }
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
@@ -172,7 +172,7 @@ export default function ExploreActivitiesPage() {
               <option value="ALL">{t("activities.allTypes")}</option>
               {Object.entries(activityTypeLabels).map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(key)}
                 </option>
               ))}
             </select>
@@ -191,7 +191,7 @@ export default function ExploreActivitiesPage() {
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">{t("activities.allDifficulties")}</option>
-              {Object.entries(difficultyLabels).map(([value, label]) => (
+              {Object.entries(difficultyKeys).map(([value, key]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
@@ -280,12 +280,12 @@ export default function ExploreActivitiesPage() {
                     <span>
                       {t("activities.difficulty")}{" "}
                       <strong className="font-semibold text-dark">
-                        {difficultyLabels[activity.latestVersion.difficulty]}
+                        {t(difficultyKeys[activity.latestVersion.difficulty])}
                       </strong>
                     </span>
                   )}
                   
-                  <span>{t("activities.publishedAt").replace("{date}", formatDate(activity.createdAt))}</span>
+                  <span>{t("activities.publishedAt").replace("{date}", formatDate(activity.createdAt, locale))}</span>
                 </div>
               </div>
                 <div className="flex-1">
