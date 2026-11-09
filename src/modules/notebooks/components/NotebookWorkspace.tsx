@@ -315,7 +315,7 @@ export function NotebookWorkspace({
   function renderOrderControls(day: NotebookDay, entryIndex: number): ReactNode {
     return (
       <div className="mb-2 flex items-center justify-end gap-1">
-        <span className="mr-auto text-[11px] font-semibold text-[#76694f]">Posição {entryIndex + 1}</span>
+        <span className="mr-auto text-[11px] font-semibold text-[#76694f]">{t("notebook.orderPosition")} {entryIndex + 1}</span>
         <button type="button" disabled={isSavingOrder || entryIndex === 0} onClick={() => void moveEntry(day, entryIndex, -1)} aria-label={t("notebook.moveUp")} className="inline-flex size-8 items-center justify-center rounded-md border border-[#c8b994] bg-white text-[#51452f] disabled:opacity-30">
           <ArrowUp size={15} aria-hidden="true" />
         </button>
@@ -355,13 +355,13 @@ export function NotebookWorkspace({
     if (activeAttachmentAction) return;
     const previewWindow = window.open("about:blank", "_blank");
     if (!previewWindow) {
-      setError("Permita a abertura de novas janelas para visualizar o documento.");
+      setError(t("notebook.allowPopups"));
       return;
     }
     setError("");
     setActiveAttachmentAction({ entryId, action: "open" });
     try {
-      previewWindow.document.title = "Carregando documento...";
+      previewWindow.document.title = t("notebook.loadingDocument");
       const blob = await downloadNotebookAttachment(relationshipId, entryId, timeoutMs);
       const objectUrl = URL.createObjectURL(blob);
       previewWindow.location.href = objectUrl;
@@ -595,7 +595,7 @@ export function NotebookWorkspace({
                       <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" />{t("notebook.saveToPage")}</button>
-                        <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                        <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> {t("notebook.cancel")}</button>
                       </div>
                     </div>
                   ) : (
@@ -639,8 +639,8 @@ export function NotebookWorkspace({
                                       type="button"
                                       onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo", contentText(entry.content.contentType).startsWith("video/") ? 360_000 : 60_000)}
                                       disabled={activeAttachmentAction !== null}
-                                      aria-label={`Baixar ${contentText(entry.content.fileName) || "arquivo"}`}
-                                      title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? "Baixando..." : "Baixar arquivo"}
+                                      aria-label={`Baixar ${contentText(entry.content.fileName) || t("notebook.file")}`}
+                                      title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? t("notebook.downloading") : t("notebook.downloadFile")}
                                       className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf] disabled:cursor-wait disabled:opacity-50"
                                     >
                                       {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Download size={15} aria-hidden="true" />}
@@ -650,8 +650,8 @@ export function NotebookWorkspace({
                                         type="button"
                                         onClick={() => void handleOpenAttachment(entry.id)}
                                         disabled={activeAttachmentAction !== null}
-                                        aria-label={`Abrir ${contentText(entry.content.fileName) || "documento"} no navegador`}
-                                        title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? "Abrindo..." : "Abrir no navegador"}
+                                        aria-label={`Abrir ${contentText(entry.content.fileName) || t("notebook.document")} no navegador`}
+                                        title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? t("notebook.opening") : t("notebook.openInBrowser")}
                                         className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf] disabled:cursor-wait disabled:opacity-50"
                                       >
                                         {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
@@ -663,7 +663,7 @@ export function NotebookWorkspace({
                                   <button
                                     type="button"
                                     onClick={() => setResizingImageEntryId((current) => current === entry.id ? null : entry.id)}
-                                    aria-label={resizingImageEntryId === entry.id ? "Fechar redimensionamento" : t("notebook.resizeImage")}
+                                    aria-label={resizingImageEntryId === entry.id ? t("notebook.closeResize") : t("notebook.resizeImage")}
                                     aria-expanded={resizingImageEntryId === entry.id}
                                     title={t("notebook.resizeImage")}
                                     className={resizingImageEntryId === entry.id ? "inline-flex size-8 items-center justify-center rounded-lg border border-[#8b6b2e] bg-[#f5efdf] text-[#51452f]" : "inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] hover:bg-[#f5efdf]"}
@@ -682,8 +682,8 @@ export function NotebookWorkspace({
                                   type="button"
                                   onClick={() => void handleAttachmentDownload(entry.id, contentText(entry.content.fileName) || "anexo", contentText(entry.content.contentType).startsWith("video/") ? 360_000 : 60_000)}
                                   disabled={activeAttachmentAction !== null}
-                                  aria-label={`Baixar ${contentText(entry.content.fileName) || "arquivo"}`}
-                                  title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? "Baixando..." : "Baixar arquivo"}
+                                  aria-label={`Baixar ${contentText(entry.content.fileName) || t("notebook.file")}`}
+                                  title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? t("notebook.downloading") : t("notebook.downloadFile")}
                                   className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] disabled:cursor-wait disabled:opacity-50"
                                 >
                                   {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "download" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Download size={15} aria-hidden="true" />}
@@ -693,8 +693,8 @@ export function NotebookWorkspace({
                                     type="button"
                                     onClick={() => void handleOpenAttachment(entry.id)}
                                     disabled={activeAttachmentAction !== null}
-                                    aria-label={`Abrir ${contentText(entry.content.fileName) || "documento"} no navegador`}
-                                    title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? "Abrindo..." : "Abrir no navegador"}
+                                    aria-label={`Abrir ${contentText(entry.content.fileName) || t("notebook.document")} no navegador`}
+                                    title={activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? t("notebook.opening") : t("notebook.openInBrowser")}
                                     className="inline-flex size-8 items-center justify-center rounded-lg border border-[#c8b994] bg-white text-[#51452f] disabled:cursor-wait disabled:opacity-50"
                                   >
                                     {activeAttachmentAction?.entryId === entry.id && activeAttachmentAction.action === "open" ? <LoaderCircle size={15} className="animate-spin" aria-hidden="true" /> : <Eye size={15} aria-hidden="true" />}
@@ -708,7 +708,7 @@ export function NotebookWorkspace({
                                   key={entry.id}
                                   relationshipId={relationshipId}
                                   entryId={entry.id}
-                                  fileName={contentText(entry.content.fileName) || "Imagem do caderno"}
+                                  fileName={contentText(entry.content.fileName) || t("notebook.notebookImage")}
                                   initialWidth={typeof entry.content.displayWidth === "number" ? entry.content.displayWidth : 100}
                                   canResize={mode === "teacher"}
                                   resizeOpen={resizingImageEntryId === entry.id}
@@ -719,7 +719,7 @@ export function NotebookWorkspace({
                                     await loadContent();
                                   }}
                                 />
-                                <p className="mt-2 text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || "Imagem anexada"}</p>
+                                <p className="mt-2 text-center text-xs text-[#76694f]">{contentText(entry.content.fileName) || t("notebook.attachedImage")}</p>
                               </div>
                             ) : entry.kind === "FILE" && contentText(entry.content.contentType).startsWith("video/") ? (
                               <div className="space-y-2 p-2">
@@ -746,7 +746,7 @@ export function NotebookWorkspace({
                                 {activeAttachmentAction?.entryId === entry.id && (
                                   <span className="inline-flex items-center gap-1 text-xs text-[#76694f]" role="status" aria-live="polite">
                                     <LoaderCircle size={13} className="animate-spin" aria-hidden="true" />
-                                    {activeAttachmentAction.action === "download" ? "Baixando..." : "Abrindo..."}
+                                    {activeAttachmentAction.action === "download" ? t("notebook.downloading") : t("notebook.opening")}
                                   </span>
                                 )}
                               </div>
@@ -754,7 +754,7 @@ export function NotebookWorkspace({
                               <div className="p-2">
                                   <p className="font-semibold text-[#51452f]">{contentText(entry.content.title) || "Atividade"}</p>
                                   <a href={contentText(entry.content.url)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 underline">
-                                    Abrir atividade <ExternalLink size={14} aria-hidden="true" />
+                                    {t("notebook.openActivity")} <ExternalLink size={14} aria-hidden="true" />
                                   </a>
                                 </div>
                             ) : isEditingText ? (
@@ -762,7 +762,7 @@ export function NotebookWorkspace({
                                 <NotebookRichTextEditor initialContent={editingDocument ?? undefined} onChange={setEditingDocument} />
                                 <div className="flex flex-wrap gap-2">
                                   <button type="button" onClick={() => void handleSaveText(entry.id)} disabled={isSavingEdit || !hasDocumentText(editingDocument)} className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" />{t("notebook.saveChanges")}</button>
-                                  <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); }} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                                  <button type="button" onClick={() => { setEditingEntryId(null); setEditingDocument(null); }} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#c8b994] px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> {t("notebook.cancel")}</button>
                                 </div>
                               </div>
                             ) : (
@@ -779,7 +779,7 @@ export function NotebookWorkspace({
                           <NotebookRichTextEditor initialContent={newDocument ?? undefined} onChange={setNewDocument} />
                           <div className="flex flex-wrap gap-2">
                             <button type="button" onClick={() => void handleSaveText(null)} disabled={isSavingEdit || !hasDocumentText(newDocument)} className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-primary px-3 text-xs font-semibold text-white disabled:opacity-50"><Save size={14} aria-hidden="true" />{t("notebook.saveToPage")}</button>
-                            <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> Cancelar</button>
+                            <button type="button" onClick={() => { setIsCreatingText(false); setIsCreatingNewDay(false); setCreatingTextPageIndex(null); setNewDocument(null); }} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[#c8b994] bg-white px-3 text-xs font-semibold text-[#51452f]"><X size={14} aria-hidden="true" /> {t("notebook.cancel")}</button>
                           </div>
                         </div>
                       )}
@@ -840,8 +840,8 @@ export function NotebookWorkspace({
                 type="button"
                 onClick={() => setIsReordering((value) => !value)}
                 aria-pressed={isReordering}
-                aria-label={isReordering ? t("notebook.finishOrganization") : "Organizar itens"}
-                title={isReordering ? t("notebook.finishOrganization") : "Organizar itens"}
+                aria-label={isReordering ? t("notebook.finishOrganization") : t("notebook.organizeItems")}
+                title={isReordering ? t("notebook.finishOrganization") : t("notebook.organizeItems")}
                 className={isReordering ? "inline-flex size-10 items-center justify-center rounded-xl border border-[#8b6b2e] bg-[#8b6b2e] text-white shadow-sm" : "inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf]"}
               >
                 <ListOrdered size={18} aria-hidden="true" />
@@ -863,8 +863,8 @@ export function NotebookWorkspace({
               type="button"
               onClick={() => setShowNotes((value) => !value)}
               aria-expanded={showNotes}
-              aria-label={showNotes ? "Ocultar bloco de notas" : "Exibir bloco de notas"}
-              title={showNotes ? "Ocultar bloco de notas" : "Exibir bloco de notas"}
+              aria-label={showNotes ? t("notebook.hideNotes") : t("notebook.showNotes")}
+              title={showNotes ? t("notebook.hideNotes") : t("notebook.showNotes")}
               className={showNotes ? "inline-flex size-10 items-center justify-center rounded-xl border border-[#8b6b2e] bg-[#f5efdf] text-[#51452f] shadow-sm" : "inline-flex size-10 items-center justify-center rounded-xl border border-[#c8b994] bg-[#fffdf5] text-[#51452f] shadow-sm hover:bg-[#f5efdf]"}
             >
               <MessageCircle size={18} aria-hidden="true" />
@@ -1026,7 +1026,7 @@ export function NotebookWorkspace({
                   disabled={safeNotesPage === 0}
                   className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border bg-white px-2.5 text-xs font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  <ChevronLeft size={14} aria-hidden="true" /> Anterior
+                  <ChevronLeft size={14} aria-hidden="true" /> {t("notebook.previous")}
                 </button>
                 <span className="text-xs font-medium text-muted" aria-live="polite">
                   {safeNotesPage + 1} de {totalNotesPages}
@@ -1041,13 +1041,13 @@ export function NotebookWorkspace({
                 </button>
               </nav>
             )}
-            {replyTo && <p className="mt-3 text-xs text-primary">Respondendo a uma mensagem. <button type="button" onClick={() => setReplyTo(null)} className="underline">{t("notebook.cancel")}</button></p>}
+            {replyTo && <p className="mt-3 text-xs text-primary">{t("notebook.replying")} <button type="button" onClick={() => setReplyTo(null)} className="underline">{t("notebook.cancel")}</button></p>}
             <form onSubmit={(event) => void handleAddNote(event)} className="mt-4 space-y-2">
               <label htmlFor="notebook-note" className="text-sm font-medium text-dark">{t("notebook.yourMessage")}</label>
               <textarea id="notebook-note" required value={noteText} onChange={(event) => setNoteText(event.target.value)} rows={3} maxLength={5000} className="w-full rounded-xl border border-border bg-white p-3 text-sm text-dark outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" placeholder={t("notebook.notePlaceholder")} />
               <button type="submit" disabled={isSavingNote || !noteText.trim()} className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-primary px-3 text-sm font-semibold text-white disabled:opacity-50">
                 <Send size={15} aria-hidden="true" />
-                {isSavingNote ? "Enviando..." : "Enviar mensagem"}
+                {isSavingNote ? t("notebook.sending") : t("notebook.sendMessage")}
               </button>
             </form>
           </aside>
@@ -1086,7 +1086,7 @@ export function NotebookWorkspace({
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setDateEntry(null)} disabled={isSavingEdit} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">{t("notebook.cancel")}</button>
               <button type="submit" disabled={isSavingEdit || !dateEntry.date} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : "Salvar data"}
+                <Save size={15} aria-hidden="true" /> {isSavingEdit ? t("notebook.saving") : t("notebook.saveDate")}
               </button>
             </div>
           </form>
@@ -1104,7 +1104,7 @@ export function NotebookWorkspace({
           >
             <div className="flex items-center justify-between gap-3">
               <h3 id="notebook-link-title" className="text-lg font-semibold text-[#51452f]">
-                {editingLink.id ? t("notebook.editLink") : "Novo link de atividade"}
+                {editingLink.id ? t("notebook.editLink")  : t("notebook.newActivityLink")}
               </h3>
               <button type="button" onClick={() => setEditingLink(null)} disabled={isSavingEdit} aria-label={t("notebook.closeDialog")} className="inline-flex size-9 items-center justify-center rounded-lg border border-[#c8b994] text-[#51452f] disabled:opacity-40">
                 <X size={17} aria-hidden="true" />
@@ -1133,7 +1133,7 @@ export function NotebookWorkspace({
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setEditingLink(null)} disabled={isSavingEdit} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">{t("notebook.cancel")}</button>
               <button type="submit" disabled={isSavingEdit || !editingLink.title.trim() || !editingLink.url.trim()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : editingLink.id ? t("notebook.saveChanges") : "Publicar link"}
+                <Save size={15} aria-hidden="true" /> {isSavingEdit ? "Salvando..." : editingLink.id ? t("notebook.saveChanges")  : t("notebook.publishLink")}
               </button>
             </div>
           </form>
@@ -1165,13 +1165,13 @@ export function NotebookWorkspace({
               className="sr-only"
             />
             <button type="button" onClick={() => fileInputRef.current?.click()} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-[#b9a77f] bg-white px-3 text-sm font-semibold text-[#51452f] hover:bg-[#f5efdf]">
-              <Paperclip size={17} aria-hidden="true" /> {selectedFile ? "Escolher outro arquivo" : "Selecionar arquivo"}
+              <Paperclip size={17} aria-hidden="true" /> {selectedFile ? t("notebook.chooseAnotherFile") : t("notebook.selectFile")}
             </button>
-            {selectedFile && <p className="mt-3 break-all text-sm text-[#66583e]">Selecionado: {selectedFile.name}</p>}
+            {selectedFile && <p className="mt-3 break-all text-sm text-[#66583e]">{t("notebook.selected")} {selectedFile.name}</p>}
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => { setShowAttachmentModal(false); setSelectedFile(null); }} disabled={isUploadingAttachment} className="inline-flex min-h-10 items-center rounded-lg border border-[#c8b994] px-4 text-sm font-semibold text-[#51452f] disabled:opacity-40">{t("notebook.cancel")}</button>
               <button type="submit" disabled={!selectedFile || isUploadingAttachment} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-                <Paperclip size={15} aria-hidden="true" /> {isUploadingAttachment ? "Enviando..." : "Anexar"}
+                <Paperclip size={15} aria-hidden="true" /> {isUploadingAttachment ? t("notebook.sending") : t("notebook.attach")}
               </button>
             </div>
           </form>
