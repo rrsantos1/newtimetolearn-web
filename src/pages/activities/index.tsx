@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Gamepad2 } from "lucide-react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
 import { FaqSection } from "@/modules/faq/components/FaqSection";
-import { activitiesFaq } from "@/modules/faq/data/faqContent";
+import { activitiesFaq, activitiesFaqEn } from "@/modules/faq/data/faqContent";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { listPublicActivitiesService } from "@/modules/activities/services/listPublicActivitiesService";
 import type { ActivityListData, ActivityType, ListedActivity } from "@/modules/activities/types/activityList.types";
@@ -57,7 +57,7 @@ function getPlayHref(activity: ListedActivity): string {
 }
 
 export default function PublicActivitiesPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
   const [loadedPage, setLoadedPage] = useState<number | null>(null);
@@ -136,7 +136,7 @@ export default function PublicActivitiesPage() {
           <p className="mt-10 rounded-2xl border border-border bg-white p-8 text-sm text-muted">{t("activities.public.empty")}</p>
         )}
       </section>
-      <FaqSection title={t("activities.public.faqTitle")} description={t("activities.public.faqDescription")} items={activitiesFaq} />
+      <FaqSection title={t("activities.public.faqTitle")} description={t("activities.public.faqDescription")} items={locale === "en" ? activitiesFaqEn : activitiesFaq} />
       <PublicFooter />
     </main>
   );
