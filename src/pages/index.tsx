@@ -110,7 +110,7 @@ export default function Home() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/register"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-semibold text-white shadow-lg shadow-accent/15 transition hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-semibold !text-white shadow-lg shadow-accent/15 transition hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 Começar agora
                 <ArrowRight size={18} aria-hidden="true" />
@@ -256,7 +256,7 @@ export default function Home() {
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">{item.description}</p>
                   <div className="mt-5 flex items-center justify-between gap-3">
                     <strong className="text-base text-dark">{(item.price_cents / 100).toLocaleString("pt-BR", { style: "currency", currency: item.currency })}</strong>
-                    <Link href={`/marketplace/${encodeURIComponent(item.slug)}`} className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                    <Link href={`/marketplace/${encodeURIComponent(item.slug)}`} className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-semibold !text-white hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                       Ver material
                     </Link>
                   </div>
