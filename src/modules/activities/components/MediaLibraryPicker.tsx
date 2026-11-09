@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Library, Search, X } from "lucide-react";
 import { mediaLibraryService, type MediaLibraryAsset, type MediaStorageUsage } from "@/modules/activities/services/mediaLibraryService";
 
@@ -23,6 +24,7 @@ function formatBytes(bytes: number): string {
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
 
 export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibraryPickerProps>) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [items, setItems] = useState<MediaLibraryAsset[]>([]);
@@ -39,7 +41,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
         if (active) setStorageUsage(usage);
       })
       .catch(() => {
-        if (active) setStorageUsageError("Não foi possível consultar o armazenamento utilizado.");
+        if (active) setStorageUsageError(t("activity.media.storageError"));
       });
     return () => {
       active = false;
@@ -56,7 +58,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
         const assets = await mediaLibraryService.list(search);
         if (active) setItems(assets);
       } catch (requestError: unknown) {
-        if (active) setError(requestError instanceof Error ? requestError.message : "Não foi possível carregar a biblioteca.");
+        if (active) setError(requestError instanceof Error ? requestError.message : t("activity.media.loadError"));
       } finally {
         if (active) setLoading(false);
       }
@@ -79,7 +81,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 id="media-library-title" className="text-xl font-bold text-dark">Biblioteca de imagens</h2>
-                <p className="mt-1 text-sm text-muted">Selecione uma imagem já aprovada para reutilizar nesta atividade.</p>
+                <p className="mt-1 text-sm text-muted">{t("activity.media.description")}</p>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Fechar biblioteca de imagens"
                 className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
@@ -111,7 +113,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
                   </div>
                 )}
                 <p className="mt-2 text-xs text-muted">
-                  A cota considera imagens, miniaturas, áudios do Listening e anexos do caderno virtual.
+                  {t("activity.media.quotaHelp")}
                 </p>
               </section>
             )}
@@ -124,7 +126,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
             </div>
             {loading && <p role="status" className="mt-5 text-sm text-muted">Carregando imagens...</p>}
             {error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
-            {!loading && !error && items.length === 0 && <p className="mt-5 rounded-xl bg-background p-5 text-sm text-muted">Nenhuma imagem aprovada encontrada. As imagens enviadas ficam disponíveis após a validação automática.</p>}
+            {!loading && !error && items.length === 0 && <p className="mt-5 rounded-xl bg-background p-5 text-sm text-muted">{t("activity.media.empty")}</p>}
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {items.map((asset) => (
                 <li key={asset.id}>
