@@ -210,7 +210,7 @@ export default function PendingActivitiesPage() {
           {visibleActivities.map((activity) => (
             <article key={activity.slug} className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
 <div className="mb-4 flex items-start gap-4">
-                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity, t)} className="w-[42%] max-w-56 shrink-0" />
                 <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                   {activity.latestVersion && (
                     <span>
