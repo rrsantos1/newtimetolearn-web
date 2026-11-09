@@ -19,6 +19,7 @@ import type {
   RegisterResponse,
 } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -31,6 +32,7 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [notice, setNotice] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation();
 
   const formik = useFormik<RegisterFormValues>({
     initialValues,
@@ -59,7 +61,7 @@ export default function RegisterPage() {
             if (data.error.code === "EMAIL_ALREADY_REGISTERED") {
               helpers.setFieldError(
                 "email",
-                "Este e-mail já está cadastrado.",
+                t("register.emailExists"),
               );
               return;
             }
@@ -93,13 +95,13 @@ export default function RegisterPage() {
 
           setNotice(
             error.response
-              ? "Não foi possível concluir o cadastro. Confira os dados e tente novamente."
-              : "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.",
+              ? t("register.failed")
+              : t("auth.connectionFailed"),
           );
           return;
         }
 
-        setNotice("Ocorreu um erro inesperado. Tente novamente.");
+        setNotice(t("auth.unexpected"));
       } finally {
         helpers.setSubmitting(false);
       }
@@ -132,7 +134,7 @@ export default function RegisterPage() {
           </span>
 
           <h1 className="mt-6 text-2xl font-bold text-dark">
-            Cadastro realizado!
+            {t("register.successTitle")}
           </h1>
 
           <p className="mt-3 leading-7 text-muted" role="status">
@@ -140,15 +142,14 @@ export default function RegisterPage() {
           </p>
 
           <p className="mt-4 text-sm leading-6 text-muted">
-            Acesse sua caixa de entrada e siga as instruções enviadas para
-            ativar sua conta.
+            {t("register.successDescription")}
           </p>
 
           <Link
             href="/"
             className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-dark transition hover:bg-primary-hover"
           >
-            Voltar ao início
+            {t("register.backHome")}
             <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </section>
@@ -168,11 +169,11 @@ export default function RegisterPage() {
             </span>
 
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-dark sm:text-4xl">
-              Crie sua conta
+              {t("register.title")}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
-              Comece sua jornada de aprendizagem com o TimeToLearn.
+              {t("register.description")}
             </p>
           </div>
 
@@ -192,7 +193,7 @@ export default function RegisterPage() {
                   htmlFor="name"
                   className="text-sm font-semibold text-dark"
                 >
-                  Nome completo
+                  {t("register.fullName")}
                 </label>
 
                 <div className="relative">
@@ -206,7 +207,7 @@ export default function RegisterPage() {
                     name="name"
                     type="text"
                     autoComplete="name"
-                    placeholder="Como podemos chamar você?"
+                    placeholder={t("register.namePlaceholder")}
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -249,7 +250,7 @@ export default function RegisterPage() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="voce@exemplo.com"
+                    placeholder={t("register.emailPlaceholder")}
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -420,12 +421,12 @@ export default function RegisterPage() {
 
             <div className="mt-7 border-t border-border pt-6 text-center">
               <p className="text-sm text-muted">
-                Já tem uma conta?{" "}
+                {t("auth.noAccount")}{" "}
                 <Link
                   href="/login"
                   className="font-semibold text-dark underline decoration-amber-400 decoration-2 underline-offset-4 hover:text-amber-700"
                 >
-                  Entrar
+                  {t("auth.login")}
                 </Link>
               </p>
             </div>
