@@ -9,13 +9,12 @@ const imageSchema = Yup.object({
 const optionSchema = Yup.object({
   id: Yup.string().required("Identificador da alternativa obrigatório.").max(50),
   text: Yup.string().trim().max(1000, "O texto deve ter no máximo 1000 caracteres.").optional().default(""),
-  images: Yup.array().of(imageSchema).max(5, "Use no máximo 5 imagens por alternativa.").default([]),
 }).test(
-  "option-has-content",
-  "Preencha o texto da alternativa ou adicione uma imagem.",
+  "option-has-text",
+  "Preencha o texto da alternativa.",
   function (option) {
-    if (option?.text?.trim() || (option?.images?.length ?? 0) > 0) return true;
-    return this.createError({ path: `${this.path}.text`, message: "Preencha o texto da alternativa ou adicione uma imagem." });
+    if (option?.text?.trim()) return true;
+    return this.createError({ path: `${this.path}.text`, message: "Preencha o texto da alternativa." });
   },
 );
 
