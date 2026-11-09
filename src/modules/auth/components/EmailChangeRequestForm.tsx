@@ -3,6 +3,7 @@ import axios from "axios";
 import { LoaderCircle, Send } from "lucide-react";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { emailChangeService } from "@/modules/auth/services/emailChangeService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface EmailChangeRequestFormProps {
   currentEmail: string;
@@ -17,13 +18,14 @@ export function EmailChangeRequestForm({
   const [currentPassword, setCurrentPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { t } = useTranslation();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
 
     if (newEmail.trim().toLowerCase() === currentEmail.toLowerCase()) {
-      setErrorMessage("O novo e-mail deve ser diferente do atual.");
+      setErrorMessage(t("profile.email.different"));
       return;
     }
 
@@ -47,12 +49,12 @@ export function EmailChangeRequestForm({
         } else {
           setErrorMessage(
             error.response
-              ? "Não foi possível solicitar a alteração do e-mail."
-              : "Falha de conexão. Verifique sua internet e tente novamente.",
+              ? t("profile.email.failed")
+              : t("profile.connectionFailed"),
           );
         }
       } else {
-        setErrorMessage("Ocorreu um erro inesperado.");
+        setErrorMessage(t("profile.unexpected"));
       }
     } finally {
       setIsSubmitting(false);
@@ -75,7 +77,7 @@ export function EmailChangeRequestForm({
           htmlFor="newEmail"
           className="text-sm font-semibold text-dark"
         >
-          Novo e-mail
+          {t("profile.email.new")}
         </label>
         <input
           id="newEmail"
@@ -97,7 +99,7 @@ export function EmailChangeRequestForm({
           htmlFor="currentPassword"
           className="text-sm font-semibold text-dark"
         >
-          Senha atual
+          {t("profile.password.current")}
         </label>
         <input
           id="currentPassword"
@@ -112,7 +114,7 @@ export function EmailChangeRequestForm({
           className="mt-2 min-h-12 w-full rounded-xl border border-border bg-white px-4 text-sm text-dark outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:opacity-60"
         />
         <p className="mt-2 text-xs leading-5 text-muted">
-          Por segurança, confirme sua identidade com a senha atual.
+          {t("profile.password.confirmIdentity")}
         </p>
       </div>
 
@@ -124,12 +126,12 @@ export function EmailChangeRequestForm({
         {isSubmitting ? (
           <>
             <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
-            Enviando...
+            {t("profile.email.sending")}
           </>
         ) : (
           <>
             <Send size={17} aria-hidden="true" />
-            Solicitar alteração
+            {t("profile.email.request")}
           </>
         )}
       </button>
