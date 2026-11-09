@@ -2,8 +2,8 @@ import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiAc
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import {
-  ErrorMessage,
   Field,
   FieldArray,
   Form,
@@ -113,7 +113,7 @@ export function CrosswordForm({
                   aria-required="true"
                   aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
                 />
-                <ErrorMessage name="name" component="p" className={errorClassName} />
+                <LocalizedErrorMessage name="name" component="p" className={errorClassName} />
               </div>
 
               <div>
@@ -129,7 +129,7 @@ export function CrosswordForm({
                   placeholder={t("activity.form.descriptionPlaceholder")}
                   className={`${inputClassName} resize-y`}
                 />
-                <ErrorMessage name="description" component="p" className={errorClassName} />
+                <LocalizedErrorMessage name="description" component="p" className={errorClassName} />
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
@@ -148,7 +148,7 @@ export function CrosswordForm({
                       <option key={value} value={value}>{label}</option>
                     ))}
                   </Field>
-                  <ErrorMessage name="difficulty" component="p" className={errorClassName} />
+                  <LocalizedErrorMessage name="difficulty" component="p" className={errorClassName} />
                 </div>
               </div>
             </div>
@@ -185,7 +185,7 @@ export function CrosswordForm({
                             aria-required="true"
                             aria-invalid={Boolean(getIn(errors, `words.${index}.word`) && submitCount > 0)}
                           />
-                          <ErrorMessage name={`words.${index}.word`} component="p" className={errorClassName} />
+                          <LocalizedErrorMessage name={`words.${index}.word`} component="p" className={errorClassName} />
                         </div>
                         <div>
                           <label htmlFor={`words.${index}.clue`} className={labelClassName}>
@@ -201,7 +201,7 @@ export function CrosswordForm({
                             aria-required="true"
                             aria-invalid={Boolean(getIn(errors, `words.${index}.clue`) && submitCount > 0)}
                           />
-                          <ErrorMessage name={`words.${index}.clue`} component="p" className={errorClassName} />
+                          <LocalizedErrorMessage name={`words.${index}.clue`} component="p" className={errorClassName} />
                         </div>
                         <button
                           type="button"
