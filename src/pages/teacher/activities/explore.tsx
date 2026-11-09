@@ -21,7 +21,8 @@ import type {
   ActivityListData,
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
-import { activityTypeLabels } from "@/modules/activities/types/activityCatalog";
+import { activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const PAGE_SIZE = 12;
 
@@ -70,6 +71,7 @@ function formatDate(value: string): string {
 }
 
 export default function ExploreActivitiesPage() {
+  const { t } = useTranslation();
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<ActivityType | "ALL">("ALL");
@@ -125,18 +127,18 @@ export default function ExploreActivitiesPage() {
       area="teacher"
       allowedRoles={["TEACHER"]}
       backLinkPlacement="title"
-      title="Biblioteca de atividades"
-      description="Explore atividades publicadas por outros professores e encontre materiais para usar com seus alunos."
+      title={t("teacherExplore.title")}
+      description={t("teacherExplore.description")}
     >
       <section className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-dark">
           <SlidersHorizontal size={17} aria-hidden="true" />
-          Buscar e filtrar atividades
+          {t("teacherExplore.filtersTitle")}
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="relative block md:col-span-1">
-            <span className="sr-only">Buscar por título ou descrição</span>
+            <span className="sr-only">{t("teacherExplore.searchLabel")}</span>
             <Search
               size={17}
               aria-hidden="true"
@@ -149,13 +151,13 @@ export default function ExploreActivitiesPage() {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Buscar atividade..."
+              placeholder={t("teacherExplore.searchPlaceholder")}
               className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-dark outline-none transition placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
           </label>
 
           <label className="block">
-            <span className="sr-only">Filtrar por tipo</span>
+            <span className="sr-only">{t("activities.filterType")}</span>
             <select
               value={typeFilter}
               onChange={(event) => {
@@ -164,17 +166,17 @@ export default function ExploreActivitiesPage() {
               }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
-              <option value="ALL">Todos os tipos</option>
-              {Object.entries(activityTypeLabels).map(([value, label]) => (
+              <option value="ALL">{t("activities.allTypes")}</option>
+              {Object.entries(activityTypeTranslationKeys).map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="block">
-            <span className="sr-only">Filtrar por dificuldade</span>
+            <span className="sr-only">{t("activities.filterDifficulty")}</span>
             <select
               value={difficultyFilter}
               onChange={(event) => {
@@ -185,7 +187,7 @@ export default function ExploreActivitiesPage() {
               }}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
-              <option value="ALL">Todas as dificuldades</option>
+              <option value="ALL">{t("activities.allDifficulties")}</option>
               {Object.entries(difficultyLabels).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
@@ -204,7 +206,7 @@ export default function ExploreActivitiesPage() {
             }}
             className="size-4 accent-current"
           />
-          Somente atividades favoritas
+          {t("teacherExplore.favoritesOnly")}
         </label>
       </section>
 
@@ -220,7 +222,7 @@ export default function ExploreActivitiesPage() {
             onClick={() => setReloadKey((current) => current + 1)}
             className="ml-auto shrink-0 rounded-lg border border-red-300 px-3 py-2 font-semibold transition hover:bg-red-100"
           >
-            Tentar novamente
+            {t("common.tryAgain")}
           </button>
         </section>
       )}
@@ -231,7 +233,7 @@ export default function ExploreActivitiesPage() {
           className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
         >
           <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
-          <p className="text-sm text-muted">Carregando biblioteca...</p>
+          <p className="text-sm text-muted">{t("teacherExplore.loading")}</p>
         </section>
       ) : !errorMessage && result && result.items.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
@@ -239,12 +241,12 @@ export default function ExploreActivitiesPage() {
             <BookOpen size={26} aria-hidden="true" />
           </span>
           <h2 className="mt-5 text-lg font-semibold text-dark">
-            Nenhuma atividade encontrada
+            {t("teacherExplore.emptyTitle")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
             {search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly
-              ? "Tente alterar os termos da busca ou os filtros selecionados."
-              : "Quando outros professores publicarem atividades elegíveis para compartilhamento, elas aparecerão aqui."}
+              ? "{t("teacherExplore.adjustFilters")}"
+              : "{t("teacherExplore.emptyDescription")}"}
           </p>
           {(search || typeFilter !== "ALL" || difficultyFilter !== "ALL" || favoritesOnly) && (
             <button
@@ -258,7 +260,7 @@ export default function ExploreActivitiesPage() {
               }}
               className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background"
             >
-              Limpar filtros
+              {t("activities.clearFilters")}
             </button>
           )}
         </section>
@@ -273,7 +275,7 @@ export default function ExploreActivitiesPage() {
           </div>
 
           <section
-            aria-label="Biblioteca de atividades"
+            aria-label={t("teacherExplore.libraryLabel")}
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
             {result.items.map((activity) => (
@@ -293,7 +295,7 @@ export default function ExploreActivitiesPage() {
                     </span>
                   )}
                   
-                  <span>Publicada em {formatDate(activity.createdAt)}</span>
+                  <span>{t("teacherExplore.published")} em {formatDate(activity.createdAt)}</span>
                 </div>
               </div>
                 <div className="flex-1">
@@ -302,7 +304,7 @@ export default function ExploreActivitiesPage() {
                       {activityTypeLabels[activity.type] ?? activity.type}
                     </p>
                     <span className="inline-flex shrink-0 items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
-                      Publicada
+                      {t("teacherExplore.published")}
                     </span>
                   </div>
 
@@ -320,7 +322,7 @@ export default function ExploreActivitiesPage() {
                 <div className="mt-5 flex items-center justify-between gap-3">
                   <span className="text-xs text-muted">
                     {activity.executionCount}{" "}
-                    {activity.executionCount === 1 ? "execução" : "execuções"}
+                    {activity.executionCount === 1 ? t("teacherExplore.executionSingular") : t("teacherExplore.executionPlural")}
                   </span>
 
                   <div className="flex items-center gap-2">
@@ -352,9 +354,9 @@ export default function ExploreActivitiesPage() {
                         }
                       }}
                       aria-label={activity.isFavorite
-                        ? `Remover ${getActivityName(activity)} dos favoritos`
-                        : `Favoritar ${getActivityName(activity)}`}
-                      title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                        ? t("teacherExplore.removeFavoriteAria", { name: getActivityName(activity) })
+                        : t("teacherExplore.addFavoriteAria", { name: getActivityName(activity) })}
+                      title={activity.isFavorite ? t("teacherExplore.removeFavorite") : t("teacherExplore.addFavorite")}
                       className={`inline-flex size-10 items-center justify-center rounded-lg border border-border transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-50 ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}
                     >
                       <Heart size={17} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" />
@@ -366,7 +368,7 @@ export default function ExploreActivitiesPage() {
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "crossword" ? (
                     <Link
@@ -374,7 +376,7 @@ export default function ExploreActivitiesPage() {
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "quiz" ? (
                     <Link
@@ -383,43 +385,43 @@ export default function ExploreActivitiesPage() {
                       style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "memory" ? (
                     <Link href={`/activities/memory/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "listening" ? (
                     <Link href={`/activities/listening/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "multiple_choice" ? (
                     <Link href={`/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "word_matching" ? (
                     <Link href={`/activities/word-matching/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "sentence_completion" ? (
                     <Link href={`/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "mole_hit" ? (
                     <Link href={`/activities/mole_hit/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "hangman" ? (
                     <Link href={`/activities/hangman/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : activity.type === "roulette" ? (
                     <Link href={`/activities/roulette/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("teacherExplore.execute")}
                     </Link>
                   ) : ( 
                     <span className="inline-flex min-h-10 items-center rounded-lg border border-border px-4 py-2 text-xs font-medium text-muted">
-                      Execução em breve
+                      {t("teacherExplore.comingSoon")}
                     </span>
                   )}
                   </div>
@@ -430,7 +432,7 @@ export default function ExploreActivitiesPage() {
 
           {result.pagination.totalPages > 1 && (
             <nav
-              aria-label="Paginação da biblioteca"
+              aria-label={t("teacherExplore.pagination")}
               className="mt-8 flex items-center justify-center gap-3"
             >
               <button
@@ -440,7 +442,7 @@ export default function ExploreActivitiesPage() {
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
-                Anterior
+                {t("common.previous")}
               </button>
               <span className="text-sm text-muted">
                 Página {result.pagination.page} de {result.pagination.totalPages}
@@ -455,7 +457,7 @@ export default function ExploreActivitiesPage() {
                 disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Próxima
+                {t("common.next")}
                 <ChevronRight size={17} aria-hidden="true" />
               </button>
             </nav>
