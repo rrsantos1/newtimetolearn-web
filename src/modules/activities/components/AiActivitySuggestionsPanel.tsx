@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useFormikContext } from "formik";
 import { Sparkles, X } from "lucide-react";
 import api from "@/lib/api";
@@ -29,6 +30,7 @@ function createId(): string {
 }
 
 export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Readonly<Props>) {
+  const { t } = useTranslation();
   const { values, setFieldValue } = useFormikContext<FormValues>();
   const [topic, setTopic] = useState("");
   const [quantity, setQuantity] = useState(activityType === "quiz" ? 5 : activityType === "memory" ? 6 : activityType === "roulette" ? 8 : 10);
@@ -75,7 +77,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const message = typeof cause === "object" && cause !== null && "response" in cause
         ? ((cause as { response?: { data?: { error?: { message?: string } } } }).response?.data?.error?.message)
         : undefined;
-      setError(message ?? "Não foi possível gerar sugestões. Tente novamente.");
+      setError(message ?? t("activity.ai.generateError"));
     } finally {
       setLoading(false);
     }
@@ -196,7 +198,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
 
   const maxQuantity = activityType === "word_search" ? 25 : activityType === "crossword" ? 20 : activityType === "memory" || activityType === "word_matching" ? 50 : activityType === "sentence_completion" ? 20 : activityType === "roulette" ? 30 : 10;
   const minQuantity = activityType === "quiz" || activityType === "sentence_completion" ? 1 : activityType === "roulette" ? 2 : 3;
-  const title = activityType === "word_search" ? "Sugerir palavras com IA"
+  const title = activityType === "word_search" ? t("activity.ai.generateIdeas")
     : activityType === "crossword" ? "Sugerir respostas e pistas com IA" : activityType === "memory" ? "Sugerir pares com IA" : activityType === "word_matching" ? "Sugerir associações com IA" : activityType === "sentence_completion" ? "Sugerir frases com lacunas com IA" : activityType === "roulette" ? "Sugerir assuntos com IA" : "Criar questões com IA";
 
   const itemCount = !suggestions ? 0 : suggestions.activityType === "word_search"
@@ -216,7 +218,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         </span>
         <div>
           <h2 id="ai-suggestions-title" className="text-lg font-semibold text-dark">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-muted">Opcional: gere ideias, selecione o que deseja aproveitar e revise os campos. Nada é salvo automaticamente.</p>
+          <p className="mt-1 text-sm leading-6 text-muted">{t("activity.ai.optional")}</p>
         </div>
         </div>
         <button type="button" onClick={onClose} aria-label="Fechar sugestões com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-amber-300 text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
@@ -227,25 +229,25 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor="ai-topic" className="mb-2 block text-sm font-medium text-dark">Tema *</label>
-          <input id="ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} placeholder="Ex.: sistema solar, ecossistemas, frações..." className={fieldClass} />
+          <input id="ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} placeholder={t("activity.ai.topicPlaceholder")} className={fieldClass} />
         </div>
         <div>
           <label htmlFor="ai-quantity" className="mb-2 block text-sm font-medium text-dark">Quantidade</label>
           <input id="ai-quantity" type="number" min={minQuantity} max={maxQuantity} value={quantity} onChange={(event) => setQuantity(Number(event.target.value))} className={fieldClass} />
         </div>
         <div>
-          <label htmlFor="ai-difficulty" className="mb-2 block text-sm font-medium text-dark">Dificuldade</label>
+          <label htmlFor="ai-difficulty" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.difficulty")}</label>
           <select id="ai-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as Difficulty)} className={fieldClass}>
-            <option value="easy">Fácil</option><option value="medium">Média</option><option value="hard">Difícil</option>
+            <option value="easy">{t("activity.form.easy")}</option><option value="medium">{t("activity.form.medium")}</option><option value="hard">{t("activity.form.hard")}</option>
           </select>
         </div>
         <div>
-          <label htmlFor="ai-grade" className="mb-2 block text-sm font-medium text-dark">Ano/série (opcional)</label>
+          <label htmlFor="ai-grade" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.grade")}</label>
           <input id="ai-grade" value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} maxLength={80} placeholder="Ex.: 6º ano do Ensino Fundamental" className={fieldClass} />
         </div>
         {activityType === "quiz" && (
           <div>
-            <label htmlFor="ai-option-count" className="mb-2 block text-sm font-medium text-dark">Alternativas por questão</label>
+            <label htmlFor="ai-option-count" className="mb-2 block text-sm font-medium text-dark">{t("activity.ai.optionCount")}</label>
             <select id="ai-option-count" value={optionCount} onChange={(event) => setOptionCount(Number(event.target.value))} className={fieldClass}>
               {[3, 4, 5, 6].map((count) => <option key={count} value={count}>{count} alternativas</option>)}
             </select>
@@ -255,7 +257,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
 
       <button type="button" onClick={() => void generateSuggestions()} disabled={loading || topic.trim().length < 2 || quantity < minQuantity || quantity > maxQuantity}
         className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50">
-        <Sparkles aria-hidden="true" size={17} /> {loading ? "Gerando sugestões..." : "Gerar sugestões"}
+        <Sparkles aria-hidden="true" size={17} /> {loading ? t("activity.ai.generating") : "Gerar sugestões"}
       </button>
 
       {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
@@ -264,10 +266,10 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       {suggestions && (
         <div className="mt-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="font-semibold text-dark">Revise as sugestões ({itemCount})</h3>
+            <h3 className="font-semibold text-dark">{t("activity.ai.review")} ({itemCount})</h3>
             <div className="flex gap-3 text-sm">
-              <button type="button" onClick={() => setSelected(Array.from({ length: itemCount }, (_, index) => index))} className="font-medium underline">Selecionar todas</button>
-              <button type="button" onClick={() => setSelected([])} className="font-medium underline">Limpar seleção</button>
+              <button type="button" onClick={() => setSelected(Array.from({ length: itemCount }, (_, index) => index))} className="font-medium underline">{t("activity.ai.selectAll")}</button>
+              <button type="button" onClick={() => setSelected([])} className="font-medium underline">{t("activity.ai.clear")}</button>
             </div>
           </div>
           <div className="max-h-96 space-y-2 overflow-y-auto">
@@ -287,7 +289,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
           </div>
           <button type="button" onClick={() => void applySelected()} disabled={selected.length === 0}
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-yellow-400 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-yellow-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 disabled:cursor-not-allowed disabled:opacity-50">
-            Adicionar selecionados ao formulário ({selected.length})
+            {t("activity.ai.addSelected")} ({selected.length})
           </button>
         </div>
       )}
