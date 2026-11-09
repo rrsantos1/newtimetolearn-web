@@ -248,7 +248,7 @@ export default function PlayWordSearchPage() {
                     <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                       <Play size={24} aria-hidden="true" />
                     </div>
-                    <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
+                    <h2 className="mt-4 text-xl font-bold text-dark">{t("play.readyTitle")}</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">
                       {t("activities.play.wordSearchInstruction")}
                     </p>
