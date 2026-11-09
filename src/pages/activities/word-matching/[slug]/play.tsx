@@ -50,6 +50,7 @@ function imageUrl(item: Extract<DragItem, { type: "image" }>): string | null {
   return base ? `${base}/${item.storageKey}` : null;
 }
 function ItemView({ item }: Readonly<{ item: DragItem }>) {
+  const { t } = useTranslation();
   if (item.type === "text") return <span className="wrap-break-word text-sm font-semibold text-dark sm:text-base">{item.value}</span>;
   const src = imageUrl(item);
   return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || t("activities.type.wordMatching")} fill sizes="(max-width: 640px) 80vw, 30vw" className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
