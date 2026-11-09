@@ -62,8 +62,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 function RankingList({ ranking }: Readonly<{ ranking: MemoryRankingEntry[] }>) {
+  const { t } = useTranslation();
   if (ranking.length === 0) {
-    return <p className="mt-3 text-sm text-muted">Ainda não há resultados. Você pode ser o primeiro a entrar no ranking!</p>;
+    return <p className="mt-3 text-sm text-muted">{t("play.noRanking")}</p>;
   }
 
   return (
@@ -116,7 +117,7 @@ export default function MemoryGamePage() {
     try {
       setRanking(await getMemoryRankingService.execute(activitySlug));
     } catch (error: unknown) {
-      setRankingError(getErrorMessage(error, "Não foi possível carregar o ranking agora."));
+      setRankingError(getErrorMessage(error, t("play.loadingRanking")));
     } finally {
       setRankingLoading(false);
     }
@@ -135,7 +136,7 @@ export default function MemoryGamePage() {
         setActivity(loaded);
         if (user?.roles.includes("STUDENT")) void loadRanking(loaded.slug);
       } catch (error: unknown) {
-        if (active) setLoadError(getErrorMessage(error, "Não foi possível carregar a atividade."));
+        if (active) setLoadError(getErrorMessage(error, t("play.loading")));
       } finally {
         if (active) setLoading(false);
       }
@@ -204,8 +205,8 @@ export default function MemoryGamePage() {
   const visibleIds = new Set([...openIds, ...cards.filter((card) => matchedIds.includes(card.pairId)).map((card) => card.id)]);
   return (
     <PublicActivityLayout immersive
-        title={activity?.version.name ?? "Atividade"}
-        description={activity?.version.description ?? "Experimente esta atividade."}
+        title={activity?.version.name ?? t("activities.type.memory")}
+        description={activity?.version.description ?? t("play.readyDescription")}
         titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
       >
       {loading ? (
@@ -279,7 +280,7 @@ export default function MemoryGamePage() {
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.playAgain") : "Testar novamente"}</button>
+                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.playAgain") : t("play.tryAgain")}</button>
               </div>
             </section>
           )}
