@@ -83,7 +83,7 @@ export default function ConfirmEmailChangePage() {
     return () => {
       isMounted = false;
     };
-  }, [router.isReady, token, isInvalidToken, refreshProfile]);
+  }, [router.isReady, token, isInvalidToken, refreshProfile, t]);
 
   return (
     <div className="min-h-dvh bg-background">
