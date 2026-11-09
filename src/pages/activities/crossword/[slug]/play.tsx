@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import Link from "next/link";
@@ -95,7 +94,6 @@ function RankingList({ ranking }: Readonly<{ ranking: CrosswordRankingEntry[] }>
 
 export default function PlayCrosswordPage() {
   const { t } = useTranslation();
-  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
@@ -128,7 +126,7 @@ export default function PlayCrosswordPage() {
     } finally {
       setRankingLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleComplete = useCallback(async (answers: string[]): Promise<void> => {
     if (!activity) return;
@@ -153,7 +151,7 @@ export default function PlayCrosswordPage() {
     } finally {
       setSubmittingAttempt(false);
     }
-  }, [activity, attemptResult, isStudent, submittingAttempt]);
+  }, [activity, attemptResult, isStudent, submittingAttempt, t]);
 
   useEffect(() => {
     if (!router.isReady) return;
