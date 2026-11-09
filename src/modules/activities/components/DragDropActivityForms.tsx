@@ -177,7 +177,9 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
   );
 }
 
-export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho" }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
+export function SentenceCompletionForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<CommonProps<CreateSentenceCompletionFormValues>>) {
+  const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateSentenceCompletionFormValues>(() => ({
     name: "", description: "", difficulty: "EASY",
