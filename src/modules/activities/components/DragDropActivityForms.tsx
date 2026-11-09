@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { MemoryItemEditor } from "@/modules/activities/components/MemoryForm";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -83,22 +84,22 @@ function ActivityDetailsFields() {
   const { errors, submitCount } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-      <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
+      <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
       <div className="mt-5 grid gap-5">
         <div>
           <label htmlFor="name" className={labelClass}>Nome da atividade *</label>
           <Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} />
-          {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p> : <p className="mt-1 text-xs text-muted">O campo é obrigatório.</p>}
+          {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p> : <p className="mt-1 text-xs text-muted">{t("activity.form.required")}</p>}
         </div>
         <div>
-          <label htmlFor="description" className={labelClass}>Descrição e instruções</label>
+          <label htmlFor="description" className={labelClass}>{t("activity.form.instructions")}</label>
           <Field as="textarea" id="description" name="description" rows={3} maxLength={2000} className={inputClass} />
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="difficulty" className={labelClass}>Dificuldade</label>
             <Field as="select" id="difficulty" name="difficulty" className={inputClass}>
-              <option value="EASY">Fácil</option><option value="MEDIUM">Média</option><option value="HARD">Difícil</option>
+              <option value="EASY">{t("activity.form.easy")}</option><option value="MEDIUM">{t("activity.form.medium")}</option><option value="HARD">{t("activity.form.hard")}</option>
             </Field>
           </div>
         </div>
@@ -135,7 +136,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                 <div className="space-y-4">
                   {values.content.pairs.map((pair, index) => (
                     <fieldset key={pair.id} className="grid gap-4 rounded-xl border border-border p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                      <legend className="px-1 text-sm font-semibold text-dark">{activityMode === "multiple_choice" ? `Questão ${index + 1}` : `Par ${index + 1}`}</legend>
+                      <legend className="px-1 text-sm font-semibold text-dark">{activityMode === "multiple_choice" ? `${t("activity.form.questionNumber")} ${index + 1}` : `${t("activity.form.pairNumber")} ${index + 1}`}</legend>
                       <div>
                         <MemoryItemEditor
                           name={`content-pairs-${index}-source`}
@@ -149,7 +150,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                       <div>
                         <MemoryItemEditor
                           name={`content-pairs-${index}-target`}
-                          title={activityMode === "multiple_choice" ? "Opção correta *" : "Correspondência *"}
+                          title={activityMode === "multiple_choice" ? `${t("activity.form.correctOption")} *` : `${t("activity.form.matching")} *`}
                           value={pair.target}
                           invalid={Boolean(getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0))}
                           onChange={(item) => void setFieldValue(`content.pairs.${index}.target`, item)}
@@ -163,10 +164,10 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                 </div>
               )}
             </FieldArray>
-            {getIn(errors, "content.pairs") && submitCount > 0 && <p role="alert" className="mt-3 text-sm text-red-600">{typeof getIn(errors, "content.pairs") === "string" ? String(getIn(errors, "content.pairs")) : "Revise as associações: preencha os campos obrigatórios e confirme que cada palavra de origem e cada correspondência sejam únicas."}</p>}
+            {getIn(errors, "content.pairs") && submitCount > 0 && <p role="alert" className="mt-3 text-sm text-red-600">{typeof getIn(errors, "content.pairs") === "string" ? String(getIn(errors, "content.pairs")) : t("activity.form.reviewMatches")}</p>}
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? t("activity.form.saving") : effectiveSubmitLabel}</button></div>
         </Form>
       )}
     </Formik>
@@ -220,7 +221,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
             </FieldArray>
           </section>
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-            <div className="mb-5"><h2 className="text-lg font-semibold text-dark">Frases e lacunas</h2><p className="mt-1 text-sm text-muted">Monte cada frase em trechos e insira uma lacuna onde o aluno deverá soltar a palavra.</p></div>
+            <div className="mb-5"><h2 className="text-lg font-semibold text-dark">{t("activity.form.sentencesBlanks")}</h2><p className="mt-1 text-sm text-muted">{t("activity.form.sentenceHelp")}</p></div>
             <FieldArray name="content.sentences">
               {({ push, remove }) => (
                 <div className="space-y-5">
@@ -242,29 +243,29 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
                                 </div>
                               ) : (
                                 <div key={part.id} className="min-w-0 flex-[0_1_13rem] rounded-xl border border-dashed border-amber-400 bg-amber-50 p-3 lg:w-52">
-                                  <label htmlFor={`sentence-${sentenceIndex}-blank-${partIndex}`} className={labelClass}>Palavra *</label>
+                                  <label htmlFor={`sentence-${sentenceIndex}-blank-${partIndex}`} className={labelClass}>{t("activity.form.wordLabel")} *</label>
                                   <select id={`sentence-${sentenceIndex}-blank-${partIndex}`} value={part.expectedWordId} onChange={(event) => void setFieldValue(`content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`, event.target.value)} className={inputClass} aria-invalid={Boolean(getIn(errors, `content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`) && (getIn(touched, `content.sentences.${sentenceIndex}.parts.${partIndex}.expectedWordId`) || submitCount > 0))}>
-                                    <option value="">Selecione...</option>
+                                    <option value="">{t("activity.form.select")}</option>
                                     {values.content.words.filter((word) => word.text.trim()).map((word) => <option key={word.id} value={word.id}>{word.text}</option>)}
                                   </select>
-                                  <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> Remover lacuna</button>
+                                  <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> {t("activity.form.removeBlank")}</button>
                                 </div>
                               ))}
                             </div>
-                            <button type="button" onClick={() => pushPart({ id: createDragDropId("text"), type: "text", value: "" })} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-dark"><Plus size={14} aria-hidden="true" /> Adicionar trecho</button>
+                            <button type="button" onClick={() => pushPart({ id: createDragDropId("text"), type: "text", value: "" })} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-dark"><Plus size={14} aria-hidden="true" /> {t("activity.form.addSegment")}</button>
                           </div>
                         )}
                       </FieldArray>
-                      <button type="button" onClick={() => remove(sentenceIndex)} disabled={values.content.sentences.length <= 1} className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={15} aria-hidden="true" /> Remover frase</button>
+                      <button type="button" onClick={() => remove(sentenceIndex)} disabled={values.content.sentences.length <= 1} className="mt-4 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={15} aria-hidden="true" /> {t("activity.form.removeSentence")}</button>
                     </fieldset>
                   ))}
-                  <button type="button" onClick={() => push({ id: createDragDropId("sentence"), parts: [{ id: createDragDropId("text"), type: "text", value: "" }, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" }, { id: createDragDropId("text"), type: "text", value: "" }] })} disabled={values.content.sentences.length >= 100} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> Adicionar frase</button>
+                  <button type="button" onClick={() => push({ id: createDragDropId("sentence"), parts: [{ id: createDragDropId("text"), type: "text", value: "" }, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" }, { id: createDragDropId("text"), type: "text", value: "" }] })} disabled={values.content.sentences.length >= 100} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> {t("activity.form.addSentence")}</button>
                 </div>
               )}
             </FieldArray>
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? "Salvando..." : submitLabel}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? t("activity.form.saving") : effectiveSubmitLabel}</button></div>
         </Form>
       )}
     </Formik>
