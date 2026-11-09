@@ -66,7 +66,7 @@ export default function VerifyEmailPage() {
 
     async function verifyEmail() {
       try {
-        const response = await api.post<{
+        await api.post<{
           data: { message: string };
         }>("/auth/verify-email", { token });
 
