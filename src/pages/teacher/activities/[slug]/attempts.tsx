@@ -11,12 +11,13 @@ import {
   Trophy,
 } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   listActivityAttemptsService,
   type ActivityAttemptHistoryData,
 } from "@/modules/activities/services/listActivityAttemptsService";
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data as
       | { error?: { message?: string }; message?: string }
@@ -24,19 +25,18 @@ function getErrorMessage(error: unknown): string {
 
     return (
       responseData?.error?.message ??
-      responseData?.message ??
-      "Não foi possível carregar o histórico de tentativas."
+      responseData?.message ?? fallback
     );
   }
 
-  return "Ocorreu um erro inesperado ao carregar o histórico.";
+  return fallback;
 }
 
-function formatDate(value: string): string {
+function formatDate(value: string, locale: string): string {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Data indisponível";
+  if (Number.isNaN(date.getTime())) return "";
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -47,6 +47,7 @@ function formatDate(value: string): string {
 
 
 export default function ActivityAttemptsPage() {
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const slugValue = router.query.slug;
   const slug = Array.isArray(slugValue) ? slugValue[0] : slugValue;
@@ -70,7 +71,7 @@ export default function ActivityAttemptsPage() {
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        setErrorMessage(getErrorMessage(error));
+        setErrorMessage(getErrorMessage(error, t("attempts.loadError")));
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -79,14 +80,14 @@ export default function ActivityAttemptsPage() {
     return () => {
       cancelled = true;
     };
-  }, [router.isReady, slug, page, reloadKey]);
+  }, [router.isReady, slug, page, reloadKey, t]);
 
   return (
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Histórico de tentativas"
-      description="Acompanhe as pontuações, o desempenho e o tempo de execução dos alunos."
+      title={t("attempts.title")}
+      description={t("attempts.description")}
     >
       <div className="mb-6">
         <Link
@@ -94,7 +95,7 @@ export default function ActivityAttemptsPage() {
           className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
         >
           <ArrowLeft size={16} aria-hidden="true" />
-          Minhas atividades
+          {t("attempts.back")}
         </Link>
       </div>
 
@@ -117,7 +118,7 @@ export default function ActivityAttemptsPage() {
             className="inline-flex min-h-10 items-center justify-center gap-2 self-start rounded-lg border border-red-300 px-3 text-sm font-semibold transition hover:bg-red-100 disabled:opacity-60 sm:self-auto"
           >
             <RefreshCw size={15} aria-hidden="true" />
-            Tentar novamente
+            {t("attempts.retry")}
           </button>
         </section>
       )}
@@ -128,7 +129,7 @@ export default function ActivityAttemptsPage() {
           className="rounded-2xl border border-border bg-surface p-10 text-center shadow-sm"
         >
           <span className="mx-auto mb-4 block size-8 animate-spin rounded-full border-2 border-primary border-r-transparent" />
-          <p className="text-sm text-muted">Carregando histórico...</p>
+          <p className="text-sm text-muted">{t("attempts.loading")}</p>
         </section>
       ) : result && result.items.length === 0 ? (
         <section className="rounded-2xl border border-border bg-surface px-6 py-12 text-center shadow-sm">
@@ -136,10 +137,10 @@ export default function ActivityAttemptsPage() {
             <Trophy size={26} aria-hidden="true" />
           </span>
           <h2 className="mt-5 text-lg font-semibold text-dark">
-            Nenhuma tentativa registrada
+            {t("attempts.emptyTitle")}
           </h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-            Quando os alunos concluírem esta atividade, os resultados aparecerão aqui.
+            {t("attempts.emptyDescription")}
           </p>
         </section>
       ) : result ? (
@@ -147,10 +148,10 @@ export default function ActivityAttemptsPage() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted" aria-live="polite">
               {result.pagination.total === 1
-                ? "1 tentativa registrada"
-                : `${result.pagination.total} tentativas registradas`}
+                ? t("attempts.oneAttempt")
+                : t("attempts.manyAttempts", { count: result.pagination.total })}
             </p>
-            {isLoading && <span className="text-xs text-muted">Atualizando...</span>}
+            {isLoading && <span className="text-xs text-muted">{t("attempts.refreshing")}</span>}
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
@@ -158,10 +159,10 @@ export default function ActivityAttemptsPage() {
               <table className="w-full min-w-170 border-collapse text-left text-sm">
                 <thead className="bg-background text-xs uppercase tracking-wide text-muted">
                   <tr>
-                    <th scope="col" className="px-5 py-4 font-semibold">Aluno</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Pontuação</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">{result.activityType === "listening" ? "Lacunas" : "Palavras"}</th>
-                    <th scope="col" className="px-5 py-4 font-semibold">Data</th>
+                    <th scope="col" className="px-5 py-4 font-semibold">{t("attempts.student")}</th>
+                    <th scope="col" className="px-5 py-4 font-semibold">{t("attempts.score")}</th>
+                    <th scope="col" className="px-5 py-4 font-semibold">{result.activityType === "listening" ? t("attempts.blanks") : t("attempts.words")}</th>
+                    <th scope="col" className="px-5 py-4 font-semibold">{t("attempts.date")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -182,7 +183,7 @@ export default function ActivityAttemptsPage() {
                           : `${attempt.wordsFound?.length ?? 0} de ${attempt.totalWords ?? 0}`}
                       </td>
                       <td className="px-5 py-4 text-muted">
-                        {formatDate(attempt.createdAt)}
+                        {formatDate(attempt.createdAt, locale)}
                       </td>
                     </tr>
                   ))}
@@ -193,7 +194,7 @@ export default function ActivityAttemptsPage() {
 
           {result.pagination.totalPages > 1 && (
             <nav
-              aria-label="Paginação do histórico"
+              aria-label={t("attempts.pagination")}
               className="mt-8 flex items-center justify-center gap-3"
             >
               <button
@@ -206,10 +207,10 @@ export default function ActivityAttemptsPage() {
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
-                Anterior
+                {t("attempts.previous")}
               </button>
               <span className="text-sm text-muted">
-                Página {result.pagination.page} de {result.pagination.totalPages}
+                {t("attempts.pageOf", { page: result.pagination.page, total: result.pagination.totalPages })}
               </span>
               <button
                 type="button"
@@ -222,7 +223,7 @@ export default function ActivityAttemptsPage() {
                 disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Próxima
+                {t("attempts.next")}
                 <ChevronRight size={17} aria-hidden="true" />
               </button>
             </nav>
