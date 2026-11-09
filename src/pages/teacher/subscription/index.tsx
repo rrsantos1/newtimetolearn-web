@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Check, CreditCard, RefreshCw, ShieldCheck, Users, X } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { subscriptionFaq } from "@/modules/faq/data/faqContent";
 import {
   teacherSubscriptionService,
 } from "@/modules/subscriptions/services/teacherSubscriptionService";
@@ -242,6 +244,7 @@ export default function TeacherSubscriptionPage() {
           )}
         </div>
       )}
+      <FaqSection title="Dúvidas sobre planos e assinaturas" description="Entenda os benefícios dos planos e como acompanhar ou gerenciar sua assinatura." items={subscriptionFaq} />
     </RoleBasedLayout>
   );
 }
