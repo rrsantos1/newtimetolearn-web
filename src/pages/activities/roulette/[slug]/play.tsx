@@ -40,10 +40,10 @@ export default function RoulettePlayPage() {
         const endpoint = user ? `/activities/${encodeURIComponent(slug)}` : `/activities/public/${encodeURIComponent(slug)}`;
         const response = await api.get<RouletteResponse>(endpoint);
         if (!active) return;
-        if (response.data.data.type !== "roulette") throw new Error(t("play.notAvailable"));
+        if (response.data.data.type !== "roulette") throw new Error(t("activities.play.roulette.typeError"));
         setActivity(response.data.data);
         setRemaining(response.data.data.version.content.topics);
-      } catch (cause: unknown) { if (active) setError(getMessage(cause, t("play.loading")) ); }
+      } catch (cause: unknown) { if (active) setError(getMessage(cause, t("activities.play.roulette.loadError")) ); }
       finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
@@ -84,10 +84,10 @@ export default function RoulettePlayPage() {
     {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">{t("play.loading")}</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <section className="relative z-0 w-full rounded-2xl border border-border bg-surface p-4 sm:p-8">
       <div className="grid w-full items-start gap-6 lg:grid-cols-[minmax(0,620px)_minmax(260px,320px)] lg:justify-center">
         <div className="flex min-w-0 flex-col items-center">
-          <p className="text-sm text-muted">{t("play.remainingTopics")}:  <strong className="text-dark">{remaining.length}</strong></p>
+          <p className="text-sm text-muted">{t("activities.play.roulette.remainingTopics")}:  <strong className="text-dark">{remaining.length}</strong></p>
           <div className="relative mt-6 aspect-square w-full max-w-155">
             <div aria-hidden="true" className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 border-x-16 border-t-28 border-x-transparent border-t-primary drop-shadow" />
-            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label="Roleta de assuntos" className="pointer-events-none absolute inset-0 rounded-full border-8 border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4.02s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
+            <div onTransitionEnd={(event) => { if (event.target === event.currentTarget) finishSpin(); }} role="img" aria-label={t("activities.play.roulette.wheelLabel")} className="pointer-events-none absolute inset-0 rounded-full border-8 border-dark shadow-xl" style={{ background: gradient, transform: `rotate(${rotation}deg)`, transition: spinning ? "transform 4.02s cubic-bezier(0.12, 0.78, 0.12, 1)" : "none" }}>
               {wheelTopics.map((topic, index) => {
                 const angle = (index + 0.5) * (360 / wheelTopics.length);
                 const labelWidth = Math.max(58, Math.min(130, 2 * 0.35 * 310 * Math.sin(Math.PI / wheelTopics.length) * 0.82));
@@ -102,10 +102,10 @@ export default function RoulettePlayPage() {
               <div className="absolute inset-[38%] flex items-center justify-center rounded-full border-4 border-dark bg-surface text-dark"><Sparkles size={28} aria-hidden="true" /></div>
             </div>
           </div>
-          {remaining.length > 0 ? <button type="button" onClick={spin} disabled={spinning} className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-dark px-8 py-3 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"><RotateCw size={19} aria-hidden="true" />{spinning ? t("play.spinning") : selected ? t("play.spinNext") : t("play.spin")}</button> : <div className="mt-6 rounded-xl bg-green-50 p-4 text-sm font-semibold text-green-800">{t("play.allDrawn")}</div>}
-          {remaining.length === 0 && <button type="button" onClick={() => { setRemaining(activity.version.content.topics); setSelected(""); setRotation(0); }} className="mt-3 min-h-10 rounded-xl border border-border px-5 text-sm font-semibold text-dark">{t("play.resetWheel")}</button>}
+          {remaining.length > 0 ? <button type="button" onClick={spin} disabled={spinning} className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-dark px-8 py-3 text-base font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"><RotateCw size={19} aria-hidden="true" />{spinning ? t("play.spinning") : selected ? t("play.spinNext") : t("play.spin")}</button> : <div className="mt-6 rounded-xl bg-green-50 p-4 text-sm font-semibold text-green-800">{t("activities.play.roulette.allDrawn")}</div>}
+          {remaining.length === 0 && <button type="button" onClick={() => { setRemaining(activity.version.content.topics); setSelected(""); setRotation(0); }} className="mt-3 min-h-10 rounded-xl border border-border px-5 text-sm font-semibold text-dark">{t("activities.play.roulette.resetWheel")}</button>}
         </div>
-        {selected && !spinning && <div aria-live="polite" className="w-full rounded-2xl border border-primary/30 bg-primary/10 p-5 text-left lg:mt-12"><p className="text-xs font-bold uppercase tracking-wider text-muted">{t("play.selectedTopic")}</p><h2 className="mt-2 text-2xl font-bold text-dark">{selected}</h2><p className="mt-2 text-sm text-muted">{t("play.topicHint")}</p></div>}
+        {selected && !spinning && <div aria-live="polite" className="w-full rounded-2xl border border-primary/30 bg-primary/10 p-5 text-left lg:mt-12"><p className="text-xs font-bold uppercase tracking-wider text-muted">{t("activities.play.roulette.selectedTopic")}</p><h2 className="mt-2 text-2xl font-bold text-dark">{selected}</h2><p className="mt-2 text-sm text-muted">{t("activities.play.roulette.topicHint")}</p></div>}
       </div>
     </section> : null}
   </PublicActivityLayout>;
