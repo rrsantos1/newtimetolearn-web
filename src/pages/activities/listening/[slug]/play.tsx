@@ -252,8 +252,8 @@ export default function PlayListeningPage() {
             {phase === "ready" && (
               <section className="rounded-2xl border border-cyan-200 bg-cyan-50/50 p-5 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Headphones size={24} aria-hidden="true" /></div>
-                <h2 className="mt-4 text-xl font-bold text-dark">Ouça com atenção e complete os textos</h2>
-                <p className="mt-2 text-sm leading-6 text-muted">{activity.version.content.instructions || "Ouça o áudio e preencha as lacunas."}</p>
+                <h2 className="mt-4 text-xl font-bold text-dark">{t("play.listenInstructions")}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted">{activity.version.content.instructions || "{t("play.listenHint")}"}</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-3">
                   <div><p className="text-sm text-muted">Textos</p><p className="mt-1 font-semibold text-dark">{passages.length}</p></div>
                   <div><p className="text-sm text-muted">Lacunas</p><p className="mt-1 font-semibold text-dark">{totalBlanks}</p></div>
@@ -285,14 +285,14 @@ export default function PlayListeningPage() {
                       {audioUrl ? (
                         <audio controls preload="none" src={audioUrl} className="w-full" aria-label={`Áudio de ${passage.title || `texto ${passageIndex + 1}`}`} />
                       ) : (
-                        <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">O áudio deste texto está indisponível.</p>
+                        <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{t("play.audioUnavailable")}</p>
                       )}
                       <PassageText passage={passage} passageIndex={passageIndex + 1} answers={answers} onAnswerChange={updateAnswer} disabled={false} />
                     </article>
                   );
                 })}
                 <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-                  <p className="text-sm text-muted">Você pode revisar as respostas antes de enviar.</p>
+                  <p className="text-sm text-muted">{t("play.reviewBeforeSubmit")}</p>
                   <button type="button" onClick={() => void finishAttempt(false)} disabled={submitting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                     {submitting && <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />}{t("play.finish")}
                   </button>
