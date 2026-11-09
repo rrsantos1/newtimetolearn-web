@@ -82,11 +82,23 @@ export function NotebookAttachmentImage({
   }, [entryId, relationshipId, shouldLoad]);
 
   if (hasError) {
-    return <p ref={containerRef} className="p-3 text-xs text-red-700">{t("notebook.imageLoadFailed")}</p>;
+    return (
+      <p ref={containerRef} className="p-3 text-xs text-red-700">
+        {t("notebook.imageLoadFailed")}
+      </p>
+    );
   }
 
   if (!src) {
-    return <div ref={containerRef} className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#eee5d3] text-xs text-[#76694f]" aria-label={t("notebook.imageLazyLabel")}>{shouldLoad ? t("notebook.loadingImage") : t("notebook.imageOnScroll")}</div>;
+    return (
+      <div
+        ref={containerRef}
+        className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#eee5d3] text-xs text-[#76694f]"
+        aria-label={t("notebook.imageLazyLabel")}
+      >
+        {shouldLoad ? t("notebook.loadingImage") : t("notebook.imageOnScroll")}
+      </div>
+    );
   }
 
   const hasWidthChanges = draftWidth !== savedWidth;
@@ -167,7 +179,11 @@ export function NotebookAttachmentImage({
               {isSavingWidth ? t("notebook.saving") : t("notebook.save")}
             </button>
           </div>
-          {saveError && <p role="alert" className="w-full text-xs text-red-700">{saveError}</p>}
+          {saveError && (
+            <p role="alert" className="w-full text-xs text-red-700">
+              {saveError}
+            </p>
+          )}
         </div>
       )}
     </div>

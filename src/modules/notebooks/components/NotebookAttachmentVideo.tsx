@@ -17,6 +17,7 @@ export function NotebookAttachmentVideo({
   const [src, setSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const { t } = useTranslation();
 
   async function loadVideo(): Promise<void> {
     if (src || isLoading) return;
@@ -24,7 +25,10 @@ export function NotebookAttachmentVideo({
     setIsLoading(true);
     setHasError(false);
     try {
-      const downloadUrl = await getNotebookAttachmentUrl(relationshipId, entryId);
+      const downloadUrl = await getNotebookAttachmentUrl(
+        relationshipId,
+        entryId,
+      );
       setSrc(downloadUrl);
     } catch {
       setHasError(true);
@@ -36,7 +40,10 @@ export function NotebookAttachmentVideo({
   return (
     <div className="w-full">
       {hasError && (
-        <p role="alert" className="mb-2 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+        <p
+          role="alert"
+          className="mb-2 rounded-lg bg-red-50 p-3 text-xs text-red-700"
+        >
           {t("notebook.videoPrepareFailed")}
         </p>
       )}
@@ -48,7 +55,7 @@ export function NotebookAttachmentVideo({
           playsInline
           preload="metadata"
           aria-label={fileName}
-          className="max-h-[28rem] w-full rounded-lg bg-black"
+          className="max-h-112 w-full rounded-lg bg-black"
         >
           {t("notebook.videoUnsupported")}
         </video>
@@ -62,7 +69,11 @@ export function NotebookAttachmentVideo({
         >
           {isLoading ? (
             <>
-              <LoaderCircle size={22} className="animate-spin" aria-hidden="true" />
+              <LoaderCircle
+                size={22}
+                className="animate-spin"
+                aria-hidden="true"
+              />
               {t("notebook.preparingVideo")}
             </>
           ) : (
