@@ -90,7 +90,7 @@ export default function MemoryGamePage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("play.home") : t("play.back");
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -268,7 +268,7 @@ export default function MemoryGamePage() {
           {phase === "finished" && (
             <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalPairs > 0 && result.attempt.matchedPairs === result.attempt.totalPairs} />
-                      <h2 className="text-xl font-bold text-dark">{isStudent ? "{t("play.result")}" : "{t("play.previewFinished")}"}</h2>
+                      <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>
               {result ? (
                 <>
                   <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
@@ -279,7 +279,7 @@ export default function MemoryGamePage() {
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "{t("play.playAgain")}" : "Testar novamente"}</button>
+                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? t("play.playAgain") : "Testar novamente"}</button>
               </div>
             </section>
           )}
