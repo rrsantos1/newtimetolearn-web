@@ -161,7 +161,7 @@ export default function MoleHitPlayPage() {
     setSubmitError("");
     if (!isStudent) {
       setScoreSaving(false);
-      setSubmitError("{t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.");
+      setSubmitError(`${t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.`);
       return;
     }
     try {
