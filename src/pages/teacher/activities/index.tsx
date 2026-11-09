@@ -629,7 +629,7 @@ export default function TeacherActivitiesPage() {
                 }
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Próxima
+                {t("activities.next")}
                 <ChevronRight size={17} aria-hidden="true" />
               </button>
             </nav>
@@ -663,7 +663,7 @@ export default function TeacherActivitiesPage() {
                   id="delete-activity-title"
                   className="text-lg font-semibold text-dark"
                 >
-                  Excluir atividade?
+                  {t("activities.deleteTitle")}
                 </h2>
                 <p className="mt-2 wrap-break-word text-sm font-semibold text-dark">
                   {getActivityName(activityToDelete)}
@@ -676,7 +676,7 @@ export default function TeacherActivitiesPage() {
                   setDeleteErrorMessage("");
                 }}
                 disabled={Boolean(deletingSlug)}
-                aria-label="{t("activities.confirmClose")}"
+                aria-label={t("activities.confirmClose")}
                 className="rounded-lg p-1.5 text-muted transition hover:bg-background hover:text-dark disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X size={18} aria-hidden="true" />
@@ -709,7 +709,7 @@ export default function TeacherActivitiesPage() {
                 disabled={Boolean(deletingSlug)}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {t("activities.cancel")}
               </button>
               <button
                 type="button"
