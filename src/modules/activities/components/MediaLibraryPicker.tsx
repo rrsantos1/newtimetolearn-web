@@ -46,7 +46,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
     return () => {
       active = false;
     };
-  }, [open]);
+  }, [open, t]);
 
   useEffect(() => {
     if (!open) return;
@@ -67,7 +67,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
       active = false;
       window.clearTimeout(timeout);
     };
-  }, [open, search]);
+  }, [open, search, t]);
 
   return (
     <>
