@@ -108,7 +108,7 @@ export function CrosswordForm({
                   name="name"
                   type="text"
                   maxLength={120}
-                  placeholder={t("activity.form.descriptionPlaceholder")}
+                  placeholder={t("activity.form.namePlaceholder")}
                   className={inputClassName}
                   aria-required="true"
                   aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
