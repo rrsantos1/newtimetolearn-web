@@ -3,6 +3,8 @@ import axios from "axios";
 import Link from "next/link";
 import { Check, Clock, GraduationCap, X } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { studentFaq } from "@/modules/faq/data/faqContent";
 import {
   cancelInvitation,
   listStudentRelationships,
@@ -186,6 +188,7 @@ export default function StudentTeachersPage() {
           </section>
         </div>
       )}
+      <FaqSection title="Dúvidas sobre seus professores e o caderno virtual" description="Veja como responder aos convites e acessar o espaço compartilhado com seu professor." items={studentFaq} />
     </RoleBasedLayout>
   );
 }
