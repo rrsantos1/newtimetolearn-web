@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, CircleHelp, RotateCcw } from "lucide-react";
 import { playActivitySound } from "@/modules/users/utils/activitySounds";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface WordSearchPosition {
   word: string;
@@ -148,6 +149,7 @@ export function WordSearchGame({
   canSubmitScore,
   onComplete,
 }: Readonly<WordSearchGameProps>) {
+  const { t } = useTranslation();
   const [foundWords, setFoundWords] = useState<string[]>([]);
   const finishedRef = useRef(false);
   const [selectionStart, setSelectionStart] = useState<CellPosition | null>(null);
@@ -236,7 +238,7 @@ export function WordSearchGame({
       const original = normalizedWords.find(
         (word) => word.normalized === match.word,
       )?.original ?? match.word;
-      setMessage(`Boa! Você encontrou: ${original}.`);
+      setMessage(t("wordSearch.game.foundMessage").replace("{word}", original));
       playActivitySound("success");
       animationTimerRef.current = setTimeout(() => {
         setIsCellPopped(false);
@@ -250,7 +252,7 @@ export function WordSearchGame({
         }, 160);
       }, 160);
     } else {
-      setMessage("Essa seleção não corresponde a uma palavra da lista.");
+      setMessage(t("wordSearch.game.invalidSelection"));
       playActivitySound("error");
     }
 
@@ -290,9 +292,9 @@ export function WordSearchGame({
       <section className="min-w-0 rounded-2xl border border-sky-200 bg-sky-50/50 p-3 shadow-sm sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-dark">Encontre as palavras</p>
+            <p className="text-sm font-semibold text-dark">{t("wordSearch.game.findWords")}</p>
             <p className="mt-1 text-xs text-muted">
-              Toque ou clique na primeira letra e arraste até a última.
+              {t("wordSearch.game.dragInstructions")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -306,7 +308,7 @@ export function WordSearchGame({
         <div className="overflow-x-auto rounded-xl border border-sky-200 bg-white p-2 shadow-inner sm:p-4">
           <div
             role="group"
-            aria-label="Grade interativa do caça-palavras"
+            aria-label={t("wordSearch.game.gridLabel")}
             onPointerUp={finishSelection}
             onPointerCancel={finishSelection}
             className="mx-auto grid w-fit select-none gap-0.5 touch-none"
@@ -354,7 +356,7 @@ export function WordSearchGame({
               className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-dark transition hover:bg-background"
             >
               <RotateCcw size={15} aria-hidden="true" />
-              Reiniciar
+              {t("common.restart")}
             </button>
           )}
         </div>        
@@ -363,10 +365,10 @@ export function WordSearchGame({
           <div role="status" className={`mt-4 rounded-xl border p-4 ${completed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
             <p className={`flex items-center gap-2 font-semibold ${completed ? "text-emerald-900" : "text-amber-900"}`}>
               <CheckCircle2 size={19} aria-hidden="true" />
-              Parabéns! Você encontrou todas as palavras.
+              {t("wordSearch.game.completed")}
             </p>
             <p className={`mt-1 text-sm ${completed ? "text-emerald-800" : "text-amber-800"}`}>
-              {canSubmitScore ? "Sua pontuação está sendo registrada." : "Atividade concluída."}
+              {canSubmitScore ? t("wordSearch.game.scoreRegistering") : t("wordSearch.game.activityCompleted")}
             </p>
           </div>
         )}
@@ -375,10 +377,10 @@ export function WordSearchGame({
       <aside className="rounded-2xl border border-violet-200 bg-violet-50/50 p-5 shadow-sm">
         <div className="flex items-center gap-2">
           <CircleHelp size={19} className="text-primary" aria-hidden="true" />
-          <h2 className="font-semibold text-dark">Lista de palavras</h2>
+          <h2 className="font-semibold text-dark">{t("wordSearch.game.wordList")}</h2>
         </div>
         <p className="mt-1 text-sm text-muted">
-          Encontre todas para concluir o desafio.
+          {t("wordSearch.game.wordListHint")}
         </p>
         <ul className="mt-4 grid grid-cols-1 gap-2 lg:grid-cols-2">
           {normalizedWords.map(({ original, normalized }) => {
@@ -396,7 +398,7 @@ export function WordSearchGame({
                 <span className={found ? "line-through decoration-2" : ""}>
                   {original}
                 </span>
-                {found && <CheckCircle2 size={17} aria-label="Encontrada" />}
+                {found && <CheckCircle2 size={17} aria-label={t("wordSearch.game.found")} />}
               </li>
             );
           })}
