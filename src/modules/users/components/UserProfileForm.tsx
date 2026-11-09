@@ -3,6 +3,7 @@ import { LoaderCircle, Save, X } from "lucide-react";
 import { updateUserProfileSchema } from "@/modules/users/schemas/updateUserProfileSchema";
 import type { UpdateUserProfileFormValues } from "@/modules/users/schemas/updateUserProfileSchema";
 import { useEffect } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface UserProfileFormProps {
   initialName: string;
@@ -15,6 +16,7 @@ export function UserProfileForm({
   isSaving,
   onSave,
 }: UserProfileFormProps) {
+  const { t } = useTranslation();
   const formik = useFormik<UpdateUserProfileFormValues>({
     initialValues: {
       name: initialName,
@@ -43,7 +45,7 @@ export function UserProfileForm({
           htmlFor="name"
           className="text-sm font-semibold text-dark"
         >
-          Nome completo
+          {t("profile.fullName")}
         </label>
 
         <input
@@ -86,12 +88,12 @@ export function UserProfileForm({
                 className="animate-spin"
                 aria-hidden="true"
               />
-              Salvando...
+              {t("profile.saving")}
             </>
           ) : (
             <>
               <Save size={17} aria-hidden="true" />
-              Salvar alterações
+              {t("profile.save")}
             </>
           )}
         </button>
@@ -104,7 +106,7 @@ export function UserProfileForm({
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-background disabled:opacity-50"
           >
             <X size={17} aria-hidden="true" />
-            Cancelar
+            {t("profile.cancel")}
           </button>
         )}
       </div>
