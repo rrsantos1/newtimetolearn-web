@@ -1522,6 +1522,7 @@ const translations = {
     "teacherStudents.description": "Invite students to follow their learning and organize the digital notebook.",
     "teacherStudents.loading": "Loading students...",
     "teacherStudents.history": "History",
+    "teacherExplore.manyResults": "{count} activities found",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -3041,6 +3042,7 @@ const translations = {
     "teacherStudents.description": "Convide alunos para acompanhar sua aprendizagem e organizar o caderno virtual.",
     "teacherStudents.loading": "Carregando alunos...",
     "teacherStudents.history": "Histórico",
+    "teacherExplore.manyResults": "{count} atividades encontradas",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
