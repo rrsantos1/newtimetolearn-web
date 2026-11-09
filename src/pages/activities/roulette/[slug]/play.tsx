@@ -47,7 +47,7 @@ export default function RoulettePlayPage() {
       finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
-  }, [router.isReady, slug, user]);
+  }, [router.isReady, slug, user, t]);
   useEffect(() => { prepareActivitySpinSound(); return () => stopActivitySpinSound(); }, []);
   const wheelTopics = remaining;
   function spin(): void {
