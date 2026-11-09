@@ -181,7 +181,7 @@ export default function PlayListeningPage() {
 
     if (!isStudent) {
       setSubmitting(false);
-      setPreviewNotice("{t("play.previewFinished")}. O resultado não foi registrado no histórico dos alunos.");
+      setPreviewNotice(`${t("play.previewFinished")}. O resultado não foi registrado no histórico dos alunos.`);
       return;
     }
 
