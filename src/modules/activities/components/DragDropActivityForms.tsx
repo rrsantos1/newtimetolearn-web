@@ -109,7 +109,9 @@ function ActivityDetailsFields() {
   );
 }
 
-export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar como rascunho", activityMode = "word_matching" }: Readonly<CommonProps<CreateWordMatchingFormValues> & { activityMode?: "word_matching" | "multiple_choice" }>) {
+export function WordMatchingForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel, activityMode = "word_matching" }: Readonly<CommonProps<CreateWordMatchingFormValues> & { activityMode?: "word_matching" | "multiple_choice" }>) {
+  const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateWordMatchingFormValues>(() => ({
     name: "", description: "", difficulty: "EASY",
