@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { AuthenticatedNavigation } from "@/components/layout/AuthenticatedNavigation";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AuthenticatedLayoutProps {
   children: ReactNode;
@@ -15,25 +16,26 @@ interface AuthenticatedLayoutProps {
 
 export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProps) {
   const { user, isAuthenticated, isLoading, sessionError, retrySession } = useAuth();
+  const { t } = useTranslation();
 
   if (isLoading) {
-    return <LoadingState label="Verificando sua sessão..." fullScreen />;
+    return <LoadingState label={t("common.verifyingSession")} fullScreen />;
   }
 
   if (sessionError) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-5">
         <section className="w-full max-w-md rounded-2xl border border-border bg-surface p-7 text-center shadow-sm">
-          <h1 className="text-xl font-bold text-dark">Não foi possível verificar sua sessão</h1>
+          <h1 className="text-xl font-bold text-dark">{t("common.sessionVerifyError")}</h1>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Verifique sua conexão e tente novamente. Sua sessão foi preservada.
+            {t("common.sessionPreserved")}
           </p>
           <button
             type="button"
             onClick={retrySession}
             className="mt-6 min-h-11 rounded-xl bg-primary px-5 font-semibold text-white transition hover:bg-primary-hover"
           >
-            Tentar novamente
+            {t("common.retry")}
           </button>
         </section>
       </main>
@@ -41,7 +43,7 @@ export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProp
   }
 
   if (!isAuthenticated || !user) {
-    return <LoadingState label="Redirecionando para o login..." fullScreen />;
+    return <LoadingState label={t("common.redirectingLogin")} fullScreen />;
   }
 
   const isAdmin = user.roles.includes("ADMIN");
@@ -56,11 +58,11 @@ export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProp
             {isAdmin && (
               <Link
                 href="/admin"
-                aria-label="Acessar administração"
+                aria-label={t("common.adminAccess")}
                 className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
               >
                 <ShieldCheck size={16} aria-hidden="true" />
-                Administração
+                {t("common.administration")}
               </Link>
             )}
             <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">
