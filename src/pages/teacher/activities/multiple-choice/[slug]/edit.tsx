@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -36,6 +37,7 @@ function errorMessage(error: unknown): string {
 }
 
 export default function EditWordMatchingPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [initialValues, setInitialValues] = useState<CreateWordMatchingFormValues | null>(null);
@@ -82,7 +84,7 @@ export default function EditWordMatchingPage() {
     catch (updateError: unknown) { setSubmitError(errorMessage(updateError)); }
   }
 
-  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Editar associação de palavras" description="Revise os pares e as configurações da atividade.">
+  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.edit.multipleChoice")} description={t("activity.page.editDescription.multipleChoice")}>
     <div className="mb-6"><Link href="/teacher/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />Voltar às atividades</Link></div>
     {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-6 text-center shadow-sm sm:p-8"><CheckCircle2 aria-hidden="true" className="mx-auto mb-4 size-14 text-green-600" /><h2 className="text-2xl font-semibold text-dark">Alterações salvas!</h2><p className="mt-3 text-sm leading-6 text-muted">A atividade foi atualizada. Se necessário, envie a nova versão para aprovação.</p><Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><ClipboardList size={18} aria-hidden="true" />Minhas atividades</Link></section> : initialValues ? <WordMatchingForm activityMode="multiple_choice" initialValues={initialValues} submitLabel="Salvar alterações" onSubmit={handleSubmit} submitError={submitError} /> : null}
   </RoleBasedLayout>;
