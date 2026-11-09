@@ -690,6 +690,7 @@ const translations = {
     "activity.page.viewActivities": "View my activities",
     "activity.page.backToTeacher": "Back to teacher area",
     "activity.page.backToFormats": "Back to activity formats",
+    "navigation.myActivities": "My activities",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -1378,6 +1379,7 @@ const translations = {
     "activity.page.viewActivities": "Ver minhas atividades",
     "activity.page.backToTeacher": "Voltar à área do professor",
     "activity.page.backToFormats": "Voltar aos formatos",
+    "navigation.myActivities": "Minhas atividades",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
