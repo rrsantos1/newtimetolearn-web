@@ -218,7 +218,7 @@ export default function MemoryGamePage() {
             <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
-                <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
+                <h2 className="mt-4 text-xl font-bold text-dark">{t("play.readyTitle")}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted">Encontre todos os pares de cartas e conclua a atividade no seu ritmo.</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2">
                   <div><p className="text-sm text-muted">Quantidade de pares</p><p className="mt-1 font-semibold text-dark">{activity.version.content.pairs.length}</p></div>
@@ -227,13 +227,13 @@ export default function MemoryGamePage() {
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
                   <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                 </button>
-                {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no ranking dos alunos.</p>}
+                {!isStudent && <p className="mt-3 text-xs text-muted">{t("play.teacherTestNotice")}</p>}
               </section>
 
               {isStudent && (
                 <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
                   <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingCurrent")}</h2></div>
-                  <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
+                  <p className="mt-1 text-sm text-muted">{t("play.bestScoresHint")}</p>
                   {rankingLoading ? (
                     <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />{t("play.loadingRanking")}</div>
                   ) : rankingError ? (
@@ -274,7 +274,7 @@ export default function MemoryGamePage() {
                   <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
                   <p className="mt-2 text-sm text-muted">{result.attempt.matchedPairs} de {result.attempt.totalPairs} pares · {result.attempt.wrongAttempts} erro(s) · penalidade de {result.attempt.penaltyPoints} pontos.</p>
                   <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div>
-                  <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Seu resultado não entrou no Top 5 desta vez. Continue praticando!"}</p>
+                  <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? "{t("play.rankingSuccess")}" : "{t("play.rankingMiss")}"}</p>
                 </>
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
