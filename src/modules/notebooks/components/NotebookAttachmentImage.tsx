@@ -155,7 +155,7 @@ export function NotebookAttachmentImage({
               className="inline-flex min-h-8 items-center gap-1 rounded-md border border-[#c8b994] bg-white px-2 text-xs font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <RotateCcw size={13} aria-hidden="true" />
-              Cancelar
+              {t("notebook.cancel")}
             </button>
             <button
               type="button"
