@@ -29,6 +29,7 @@ interface LoginFormValues {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [notice, setNotice] = useState("");
+  const [requiresEmailVerification, setRequiresEmailVerification] = useState(false);
   const { setSession } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ export default function LoginPage() {
     validationSchema: loginSchema,
     onSubmit: async (values, helpers) => {
       setNotice("");
+      setRequiresEmailVerification(false);
 
       try {
         const response = await api.post<LoginResponse>("/auth/login", {
@@ -67,6 +69,7 @@ export default function LoginPage() {
                 setNotice(t("auth.invalidCredentials"));
                 break;
               case "EMAIL_NOT_VERIFIED":
+                setRequiresEmailVerification(true);
                 setNotice(
                   t("auth.verifyEmail"),
                 );
@@ -123,7 +126,7 @@ export default function LoginPage() {
               >
                 {notice}
 
-                {notice.includes("Confirme seu e-mail") && (
+                {requiresEmailVerification && (
                   <p className="mt-2">
                     {t("auth.verifyEmailAgain")}
                   </p>
@@ -143,7 +146,7 @@ export default function LoginPage() {
                   htmlFor="email"
                   className="text-sm font-semibold text-dark"
                 >
-                  E-mail
+                  {t("auth.email")}
                 </label>
                 <div className="relative">
                   <Mail
@@ -156,7 +159,7 @@ export default function LoginPage() {
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="voce@exemplo.com"
+                    placeholder={t("register.emailPlaceholder")}
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -180,7 +183,7 @@ export default function LoginPage() {
                     htmlFor="password"
                     className="text-sm font-semibold text-dark"
                   >
-                    Senha
+                    {t("auth.password")}
                   </label>
                   <Link
                     href="/forgot-password"
