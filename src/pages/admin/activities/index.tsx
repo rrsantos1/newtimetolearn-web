@@ -4,6 +4,8 @@ import axios from "axios";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, ChevronRight, Clock3, Play, RefreshCw, XCircle, Globe, Lock } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { adminFaq } from "@/modules/faq/data/faqContent";
 import { listActivitiesService } from "@/modules/activities/services/listActivitiesService";
 import type { ActivityDifficulty, ListedActivity } from "@/modules/activities/types/activityList.types";
 import api from "@/lib/api";
@@ -303,6 +305,7 @@ export default function PendingActivitiesPage() {
           </button>
         </nav>
       )}
+      <FaqSection title="Dúvidas sobre a moderação de atividades" description="Entenda as opções de revisão, aprovação e visibilidade das atividades." items={adminFaq} />
     </RoleBasedLayout>
   );
 }
