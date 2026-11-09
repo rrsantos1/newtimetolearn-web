@@ -168,7 +168,7 @@ export default function PlayQuizPage() {
     try { setRanking(await getQuizRankingService.execute(slug)); }
     catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", t("activities.play.quiz.rankingError"))); }
     finally { setRankingLoading(false); }
-  }, []);
+  }, [t]);
   const correctCount = useMemo(
     () => questions.filter((question) => answers[question.id] === question.correctOptionId).length,
     [answers, questions],
@@ -211,7 +211,7 @@ export default function PlayQuizPage() {
     }
     void load();
     return () => { cancelled = true; };
-  }, [router.isReady, router.query.slug, user, loadRanking]);
+  }, [router.isReady, router.query.slug, user, loadRanking, t]);
 
   const finishQuiz = useCallback(async (finalAnswers: Record<string, string>): Promise<void> => {
     if (!activity || phase !== "playing" || submitting) return;
@@ -240,7 +240,7 @@ export default function PlayQuizPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [activity, isStudent, phase, questions, submitting]);
+  }, [activity, isStudent, phase, questions, submitting, t]);
 
   async function retrySubmission(): Promise<void> {
     if (!activity || submitting) return;
