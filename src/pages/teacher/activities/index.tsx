@@ -49,7 +49,7 @@ const difficultyTranslationKeys: Record<string, TranslationKey> = {
   HARD: "activities.difficulty.hard",
 };
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data as
       | { error?: { message?: string }; message?: string }
@@ -58,14 +58,14 @@ function getErrorMessage(error: unknown): string {
     return (
       responseData?.error?.message ??
       responseData?.message ??
-      "Não foi possível carregar suas atividades. Tente novamente."
+      t("activities.teacher.loadError")
     );
   }
 
-  return "Ocorreu um erro inesperado ao carregar as atividades.";
+  return t("activities.teacher.unexpectedLoadError");
 }
 
-function getDeleteErrorMessage(error: unknown): string {
+function getDeleteErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data as
       | { error?: { message?: string }; message?: string }
@@ -74,11 +74,11 @@ function getDeleteErrorMessage(error: unknown): string {
     return (
       responseData?.error?.message ??
       responseData?.message ??
-      "Não foi possível excluir a atividade. Tente novamente."
+      t("activities.teacher.deleteError")
     );
   }
 
-  return "Ocorreu um erro inesperado ao excluir a atividade.";
+  return t("activities.teacher.unexpectedDeleteError");
 }
 
 function getStatusLabel(activity: ListedActivity, t: (key: TranslationKey) => string): string {
@@ -142,11 +142,11 @@ function getEditHref(activity: ListedActivity): string {
   return "/teacher/activities/word-search/" + slug + "/edit";
 }
 
-function formatDate(value: string, locale: string): string {
+function formatDate(value: string, locale: string, t: (key: TranslationKey) => string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Data indisponível";
+    return t("activities.teacher.dateUnavailable");
   }
 
   return new Intl.DateTimeFormat(locale, {
@@ -156,11 +156,11 @@ function formatDate(value: string, locale: string): string {
   }).format(date);
 }
 
-function getActivityName(activity: ListedActivity): string {
+function getActivityName(activity: ListedActivity, t: (key: TranslationKey) => string): string {
   return (
     activity.latestVersion?.name ??
     activity.publishedVersion?.name ??
-    "Atividade sem título"
+    t("activities.teacher.untitled")
   );
 }
 
@@ -202,7 +202,7 @@ export default function TeacherActivitiesPage() {
       .catch((error: unknown) => {
         if (cancelled) return;
 
-        setErrorMessage(getErrorMessage(error));
+        setErrorMessage(getErrorMessage(error, t));
       })
       .finally(() => {
         if (!cancelled) {
@@ -227,11 +227,11 @@ export default function TeacherActivitiesPage() {
     try {
       await submitActivityVersionService.execute(activity.slug);
       setSuccessMessage(
-        `A atividade "${getActivityName(activity)}" foi enviada para aprovação.`,
+        t("activities.teacher.submitSuccess").replace("{name}", getActivityName(activity, t)),
       );
       setReloadKey((current) => current + 1);
     } catch (error: unknown) {
-      setSubmissionErrorMessage(getErrorMessage(error));
+      setSubmissionErrorMessage(getErrorMessage(error, t));
     } finally {
       setSubmittingSlug(null);
     }
@@ -271,7 +271,7 @@ export default function TeacherActivitiesPage() {
 
       setActivityToDelete(null);
       setSuccessMessage(
-        `A atividade "${getActivityName(activity)}" foi excluída. O histórico foi preservado.`,
+        t("activities.teacher.deleteSuccess").replace("{name}", getActivityName(activity, t)),
       );
       setErrorMessage("");
 
@@ -282,7 +282,7 @@ export default function TeacherActivitiesPage() {
         setReloadKey((current) => current + 1);
       }
     } catch (error: unknown) {
-      setDeleteErrorMessage(getDeleteErrorMessage(error));
+      setDeleteErrorMessage(getDeleteErrorMessage(error, t));
     } finally {
       setDeletingSlug(null);
     }
@@ -301,7 +301,7 @@ export default function TeacherActivitiesPage() {
           style={{ color: "var(--primary-foreground)" }}
         >
           <Plus size={18} aria-hidden="true" />
-          Criar atividade
+          {t("activities.create")}
         </Link>
       )}
     >
@@ -393,7 +393,7 @@ export default function TeacherActivitiesPage() {
             className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-red-300 px-3 text-sm font-semibold transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
           >
             <RefreshCw size={15} aria-hidden="true" />
-            Tentar novamente
+            {t("activities.retry")}
           </button>
         </section>
       )}
@@ -425,7 +425,7 @@ export default function TeacherActivitiesPage() {
             className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}
           >
             <Plus size={18} aria-hidden="true" />
-            Criar atividade
+            {t("activities.create")}
           </Link>
         </section>
       ) : result ? (
@@ -443,7 +443,7 @@ export default function TeacherActivitiesPage() {
           </div>
 
           <section
-            aria-label="Lista de atividades"
+            aria-label={t("activities.teacher.listLabel")}
             className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
             {result.items.map((activity, index) => (
@@ -452,7 +452,7 @@ export default function TeacherActivitiesPage() {
                 className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-6"
               >
                 <div className="mb-4 flex items-start gap-4">
-                  <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" loading={index === 0 ? "eager" : "lazy"} />
+                  <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity, t)} className="w-[42%] max-w-56 shrink-0" loading={index === 0 ? "eager" : "lazy"} />
                   <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                     {activity.latestVersion && (
                       <span>
@@ -463,7 +463,7 @@ export default function TeacherActivitiesPage() {
                       </span>
                     )}
                     
-                    <span>Criada em {formatDate(activity.createdAt, locale)}</span>
+                    <span>{t("activities.teacher.createdAt", { date: formatDate(activity.createdAt, locale, t) })}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -473,7 +473,7 @@ export default function TeacherActivitiesPage() {
                     </p>
 
                     <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
-                      {getActivityName(activity)}
+                      {getActivityName(activity, t)}
                     </h2>
 
                     {activity.latestVersion?.description && (
@@ -504,12 +504,12 @@ export default function TeacherActivitiesPage() {
                   </span>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error)); } }} aria-label={activity.isFavorite ? `Remover ${getActivityName(activity)} dos favoritos` : `Favoritar ${getActivityName(activity)}`} title={activity.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
+                    <button type="button" onClick={async () => { try { await favoriteActivityService.set(activity.slug, !activity.isFavorite); setResult((current) => current ? { ...current, items: current.items.map((item) => item.slug === activity.slug ? { ...item, isFavorite: !item.isFavorite } : item) } : current); if (favoritesOnly && activity.isFavorite) setReloadKey((current) => current + 1); } catch (error: unknown) { setErrorMessage(getErrorMessage(error, t)); } }} aria-label={activity.isFavorite ? t("activities.teacher.removeFavoriteAria").replace("{name}", getActivityName(activity, t)) : t("activities.teacher.addFavoriteAria").replace("{name}", getActivityName(activity, t))} title={activity.isFavorite ? t("activities.teacher.removeFavorite") : t("activities.teacher.addFavorite")} className={`inline-flex size-9 items-center justify-center rounded-lg border border-border transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${activity.isFavorite ? "text-red-600" : "text-muted hover:text-red-600"}`}><Heart size={16} fill={activity.isFavorite ? "currentColor" : "none"} aria-hidden="true" /></button>
                     {(activity.type === "word_search" || activity.type === "crossword" || activity.type === "quiz" || activity.type === "memory" || activity.type === "listening" || activity.type === "word_matching" || activity.type === "sentence_completion" || activity.type === "multiple_choice" || activity.type === "mole_hit" || activity.type === "hangman") && (
                       <Link
                         href={`/teacher/activities/${encodeURIComponent(activity.slug)}/attempts`}
                         title={t("activities.history")}
-                        aria-label={`Ver histórico de ${getActivityName(activity)}`}
+                        aria-label={`Ver histórico de ${getActivityName(activity, t)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
                         <History size={16} aria-hidden="true" />
@@ -540,7 +540,7 @@ export default function TeacherActivitiesPage() {
                                             ? `/activities/roulette/${encodeURIComponent(activity.slug)}/play`
                                             : `/activities/word-search/${encodeURIComponent(activity.slug)}/play`}
                         title={t("activities.run")}
-                        aria-label={`Executar ${getActivityName(activity)}`}
+                        aria-label={`Executar ${getActivityName(activity, t)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg bg-dark text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                         style={{ color: "var(--primary-foreground)" }}
                       >
@@ -555,7 +555,7 @@ export default function TeacherActivitiesPage() {
                           onClick={() => void handleSubmitForApproval(activity)}
                           disabled={Boolean(submittingSlug)}
                           title={t("activities.submitApproval")}
-                          aria-label={`Enviar ${getActivityName(activity)} para aprovação`}
+                          aria-label={`Enviar ${getActivityName(activity, t)} para aprovação`}
                           className="inline-flex size-9 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
                           style={{ color: "var(--primary-foreground)" }}
                         >
@@ -569,7 +569,7 @@ export default function TeacherActivitiesPage() {
                       <Link
                         href={getEditHref(activity)}
                         title={t("activities.edit")}
-                        aria-label={`Editar ${getActivityName(activity)}`}
+                        aria-label={`Editar ${getActivityName(activity, t)}`}
                         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-dark transition hover:border-primary hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
                         <ClipboardList size={16} aria-hidden="true" />
@@ -583,7 +583,7 @@ export default function TeacherActivitiesPage() {
                         setDeleteErrorMessage("");
                       }}
                       title={t("activities.delete")}
-                      aria-label={`Excluir atividade ${getActivityName(activity)}`}
+                      aria-label={`Excluir atividade ${getActivityName(activity, t)}`}
                       className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-red-700 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                     >
                       <Trash2 size={15} aria-hidden="true" />
@@ -666,7 +666,7 @@ export default function TeacherActivitiesPage() {
                   {t("activities.deleteTitle")}
                 </h2>
                 <p className="mt-2 wrap-break-word text-sm font-semibold text-dark">
-                  {getActivityName(activityToDelete)}
+                  {getActivityName(activityToDelete, t)}
                 </p>
               </div>
               <button
