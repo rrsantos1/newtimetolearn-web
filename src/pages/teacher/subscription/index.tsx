@@ -7,32 +7,24 @@ import { subscriptionFaq } from "@/modules/faq/data/faqContent";
 import {
   teacherSubscriptionService,
 } from "@/modules/subscriptions/services/teacherSubscriptionService";
+import { useTranslation } from "@/hooks/useTranslation";
 import type {
   TeacherEntitlements,
   TeacherSubscriptionStatus,
 } from "@/modules/subscriptions/types/teacherSubscription.types";
 
-const statusLabels: Record<TeacherSubscriptionStatus, string> = {
-  FREE: "Plano gratuito",
-  PENDING: "Aguardando confirmação",
-  ACTIVE: "Assinatura ativa",
-  PAST_DUE: "Pagamento pendente",
-  CANCELLED: "Assinatura cancelada",
-  EXPIRED: "Assinatura expirada",
-};
-
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, fallback: string, unexpected: string): string {
   if (axios.isAxiosError<{ error?: { message?: string } }>(error)) {
-    return error.response?.data.error?.message ?? "Não foi possível concluir a operação.";
+    return error.response?.data.error?.message ?? fallback;
   }
-  return "Ocorreu um erro inesperado. Tente novamente.";
+  return unexpected;
 }
 
-function formatStorage(bytes: number): string {
+function formatStorage(bytes: number, locale: string): string {
   const gigabyte = 1024 ** 3;
   const megabyte = 1024 ** 2;
-  if (bytes >= gigabyte) return `${(bytes / gigabyte).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} GB`;
-  return `${(bytes / megabyte).toLocaleString("pt-BR", { maximumFractionDigits: 0 })} MB`;
+  if (bytes >= gigabyte) return `${(bytes / gigabyte).toLocaleString(locale, { maximumFractionDigits: 1 })} GB`;
+  return `${(bytes / megabyte).toLocaleString(locale, { maximumFractionDigits: 0 })} MB`;
 }
 
 function hasSubscriptionToManage(status: TeacherSubscriptionStatus): boolean {
@@ -40,6 +32,15 @@ function hasSubscriptionToManage(status: TeacherSubscriptionStatus): boolean {
 }
 
 export default function TeacherSubscriptionPage() {
+  const { t, locale } = useTranslation();
+  const statusLabels: Record<TeacherSubscriptionStatus, string> = {
+    FREE: t("subscription.status.free"),
+    PENDING: t("subscription.status.pending"),
+    ACTIVE: t("subscription.status.active"),
+    PAST_DUE: t("subscription.status.pastDue"),
+    CANCELLED: t("subscription.status.cancelled"),
+    EXPIRED: t("subscription.status.expired"),
+  };
   const [entitlements, setEntitlements] = useState<TeacherEntitlements | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,7 +54,7 @@ export default function TeacherSubscriptionPage() {
       const data = await teacherSubscriptionService.getEntitlements();
       setEntitlements(data);
     } catch (error: unknown) {
-      setErrorMessage(getErrorMessage(error));
+      setErrorMessage(getErrorMessage(error, t("subscription.error.operation"), t("subscription.error.unexpected")));
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +75,7 @@ export default function TeacherSubscriptionPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [t]);
 
   async function handleCheckout(): Promise<void> {
     setIsSubmitting(true);
@@ -90,7 +91,7 @@ export default function TeacherSubscriptionPage() {
   }
 
   async function handleCancel(): Promise<void> {
-    const confirmed = window.confirm("Deseja realmente cancelar sua assinatura? Os benefícios do plano pago deixarão de estar disponíveis após a confirmação.");
+    const confirmed = window.confirm(t("subscription.cancelConfirm"));
     if (!confirmed) return;
 
     setIsSubmitting(true);
@@ -98,7 +99,7 @@ export default function TeacherSubscriptionPage() {
     setSuccessMessage("");
     try {
       await teacherSubscriptionService.cancel();
-      setSuccessMessage("Solicitação de cancelamento concluída.");
+      setSuccessMessage(t("subscription.cancelSuccess"));
       await loadEntitlements();
     } catch (error: unknown) {
       setErrorMessage(getErrorMessage(error));
@@ -115,13 +116,13 @@ export default function TeacherSubscriptionPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Plano e assinatura"
-      description="Acompanhe os benefícios disponíveis para sua conta e gerencie seu plano."
+      title={t("subscription.title")}
+      description={t("subscription.description")}
       backLinkPlacement="title"
     >
       {isLoading ? (
         <div className="rounded-2xl border border-border bg-surface p-8 text-center text-sm text-muted" role="status">
-          Carregando informações do plano...
+          {t("subscription.loading")}
         </div>
       ) : (
         <div className="space-y-6">
@@ -130,7 +131,7 @@ export default function TeacherSubscriptionPage() {
               {errorMessage}
               {!entitlements && (
                 <button type="button" onClick={() => void loadEntitlements()} className="ml-2 font-semibold underline underline-offset-2">
-                  Tentar novamente
+                  {t("subscription.retry")}
                 </button>
               )}
             </div>
@@ -146,7 +147,7 @@ export default function TeacherSubscriptionPage() {
               <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted">Seu plano atual</p>
+                    <p className="text-sm font-medium text-muted">{t("subscription.currentPlan")}</p>
                     <h2 className="mt-1 text-2xl font-bold text-dark">{entitlements.planName}</h2>
                     <p className="mt-2 text-sm text-muted">{statusLabels[status]}</p>
                   </div>
@@ -158,21 +159,21 @@ export default function TeacherSubscriptionPage() {
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-xl bg-background p-4">
-                    <p className="text-xs font-medium text-muted">Armazenamento</p>
-                    <p className="mt-1 text-lg font-bold text-dark">{formatStorage(entitlements.storageLimitBytes)}</p>
+                    <p className="text-xs font-medium text-muted">{t("subscription.storage")}</p>
+                    <p className="mt-1 text-lg font-bold text-dark">{formatStorage(entitlements.storageLimitBytes, locale)}</p>
                   </div>
                   <div className="rounded-xl bg-background p-4">
-                    <p className="text-xs font-medium text-muted">Alunos vinculados</p>
+                    <p className="text-xs font-medium text-muted">{t("subscription.students")}</p>
                     <p className="mt-1 text-lg font-bold text-dark">
-                      {entitlements.studentLimit === null ? "Ilimitados" : `${entitlements.reservedStudents} de ${entitlements.studentLimit}`}
+                      {entitlements.studentLimit === null ? t("subscription.unlimited") : `${entitlements.reservedStudents} de ${entitlements.studentLimit}`}
                     </p>
                     {entitlements.studentsRemaining !== null && (
-                      <p className="mt-1 text-xs text-muted">{entitlements.studentsRemaining} vagas disponíveis</p>
+                      <p className="mt-1 text-xs text-muted">{entitlements.studentsRemaining} {t("subscription.spotsAvailable")}</p>
                     )}
                   </div>
                   <div className="rounded-xl bg-background p-4">
-                    <p className="text-xs font-medium text-muted">Anúncios</p>
-                    <p className="mt-1 text-lg font-bold text-dark">{entitlements.removesAds ? "Removidos" : "Exibidos"}</p>
+                    <p className="text-xs font-medium text-muted">{t("subscription.ads")}</p>
+                    <p className="mt-1 text-lg font-bold text-dark">{entitlements.removesAds ? t("subscription.adsRemoved") : t("subscription.adsShown")}</p>
                   </div>
                 </div>
 
@@ -185,7 +186,7 @@ export default function TeacherSubscriptionPage() {
                       className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-200 px-5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <X size={17} aria-hidden="true" />
-                      {isSubmitting ? "Processando..." : entitlements.paymentIntegrationEnabled ? "Cancelar assinatura" : "Gerenciamento indisponível"}
+                      {isSubmitting ? t("subscription.processing") : entitlements.paymentIntegrationEnabled ? t("subscription.cancel") : t("subscription.manageUnavailable")}
                     </button>
                   ) : (
                     <button
@@ -196,7 +197,7 @@ export default function TeacherSubscriptionPage() {
                       style={{ color: "var(--primary-foreground)" }}
                     >
                       <CreditCard size={17} aria-hidden="true" />
-                      {isSubmitting ? "Preparando checkout..." : entitlements.paymentIntegrationEnabled ? "Assinar por R$ 5,90/mês" : "Contratação em breve"}
+                      {isSubmitting ? t("subscription.checkoutPreparing") : entitlements.paymentIntegrationEnabled ? t("subscription.subscribePrice") : t("subscription.comingSoon")}
                     </button>
                   )}
                   <button
@@ -206,7 +207,7 @@ export default function TeacherSubscriptionPage() {
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold text-dark transition hover:bg-background disabled:opacity-60"
                   >
                     <RefreshCw size={16} aria-hidden="true" />
-                    Atualizar
+                    {t("subscription.refresh")}
                   </button>
                 </div>
               </section>
@@ -215,14 +216,14 @@ export default function TeacherSubscriptionPage() {
                 <article className={`rounded-2xl border p-5 sm:p-6 ${!isPaid ? "border-primary bg-primary/5" : "border-border bg-surface"}`}>
                   <div className="flex items-center gap-2">
                     <Users size={20} className="text-primary" aria-hidden="true" />
-                    <h3 className="font-bold text-dark">Gratuito</h3>
-                    {!isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Seu plano</span>}
+                    <h3 className="font-bold text-dark">{t("subscription.free")}</h3>
+                    {!isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">{t("subscription.yourPlan")}</span>}
                   </div>
                   <p className="mt-3 text-2xl font-bold text-dark">R$ 0</p>
                   <ul className="mt-4 space-y-2 text-sm text-muted">
-                    <li>Até 500 MB de armazenamento</li>
-                    <li>Até 5 alunos ativos ou convidados</li>
-                    <li>Anúncios exibidos</li>
+                    <li>{t("subscription.freeStorage")}</li>
+                    <li>{t("subscription.freeStudents")}</li>
+                    <li>{t("subscription.ads")} exibidos</li>
                   </ul>
                 </article>
 
@@ -230,13 +231,13 @@ export default function TeacherSubscriptionPage() {
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={20} className="text-primary" aria-hidden="true" />
                     <h3 className="font-bold text-dark">Professor</h3>
-                    {isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Seu plano</span>}
+                    {isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">{t("subscription.yourPlan")}</span>}
                   </div>
                   <p className="mt-3 text-2xl font-bold text-dark">R$ 5,90<span className="text-sm font-medium text-muted">/mês</span></p>
                   <ul className="mt-4 space-y-2 text-sm text-muted">
-                    <li>5 GB de armazenamento</li>
-                    <li>Alunos ilimitados</li>
-                    <li>Sem anúncios</li>
+                    <li>{t("subscription.paidStorage")}</li>
+                    <li>{t("subscription.paidStudents")}</li>
+                    <li>{t("subscription.noAds")}</li>
                   </ul>
                 </article>
               </section>
@@ -244,7 +245,7 @@ export default function TeacherSubscriptionPage() {
           )}
         </div>
       )}
-      <FaqSection title="Dúvidas sobre planos e assinaturas" description="Entenda os benefícios dos planos e como acompanhar ou gerenciar sua assinatura." items={subscriptionFaq} />
+      <FaqSection title="{t("subscription.faqTitle")}" description="{t("subscription.faqDescription")}" items={subscriptionFaq} />
     </RoleBasedLayout>
   );
 }
