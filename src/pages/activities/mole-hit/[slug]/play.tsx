@@ -78,7 +78,7 @@ export default function MoleHitPlayPage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("play.home") : t("play.back");
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -397,7 +397,7 @@ export default function MoleHitPlayPage() {
           {phase === "finished" && (
             <section className="relative rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.hits > 0 && result.attempt.misses === 0} />
-              <h2 className="text-xl font-bold text-dark">{isStudent ? "{t("play.result")}" : "{t("play.previewFinished")}"}</h2>
+              <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>
               {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">Registrando seu resultado...</p>}
               {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Continue praticando para alcançar o Top 5!"}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError}</p>}
