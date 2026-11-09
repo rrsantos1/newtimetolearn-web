@@ -153,7 +153,7 @@ export default function MemoryGamePage() {
     setPhase("finished");
     setSubmitError("");
     if (!isStudent) {
-      setSubmitError("{t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.");
+      setSubmitError(`${t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.`);
       return;
     }
     try {
