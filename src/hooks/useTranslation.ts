@@ -5,7 +5,12 @@ import { translate, type TranslationKey } from "@/lib/i18n/translations";
 export function useTranslation() {
   const { locale } = useRouter();
   const t = useCallback(
-    (key: TranslationKey): string => translate(locale, key),
+    (key: TranslationKey, values?: Readonly<Record<string, string | number>>): string => {
+      const message = translate(locale, key);
+      return values
+        ? message.replace(/\\{(\\w+)\\}/g, (placeholder, name: string) => String(values[name] ?? placeholder))
+        : message;
+    },
     [locale],
   );
 
