@@ -16,7 +16,6 @@ import { registerSchema } from "@/modules/auth/schemas/registerSchema";
 import type { RegisterFormValues } from "@/modules/auth/schemas/registerSchema";
 import type {
   ApiErrorResponse,
-  RegisterResponse,
 } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -42,7 +41,7 @@ export default function RegisterPage() {
       setSuccessMessage("");
 
       try {
-        const response = await api.post<RegisterResponse>(
+        await api.post(
           "/auth/register",
           {
             ...values,
