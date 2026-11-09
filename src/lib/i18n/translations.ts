@@ -418,6 +418,8 @@ const translations = {
     "confirm.titleError": "Não foi possível confirmar",
     "confirm.failed": "Não foi possível confirmar a alteração do e-mail.",
     "confirm.backProfile": "Voltar ao perfil",
+    "forgot.sentNotice": "Se houver uma conta associada a este e-mail, as instruções de recuperação serão enviadas em instantes.",
+    "confirm.success": "Seu endereço de e-mail foi atualizado com sucesso.",
     "home.viewMaterial": "Ver material"
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
