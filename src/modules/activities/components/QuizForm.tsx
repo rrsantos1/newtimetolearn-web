@@ -1,7 +1,7 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -65,6 +65,7 @@ function resolveImageUrl(image: QuizImageValue): string | undefined {
 }
 
 function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageAttachmentsProps>) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
@@ -74,7 +75,7 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
     if (!file) return;
 
     if (images.length >= 5) {
-      setError("Você pode anexar no máximo 5 imagens neste campo.");
+      setError(t("activity.form.imageLimit"));
       return;
     }
 
@@ -84,7 +85,7 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
       const uploaded = await uploadMediaImageService.execute(file);
       onChange([...images, uploaded]);
     } catch (uploadError: unknown) {
-      setError(uploadError instanceof Error ? uploadError.message : "Não foi possível enviar a imagem.");
+      setError(uploadError instanceof Error ? uploadError.message : t("activity.creation.unexpectedError"));
     } finally {
       setUploading(false);
     }
@@ -107,9 +108,9 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
           disabled={uploading || images.length >= 5}
           onSelect={(asset) => onChange([...images, { storageKey: asset.storageKey, publicUrl: asset.publicUrl, altText: asset.altText }])}
         />
-        {uploading && <span role="status" className="text-sm text-muted">Enviando imagem...</span>}
+        {uploading && <span role="status" className="text-sm text-muted">{t("activity.form.uploading")}</span>}
       </div>
-      <p className="text-xs text-muted">JPEG, PNG, WebP ou GIF · máximo de 5 MB por imagem · até 5 imagens.</p>
+      <p className="text-xs text-muted">{t("activity.form.imageHelp")}</p>
       {error && <p id={`${idPrefix}-error`} role="alert" className="text-sm text-red-600">{error}</p>}
       {images.length > 0 && (
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -119,23 +120,23 @@ function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageA
               <li key={image.storageKey} className="rounded-xl border border-border p-3">
                 {imageUrl ? (
                   <div className="relative mb-3 aspect-video overflow-hidden rounded-lg bg-background">
-                    <Image src={imageUrl} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
+                    <Image src={imageUrl} alt={image.altText || `${t("activity.form.imageDescription")} ${index + 1}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
                   </div>
                 ) : (
-                  <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">Configure NEXT_PUBLIC_B2_PUBLIC_BASE_URL para visualizar esta imagem após reabrir o Quiz.</p>
+                  <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">{t("activity.form.configureImageBase")}</p>
                 )}
-                <label htmlFor={`${idPrefix}-alt-${index}`} className="mb-1 block text-xs font-medium text-dark">Texto alternativo</label>
+                <label htmlFor={`${idPrefix}-alt-${index}`} className="mb-1 block text-xs font-medium text-dark">{t("activity.form.alternativeText")}</label>
                 <input
                   id={`${idPrefix}-alt-${index}`}
                   value={image.altText}
                   maxLength={250}
                   onChange={(event) => onChange(images.map((item, itemIndex) => itemIndex === index ? { ...item, altText: event.target.value } : item))}
                   className={inputClassName}
-                  placeholder="Descreva a imagem"
+                  placeholder={t("activity.form.imageDescription")}
                 />
                 <button type="button" onClick={() => onChange(images.filter((item) => item.storageKey !== image.storageKey))}
                   className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-                  <Trash2 aria-hidden="true" size={15} /> Remover imagem
+                  <Trash2 aria-hidden="true" size={15} /> {t("activity.form.removeImage")}
                 </button>
               </li>
             );
@@ -150,12 +151,12 @@ function createId(): string {
   return globalThis.crypto.randomUUID();
 }
 
-function createOption(index: number) {
-  return { id: createId(), text: `Alternativa ${index + 1}`, images: [] as { storageKey: string; altText: string }[] };
+function createOption(index: number, alternativeLabel: string) {
+  return { id: createId(), text: `${alternativeLabel} ${index + 1}`, images: [] as { storageKey: string; altText: string }[] };
 }
 
-function createQuestion() {
-  const options = [createOption(0), createOption(1), createOption(2), createOption(3)];
+function createQuestion(alternativeLabel: string) {
+  const options = [createOption(0, alternativeLabel), createOption(1, alternativeLabel), createOption(2, alternativeLabel), createOption(3, alternativeLabel)];
   return {
     id: createId(),
     statement: "",
@@ -166,18 +167,17 @@ function createQuestion() {
   };
 }
 
-const initialValues: CreateQuizFormValues = {
-  name: "",
-  description: "",
-  difficulty: "EASY",
-  content: { questions: [createQuestion()] },
-};
-
 export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<QuizFormProps>) {
   const { t } = useTranslation();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
-  const formInitialValues = suppliedInitialValues ?? initialValues;
+  const defaultInitialValues = useMemo<CreateQuizFormValues>(() => ({
+    name: "",
+    description: "",
+    difficulty: "EASY",
+    content: { questions: [createQuestion(t("activity.form.alternative"))] },
+  }), [t]);
+  const formInitialValues = suppliedInitialValues ?? defaultInitialValues;
 
   return (
     <Formik<CreateQuizFormValues>
@@ -215,7 +215,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <h2 id="quiz-preview-title" className="mt-2 text-2xl font-bold text-dark">{values.name.trim() || t("activity.form.quizNoTitle")}</h2>
                     {values.description?.trim() && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{values.description}</p>}
                   </div>
-                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Fechar pré-visualização" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label={t("activity.form.closePreview")} className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                     <X aria-hidden="true" size={18} />
                   </button>
                 </div>
@@ -226,7 +226,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                       <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-dark">{question.statement || t("activity.form.statementEmpty")}</p>
                       {question.images.length > 0 && <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">{question.images.map((image, index) => {
                         const imageUrl = resolveImageUrl(image);
-                        return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl bg-background"><Image src={imageUrl} alt={image.altText || `Imagem do enunciado ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
+                        return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl bg-background"><Image src={imageUrl} alt={image.altText || `${t("activity.form.statementImage")} ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
                       })}</div>}
                       <ol className="mt-4 space-y-2">
                         {question.options.map((option, optionIndex) => (
@@ -237,7 +237,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                               const imageUrl = resolveImageUrl(image);
                               return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `Imagem da alternativa ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
                             })}</div>}
-                            {question.correctOptionId === option.id && <span className="ml-2 font-semibold">— Resposta correta</span>}
+                            {question.correctOptionId === option.id && <span className="ml-2 font-semibold">— {t("activity.form.correctAnswer")}</span>}
                           </li>
                         ))}
                       </ol>
@@ -246,16 +246,16 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                   ))}
                 </div>
                 <div className="mt-6 flex justify-end">
-                  <button type="button" onClick={() => setPreviewOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>Voltar à edição</button>
+                  <button type="button" onClick={() => setPreviewOpen(false)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>{t("activity.form.backToEditing")}</button>
                 </div>
               </section>
             </div>
           )}
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-            <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-dark">Informações do Quiz</h2><button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button></div>
+            <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-semibold text-dark">{t("activity.form.quizInfo")}</h2><button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> {t("activity.form.createWithAi")}</button></div>
             <div className="mt-5 grid gap-5">
               <div>
-                <label htmlFor="name" className={labelClassName}>Nome do Quiz *</label>
+                <label htmlFor="name" className={labelClassName}>{t("activity.form.quizName")} *</label>
                 <Field id="name" name="name" maxLength={120} className={fieldClassName("name")} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0))} />
                 <LocalizedErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
               </div>
@@ -313,12 +313,12 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                                 aria-label={`${t("activity.form.alternative")} ${optionIndex + 1}`}
                                 className="mt-3 size-4 accent-accent" />
                               <div className="min-w-0 flex-1">
-                                <label htmlFor={`content.questions.${questionIndex}.options.${optionIndex}.text`} className="sr-only">Texto da alternativa {optionIndex + 1}</label>
+                                <label htmlFor={`content.questions.${questionIndex}.options.${optionIndex}.text`} className="sr-only">{t("activity.form.alternativeTextLabel", { number: optionIndex + 1 })}</label>
                                 <Field id={`content.questions.${questionIndex}.options.${optionIndex}.text`} name={`content.questions.${questionIndex}.options.${optionIndex}.text`} maxLength={1000} placeholder={`${t("activity.form.alternative")} ${optionIndex + 1}`} className={fieldClassName(`content.questions.${questionIndex}.options.${optionIndex}.text`)} aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.options.${optionIndex}.text`) && (getIn(touched, `content.questions.${questionIndex}.options.${optionIndex}.text`) || submitCount > 0))} />
                                 <LocalizedErrorMessage name={`content.questions.${questionIndex}.options.${optionIndex}.text`} component="p" className="mt-1 text-sm text-red-600" />
                                 <ImageAttachments
                                   idPrefix={`question-${question.id}-option-${option.id}-images`}
-                                  label="Imagens da alternativa"
+                                  label={t("activity.form.alternativeImages")}
                                   images={option.images}
                                   onChange={(images) => void setFieldValue(`content.questions.${questionIndex}.options.${optionIndex}.images`, images)}
                                 />
@@ -329,7 +329,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                                 if (question.correctOptionId === option.id && nextOptions[0]) {
                                   void setFieldValue(`content.questions.${questionIndex}.correctOptionId`, nextOptions[0].id);
                                 }
-                              }} disabled={question.options.length <= 3} aria-label={`Remover alternativa ${optionIndex + 1}`}
+                              }} disabled={question.options.length <= 3} aria-label={`${t("activity.form.removeAlternative")} ${optionIndex + 1}`}
                                 className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40">
                                 <Trash2 aria-hidden="true" size={17} />
                               </button>
@@ -337,9 +337,9 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                           ))}
                           <LocalizedErrorMessage name={`content.questions.${questionIndex}.options`} component="p" className="text-sm text-red-600" />
                           <LocalizedErrorMessage name={`content.questions.${questionIndex}.correctOptionId`} component="p" className="text-sm text-red-600" />
-                          <button type="button" onClick={() => pushOption(createOption(question.options.length))} disabled={question.options.length >= 6}
+                          <button type="button" onClick={() => pushOption(createOption(question.options.length, t("activity.form.alternative")))} disabled={question.options.length >= 6}
                             className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40">
-                            <Plus aria-hidden="true" size={16} /> Adicionar alternativa
+                            <Plus aria-hidden="true" size={16} /> {t("activity.form.addAlternative")}
                           </button>
                         </fieldset>
                       )}
@@ -352,7 +352,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     </div>
                   </section>
                 ))}
-                <button type="button" onClick={() => push(createQuestion())}
+                <button type="button" onClick={() => push(createQuestion(t("activity.form.alternative")))}
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                   <Plus aria-hidden="true" size={18} /> {t("activity.form.addQuestion")}
                 </button>
@@ -365,7 +365,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
             <button type="submit" disabled={isSubmitting}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
               style={{ color: "var(--primary-foreground)" }}>
-              {isSubmitting ? "Salvando Quiz..." : submitLabel}
+              {isSubmitting ? t("activity.form.saving") : submitLabel}
             </button>
           </div>
         </Form>
