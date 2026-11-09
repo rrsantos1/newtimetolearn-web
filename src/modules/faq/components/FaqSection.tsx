@@ -60,7 +60,7 @@ export function FaqSection({ title, description, items }: FaqSectionProps) {
         </div>
       </div>
 
-      <div className="mx-auto mt-6 max-w-3xl space-y-3">
+      <div className="mx-auto mt-6 grid max-w-5xl grid-cols-1 items-start gap-3 lg:grid-cols-2">
         {filteredItems.length > 0 ? (
           filteredItems.map(({ question, answer }) => (
             <details
