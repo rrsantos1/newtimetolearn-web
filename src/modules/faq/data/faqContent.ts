@@ -182,6 +182,19 @@ export const subscriptionFaq: FaqItem[] = [
   },
 ];
 
+export const marketplaceFaqEn: FaqItem[] = [
+  { question: "What is the Marketplace?", answer: "It is a place to discover teaching materials created by teachers, review previews and purchase files or resources delivered as Google Slides copies." },
+  { question: "How do I purchase a resource?", answer: "Open the resource page, review its description, price and preview pages. Enter a valid email address and select Buy resource to start the payment." },
+  { question: "Do I need an account to make a purchase?", answer: "You can start a purchase by entering an email address. To view My purchases on the platform, sign in or create an account with the same email address used for the purchase and verify it." },
+  { question: "How do I receive a purchased resource?", answer: "For file-based resources, My purchases provides the original file download after payment confirmation. For Google Slides resources, it provides a link to create your own copy." },
+  { question: "How do resource previews work?", answer: "You can review the pages made available by the seller before purchasing. Previews displayed by the platform include a TimeToLearn watermark." },
+  { question: "How can I sell resources on the Marketplace?", answer: "Teachers must connect their own Mercado Pago account and have an active Teacher subscription. They can then submit a PDF, PPT or PPTX file, or provide a Google Slides link with a PDF preview." },
+  { question: "Are resources submitted by teachers published immediately?", answer: "No. Resources submitted by teachers are reviewed by an administrator and become public only after approval. Resources added by administrators are published immediately." },
+  { question: "What is the sales commission?", answer: "TimeToLearn retains a 20% commission on each sale made by teachers. Mercado Pago processing fees are charged separately." },
+  { question: "How is a Google Slides resource delivered?", answer: "The buyer receives a link to create a copy in their own Google Drive. They must be signed in to a Google account, and the seller must configure sharing to allow copying." },
+  { question: "Where can I find my purchases?", answer: "Open My purchases in the Marketplace. You must be signed in to the account associated with the email address used for the purchase." },
+];
+
 export const marketplaceFaq: FaqItem[] = [
   {
     question: "O que é o Marketplace?",
