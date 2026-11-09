@@ -8,6 +8,7 @@ import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { RoleGuard } from "@/modules/auth/components/RoleGuard";
 import type { UserRole } from "@/modules/auth/types/auth.types";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import { TeacherAdSlot } from "@/components/ads/TeacherAdSlot";
 import { teacherSubscriptionService } from "@/modules/subscriptions/services/teacherSubscriptionService";
 import type { TeacherEntitlements } from "@/modules/subscriptions/types/teacherSubscription.types";
@@ -39,6 +40,7 @@ export function RoleBasedLayout({
   immersive = false,
 }: RoleBasedLayoutProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [loadedEntitlements, setLoadedEntitlements] = useState<LoadedTeacherEntitlements | null>(null);
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const isAdmin = user?.roles.includes("ADMIN") ?? false;
@@ -85,10 +87,10 @@ export function RoleBasedLayout({
               <div className="flex items-center gap-2 sm:gap-3">
                 <LanguageSwitcher />
                 {isTeacher && area === "admin" && (
-                  <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white sm:text-sm">Área do professor</Link>
+                  <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white sm:text-sm">{t("common.teacherArea")}</Link>
                 )}
                 {isAdmin && area !== "admin" && (
-                  <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white sm:text-sm"><ShieldCheck size={16} aria-hidden="true" />Administração</Link>
+                  <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white sm:text-sm"><ShieldCheck size={16} aria-hidden="true" />{t("common.administration")}</Link>
                 )}
                 <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">{user?.name}</span>
                 <LogoutButton />
@@ -108,7 +110,7 @@ export function RoleBasedLayout({
             </div>
             {titleActions}
             {backLinkPlacement === "title" && (
-              <Link href="/dashboard" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background"><ArrowLeft size={16} aria-hidden="true" />Área autenticada</Link>
+              <Link href="/dashboard" className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-dark transition hover:bg-background"><ArrowLeft size={16} aria-hidden="true" />{t("common.authenticatedArea")}</Link>
             )}
           </div>}
 
