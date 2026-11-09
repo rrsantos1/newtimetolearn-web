@@ -8,6 +8,7 @@ import { ArrowLeft, CheckCircle2, LoaderCircle, Mail, Send } from "lucide-react"
 import api from "@/lib/api";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const forgotPasswordSchema = Yup.object({
   email: Yup.string()
@@ -23,6 +24,7 @@ interface ForgotPasswordFormValues {
 export default function ForgotPasswordPage() {
   const [notice, setNotice] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useTranslation();
 
   const formik = useFormik<ForgotPasswordFormValues>({
     initialValues: { email: "" },
@@ -46,11 +48,11 @@ export default function ForgotPasswordPage() {
             data?.success === false
               ? data.error.message
               : error.response
-                ? "Não foi possível solicitar a recuperação. Tente novamente mais tarde."
-                : "Não foi possível conectar ao servidor. Verifique sua conexão.",
+                ? t("auth.loginFailed")
+                : t("auth.connectionFailed"),
           );
         } else {
-          setNotice("Ocorreu um erro inesperado. Tente novamente.");
+          setNotice(t("auth.unexpected"));
         }
       } finally {
         helpers.setSubmitting(false);
@@ -72,10 +74,10 @@ export default function ForgotPasswordPage() {
               <Mail size={26} aria-hidden="true" />
             </span>
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-dark sm:text-4xl">
-              Esqueceu sua senha?
+              {t("forgot.title")}
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
-              Informe o e-mail associado à sua conta. Enviaremos as instruções para criar uma nova senha.
+              {t("forgot.description")}
             </p>
           </div>
 
@@ -106,7 +108,7 @@ export default function ForgotPasswordPage() {
                 }}
               >
                 <label htmlFor="email" className="text-sm font-semibold text-dark">
-                  E-mail cadastrado
+                  {t("forgot.emailLabel")}
                 </label>
                 <div className="relative">
                   <Mail
@@ -120,7 +122,7 @@ export default function ForgotPasswordPage() {
                     type="email"
                     autoComplete="email"
                     autoFocus
-                    placeholder="voce@exemplo.com"
+                    placeholder={t("register.emailPlaceholder")}
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -144,11 +146,11 @@ export default function ForgotPasswordPage() {
                   {formik.isSubmitting ? (
                     <>
                       <LoaderCircle size={18} className="animate-spin" aria-hidden="true" />
-                      Enviando...
+                      {t("forgot.sending")}
                     </>
                   ) : (
                     <>
-                      Enviar instruções
+                      {t("forgot.submit")}
                       <Send size={18} aria-hidden="true" />
                     </>
                   )}
@@ -165,7 +167,7 @@ export default function ForgotPasswordPage() {
                 }}
                 className="min-h-12 w-full rounded-xl border border-border px-5 text-sm font-semibold text-dark transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
               >
-                Solicitar novamente
+                {t("forgot.resend")}
               </button>
             )}
 
@@ -175,7 +177,7 @@ export default function ForgotPasswordPage() {
                 className="inline-flex items-center gap-2 text-sm font-semibold text-dark underline decoration-amber-400 decoration-2 underline-offset-4 hover:text-amber-700"
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                Voltar para o login
+                {t("forgot.backLogin")}
               </Link>
             </div>
           </div>
