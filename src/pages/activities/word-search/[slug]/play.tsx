@@ -114,7 +114,7 @@ export default function PlayWordSearchPage() {
     try {
       setRanking(await getWordSearchRankingService.execute(slug));
     } catch (loadError: unknown) {
-      setRankingError(getErrorMessage(loadError, t("activities.play.loadingRanking")));
+      setRankingError(getErrorMessage(loadError, t("activities.play.wordSearch.rankingError")));
     } finally {
       setRankingLoading(false);
     }
@@ -165,7 +165,7 @@ export default function PlayWordSearchPage() {
 
     async function load(): Promise<void> {
       if (!slug) {
-        setError("Não foi possível identificar a atividade.");
+        setError(t("activities.play.wordSearch.identifyError"));
         setLoading(false);
         return;
       }
@@ -176,7 +176,7 @@ export default function PlayWordSearchPage() {
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableWordSearchActivity>(slug);
         if (cancelled) return;
         if (result.type !== "word_search") {
-          setError("Esta atividade não é um caça-palavras.");
+          setError(t("activities.play.wordSearch.typeError"));
           return;
         }
 
@@ -186,12 +186,12 @@ export default function PlayWordSearchPage() {
         const contentWords = result.version.content.words;
 
         if (!isGrid(generatedGrid) || !isWordPositions(generatedPositions)) {
-          setError("A grade desta atividade não está disponível ou está inválida.");
+          setError(t("activities.play.wordSearch.gridError"));
           return;
         }
         if (!Array.isArray(contentWords) ||
           !contentWords.every((word) => typeof word === "string")) {
-          setError("Não foi possível carregar a lista de palavras desta atividade.");
+          setError(t("activities.play.wordSearch.wordsError"));
           return;
         }
 
@@ -203,7 +203,7 @@ export default function PlayWordSearchPage() {
           void loadRanking(result.slug);
         }
       } catch (loadError: unknown) {
-        if (!cancelled) setError(getErrorMessage(loadError));
+        if (!cancelled) setError(getErrorMessage(loadError, t("activities.play.wordSearch.loadError")));
       } finally {
         if (!cancelled) setLoading(false);
       }
