@@ -314,7 +314,7 @@ export default function NewListeningPage() {
                 <span className={`rounded-full px-3 py-1 text-xs font-semibold ${passage.audio?.status === "READY" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-900"}`}>{passage.audio?.status === "READY" ? t("activity.listening.audioReady") : t("activity.listening.audioPending")}</span>
               </div>
               <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">{passage.text}</p>
-              <p className="mt-2 text-sm text-muted">{passage.blanks.length} lacuna(s)</p>
+              <p className="mt-2 text-sm text-muted">{t("activity.listening.blankCount").replace("{count}", String(passage.blanks.length))}</p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <button type="button" onClick={() => void handlePreviewAudio(passage)} disabled={Boolean(previewingId) || !passage.text.trim()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                   <AudioLines aria-hidden="true" size={17} /> {previewingId === passage.id ? t("activity.listening.generatingPreview") : t("activity.listening.listenPreview")}
@@ -453,7 +453,7 @@ export default function NewListeningPage() {
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
           {notice && <p role="status" className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{notice}</p>}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted">{passages.length} texto(s) · {totalBlanks} lacuna(s)</p>
+            <p className="text-sm text-muted">{t("activity.listening.passageCount").replace("{count}", String(passages.length))} · {t("activity.listening.blankCount").replace("{count}", String(totalBlanks))}</p>
             <button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
               <FileAudio aria-hidden="true" size={18} /> {saving ? "{t("activity.listening.savingDraft")}" : "{t("activity.listening.saveDraft")}"}
             </button>
