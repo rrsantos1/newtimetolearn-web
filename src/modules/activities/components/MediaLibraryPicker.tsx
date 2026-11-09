@@ -18,7 +18,7 @@ function formatBytes(bytes: number, locale: string): string {
     value /= 1024;
     unitIndex += 1;
   }
-  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} ${units[unitIndex]}`;
+  return `${value.toLocaleString(locale, { maximumFractionDigits: 1 })} ${units[unitIndex]}`;
 }
 
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
