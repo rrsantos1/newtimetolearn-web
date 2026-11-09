@@ -887,8 +887,6 @@ const translations = {
     "activity.listening.createTextWithAi": "Create text with AI",
     "activity.listening.textNumber": "Text {index}",
     "activity.listening.addBlankFromSelection": "Add blank from selection",
-    "activity.listening.blankCount": "{count} blank(s)",
-    "activity.listening.passageCount": "{count} text(s)",
     "activity.listening.instructionsDefault": "Listen to the audio and fill in the blanks.",
     "activity.listening.voice": "Narration voice",
     "activity.listening.voiceNatural": "natural",
