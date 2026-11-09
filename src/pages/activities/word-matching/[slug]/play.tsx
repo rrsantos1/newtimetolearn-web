@@ -93,7 +93,7 @@ export default function WordMatchingPlayPage() {
     try { setRanking(await dragDropActivityService.getRanking(activitySlug, "word-matching")); }
     catch (loadError: unknown) { setSubmitError(getErrorMessage(loadError, t("play.loadingRanking"))); }
     finally { setRankingLoading(false); }
-  }, [isStudent]);
+  }, [isStudent, t]);
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
@@ -120,7 +120,7 @@ export default function WordMatchingPlayPage() {
       }
     })();
     return () => { active = false; };
-  }, [isStudent, loadRanking, router.isReady, slug, user]);
+  }, [isStudent, loadRanking, router.isReady, slug, user, t]);
 
 
   const finishActivity = useCallback(async (finalAnswers: Record<string, string>) => {
