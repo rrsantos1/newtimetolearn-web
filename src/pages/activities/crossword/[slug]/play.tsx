@@ -12,6 +12,7 @@ import { getCrosswordRankingService, type CrosswordRankingEntry } from "@/module
 import { submitCrosswordAttemptService, type CrosswordAttemptResult } from "@/modules/activities/services/crossword/submitCrosswordAttemptService";
 import type { EditableCrosswordActivity } from "@/modules/activities/types/crossword.types";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type CrosswordGrid = (string | null)[][];
 type GamePhase = "ready" | "playing" | "finished";
@@ -91,12 +92,13 @@ function RankingList({ ranking }: Readonly<{ ranking: CrosswordRankingEntry[] }>
 }
 
 export default function PlayCrosswordPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar às atividades";
+  const backLabel = !user ? "{t("play.home")}" : user.roles.includes("ADMIN") || isTeacher ? "{t("play.back")}" : "{t("play.back")}";
 
   const [activity, setActivity] = useState<EditableCrosswordActivity | null>(null);
   const [grid, setGrid] = useState<CrosswordGrid>([]);
@@ -228,17 +230,17 @@ export default function PlayCrosswordPage() {
                     <h2 className="mt-4 text-xl font-bold text-dark">Preparado para o desafio?</h2>
                     <p className="mt-2 text-sm leading-6 text-muted">Complete as palavras usando as pistas horizontais e verticais.</p>
                                         <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar cruzadinha" : "Testar cruzadinha"}
+                      <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                     </button>
                     {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não é registrada no recorde dos alunos.</p>}
                   </section>
 
                   {isStudent && (
                     <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-7">
-                      <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Record atual — Top 5</h2></div>
+                      <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingRecord")}</h2></div>
                       <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
-                      {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando recorde...</div> : rankingError ? (
-                        <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div>
+                      {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />{t("play.loadingRanking")}</div> : rankingError ? (
+                        <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">{t("play.retry")}</button></div>
                       ) : <RankingList ranking={ranking} />}
                     </section>
                   )}
@@ -262,25 +264,25 @@ export default function PlayCrosswordPage() {
                   ) : attemptError ? (
                     <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                       <p>{attemptError}</p>
-                      {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.answers)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
+                      {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.answers)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">{t("play.submitRetry")}</button>}
                     </div>
                   ) : attemptResult ? (
                     <>
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <ConfettiCelebration active={attemptResult.attempt.wordsFound.length === attemptResult.attempt.totalWords} />
-                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
                           <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Palavras corretas: {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
                           
-                          <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/100</p>
+                          <p className="mt-1 text-sm text-muted">{t("play.accuracy")}:  {attemptResult.attempt.accuracyPoints}/100</p>
                         </div>
                         <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
                           {attemptResult.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Seu resultado não entrou no Top 5 desta vez. Continue praticando!"}
                         </p>
                       </div>
                       <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Record atualizado</h2></div><RankingList ranking={ranking} /></div>
-                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Jogar novamente</button>
+                      <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{t("play.playAgain")}</button>
                     </>
                   ) : null}
                 </section>
