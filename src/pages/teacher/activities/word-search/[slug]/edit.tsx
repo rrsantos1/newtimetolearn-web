@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -61,6 +62,7 @@ function toFormValues(
 }
 
 export default function EditWordSearchPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -215,8 +217,8 @@ export default function EditWordSearchPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Editar caça-palavras"
-      description="Atualize as informações e as palavras da sua atividade."
+      title={t("activity.page.edit.wordSearch")}
+      description={t("activity.page.editDescription.wordSearch")}
     >
       <div className="mb-6">
         <Link
