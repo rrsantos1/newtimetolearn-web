@@ -21,7 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { useTranslation } from "@/hooks/useTranslation";
-import { activityCatalog } from "@/modules/activities/types/activityCatalog";
+import { activityCatalog, activityTypeTranslationKeys, activityDescriptionTranslationKeys } from "@/modules/activities/types/activityCatalog";
 import type { ActivityType } from "@/modules/activities/types/activityList.types";
 
 const activityIcons: Record<ActivityType, LucideIcon> = {
@@ -92,8 +92,8 @@ export default function NewActivityPage() {
                   {activity.available ? t("activities.format.available") : t("activities.format.comingSoon")}
                 </span>
               </div>
-              <h2 className="mt-4 text-base font-semibold text-dark">{activity.label}</h2>
-              <p className="mt-2 flex-1 text-sm leading-6 text-muted">{activity.description}</p>
+              <h2 className="mt-4 text-base font-semibold text-dark">{t(activityTypeTranslationKeys[activity.type])}</h2>
+              <p className="mt-2 flex-1 text-sm leading-6 text-muted">{t(activityDescriptionTranslationKeys[activity.type])}</p>
               <span className={`mt-5 inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold ${activity.available ? "bg-dark text-white" : "border border-border text-muted"}`}>
                 {activity.available ? t("activities.format.create") : t("activities.format.unavailable")}
               </span>
@@ -111,7 +111,7 @@ export default function NewActivityPage() {
           ) : (
             <article
               key={activity.type}
-              aria-label={`${activity.label}, em breve`}
+              aria-label={`${t(activityTypeTranslationKeys[activity.type])}, ${t("activities.format.comingSoon")}`}
               className={`${cardClassName} opacity-80`}
             >
               {cardContent}
