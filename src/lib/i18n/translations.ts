@@ -1677,6 +1677,9 @@ const translations = {
     "adminActivities.rejectTitle": "Reject activity",
     "adminActivities.rejectAria": "Reject {name}",
     "adminActivities.pagination": "Pending activities pagination",
+    "auth.sessionVerificationFailed": "Unable to verify your session. Refresh the page and try again.",
+    "auth.verifyingPermissions": "Checking permissions...",
+    "common.homePageLabel": "TimeToLearn - home page",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -3352,6 +3355,9 @@ const translations = {
     "adminActivities.rejectTitle": "Rejeitar atividade",
     "adminActivities.rejectAria": "Rejeitar {name}",
     "adminActivities.pagination": "Paginação das atividades pendentes",
+    "auth.sessionVerificationFailed": "Não foi possível verificar sua sessão. Atualize a página e tente novamente.",
+    "auth.verifyingPermissions": "Verificando permissões...",
+    "common.homePageLabel": "TimeToLearn - página inicial",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
