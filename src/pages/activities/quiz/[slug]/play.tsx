@@ -22,7 +22,6 @@ interface QuizImage {
 interface QuizOption {
   id: string;
   text: string;
-  images: QuizImage[];
 }
 interface QuizQuestion {
   id: string;
@@ -92,7 +91,6 @@ function parseQuestions(value: unknown): QuizQuestion[] | null {
       return [{
         id: option.id,
         text: typeof option.text === "string" ? option.text : "",
-        images: parseImages(option.images),
       }];
     });
     if (options.length < 3 || !options.some((option) => option.id === item.correctOptionId)) return [];
@@ -372,7 +370,7 @@ export default function PlayQuizPage() {
                           {currentQuestion.options.map((option, index) => (
                             <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${answers[currentQuestion.id] === option.id ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                               <input type="radio" name={currentQuestion.id} value={option.id} checked={answers[currentQuestion.id] === option.id} onChange={() => chooseAnswer(currentQuestion.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
-                              <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}<ImageList images={option.images} /></span>
+                              <span className="min-w-0 flex-1"><span className="font-semibold text-muted">{String.fromCharCode(65 + index)}.</span>{option.text && <span className="ml-2 whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span>}</span>
                             </label>
                           ))}
                         </div>
