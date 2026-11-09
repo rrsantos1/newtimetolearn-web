@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -25,6 +26,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export default function NewCrosswordPage() {
+  const { t } = useTranslation();
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -50,8 +52,8 @@ export default function NewCrosswordPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Criar palavras cruzadas"
-      description="Monte uma cruzadinha com respostas e pistas personalizadas para seus alunos."
+      title={t("activity.page.create.crossword")}
+      description={t("activity.page.description.crossword")}
     >
       {success ? (
         <section
@@ -64,12 +66,12 @@ export default function NewCrosswordPage() {
               Cruzadinha criada com sucesso!
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
-              Sua atividade foi salva como rascunho. Para enviá-la à aprovação do administrador, abra Minhas atividades, clique em Editar e selecione Enviar para aprovação.
+              Sua atividade foi salva como rascunho. Para enviá-la à aprovação do administrador, abra {t("navigation.myActivities")}, clique em Editar e selecione Enviar para aprovação.
             </p>
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
               <p className="font-medium text-amber-900">O que acontece agora?</p>
               <p className="mt-1 text-sm leading-6 text-amber-800">
-                Depois do envio, a atividade ficará disponível para você e para os administradores durante a análise. Os demais professores só poderão acessá-la após a aprovação.
+                {t("activity.page.savedDraft")}
               </p>
             </div>
             <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
@@ -78,14 +80,14 @@ export default function NewCrosswordPage() {
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
               >
                 <ClipboardList aria-hidden="true" size={18} />
-                Ver minhas atividades
+                {t("activity.page.viewActivities")}
               </Link>
               <Link
                 href="/teacher"
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-5 py-3 font-medium text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <ArrowLeft aria-hidden="true" size={18} />
-                Voltar à área do professor
+                {t("activity.page.backToTeacher")}
               </Link>
             </div>
           </div>
