@@ -141,7 +141,9 @@ export function MemoryItemEditor({ name, value, onChange, title, invalid }: Read
   );
 }
 
-export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar jogo da memória como rascunho" }: Readonly<Props>) {
+export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<Props>) {
+  const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateMemoryFormValues>(() => ({
     name: "", description: "", difficulty: "EASY",
@@ -186,7 +188,7 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
             </FieldArray>
           </section>
           {submitError && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</p>}
-          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? t("activity.form.savingChanges") : effectiveSubmitLabel}</button></div>
+          <div className="flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{isSubmitting ? t("activity.form.saving") : effectiveSubmitLabel}</button></div>
         </Form>
       )}
     </Formik>
