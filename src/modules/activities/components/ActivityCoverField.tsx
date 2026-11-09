@@ -145,8 +145,8 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
   return (
     <section ref={sectionRef} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-dark">{title} <span className="text-sm font-normal text-muted">(opcional)</span></h2>
-        <p className="mt-1 text-sm leading-6 text-muted">{description}</p>
+        <h2 className="text-lg font-semibold text-dark">{coverTitle} <span className="text-sm font-normal text-muted">(opcional)</span></h2>
+        <p className="mt-1 text-sm leading-6 text-muted">{coverDescription}</p>
       </div>
 
       {pendingGeneratedCover && (
