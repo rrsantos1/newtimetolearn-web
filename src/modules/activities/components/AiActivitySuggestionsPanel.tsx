@@ -94,7 +94,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const additions = selected.map((index) => suggestions.words[index]).filter((word): word is string => Boolean(word))
         .filter((word) => !existing.has(word.trim().toLocaleUpperCase("pt-BR")));
       await setFieldValue("words", [...currentWords, ...additions].filter((word, index, all) => all.indexOf(word) === index));
-      setNotice(`${additions.length} palavra(s) adicionada(s). Revise os campos antes de salvar.`);
+      setNotice(t("activity.ai.addedWordsCount").replace("{count}", String(additions.length)));
     } else if (suggestions.activityType === "crossword") {
       const current = Array.isArray(values.words) ? values.words : [];
       const currentEntries = current.filter((entry): entry is { word: string; clue: string } =>
@@ -105,7 +105,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         .filter((entry) => !existing.has(entry.answer.trim().toLocaleUpperCase("pt-BR")))
         .map((entry) => ({ word: entry.answer, clue: entry.clue }));
       await setFieldValue("words", [...currentEntries, ...additions]);
-      setNotice(`${additions.length} par(es) de resposta e pista adicionado(s). Revise antes de salvar.`);
+      setNotice(t("activity.ai.addedCluesCount").replace("{count}", String(additions.length)));
     } else if (suggestions.activityType === "roulette") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { topics?: unknown } : {};
@@ -116,7 +116,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
       const additions = selected.map((index) => suggestions.topics[index]).filter((item): item is string => typeof item === "string")
         .filter((item) => !existing.has(item.trim().toLocaleLowerCase("pt-BR")));
       await setFieldValue("content.topics", [...currentTopics, ...additions].slice(0, 30));
-      setNotice(`${additions.length} assunto(s) adicionado(s). Revise os assuntos antes de salvar.`);
+      setNotice(t("activity.ai.addedTopicsCount").replace("{count}", String(additions.length)));
     } else if (suggestions.activityType === "memory") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
@@ -134,7 +134,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         return [{ id: createId(), first: { type: "text" as const, value: pair.firstText }, second: { type: "text" as const, value: pair.secondText } }];
       }).slice(0, Math.max(0, 50 - existingPairs.length));
       await setFieldValue("content.pairs", [...existingPairs, ...additions]);
-      setNotice(`${additions.length} par(es) adicionado(s). Revise os pares antes de salvar.`);
+      setNotice(t("activity.ai.addedPairsCount").replace("{count}", String(additions.length)));
     } else if (suggestions.activityType === "word_matching") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { pairs?: unknown } : {};
@@ -149,7 +149,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         return pair ? [{ id: createId(), source: { type: "text" as const, value: pair.sourceText }, target: { type: "text" as const, value: pair.targetText } }] : [];
       }).slice(0, Math.max(0, 50 - existingPairs.length));
       await setFieldValue("content.pairs", [...existingPairs, ...additions]);
-      setNotice(additions.length + " associação(ões) adicionada(s). Revise antes de salvar.");
+      setNotice(t("activity.ai.addedMatchesCount").replace("{count}", String(additions.length)));
     } else if (suggestions.activityType === "sentence_completion") {
       const rawContent = values.content;
       const content = typeof rawContent === "object" && rawContent !== null ? rawContent as { words?: unknown; sentences?: unknown } : {};
@@ -189,7 +189,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
         }];
       });
       await setFieldValue("content.questions", [...currentQuestions, ...additions]);
-      setNotice(`${additions.length} questão(ões) adicionada(s). Revise enunciados e alternativas antes de salvar.`);
+      setNotice(t("activity.ai.addedQuestionsCount").replace("{count}", String(additions.length)));
     }
 
     setSuggestions(null);
@@ -257,7 +257,7 @@ export function AiActivitySuggestionsPanel({ activityType, open, onClose }: Read
 
       <button type="button" onClick={() => void generateSuggestions()} disabled={loading || topic.trim().length < 2 || quantity < minQuantity || quantity > maxQuantity}
         className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50">
-        <Sparkles aria-hidden="true" size={17} /> {loading ? t("activity.ai.generating") : "Gerar sugestões"}
+        <Sparkles aria-hidden="true" size={17} /> {loading ? t("activity.ai.generating")  : t("activity.ai.generate")}
       </button>
 
       {error && <p role="alert" className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
