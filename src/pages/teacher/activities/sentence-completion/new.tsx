@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -17,6 +18,7 @@ function errorMessage(error: unknown): string {
 }
 
 export default function NewSentenceCompletionPage() {
+  const { t } = useTranslation();
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
   async function handleSubmit(values: CreateSentenceCompletionFormValues): Promise<void> {
@@ -32,13 +34,13 @@ export default function NewSentenceCompletionPage() {
   }
 
   return (
-    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Complete as frases" description="Crie frases com lacunas que os alunos preencherão usando o banco de palavras.">
+    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.sentenceCompletion")} description={t("activity.page.description.sentenceCompletion")}>
       {success ? (
         <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-6 text-center shadow-sm sm:p-8" aria-labelledby="created-title">
           <CheckCircle2 aria-hidden="true" className="mx-auto mb-4 size-14 text-green-600" />
-          <h2 id="created-title" className="text-2xl font-semibold text-dark">Atividade salva com sucesso!</h2>
-          <p className="mt-3 text-sm leading-6 text-muted">A atividade foi salva como rascunho. Você poderá revisá-la em Minhas atividades e enviá-la para aprovação quando estiver pronta.</p>
-          <Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><ClipboardList aria-hidden="true" size={18} /> Ver minhas atividades</Link>
+          <h2 id="created-title" className="text-2xl font-semibold text-dark">{t("activity.page.savedTitle")}</h2>
+          <p className="mt-3 text-sm leading-6 text-muted">A atividade foi salva como rascunho. Você poderá revisá-la em {t("navigation.myActivities")} e enviá-la para aprovação quando estiver pronta.</p>
+          <Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><ClipboardList aria-hidden="true" size={18} /> {t("activity.page.viewActivities")}</Link>
         </section>
       ) : (
         <>
