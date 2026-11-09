@@ -55,12 +55,6 @@ const defaultInitialValues: CreateCrosswordFormValues = {
   ],
 };
 
-const difficulties: { value: ActivityDifficulty; label: string }[] = [
-  { value: "EASY", label: "Fácil" },
-  { value: "MEDIUM", label: "Média" },
-  { value: "HARD", label: "Difícil" },
-];
-
 const inputClassName =
   "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
 const labelClassName = "mb-2 block text-sm font-medium text-dark";
@@ -73,6 +67,11 @@ export function CrosswordForm({
   mode = "create",
 }: Readonly<CrosswordFormProps>) {
   const { t } = useTranslation();
+  const difficulties: { value: ActivityDifficulty; label: string }[] = [
+    { value: "EASY", label: t("activity.form.easy") },
+    { value: "MEDIUM", label: t("activity.form.medium") },
+    { value: "HARD", label: t("activity.form.hard") },
+  ];
   const isEditing = mode === "edit";
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
@@ -95,7 +94,7 @@ export function CrosswordForm({
                 <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
               </div>
               <p className="mt-1 text-sm leading-6 text-muted">
-                Defina o título, a dificuldade e o tempo disponível para os alunos.
+                {t("activity.form.descriptionPlaceholder")}
               </p>
             </div>
 
@@ -109,7 +108,7 @@ export function CrosswordForm({
                   name="name"
                   type="text"
                   maxLength={120}
-                  placeholder="Ex.: Partes do corpo humano"
+                  placeholder={t("activity.form.descriptionPlaceholder")}
                   className={inputClassName}
                   aria-required="true"
                   aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
@@ -127,7 +126,7 @@ export function CrosswordForm({
                   name="description"
                   rows={3}
                   maxLength={2000}
-                  placeholder="Descreva o objetivo pedagógico da atividade..."
+                  placeholder={t("activity.form.descriptionPlaceholder")}
                   className={`${inputClassName} resize-y`}
                 />
                 <ErrorMessage name="description" component="p" className={errorClassName} />
@@ -157,10 +156,9 @@ export function CrosswordForm({
 
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-dark">Respostas e pistas</h2>
+              <h2 className="text-lg font-semibold text-dark">{t("activity.form.crosswordAnswers")}</h2>
               <p className="mt-1 text-sm leading-6 text-muted">
                 {t("activity.form.crosswordHelp")}
-                desconsiderando espaços e hífens, e deve ter uma pista.
               </p>
             </div>
 
@@ -170,7 +168,7 @@ export function CrosswordForm({
                   {values.words.map((_, index) => (
                     <fieldset key={index} className="rounded-xl border border-border p-4">
                       <legend className="px-1 text-sm font-semibold text-dark">
-                        Resposta {index + 1}
+                        {t("activity.form.addAnswer")} {index + 1}
                       </legend>
                       <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_auto] sm:items-start">
                         <div>
@@ -228,9 +226,9 @@ export function CrosswordForm({
                     className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <Plus size={17} aria-hidden="true" />
-                    Adicionar resposta
+                    {t("activity.form.addAnswer")}
                   </button>
-                  <p className="text-xs text-muted">{values.words.length} de 20 respostas</p>
+                  <p className="text-xs text-muted">{values.words.length} / 20 {t("activity.form.words")}</p>
                 </div>
               )}
             </FieldArray>
