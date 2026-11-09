@@ -284,7 +284,7 @@ export default function TeacherStudentsPage() {
           </p>
         </aside>
       </div>
-      <FaqSection title="{t("teacherStudents.faqTitle")}" description="{t("teacherStudents.faqDescription")}" items={locale === "pt-BR" ? teacherStudentsFaq : teacherStudentsFaqEn} />
+      <FaqSection title={t("teacherStudents.faqTitle")} description={t("teacherStudents.faqDescription")} items={locale === "pt-BR" ? teacherStudentsFaq : teacherStudentsFaqEn} />
     </RoleBasedLayout>
   );
 }
