@@ -39,8 +39,9 @@ function ScrollToFirstError() {
   return null;
 }
 
-export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInitialValues, submitLabel = "Criar atividade" }: Readonly<Props>) {
+export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInitialValues, submitLabel }: Readonly<Props>) {
   const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.create");
   return (
     <Formik<CreateMoleHitFormValues>
       initialValues={initialValues}
@@ -113,7 +114,7 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                     ))}
                     <ErrorMessage name="content.correctOptions" component="p" className={errorClassName} />
                     <button type="button" onClick={() => push("")} disabled={values.content.correctOptions.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} aria-hidden="true" />{t("activity.form.addOption")}</button>
-                    <p className="text-xs text-muted">{values.content.correctOptions.length} de 30 opções</p>
+                    <p className="text-xs text-muted">{values.content.correctOptions.length} / 30 {t("activity.form.correctOptions")}</p>
                   </div>
                 )}
               </FieldArray>
@@ -133,7 +134,7 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                     ))}
                     <ErrorMessage name="content.incorrectOptions" component="p" className={errorClassName} />
                     <button type="button" onClick={() => push("")} disabled={values.content.incorrectOptions.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} aria-hidden="true" />{t("activity.form.addOption")}</button>
-                    <p className="text-xs text-muted">{values.content.incorrectOptions.length} de 30 opções</p>
+                    <p className="text-xs text-muted">{values.content.incorrectOptions.length} / 30 {t("activity.form.incorrectOptions")}</p>
                   </div>
                 )}
               </FieldArray>
@@ -143,7 +144,7 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
           {submitError && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{submitError}</div>}
           <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
             <button type="submit" disabled={isSubmitting} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
-              {isSubmitting ? <><span className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" aria-hidden="true" />Salvando atividade...</> : submitLabel}
+              {isSubmitting ? t("activity.form.saving") : effectiveSubmitLabel}
             </button>
           </div>
         </Form>
