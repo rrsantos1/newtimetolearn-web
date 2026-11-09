@@ -307,7 +307,7 @@ export default function PendingActivitiesPage() {
           </button>
         </nav>
       )}
-      <FaqSection title="{t("adminActivities.faqTitle")}" description="{t("adminActivities.faqDescription")}" items={adminFaq} />
+      <FaqSection title={t("adminActivities.faqTitle")} description={t("adminActivities.faqDescription")} items={adminFaq} />
     </RoleBasedLayout>
   );
 }
