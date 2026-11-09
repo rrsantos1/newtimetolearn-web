@@ -1,5 +1,6 @@
 import { CheckCircle2, Grid3X3 } from "lucide-react";
 import type { WordSearchPreview as WordSearchPreviewData } from "@/modules/activities/types/activities.types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface WordSearchPreviewProps {
   preview: WordSearchPreviewData;
@@ -8,6 +9,7 @@ interface WordSearchPreviewProps {
 export function WordSearchPreview({
   preview,
 }: Readonly<WordSearchPreviewProps>) {
+  const { t } = useTranslation();
   return (
     <section
       aria-labelledby="word-search-preview-title"
@@ -23,11 +25,11 @@ export function WordSearchPreview({
             id="word-search-preview-title"
             className="text-lg font-semibold text-dark"
           >
-            Prévia do caça-palavras
+            {t("wordSearch.preview.title")}
           </h2>
 
           <p className="mt-1 text-sm leading-6 text-muted">
-            Confira a grade gerada antes de prosseguir.
+            {t("wordSearch.preview.description")}
           </p>
         </div>
       </div>
@@ -35,7 +37,7 @@ export function WordSearchPreview({
       <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-background p-3 sm:p-5">
         <div
           role="img"
-          aria-label={`Grade do caça-palavras com ${preview.grid.length} linhas`}
+          aria-label={t("wordSearch.preview.gridLabel").replace("{count}", String(preview.grid.length))}
           className="mx-auto grid w-fit gap-px"
           style={{
             gridTemplateColumns: `repeat(${preview.grid[0]?.length ?? 0}, minmax(0, 1fr))`,
@@ -57,7 +59,7 @@ export function WordSearchPreview({
 
       <div className="mt-6">
         <h3 className="text-sm font-semibold text-dark">
-          Palavras cadastradas ({preview.words.length})
+          {t("wordSearch.preview.wordsCount").replace("{count}", String(preview.words.length))}
         </h3>
 
         <ul className="mt-3 flex flex-wrap gap-2">
