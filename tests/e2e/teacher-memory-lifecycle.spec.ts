@@ -103,7 +103,7 @@ async function signInAsTeacher(page: Page): Promise<void> {
     });
   });
 
-  await page.goto("/login");
+  await page.goto("/pt-BR/login");
   await page.getByLabel("E-mail").fill(teacher.email);
   await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
@@ -173,7 +173,7 @@ test("teacher creates a memory activity and submits it for approval", async ({
     await route.fallback();
   });
 
-  await page.goto("/teacher/activities/memory/new");
+  await page.goto("/pt-BR/teacher/activities/memory/new");
   await page.getByLabel("Nome da atividade *").fill("Jogo de memória E2E");
 
   const removePairButtons = page.getByRole("button", { name: "Remover par" });
