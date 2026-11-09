@@ -75,7 +75,7 @@ export function RoleBasedLayout({
                 <h1 className="truncate text-base font-bold text-white sm:text-lg">{title}</h1>
                 <p className="hidden truncate text-xs text-white/75 sm:block">{description}</p>
               </div>
-              <div className="flex shrink-0 items-center gap-2 [&_a]:!border-white/30 [&_a]:!bg-white/10 [&_a]:!text-white [&_a:hover]:!bg-white/20 [&_button]:!border-white/30 [&_button]:!bg-white/10 [&_button]:!text-white [&_button:hover]:!bg-white/20">{titleActions}</div>
+              <div className="flex shrink-0 items-center gap-2 [&_a]:!border-white/30 [&_a]:!bg-white/10 [&_a]:!text-white [&_a:hover]:!bg-white/20 [&_button]:!border-white/30 [&_button]:!bg-white/10 [&_button]:!text-white [&_button:hover]:!bg-white/20"><LanguageSwitcher />{titleActions}</div>
             </div>
           </header>
         ) : (
