@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -83,6 +84,7 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
 }
 
 export default function EditQuizPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
   const [initialValues, setInitialValues] = useState<CreateQuizFormValues | null>(null);
@@ -148,7 +150,7 @@ export default function EditQuizPage() {
         },
       } : current);
       setInitialValues(values);
-      setSuccessMessage("Alterações salvas. O Quiz continua como rascunho até ser enviado para aprovação.");
+      setSuccessMessage(t("activity.page.updatedDraft"));
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error));
     }
@@ -165,7 +167,7 @@ export default function EditQuizPage() {
         ...current,
         version: { ...current.version, status: "PENDING_REVIEW", reviewFeedback: null, submittedAt: new Date().toISOString() },
       } : current);
-      setResubmitMessage("Quiz enviado para análise de aprovação. Você pode acompanhar o status em Minhas atividades.");
+      setResubmitMessage(t("activity.page.resubmitSuccess"));
     } catch (error: unknown) {
       setResubmitError(true);
       setResubmitMessage(getErrorMessage(error));
@@ -177,7 +179,7 @@ export default function EditQuizPage() {
   const canSubmitForReview = activity !== null && ["DRAFT", "REJECTED", "CHANGES_REQUESTED"].includes(activity.version.status);
 
   return (
-    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Editar Quiz" description="Atualize as questões e as alternativas da atividade.">
+    <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.edit.quiz")} description={t("activity.page.editDescription.quiz")}>
       <div className="mb-6">
         <Link href="/teacher/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
           <ArrowLeft aria-hidden="true" size={16} /> Voltar às minhas atividades
@@ -207,7 +209,7 @@ export default function EditQuizPage() {
               <p className="mt-1 text-sm leading-6 text-muted">Salve as alterações antes de enviar esta versão para análise administrativa.</p>
               {resubmitMessage && <div role={resubmitError ? "alert" : "status"} className={`mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm ${resubmitError ? "border-red-200 bg-red-50 text-red-800" : "border-green-200 bg-green-50 text-green-800"}`}><CheckCircle2 aria-hidden="true" size={18} className="mt-0.5 shrink-0" /><p>{resubmitMessage}</p></div>}
               <button type="button" onClick={() => void handleResubmit()} disabled={resubmitting} className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60">
-                {resubmitting ? "Enviando..." : "Enviar para aprovação"}
+                {resubmitting ? "Enviando..." : t("activity.page.sendApproval")}
               </button>
             </section>
           )}
