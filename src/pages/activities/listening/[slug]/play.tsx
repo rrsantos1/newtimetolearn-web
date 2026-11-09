@@ -113,7 +113,7 @@ export default function PlayListeningPage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("play.home") : t("play.back");
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ListeningExecutionActivity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -340,7 +340,7 @@ export default function PlayListeningPage() {
                                 {item.isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
                                   <p className="text-sm font-semibold text-dark">Lacuna {index + 1}: {item.isCorrect ? "correta" : "incorreta"}</p>
-                                  <p className="mt-1 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{item.answer.trim() || "{t("play.unanswered")}"}</span></p>
+                                  <p className="mt-1 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{item.answer.trim() || t("play.unanswered")}</span></p>
                                   {!item.isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {item.expectedAnswer}</p>}
                                 </div>
                               </div>
