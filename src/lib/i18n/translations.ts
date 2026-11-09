@@ -2689,7 +2689,6 @@ const translations = {
     "attempts.pageOf": "Página {page} de {total}",
     "attempts.next": "Próxima",
     "attempts.dateUnavailable": "Data indisponível",
-    "attempts.progress": "{correct} de {total}",
     "studentTeachers.title": "Meus professores",
     "studentTeachers.description": "Consulte seus vínculos e responda aos convites enviados pelos professores.",
     "studentTeachers.statusPending": "Aguardando sua resposta",
