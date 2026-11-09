@@ -41,7 +41,6 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
       return [{
         id: rawOption.id,
         text: typeof rawOption.text === "string" ? rawOption.text : "",
-        images: readImages(rawOption.images),
       }];
     }) : [];
     if (typeof rawQuestion.id !== "string") return [];
@@ -50,7 +49,7 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
       statement: typeof rawQuestion.statement === "string" ? rawQuestion.statement : "",
       images: readImages(rawQuestion.images),
       options: options.length >= 3 ? options : [
-        { id: globalThis.crypto.randomUUID(), text: "", images: [] },
+        { id: globalThis.crypto.randomUUID(), text: "" },
         { id: globalThis.crypto.randomUUID(), text: "", images: [] },
         { id: globalThis.crypto.randomUUID(), text: "", images: [] },
       ],
