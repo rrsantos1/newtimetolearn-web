@@ -3339,6 +3339,19 @@ const translations = {
     "wordSearch.preview.gridLabel": "Grade do caça-palavras com {count} linhas",
     "wordSearch.preview.wordsCount": "Palavras cadastradas ({count})",
 
+    "adminActivities.pendingListLabel": "Atividades aguardando aprovação",
+    "adminActivities.difficulty": "Dificuldade",
+    "adminActivities.version": "Versão {version}",
+    "adminActivities.approved": "\"{name}\" foi aprovada e publicada.",
+    "adminActivities.rejected": "\"{name}\" foi rejeitada.",
+    "adminActivities.changesRequested": "Foram solicitadas alterações em \"{name}\".",
+    "adminActivities.approveTitle": "Aprovar e publicar",
+    "adminActivities.approveAria": "Aprovar {name}",
+    "adminActivities.requestChangesTitle": "Solicitar alterações",
+    "adminActivities.requestChangesAria": "Solicitar alterações em {name}",
+    "adminActivities.rejectTitle": "Rejeitar atividade",
+    "adminActivities.rejectAria": "Rejeitar {name}",
+    "adminActivities.pagination": "Paginação das atividades pendentes",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
