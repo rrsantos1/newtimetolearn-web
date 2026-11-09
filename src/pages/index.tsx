@@ -19,36 +19,35 @@ import { listPublicActivitiesService } from "@/modules/activities/services/listP
 import type { ListedActivity } from "@/modules/activities/types/activityList.types";
 import { Gamepad2 } from "lucide-react";
 import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
 
 const features = [
   {
     icon: BookOpen,
-    title: "Atividades para aprender",
-    description:
-      "Jogos e exercícios que ajudam a praticar vocabulário, estruturas e compreensão do inglês.",
+    titleKey: "home.featureActivities",
+    descriptionKey: "home.featureActivitiesDescription",
   },
   {
     icon: GraduationCap,
-    title: "Um espaço para ensinar",
-    description:
-      "Professores podem criar, organizar e compartilhar atividades com seus alunos.",
+    titleKey: "home.featureTeaching",
+    descriptionKey: "home.featureTeachingDescription",
   },
   {
     icon: ShieldCheck,
-    title: "Sua aprendizagem organizada",
-    description:
-      "Um ambiente dedicado para acompanhar atividades e desenvolver conhecimentos.",
+    titleKey: "home.featureLearning",
+    descriptionKey: "home.featureLearningDescription",
   },
 ];
 
 const activityTypes = [
-  { icon: Puzzle, label: "Jogos de palavras" },
-  { icon: BookOpen, label: "Quiz e desafios" },
-  { icon: Headphones, label: "Listening" },
-];
+  { icon: Puzzle, labelKey: "home.activityTypeWords" },
+  { icon: BookOpen, labelKey: "home.activityTypeQuiz" },
+  { icon: Headphones, labelKey: "home.activityTypeListening" },
+] as const;
 
 export default function Home() {
+  const { t } = useTranslation();
   const [publicActivities, setPublicActivities] = useState<ListedActivity[]>([]);
   const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceProduct[]>([]);
 
@@ -96,17 +95,15 @@ export default function Home() {
           <div className="relative z-10 w-full min-w-0">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#244a7c]/15 bg-[#244a7c]/6 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-[#244a7c] sm:text-sm">
               <Sparkles size={15} aria-hidden="true" />
-              Aprender inglês pode ser uma experiência
+              {t("home.badge")}
             </span>
 
             <h1 className="mt-7 w-full max-w-none text-3xl font-extrabold leading-[1.12] tracking-tight text-dark sm:text-[2.8rem] lg:text-[3.6rem] xl:text-[4.1rem]">
-              Aprenda, pratique
-              <span className="block text-accent">e evolua com o</span>
-              TimeToLearn.
+              {t("home.title")}
             </h1>
 
             <p className="mt-5 w-full max-w-3xl text-base leading-7 text-muted sm:text-[1.1rem]">
-              Uma plataforma criada para facilitar a vida de professores de inglês com atividades interativas, conteúdos prontos e liberdade para criar!
+              {t("home.description")}
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -114,7 +111,7 @@ export default function Home() {
                 href="/register"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 font-semibold text-white! shadow-lg shadow-accent/15 transition hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
-                Começar agora
+                {t("home.start")}
                 <ArrowRight size={18} aria-hidden="true" />
               </Link>
 
@@ -122,18 +119,18 @@ export default function Home() {
                 href="/about"
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#244a7c]/20 bg-white px-6 font-semibold text-primary transition hover:bg-[#244a7c]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
-                Conheça a plataforma
+                {t("home.about")}
               </Link>
             </div>
 
             <div className="mt-7 flex flex-wrap gap-2">
-              {activityTypes.map(({ icon: Icon, label }) => (
+              {activityTypes.map(({ icon: Icon, labelKey }) => (
                 <span
-                  key={label}
+                  key={labelKey}
                   className="inline-flex items-center gap-2 rounded-full bg-background px-3.5 py-2 text-xs font-semibold text-dark sm:text-sm"
                 >
                   <Icon size={15} className="text-accent" aria-hidden="true" />
-                  {label}
+                  {t(labelKey)}
                 </span>
               ))}
             </div>
@@ -152,10 +149,10 @@ export default function Home() {
               />
               <div className="mx-1 mb-1 mt-3 rounded-xl border border-[#244a7c]/10 bg-white p-4 sm:p-5">
                 <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-accent">
-                  Uma jornada de conhecimento
+                  {t("home.journey")}
                 </p>
                 <p className="mt-1 text-sm font-bold text-dark sm:text-base">
-                  Pratique no seu ritmo. Aprenda todos os dias.
+                  {t("home.practiceDaily")}
                 </p>
               </div>
             </div>
@@ -166,21 +163,20 @@ export default function Home() {
       <section className="mx-auto w-full px-5 py-16 sm:px-8 sm:py-20 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
-            O que você encontra
+            {t("home.featuresEyebrow")}
           </span>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">
-            Aprendizagem ativa e significativa
+            {t("home.featuresTitle")}
           </h2>
           <p className="mt-4 text-base leading-7 text-muted">
-            Recursos para transformar conteúdos em prática e apoiar o trabalho
-            de quem ensina.
+            {t("home.featuresDescription")}
           </p>
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {features.map(({ icon: Icon, title, description }, index) => (
+          {features.map(({ icon: Icon, titleKey, descriptionKey }, index) => (
             <article
-              key={title}
+              key={titleKey}
               className="rounded-2xl border border-border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:p-7"
             >
               <span
@@ -192,8 +188,8 @@ export default function Home() {
               >
                 <Icon size={24} aria-hidden="true" />
               </span>
-              <h3 className="mt-5 text-lg font-bold text-dark">{title}</h3>
-              <p className="mt-2 text-sm leading-7 text-muted">{description}</p>
+              <h3 className="mt-5 text-lg font-bold text-dark">{t(titleKey)}</h3>
+              <p className="mt-2 text-sm leading-7 text-muted">{t(descriptionKey)}</p>
             </article>
           ))}
         </div>
@@ -204,12 +200,12 @@ export default function Home() {
         <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10 bg-white" aria-labelledby="public-activities-title">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>
-              <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Atividades para explorar</h2>
-              <p className="mt-4 text-base leading-7 text-muted">Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.</p>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">{t("home.tryWithoutSignup")}</span>
+              <h2 id="public-activities-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">{t("home.activitiesTitle")}</h2>
+              <p className="mt-4 text-base leading-7 text-muted">{t("home.activitiesDescription")}</p>
             </div>
             <Link href="/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
-              Ver todas as atividades <ArrowRight size={16} aria-hidden="true" />
+              {t("home.viewAllActivities")} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -232,12 +228,12 @@ export default function Home() {
         <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="marketplace-featured-title">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Materiais didáticos</span>
-              <h2 id="marketplace-featured-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">Destaques do Marketplace</h2>
-              <p className="mt-3 text-base leading-7 text-muted">Explore materiais preparados por professores e encontre novos recursos para suas aulas.</p>
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">{t("home.teachingMaterials")}</span>
+              <h2 id="marketplace-featured-title" className="mt-3 text-3xl font-extrabold tracking-tight text-dark sm:text-4xl">{t("home.marketplaceTitle")}</h2>
+              <p className="mt-3 text-base leading-7 text-muted">{t("home.marketplaceDescription")}</p>
             </div>
             <Link href="/marketplace" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
-              Ver todos os materiais <ArrowRight size={16} aria-hidden="true" />
+              {t("home.viewAllMaterials")} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -275,20 +271,20 @@ export default function Home() {
         <div className="mx-auto flex w-full max-w-[1720px] flex-col items-center justify-between gap-6 px-6 py-12 text-center sm:px-10 md:px-14 lg:flex-row lg:px-16 lg:text-center">
           <div className="w-full max-w-2xl text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f3a6b1]">
-              Seu próximo passo começa aqui
+              {t("home.finalEyebrow")}
             </p>
             <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-              Vamos aprender juntos?
+              {t("home.finalTitle")}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-200">
-              Crie sua conta e explore as possibilidades do TimeToLearn.
+              {t("home.finalDescription")}
             </p>
           </div>
           <Link
             href="/register"
             className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-6 font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            Criar minha conta
+            {t("home.createAccount")}
             <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
