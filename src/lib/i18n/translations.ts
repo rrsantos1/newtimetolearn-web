@@ -917,6 +917,13 @@ const translations = {
     "notebook.teacher": "Teacher",
     "notebook.loadFailed": "Unable to load the notebook. Refresh the page and try again.",
     "notebook.orderFailed": "Unable to save the new item order.",
+    "notebook.saving": "Saving...",
+    "notebook.publishLink": "Publish link",
+    "notebook.selectFile": "Select file",
+    "notebook.chooseAnotherFile": "Choose another file",
+    "notebook.sending": "Sending...",
+    "notebook.attach": "Attach",
+    "notebook.selected": "Selected:",
   "pt-BR": {
     "language.label": "Idioma",
     "language.english": "English",
@@ -1829,6 +1836,13 @@ const translations = {
     "notebook.teacher": "Professor",
     "notebook.loadFailed": "Não foi possível carregar o caderno. Atualize a página para tentar novamente.",
     "notebook.orderFailed": "Não foi possível salvar a nova ordem dos itens.",
+    "notebook.saving": "Salvando...",
+    "notebook.publishLink": "Publicar link",
+    "notebook.selectFile": "Selecionar arquivo",
+    "notebook.chooseAnotherFile": "Escolher outro arquivo",
+    "notebook.sending": "Enviando...",
+    "notebook.attach": "Anexar",
+    "notebook.selected": "Selecionado:",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
