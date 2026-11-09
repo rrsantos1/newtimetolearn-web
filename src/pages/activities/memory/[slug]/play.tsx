@@ -12,6 +12,7 @@ import { getMemoryRankingService, type MemoryRankingEntry } from "@/modules/acti
 import type { MemoryItemValue } from "@/modules/activities/schemas/createMemorySchema";
 import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Pair {
   id: string;
@@ -84,11 +85,12 @@ function RankingList({ ranking }: Readonly<{ ranking: MemoryRankingEntry[] }>) {
 }
 
 export default function MemoryGamePage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "Página inicial" : isStudent ? "Voltar às atividades" : "Voltar às atividades";
+  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
   const [loadError, setLoadError] = useState("");
@@ -151,7 +153,7 @@ export default function MemoryGamePage() {
     setPhase("finished");
     setSubmitError("");
     if (!isStudent) {
-      setSubmitError("Prévia concluída. O resultado não foi registrado no ranking dos alunos.");
+      setSubmitError("{t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.");
       return;
     }
     try {
@@ -207,7 +209,7 @@ export default function MemoryGamePage() {
         titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
       >
       {loading ? (
-        <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">Carregando atividade...</p>
+        <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">{t("play.loading")}</p>
       ) : loadError ? (
         <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
       ) : activity ? (
@@ -223,19 +225,19 @@ export default function MemoryGamePage() {
                   
                 </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                  <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar jogo da memória" : "Testar jogo da memória"}
+                  <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                 </button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no ranking dos alunos.</p>}
               </section>
 
               {isStudent && (
                 <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
-                  <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
+                  <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingCurrent")}</h2></div>
                   <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                   {rankingLoading ? (
-                    <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div>
+                    <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />{t("play.loadingRanking")}</div>
                   ) : rankingError ? (
-                    <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 min-h-10 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div>
+                    <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 min-h-10 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">{t("play.retry")}</button></div>
                   ) : <RankingList ranking={ranking} />}
                 </section>
               )}
@@ -246,7 +248,7 @@ export default function MemoryGamePage() {
             <>
               <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5">
                 <div><p className="text-sm text-muted">Pares encontrados</p><p className="text-xl font-bold text-dark">{matchedIds.length} / {activity.version.content.pairs.length}</p></div>
-                <div><p className="text-sm text-muted">Erros</p><p className="text-xl font-bold text-dark">{wrongAttempts}</p></div>
+                <div><p className="text-sm text-muted">{t("play.errors")}</p><p className="text-xl font-bold text-dark">{wrongAttempts}</p></div>
                 
                 <button type="button" onClick={() => { if (window.confirm("Deseja encerrar esta tentativa agora?")) void finishGame(); }} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Encerrar jogo</button>
               </section>
@@ -266,18 +268,18 @@ export default function MemoryGamePage() {
           {phase === "finished" && (
             <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.totalPairs > 0 && result.attempt.matchedPairs === result.attempt.totalPairs} />
-                      <h2 className="text-xl font-bold text-dark">{isStudent ? "Resultado final" : "Prévia concluída"}</h2>
+                      <h2 className="text-xl font-bold text-dark">{isStudent ? "{t("play.result")}" : "{t("play.previewFinished")}"}</h2>
               {result ? (
                 <>
                   <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
                   <p className="mt-2 text-sm text-muted">{result.attempt.matchedPairs} de {result.attempt.totalPairs} pares · {result.attempt.wrongAttempts} erro(s) · penalidade de {result.attempt.penaltyPoints} pontos.</p>
-                  <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">Ranking atualizado</h3></div><RankingList ranking={result.ranking} /></div>
+                  <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div>
                   <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Seu resultado não entrou no Top 5 desta vez. Continue praticando!"}</p>
                 </>
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "Jogar novamente" : "Testar novamente"}</button>
+                <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{isStudent ? "{t("play.playAgain")}" : "Testar novamente"}</button>
               </div>
             </section>
           )}
