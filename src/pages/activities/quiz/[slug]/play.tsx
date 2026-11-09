@@ -12,6 +12,7 @@ import { getQuizService, type EditableQuizActivity } from "@/modules/activities/
 import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
 import { getQuizRankingService, type QuizRankingEntry } from "@/modules/activities/services/getQuizRankingService";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface QuizImage {
   storageKey: string;
@@ -136,12 +137,13 @@ function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
 }
 
 export default function PlayQuizPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || isTeacher ? "Voltar às atividades" : "Voltar às atividades";
+  const backLabel = !user ? "{t("play.home")}" : user.roles.includes("ADMIN") || isTeacher ? "{t("play.back")}" : "{t("play.back")}";
   const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -316,7 +318,7 @@ export default function PlayQuizPage() {
                     <legend className="mb-3 text-sm font-semibold text-dark">Modo de execução</legend>
                     <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                       <input type="radio" name="quiz-mode" value="question" checked={mode === "question"} onChange={() => setMode("question")} className="mr-2 accent-accent" />
-                      <span className="font-semibold text-dark">Questão a questão</span>
+                      <span className="font-semibold text-dark">{t("play.question")} a questão</span>
                       <span className="mt-2 block text-sm leading-5 text-muted">Responda e avance uma pergunta por vez. Você poderá revisar tudo no final.</span>
                     </label>
                     <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "all" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
@@ -326,19 +328,19 @@ export default function PlayQuizPage() {
                     </label>
                   </fieldset>
                   <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 text-sm sm:grid-cols-3">
-                    <div><p className="text-muted">Questões</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div>
+                    <div><p className="text-muted">{t("play.questions")}</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div>
                                         <div><p className="text-muted">Respostas obrigatórias</p><p className="mt-1 font-semibold text-dark">Todas antes de avançar</p></div>
                   </div>
                   <button type="button" onClick={startQuiz} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                    <Play size={18} aria-hidden="true" />{isStudent ? "Iniciar Quiz" : "Testar Quiz"}
+                    <Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}
                   </button>
                   {!isStudent && <p className="mt-3 text-xs text-muted">A execução de teste não será registrada no histórico dos alunos.</p>}
                 </section>
                 {isStudent && (
                   <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
-                    <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atual — Top 5</h2></div>
+                    <div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingCurrent")}</h2></div>
                     <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
-                    {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />Carregando ranking...</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button></div> : <RankingList ranking={ranking} /> }
+                    {rankingLoading ? <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={17} className="animate-spin" aria-hidden="true" />{t("play.loadingRanking")}</div> : rankingError ? <div><p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p><button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">{t("play.retry")}</button></div> : <RankingList ranking={ranking} /> }
                   </section>
                 )}
                 </div>
@@ -347,7 +349,7 @@ export default function PlayQuizPage() {
               {phase === "playing" && (
                 <div className="space-y-5">
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
-                    <p className="text-sm font-semibold text-dark">{mode === "question" ? `Questão ${currentIndex + 1} de ${questions.length}` : `${answeredCount} de ${questions.length} respondidas`}</p>
+                    <p className="text-sm font-semibold text-dark">{mode === "question" ? `{t("play.question")} ${currentIndex + 1} de ${questions.length}` : `${answeredCount} de ${questions.length} respondidas`}</p>
                     <div className="flex items-center gap-3">
                       
                       <button type="button" onClick={abandonQuiz} className="min-h-9 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Abandonar Quiz</button>
@@ -356,7 +358,7 @@ export default function PlayQuizPage() {
 
                   {mode === "question" && currentQuestion ? (
                     <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-8">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">Questão {currentIndex + 1}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("play.question")} {currentIndex + 1}</p>
                       <h2 className="mt-3 whitespace-pre-wrap text-lg font-bold leading-7 text-dark sm:text-xl">{currentQuestion.statement}</h2>
                       <div className={currentQuestion.images.length > 0 ? "mt-5 grid gap-6 lg:grid-cols-2 lg:items-start" : "mt-5"}>
                         {currentQuestion.images.length > 0 && (
@@ -413,7 +415,7 @@ export default function PlayQuizPage() {
                 <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">Quiz abandonado</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">Seu progresso não foi registrado. Você pode iniciar novamente quando quiser.</p>
-                  <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>Voltar à escolha do modo</button>
+                  <button type="button" onClick={() => setPhase("setup")} className="mt-5 min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>{t("play.backMode")}</button>
                 </section>
               )}
 
@@ -424,14 +426,14 @@ export default function PlayQuizPage() {
                   ) : submitError ? (
                     <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                       <p>{submitError}</p>
-                      <button type="button" onClick={() => void retrySubmission()} disabled={submitting} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>
+                      <button type="button" onClick={() => void retrySubmission()} disabled={submitting} className="mt-3 min-h-10 rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">{t("play.submitRetry")}</button>
                     </div>
                   ) : (
                     <>
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <ConfettiCelebration active={isStudent && attemptResult !== null && questions.length > 0 && correctCount === questions.length} />
-                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
                           <p className="mt-1 text-3xl font-bold text-dark">{isStudent && attemptResult ? attemptResult.attempt.score : localScore}<span className="text-lg text-muted">/100 pontos</span></p>
                           <p className="mt-2 text-sm text-muted">Respostas corretas: {correctCount} de {questions.length}</p>
                           
@@ -441,7 +443,7 @@ export default function PlayQuizPage() {
                       </div>
                       {isStudent && attemptResult && (
                         <div className="mt-7">
-                          <div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">Ranking atualizado — Top 5</h2></div>
+                          <div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingUpdated")} — Top 5</h2></div>
                           <RankingList ranking={ranking} />
                         </div>
                       )}
@@ -457,8 +459,8 @@ export default function PlayQuizPage() {
                                 {isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
                                   <h3 className="font-semibold leading-6 text-dark">{index + 1}. {question.statement}</h3>
-                                  <p className="mt-2 text-sm text-muted">Sua resposta: <span className="font-medium text-dark">{chosenOption?.text ?? "Não respondida"}</span></p>
-                                  {!isCorrect && <p className="mt-1 text-sm text-emerald-700">Resposta correta: {correctOption?.text ?? "Indisponível"}</p>}
+                                  <p className="mt-2 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{chosenOption?.text ?? "{t("play.unanswered")}"}</span></p>
+                                  {!isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {correctOption?.text ?? "Indisponível"}</p>}
                                   {question.explanation && <p className="mt-2 text-sm leading-6 text-muted">{question.explanation}</p>}
                                 </div>
                               </div>
@@ -467,8 +469,8 @@ export default function PlayQuizPage() {
                         })}
                       </div>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                        <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">Voltar à escolha do modo</button>
-                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "Tentar novamente" : "Testar novamente"}</button>
+                        <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">{t("play.backMode")}</button>
+                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "{t("play.retry")}" : "Testar novamente"}</button>
                       </div>
                     </>
                   )}
