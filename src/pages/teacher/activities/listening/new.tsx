@@ -10,6 +10,7 @@ import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { listeningService } from "@/modules/activities/services/listeningService";
 import { ListeningAiTextGenerator } from "@/modules/activities/components/ListeningAiTextGenerator";
 import type { ListeningBlankInput, ListeningPassageInput, ListeningVoice } from "@/modules/activities/services/listeningService";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 type CoverGenerationState = "idle" | "generating" | "awaiting_selection" | "failed";
 
@@ -17,21 +18,7 @@ interface PassageDraft extends ListeningPassageInput {
   audio?: ListeningPassageInput["audio"];
 }
 
-const voices: Array<{ value: ListeningVoice; label: string }> = [
-  { value: "coral", label: `Coral — ${t("activity.listening.voiceNatural")}` },
-  { value: "alloy", label: `Alloy — ${t("activity.listening.voiceBalanced")}` },
-  { value: "ash", label: `Ash — ${t("activity.listening.voiceClear")}` },
-  { value: "nova", label: `Nova — ${t("activity.listening.voiceExpressive")}` },
-  { value: "shimmer", label: `Shimmer — ${t("activity.listening.voiceSoft")}` },
-  { value: "onyx", label: `Onyx — ${t("activity.listening.voiceDeep")}` },
-  { value: "sage", label: `Sage — ${t("activity.listening.voiceCalm")}` },
-  { value: "echo", label: `Echo — ${t("activity.listening.voiceFirm")}` },
-  { value: "fable", label: `Fable — ${t("activity.listening.voiceNarrative")}` },
-  { value: "ballad", label: `Ballad — ${t("activity.listening.voiceWarm")}` },
-  { value: "verse", label: `Verse — ${t("activity.listening.voiceVersatile")}` },
-  { value: "marin", label: `Marin — ${t("activity.listening.voiceNatural")}` },
-  { value: "cedar", label: `Cedar — ${t("activity.listening.voiceNatural")}` },
-];
+
 
 function newPassage(id: string = crypto.randomUUID()): PassageDraft {
   return {
@@ -67,7 +54,7 @@ function makeSuggestedBlanks(text: string, suggestions: string[]): ListeningBlan
   return blanks.sort((first, second) => first.startOffset - second.startOffset);
 }
 
-function errorMessage(error: unknown): string {
+function errorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
     return data?.error?.message ?? data?.message ?? t("activity.creation.error");
@@ -77,6 +64,21 @@ function errorMessage(error: unknown): string {
 
 export default function NewListeningPage() {
   const { t } = useTranslation();
+  const voices: Array<{ value: ListeningVoice; label: string }> = [
+  { value: "coral", label: `Coral — ${t("activity.listening.voiceNatural")}` },
+  { value: "alloy", label: `Alloy — ${t("activity.listening.voiceBalanced")}` },
+  { value: "ash", label: `Ash — ${t("activity.listening.voiceClear")}` },
+  { value: "nova", label: `Nova — ${t("activity.listening.voiceExpressive")}` },
+  { value: "shimmer", label: `Shimmer — ${t("activity.listening.voiceSoft")}` },
+  { value: "onyx", label: `Onyx — ${t("activity.listening.voiceDeep")}` },
+  { value: "sage", label: `Sage — ${t("activity.listening.voiceCalm")}` },
+  { value: "echo", label: `Echo — ${t("activity.listening.voiceFirm")}` },
+  { value: "fable", label: `Fable — ${t("activity.listening.voiceNarrative")}` },
+  { value: "ballad", label: `Ballad — ${t("activity.listening.voiceWarm")}` },
+  { value: "verse", label: `Verse — ${t("activity.listening.voiceVersatile")}` },
+  { value: "marin", label: `Marin — ${t("activity.listening.voiceNatural")}` },
+  { value: "cedar", label: `Cedar — ${t("activity.listening.voiceNatural")}` },
+];
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState<"EASY" | "MEDIUM" | "HARD">("MEDIUM");
@@ -221,7 +223,7 @@ export default function NewListeningPage() {
         setNotice(t("activity.listening.savedPreview"));
       }
     } catch (caught: unknown) {
-      setError(errorMessage(caught));
+      setError(errorMessage(caught, t));
     } finally {
       setSaving(false);
     }
@@ -434,7 +436,7 @@ export default function NewListeningPage() {
               </div>
               {passage.blanks.length > 0 && (
                 <div className="mt-5 space-y-3">
-                  <h4 className="text-sm font-semibold text-dark">Lacunas ({passage.blanks.length})</h4>
+                  <h4 className="text-sm font-semibold text-dark">{t("activity.listening.blanks")} ({passage.blanks.length})</h4>
                   {passage.blanks.map((blank, blankIndex) => (
                     <div key={blank.id} className="flex flex-col gap-3 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center">
                       <div className="min-w-0 flex-1">
@@ -455,7 +457,7 @@ export default function NewListeningPage() {
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted">{t("activity.listening.passageCount").replace("{count}", String(passages.length))} · {t("activity.listening.blankCount").replace("{count}", String(totalBlanks))}</p>
             <button type="button" onClick={() => void handleSave()} disabled={saving || coverGenerationState !== "idle"} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-              <FileAudio aria-hidden="true" size={18} /> {saving ? "{t("activity.listening.savingDraft")}" : "{t("activity.listening.saveDraft")}"}
+              <FileAudio aria-hidden="true" size={18} /> {saving ? t("activity.listening.savingDraft") : t("activity.listening.saveDraft")}
             </button>
           </div>
         </div>
