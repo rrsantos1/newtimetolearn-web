@@ -270,6 +270,15 @@ export const subscriptionFaq: FaqItem[] = [
   },
 ];
 
+export const subscriptionFaqEn: FaqItem[] = [
+  { question: "Which plans are available for teachers?", answer: "The Free plan includes up to 500 MB of storage, up to 5 active or invited students, and ads. The Teacher plan costs R$ 5.90 per month, includes 5 GB of storage, unlimited students, and removes ads." },
+  { question: "How can I subscribe to the Teacher plan?", answer: "On the Plan and subscription page, select the subscribe option. When payment integration is enabled, you will be redirected to checkout to complete your subscription." },
+  { question: "How can I check my subscription?", answer: "The Plan and subscription page shows your current plan, subscription status, storage limit, number of students, and ad status." },
+  { question: "How can I cancel my subscription?", answer: "When you have a subscription that can be managed, the Plan and subscription page displays the Cancel subscription option. The system asks you to confirm before submitting the request." },
+  { question: "What happens if my payment is pending or my subscription expires?", answer: "Your status is displayed on the Plan and subscription page. Access to paid benefits depends on the current subscription status confirmed by the system." },
+  { question: "Do I need a subscription to sell materials on the Marketplace?", answer: "Yes. Teachers need an active Teacher subscription to publish materials for sale. Materials registered by administrators follow separate rules." },
+];
+
 export const marketplaceFaqEn: FaqItem[] = [
   { question: "What is the Marketplace?", answer: "It is a place to discover teaching materials created by teachers, review previews and purchase files or resources delivered as Google Slides copies." },
   { question: "How do I purchase a resource?", answer: "Open the resource page, review its description, price and preview pages. Enter a valid email address and select Buy resource to start the payment." },
