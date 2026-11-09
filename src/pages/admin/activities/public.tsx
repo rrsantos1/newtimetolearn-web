@@ -138,7 +138,7 @@ export default function PublicActivitiesAdminPage() {
     >
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <Link href="/admin/activities" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark">
-          <ArrowLeft size={16} aria-hidden="true" /> Atividades pendentes
+          <ArrowLeft size={16} aria-hidden="true" /> {t("adminPublic.backToPending")}
         </Link>
         <button
           type="button"
@@ -146,7 +146,7 @@ export default function PublicActivitiesAdminPage() {
           disabled={isLoading}
           className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark transition hover:bg-background disabled:opacity-50"
         >
-          <RefreshCw size={15} aria-hidden="true" /> Atualizar
+          <RefreshCw size={15} aria-hidden="true" /> {t("adminPublic.refresh")}
         </button>
       </div>
 
@@ -218,7 +218,7 @@ export default function PublicActivitiesAdminPage() {
             disabled={isLoading}
             className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-red-300 px-3 font-semibold transition hover:bg-red-100 disabled:opacity-50"
           >
-            <RefreshCw size={15} aria-hidden="true" /> Tentar novamente
+            <RefreshCw size={15} aria-hidden="true" /> {t("common.retry")}
           </button>
         </section>
       )}
