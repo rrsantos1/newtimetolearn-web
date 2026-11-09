@@ -136,12 +136,12 @@ export default function MoleHitPlayPage() {
           ? (await (await import("@/lib/api")).default.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (loaded.type !== "mole_hit") throw new Error("Esta atividade não é Acertar a Toupeira.");
+        if (loaded.type !== "mole_hit") throw new Error(t("activities.play.moleHit.typeError"));
         setActivity(loaded);
         setSelectedDifficulty(loaded.version.difficulty);
         if (user?.roles.includes("STUDENT")) void loadRanking(slug);
       } catch (error: unknown) {
-        if (active) setLoadError(getErrorMessage(error, t("play.loading")));
+        if (active) setLoadError(getErrorMessage(error, t("activities.play.moleHit.loadError")));
       } finally {
         if (active) setLoading(false);
       }
@@ -162,7 +162,7 @@ export default function MoleHitPlayPage() {
     setSubmitError("");
     if (!isStudent) {
       setScoreSaving(false);
-      setSubmitError(`${t("play.previewFinished")}. O resultado não foi registrado no ranking dos alunos.`);
+      setSubmitError(t("activities.play.moleHit.previewNotice"));
       return;
     }
     try {
@@ -170,7 +170,7 @@ export default function MoleHitPlayPage() {
       setResult(submitted);
       setRanking(submitted.ranking);
     } catch (error: unknown) {
-      setSubmitError(getErrorMessage(error, "Não foi possível salvar seu resultado."));
+      setSubmitError(getErrorMessage(error, t("activities.play.moleHit.submitError")));
     } finally {
       setScoreSaving(false);
     }
@@ -290,7 +290,7 @@ export default function MoleHitPlayPage() {
 
   return (
     <PublicActivityLayout immersive
-        title={activity?.version.name ?? "Acertar a Toupeira"}
+        title={activity?.version.name ?? t("activities.play.moleHit.title")}
         description={activity?.version.description ?? t("play.readyDescription")}
         titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
       >
@@ -301,7 +301,7 @@ export default function MoleHitPlayPage() {
               <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm sm:p-8">
                 <div className="flex items-center gap-3"><Image src="/moles/normal.png" alt="" width={64} height={64} className="object-contain" /><div><h2 className="text-xl font-bold text-dark">{t("play.readyTitle")}</h2><p className="mt-1 text-sm text-muted">{t("play.readyDescription")}</p></div></div>
                 <div className="mt-5 grid gap-4 rounded-xl bg-background p-4 sm:grid-cols-2">
-                  <div><label htmlFor="mole-hit-difficulty" className="mb-1 block text-sm font-semibold text-dark">{t("play.mode")}</label><select id="mole-hit-difficulty" value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(event.target.value as "EASY" | "MEDIUM" | "HARD")} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><option value="EASY">Fácil — 6 buracos</option><option value="MEDIUM">Média — 9 buracos</option><option value="HARD">Difícil — 12 buracos</option></select><p className="mt-1 text-xs text-muted">{t("play.readyDescription")}</p></div>
+                  <div><label htmlFor="mole-hit-difficulty" className="mb-1 block text-sm font-semibold text-dark">{t("play.mode")}</label><select id="mole-hit-difficulty" value={selectedDifficulty} onChange={(event) => setSelectedDifficulty(event.target.value as "EASY" | "MEDIUM" | "HARD")} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><option value="EASY">{t("activities.play.moleHit.easy")}</option><option value="MEDIUM">{t("activities.play.moleHit.medium")}</option><option value="HARD">{t("activities.play.moleHit.hard")}</option></select><p className="mt-1 text-xs text-muted">{t("play.readyDescription")}</p></div>
                 </div>
                 <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}</button>
                 {!isStudent && <p className="mt-3 text-xs text-muted">{t("play.previewOnly")}</p>}
@@ -311,7 +311,7 @@ export default function MoleHitPlayPage() {
           )}
           {(phase === "countdown" || phase === "playing") && (
             <section ref={gameBoardRef} className="scroll-mt-6 rounded-2xl border border-border bg-surface p-4 sm:p-6">
-              <div className="mb-5 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Acertos</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">{t("play.errors")}</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
+              <div className="mb-5 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-emerald-50 p-3"><p className="text-xs text-emerald-700">{t("activities.play.moleHit.hits")}</p><p className="text-2xl font-bold text-emerald-800 tabular-nums">{hits}</p></div><div className="rounded-xl bg-red-50 p-3"><p className="text-xs text-red-700">{t("play.errors")}</p><p className="text-2xl font-bold text-red-800 tabular-nums">{misses}</p></div></div>
               <div
                 className="relative mx-auto h-[min(68vh,560px)] min-h-110 w-full max-w-6xl overflow-hidden rounded-2xl bg-[#d6b47b] bg-cover bg-center shadow-sm"
                 style={{
@@ -321,9 +321,9 @@ export default function MoleHitPlayPage() {
               >
                 {phase === "countdown" && (
                   <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/45 text-center" role="status" aria-live="assertive">
-                    <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">Prepare-se!</span>
+                    <span className="text-sm font-bold uppercase tracking-[0.25em] text-white">{t("activities.play.moleHit.getReady")}</span>
                     <span key={countdown} className="mt-2 text-8xl font-black leading-none text-white drop-shadow-lg">{countdown}</span>
-                    <span className="mt-3 text-sm font-semibold text-white">O jogo começa em instantes</span>
+                    <span className="mt-3 text-sm font-semibold text-white">{t("activities.play.moleHit.startsSoon")}</span>
                   </div>
                 )}
                 {Array.from({ length: holeCount }, (_, index) => {
@@ -347,7 +347,7 @@ export default function MoleHitPlayPage() {
                       type="button"
                       key={index}
                       onClick={() => hitHole(index)}
-                      aria-label={mole ? `Opção ${mole.option}${mole.resolved === "correct" ? ", correta" : mole.resolved === "incorrect" ? ", incorreta" : ""}` : "Buraco vazio"}
+                      aria-label={mole ? t("activities.play.moleHit.holeOption", { option: mole.option, status: mole.resolved === "correct" ? t("activities.play.moleHit.correct") : mole.resolved === "incorrect" ? t("activities.play.moleHit.incorrect") : "" }) : t("activities.play.moleHit.emptyHole")}
                       className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${holeSize}`}
                       style={{ left: `${left}%`, top: `${top}%` }}
                     >
@@ -399,8 +399,8 @@ export default function MoleHitPlayPage() {
             <section className="relative rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
               <ConfettiCelebration active={isStudent && result !== null && result.attempt.hits > 0 && result.attempt.misses === 0} />
               <h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>
-              {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">Registrando seu resultado...</p>}
-              {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 {t("play.scoreSuffix")}</p><p className="mt-2 text-sm text-muted">{result.attempt.hits} acertos · {result.attempt.misses} erros</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p></> : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
+              {scoreSaving && <p role="status" className="mt-3 text-sm text-muted">{t("activities.play.moleHit.savingResult")}</p>}
+              {result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 {t("play.scoreSuffix")}</p><p className="mt-2 text-sm text-muted">{t("activities.play.moleHit.resultSummary", { hits: result.attempt.hits, misses: result.attempt.misses })}</p><div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div><p className="mt-4 rounded-xl bg-background px-4 py-3 text-sm font-semibold text-muted">{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p></> : <p className="mt-3 text-sm text-muted">{submitError || t("activities.play.moleHit.savingResult")}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError}</p>}
               <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{t("play.playAgain")}</button>
             </section>
