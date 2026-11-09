@@ -238,6 +238,12 @@ export const marketplaceFaq: FaqItem[] = [
   },
 ];
 
+export const adminFaqEn: FaqItem[] = [
+  { question: "How does Marketplace moderation work?", answer: "Resources submitted by teachers appear in the moderation queue. Administrators can review the description and resource, then approve it for publication or reject it." },
+  { question: "Do resources added by administrators need approval?", answer: "No. Resources added by administrators are published immediately and do not require a teacher subscription." },
+  { question: "What happens when a resource is rejected?", answer: "It is not published on the Marketplace. The teacher can check its status in the teacher Marketplace area." },
+];
+
 export const adminFaq: FaqItem[] = [
   {
     question: "Como funciona a aprovação de atividades?",
