@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateValidationMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Sparkles, Trash2 } from "lucide-react";
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
@@ -142,7 +143,7 @@ export function MemoryItemEditor({ name, value, onChange, title, invalid }: Read
 }
 
 export function MemoryForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<Props>) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [aiOpen, setAiOpen] = useState(false);
   const defaultInitialValues = useMemo<CreateMemoryFormValues>(() => ({
@@ -163,7 +164,7 @@ export function MemoryForm({ onSubmit, submitError, initialValues: suppliedIniti
               <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
             </div>
             <div className="mt-5 grid gap-5">
-              <div><label htmlFor="name" className={labelClass}>Nome da atividade *</label><Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0))} />{getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p>}</div>
+              <div><label htmlFor="name" className={labelClass}>Nome da atividade *</label><Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0))} />{getIn(errors, "name") && (getIn(touched, "name") || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{translateValidationMessage(String(getIn(errors, "name")), locale)}</p>}</div>
               <div><label htmlFor="description" className={labelClass}>{t("activity.form.description")}</label><Field as="textarea" id="description" name="description" rows={3} maxLength={2000} className={inputClass} /></div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div><label htmlFor="difficulty" className={labelClass}>{t("activity.form.difficulty")}</label><Field as="select" id="difficulty" name="difficulty" className={inputClass}><option value="EASY">{t("activity.form.easy")}</option><option value="MEDIUM">{t("activity.form.medium")}</option><option value="HARD">{t("activity.form.hard")}</option></Field></div>
