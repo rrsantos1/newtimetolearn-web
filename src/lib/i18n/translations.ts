@@ -843,7 +843,6 @@ const translations = {
     "activity.ai.addedMatchesCount": "{count} match(es) added. Review before saving.",
     "activity.ai.addedSentencesCount": "{count} sentence(s) added. Review the answers and distractors before saving.",
     "activity.ai.addedQuestionsCount": "{count} question(s) added. Review the statements and options before saving.",
-  },
 
     "notebook.addPage": "New page",
     "notebook.saveOnPage": "Save to page",
@@ -924,6 +923,7 @@ const translations = {
     "notebook.sending": "Sending...",
     "notebook.attach": "Attach",
     "notebook.selected": "Selected:",
+  },
   "pt-BR": {
     "language.label": "Idioma",
     "language.english": "English",
