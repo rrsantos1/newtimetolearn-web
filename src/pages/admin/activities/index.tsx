@@ -57,7 +57,8 @@ function getActivityTypeLabel(type: ListedActivity["type"]): string {
   return type;
 }
 
-export default function PendingActivitiesPage() {\n  const { t } = useTranslation();
+export default function PendingActivitiesPage() {
+  const { t } = useTranslation();
   const [activities, setActivities] = useState<ListedActivity[]>([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
