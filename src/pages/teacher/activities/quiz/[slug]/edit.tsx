@@ -50,8 +50,8 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
       images: readImages(rawQuestion.images),
       options: options.length >= 3 ? options : [
         { id: globalThis.crypto.randomUUID(), text: "" },
-        { id: globalThis.crypto.randomUUID(), text: "", images: [] },
-        { id: globalThis.crypto.randomUUID(), text: "", images: [] },
+        { id: globalThis.crypto.randomUUID(), text: "" },
+        { id: globalThis.crypto.randomUUID(), text: "" },
       ],
       correctOptionId: typeof rawQuestion.correctOptionId === "string" ? rawQuestion.correctOptionId : (options[0]?.id ?? ""),
       explanation: typeof rawQuestion.explanation === "string" ? rawQuestion.explanation : "",
@@ -71,9 +71,9 @@ function toFormValues(activity: EditableQuizActivity): CreateQuizFormValues {
         statement: "",
         images: [],
         options: [
-          { id: globalThis.crypto.randomUUID(), text: "", images: [] },
-          { id: globalThis.crypto.randomUUID(), text: "", images: [] },
-          { id: globalThis.crypto.randomUUID(), text: "", images: [] },
+          { id: globalThis.crypto.randomUUID(), text: "" },
+          { id: globalThis.crypto.randomUUID(), text: "" },
+          { id: globalThis.crypto.randomUUID(), text: "" },
         ],
         correctOptionId: "",
         explanation: "",
