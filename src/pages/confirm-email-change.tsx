@@ -45,7 +45,7 @@ export default function ConfirmEmailChangePage() {
 
     async function confirmEmailChange() {
       try {
-        const result = await emailChangeService.confirmEmailChange({
+        await emailChangeService.confirmEmailChange({
           token: confirmationToken,
         });
 
