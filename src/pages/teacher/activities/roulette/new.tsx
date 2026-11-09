@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import Link from "next/link";
 import axios from "axios";
 import { FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
@@ -33,11 +34,12 @@ function getErrorMessage(error: unknown): string {
   return "Ocorreu um erro inesperado.";
 }
 export default function NewRoulettePage() {
+  const { t } = useTranslation();
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
-  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title="Criar roleta" description="Cadastre assuntos para estimular a conversação em sala de aula.">
-    {success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-8 text-center"><CheckCircle2 className="mx-auto size-14 text-green-600" aria-hidden="true" /><h2 className="mt-4 text-2xl font-semibold text-dark">Roleta salva com sucesso!</h2><p className="mt-2 text-sm text-muted">A atividade foi salva como rascunho. Envie para aprovação em Minhas atividades.</p><Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-dark px-5 text-sm font-semibold text-white">Ver minhas atividades</Link></section> : <>
+  return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.roulette")} description={t("activity.page.description.roulette")}>
+    {success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-8 text-center"><CheckCircle2 className="mx-auto size-14 text-green-600" aria-hidden="true" /><h2 className="mt-4 text-2xl font-semibold text-dark">Roleta salva com sucesso!</h2><p className="mt-2 text-sm text-muted">A atividade foi salva como rascunho. Envie para aprovação em {t("navigation.myActivities")}.</p><Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-dark px-5 text-sm font-semibold text-white">{t("activity.page.viewActivities")}</Link></section> : <>
       <Link href="/teacher/activities/new" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar aos formatos</Link>
       <Formik initialValues={initialValues} validationSchema={createRouletteSchema} onSubmit={async (values, helpers) => { setSubmitError(""); try { await createRouletteService.execute(values); setSuccess(true); } catch (error: unknown) { setSubmitError(getErrorMessage(error)); } finally { helpers.setSubmitting(false); } }}>
         {({ values, errors, touched, handleChange, setFieldValue, isSubmitting, submitCount }) => <Form noValidate className="space-y-6">
