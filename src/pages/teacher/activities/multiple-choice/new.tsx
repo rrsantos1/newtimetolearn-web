@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -9,7 +10,7 @@ import { WordMatchingForm } from "@/modules/activities/components/DragDropActivi
 import { createDragDropActivityService } from "@/modules/activities/services/createDragDropActivityService";
 import type { CreateWordMatchingFormValues } from "@/modules/activities/schemas/createDragDropSchemas";
 
-function errorMessage(error: unknown): string {
+function errorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
     return data?.error?.message ?? data?.message ?? t("activity.creation.error");
@@ -29,7 +30,7 @@ export default function NewWordMatchingPage() {
       if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     } catch (error: unknown) {
-      setSubmitError(errorMessage(error));
+      setSubmitError(errorMessage(error, t));
     }
   }
 
