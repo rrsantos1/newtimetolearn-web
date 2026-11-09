@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCatalog } from "@/modules/activities/types/activityCatalog";
 import type { ActivityType } from "@/modules/activities/types/activityList.types";
 
@@ -44,12 +45,13 @@ const activityIcons: Record<ActivityType, LucideIcon> = {
 };
 
 export default function NewActivityPage() {
+  const { t } = useTranslation();
   return (
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Criar atividade"
-      description="Escolha o formato pedagógico mais adequado para o conteúdo que deseja trabalhar."
+      title={t("activities.format.title")}
+      description={t("activities.format.description")}
     >
       <div className="mb-6">
         <Link
@@ -57,7 +59,7 @@ export default function NewActivityPage() {
           className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
         >
           <ArrowLeft aria-hidden="true" size={16} />
-          Voltar às minhas atividades
+          {t("activities.backToMine")}
         </Link>
       </div>
 
@@ -67,9 +69,9 @@ export default function NewActivityPage() {
             <Puzzle aria-hidden="true" size={22} />
           </span>
           <div>
-            <h2 className="font-semibold text-dark">Biblioteca de formatos</h2>
+            <h2 className="font-semibold text-dark">{t("activities.format.library")}</h2>
             <p className="mt-1 text-sm leading-6 text-muted">
-              A plataforma reúne formatos para diferentes objetivos pedagógicos. Selecione um formato disponível para começar a montar sua atividade.
+              {t("activities.format.libraryDescription")}
             </p>
           </div>
         </div>
@@ -87,13 +89,13 @@ export default function NewActivityPage() {
                   <Icon aria-hidden="true" size={23} />
                 </span>
                 <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${activity.available ? "border-green-200 bg-green-50 text-green-800" : "border-border bg-background text-muted"}`}>
-                  {activity.available ? "Disponível" : "Em breve"}
+                  {activity.available ? t("activities.format.available") : t("activities.format.comingSoon")}
                 </span>
               </div>
               <h2 className="mt-4 text-base font-semibold text-dark">{activity.label}</h2>
               <p className="mt-2 flex-1 text-sm leading-6 text-muted">{activity.description}</p>
               <span className={`mt-5 inline-flex min-h-10 items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold ${activity.available ? "bg-dark text-white" : "border border-border text-muted"}`}>
-                {activity.available ? "Criar atividade" : "Ainda indisponível"}
+                {activity.available ? t("activities.format.create") : t("activities.format.unavailable")}
               </span>
             </>
           );
