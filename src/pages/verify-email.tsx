@@ -72,15 +72,14 @@ export default function VerifyEmailPage() {
 
         setStatus("success");
         setMessage(
-          response.data.data.message ||
-            t("verify.success"),
+          t("verify.success"),
         );
       } catch (error: unknown) {
         if (axios.isAxiosError<ApiErrorResponse>(error)) {
           const data = error.response?.data;
 
           if (data?.success === false) {
-            setMessage(data.error.message);
+            setMessage(t("verify.failed"));
           } else {
             setMessage(
               error.response
@@ -131,7 +130,7 @@ export default function VerifyEmailPage() {
 
         setResendMessage(
           data?.success === false
-            ? data.error.message
+            ? t("verify.resendFailed")
             : t("verify.resendFailed"),
         );
       } else {
