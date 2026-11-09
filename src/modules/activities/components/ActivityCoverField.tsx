@@ -145,7 +145,7 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
   return (
     <section ref={sectionRef} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-dark">{coverTitle} <span className="text-sm font-normal text-muted">(opcional)</span></h2>
+        <h2 className="text-lg font-semibold text-dark">{coverTitle} <span className="text-sm font-normal text-muted">({t("activity.cover.optional")})</span></h2>
         <p className="mt-1 text-sm leading-6 text-muted">{coverDescription}</p>
       </div>
 
@@ -156,7 +156,7 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={useGeneratedCover} disabled={isSubmitting} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
+            <button type="button" onClick={useGeneratedCover} disabled={isSubmitting} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{t("activity.cover.useThis")}</button>
             <button type="button" onClick={() => setPendingGeneratedCover(null)} disabled={isSubmitting} className={buttonClass}>{t("activity.cover.discard")}</button>
           </div>
         </div>
@@ -168,15 +168,15 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
             <Image src={visibleCover.thumbnailPublicUrl ?? visibleCover.publicUrl} alt={visibleCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={clearCover} disabled={isSubmitting} className={`${buttonClass} mt-3 text-red-700`}>
-            <Trash2 size={16} aria-hidden="true" /> Remover capa
+            <Trash2 size={16} aria-hidden="true" /> {t("activity.cover.remove")}
           </button>
         </div>
       )}
 
       <div className="flex flex-wrap gap-3">
         <label className={`${buttonClass} cursor-pointer`}>
-          <Upload size={16} aria-hidden="true" /> Enviar imagem
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void handleUpload(event)} disabled={isSubmitting} className="sr-only" aria-label="Enviar imagem de capa" />
+          <Upload size={16} aria-hidden="true" /> {t("activity.cover.upload")}
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void handleUpload(event)} disabled={isSubmitting} className="sr-only" aria-label={t("activity.cover.upload")} />
         </label>
         <MediaLibraryPicker disabled={isSubmitting} onSelect={selectLibraryAsset} />
         <button type="button" onClick={() => setIsAiModalOpen(true)} disabled={isSubmitting || isGenerating} className={buttonClass}>
@@ -209,9 +209,9 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
               <div>
                 <h3 id="activity-cover-ai-title" className="text-lg font-semibold text-dark">{t("activity.cover.modalTitle")}</h3>
                 <p className="mt-1 text-sm leading-6 text-muted">{t("activity.cover.modalDescription")}</p>
-                {isGenerating && <p role="status" className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">A imagem está sendo gerada e validada. Você pode fechar este modal e continuar preenchendo a atividade; o salvamento ficará bloqueado até a imagem estar pronta.</p>}
+                {isGenerating && <p role="status" className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{t("activity.cover.generationNotice")}</p>}
               </div>
-              <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label={t("activity.cover.close")} className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
             </div>
             <label htmlFor="activity-cover-prompt" className="mt-5 block text-sm font-medium text-dark">{t("activity.cover.imageDescription")}</label>
             <textarea id="activity-cover-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder={t("activity.cover.promptPlaceholder")} className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
