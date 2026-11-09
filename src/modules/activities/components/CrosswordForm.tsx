@@ -91,7 +91,7 @@ export function CrosswordForm({
             <div className="mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
-                <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
+                <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} />{t("activity.form.createWithAi")}</button>
               </div>
               <p className="mt-1 text-sm leading-6 text-muted">
                 {t("activity.form.descriptionPlaceholder")}
@@ -180,7 +180,7 @@ export function CrosswordForm({
                             name={`words.${index}.word`}
                             type="text"
                             maxLength={100}
-                            placeholder="Ex.: Sistema solar"
+                            placeholder={t("activity.form.answerPlaceholder")}
                             className={inputClassName}
                             aria-required="true"
                             aria-invalid={Boolean(getIn(errors, `words.${index}.word`) && submitCount > 0)}
@@ -189,14 +189,14 @@ export function CrosswordForm({
                         </div>
                         <div>
                           <label htmlFor={`words.${index}.clue`} className={labelClassName}>
-                            Pista para o aluno
+                            {t("activity.form.clueLabel")}
                           </label>
                           <Field
                             id={`words.${index}.clue`}
                             name={`words.${index}.clue`}
                             type="text"
                             maxLength={500}
-                            placeholder="Ex.: Conjunto formado pelo Sol e os corpos que orbitam ao seu redor"
+                            placeholder={t("activity.form.cluePlaceholder")}
                             className={inputClassName}
                             aria-required="true"
                             aria-invalid={Boolean(getIn(errors, `words.${index}.clue`) && submitCount > 0)}
@@ -207,7 +207,7 @@ export function CrosswordForm({
                           type="button"
                           onClick={() => remove(index)}
                           disabled={values.words.length <= 3}
-                          aria-label={`Remover resposta ${index + 1}`}
+                          aria-label={t("activity.form.removeAnswerLabel", { number: index + 1 })}
                           title={values.words.length <= 3 ? t("activity.form.minimumAnswers") : t("activity.form.removeAnswer")}
                           className="mt-0 flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40 sm:mt-7"
                         >
