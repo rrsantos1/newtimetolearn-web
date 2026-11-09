@@ -3,6 +3,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
 import { LoaderCircle, Sparkles, X } from "lucide-react";
 import { listeningService } from "@/modules/activities/services/listeningService";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 interface Props {
   open: boolean;
@@ -14,12 +15,12 @@ type Difficulty = "easy" | "medium" | "hard";
 
 const fieldClass = "mt-1 min-h-11 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring";
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
-    return data?.error?.message ?? data?.message ?? "Não foi possível concluir a operação. Tente novamente.";
+    return data?.error?.message ?? data?.message ?? t("activity.creation.error");
   }
-  return error instanceof Error ? error.message : "Ocorreu um erro inesperado.";
+  return error instanceof Error ? error.message : t("activity.creation.unexpectedError");
 }
 
 export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Props>) {
@@ -65,7 +66,7 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
       setGenerated(result);
       setSelectedBlanks(result.suggestedBlanks);
     } catch (caught: unknown) {
-      setError(getErrorMessage(caught));
+      setError(getErrorMessage(caught, t));
     } finally {
       setLoading(false);
     }
@@ -109,7 +110,7 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
             <h3 id="listening-ai-title" className="text-base font-semibold text-dark">{t("activity.ai.listeningTitle")}</h3>
             <p className="mt-1 text-sm leading-6 text-muted">{t("activity.ai.listeningDescription")}</p>
           </div>
-          <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading} aria-label="Fechar janela de geração com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
+          <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading} aria-label={t("activity.ai.closeGenerator")} className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
             <X size={20} aria-hidden="true" />
           </button>
         </div>
