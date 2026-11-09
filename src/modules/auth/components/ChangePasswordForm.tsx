@@ -5,6 +5,7 @@ import { CheckCircle2, KeyRound, LoaderCircle } from "lucide-react";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { changePasswordSchema } from "@/modules/auth/schemas/changePasswordSchema";
 import { changePasswordService } from "@/modules/auth/services/changePasswordService";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ChangePasswordFormValues {
   currentPassword: string;
@@ -21,6 +22,7 @@ const initialValues: ChangePasswordFormValues = {
 export function ChangePasswordForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [requestError, setRequestError] = useState("");
+  const { t } = useTranslation();
 
   const formik = useFormik<ChangePasswordFormValues>({
     initialValues,
@@ -46,13 +48,13 @@ export function ChangePasswordForm() {
           } else {
             setRequestError(
               error.response
-                ? "Não foi possível alterar sua senha."
-                : "Falha de conexão. Verifique sua internet e tente novamente.",
+                ? t("profile.password.failed")
+                : t("profile.connectionFailed"),
             );
           }
         } else {
           setRequestError(
-            "Ocorreu um erro inesperado ao alterar sua senha.",
+            t("profile.unexpected"),
           );
         }
       }
@@ -107,7 +109,7 @@ export function ChangePasswordForm() {
             htmlFor="currentPassword"
             className="text-sm font-semibold text-dark"
           >
-            Senha atual
+            {t("profile.password.current")}
           </label>
 
           <input
@@ -139,7 +141,7 @@ export function ChangePasswordForm() {
             htmlFor="newPassword"
             className="text-sm font-semibold text-dark"
           >
-            Nova senha
+            {t("profile.password.new")}
           </label>
 
           <input
@@ -164,7 +166,7 @@ export function ChangePasswordForm() {
           {renderError("newPassword")}
 
           <p className="mt-2 text-xs leading-5 text-muted">
-            Utilize entre 8 e 72 caracteres.
+            {t("profile.password.length")}
           </p>
         </div>
 
@@ -173,7 +175,7 @@ export function ChangePasswordForm() {
             htmlFor="confirmPassword"
             className="text-sm font-semibold text-dark"
           >
-            Confirmar nova senha
+            {t("profile.password.confirmNew")}
           </label>
 
           <input
@@ -214,12 +216,12 @@ export function ChangePasswordForm() {
                 className="animate-spin"
                 aria-hidden="true"
               />
-              Alterando senha...
+              {t("profile.password.changing")}
             </>
           ) : (
             <>
               <KeyRound size={17} aria-hidden="true" />
-              Alterar senha
+              {t("profile.password.change")}
             </>
           )}
         </button>
