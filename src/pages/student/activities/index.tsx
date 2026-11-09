@@ -116,7 +116,7 @@ export default function ExploreActivitiesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, typeFilter, difficultyFilter, reloadKey, requestKey]);
+  }, [page, search, typeFilter, difficultyFilter, reloadKey, requestKey, t]);
 
   return (
     <RoleBasedLayout
