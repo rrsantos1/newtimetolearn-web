@@ -395,7 +395,7 @@ export default function PlayQuizPage() {
                               {question.options.map((option, index) => (
                                 <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${answers[question.id] === option.id ? "border-primary bg-primary/5" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                                   <input type="radio" name={question.id} value={option.id} checked={answers[question.id] === option.id} onChange={() => chooseAnswer(question.id, option.id)} className="mt-1 size-4 shrink-0 accent-accent" />
-                                  <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span><ImageList images={option.images} /></span>
+                                  <span className="min-w-0 flex-1"><span className="mr-2 text-sm font-semibold text-muted">{String.fromCharCode(65 + index)}.</span><span className="whitespace-pre-wrap text-sm leading-6 text-dark">{option.text}</span></span>
                                 </label>
                               ))}
                             </div>
