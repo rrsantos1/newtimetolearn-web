@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
 import { playActivitySound } from "@/modules/users/utils/activitySounds";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
@@ -13,6 +12,7 @@ import { getQuizService, type EditableQuizActivity } from "@/modules/activities/
 import { submitQuizAttemptService, type QuizAttemptResult } from "@/modules/activities/services/submitQuizAttemptService";
 import { getQuizRankingService, type QuizRankingEntry } from "@/modules/activities/services/getQuizRankingService";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface QuizImage {
@@ -139,7 +139,6 @@ function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
 }
 
 export default function PlayQuizPage() {
-  const { t } = useTranslation();
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
