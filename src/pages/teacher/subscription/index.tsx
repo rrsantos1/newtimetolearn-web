@@ -67,7 +67,7 @@ export default function TeacherSubscriptionPage() {
         if (active) setEntitlements(data);
       })
       .catch((error: unknown) => {
-        if (active) setErrorMessage(getErrorMessage(error));
+        if (active) setErrorMessage(getErrorMessage(error, t("subscription.error.operation"), t("subscription.error.unexpected")));
       })
       .finally(() => {
         if (active) setIsLoading(false);
@@ -165,7 +165,7 @@ export default function TeacherSubscriptionPage() {
                   <div className="rounded-xl bg-background p-4">
                     <p className="text-xs font-medium text-muted">{t("subscription.students")}</p>
                     <p className="mt-1 text-lg font-bold text-dark">
-                      {entitlements.studentLimit === null ? t("subscription.unlimited") : `${entitlements.reservedStudents} de ${entitlements.studentLimit}`}
+                      {entitlements.studentLimit === null ? t("subscription.unlimited") : `${entitlements.reservedStudents} ${t("subscription.of")} ${entitlements.studentLimit}`}
                     </p>
                     {entitlements.studentsRemaining !== null && (
                       <p className="mt-1 text-xs text-muted">{entitlements.studentsRemaining} {t("subscription.spotsAvailable")}</p>
@@ -219,21 +219,21 @@ export default function TeacherSubscriptionPage() {
                     <h3 className="font-bold text-dark">{t("subscription.free")}</h3>
                     {!isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">{t("subscription.yourPlan")}</span>}
                   </div>
-                  <p className="mt-3 text-2xl font-bold text-dark">R$ 0</p>
+                  <p className="mt-3 text-2xl font-bold text-dark">{t("subscription.freePrice")}</p>
                   <ul className="mt-4 space-y-2 text-sm text-muted">
                     <li>{t("subscription.freeStorage")}</li>
                     <li>{t("subscription.freeStudents")}</li>
-                    <li>{t("subscription.ads")} exibidos</li>
+                    <li>{t("subscription.freeAds")}</li>
                   </ul>
                 </article>
 
                 <article className={`rounded-2xl border p-5 sm:p-6 ${isPaid ? "border-primary bg-primary/5" : "border-border bg-surface"}`}>
                   <div className="flex items-center gap-2">
                     <ShieldCheck size={20} className="text-primary" aria-hidden="true" />
-                    <h3 className="font-bold text-dark">Professor</h3>
+                    <h3 className="font-bold text-dark">{t("subscription.teacher")}</h3>
                     {isPaid && <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">{t("subscription.yourPlan")}</span>}
                   </div>
-                  <p className="mt-3 text-2xl font-bold text-dark">R$ 5,90<span className="text-sm font-medium text-muted">/mês</span></p>
+                  <p className="mt-3 text-2xl font-bold text-dark">{t("subscription.teacherPrice")}<span className="text-sm font-medium text-muted">{t("subscription.perMonth")}</span></p>
                   <ul className="mt-4 space-y-2 text-sm text-muted">
                     <li>{t("subscription.paidStorage")}</li>
                     <li>{t("subscription.paidStudents")}</li>
@@ -245,7 +245,7 @@ export default function TeacherSubscriptionPage() {
           )}
         </div>
       )}
-      <FaqSection title="{t("subscription.faqTitle")}" description="{t("subscription.faqDescription")}" items={subscriptionFaq} />
+      <FaqSection title={t("subscription.faqTitle")} description={t("subscription.faqDescription")} items={subscriptionFaq} />
     </RoleBasedLayout>
   );
 }
