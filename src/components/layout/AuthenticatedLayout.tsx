@@ -55,7 +55,7 @@ export function AuthenticatedLayout({ children, title }: AuthenticatedLayoutProp
               <Link
                 href="/admin"
                 aria-label="Acessar administração"
-                className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
               >
                 <ShieldCheck size={16} aria-hidden="true" />
                 Administração
