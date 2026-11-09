@@ -22,6 +22,7 @@ import type {
   ListedActivity,
 } from "@/modules/activities/types/activityList.types";
 import { activityTypeTranslationKeys } from "@/modules/activities/types/activityCatalog";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 const PAGE_SIZE = 12;
 
@@ -31,7 +32,7 @@ const difficultyKeys: Record<ActivityDifficulty, "activities.difficulty.easy" | 
   HARD: "activities.difficulty.hard",
 };
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const responseData = error.response?.data as
       | { error?: { message?: string }; message?: string }
@@ -40,26 +41,26 @@ function getErrorMessage(error: unknown): string {
     return (
       responseData?.error?.message ??
       responseData?.message ??
-      "Não foi possível carregar a biblioteca de atividades."
+      t("activities.student.loadError")
     );
   }
 
-  return "Ocorreu um erro inesperado ao carregar a biblioteca.";
+  return t("activities.student.unexpectedError");
 }
 
-function getActivityName(activity: ListedActivity): string {
+function getActivityName(activity: ListedActivity, t: (key: TranslationKey) => string): string {
   return (
     activity.publishedVersion?.name ??
     activity.latestVersion?.name ??
-    "Atividade sem título"
+    t("activities.student.untitled")
   );
 }
 
-function formatDate(value: string, locale: string): string {
+function formatDate(value: string, locale: string, t: (key: TranslationKey) => string): string {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Data indisponível";
+    return t("activities.student.dateUnavailable");
   }
 
   return new Intl.DateTimeFormat(locale, {
@@ -108,7 +109,7 @@ export default function ExploreActivitiesPage() {
       })
       .catch((error: unknown) => {
         if (cancelled) return;
-        setErrorMessage(getErrorMessage(error));
+        setErrorMessage(getErrorMessage(error, t));
         setLoadedRequestKey(requestKey);
       });
 
@@ -213,7 +214,7 @@ export default function ExploreActivitiesPage() {
             onClick={() => setReloadKey((current) => current + 1)}
             className="ml-auto shrink-0 rounded-lg border border-red-300 px-3 py-2 font-semibold transition hover:bg-red-100"
           >
-            Tentar novamente
+            {t("activities.retry")}
           </button>
         </section>
       )}
@@ -250,7 +251,7 @@ export default function ExploreActivitiesPage() {
               }}
               className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background"
             >
-              Limpar filtros
+              {t("activities.clearFilters")}
             </button>
           )}
         </section>
@@ -274,7 +275,7 @@ export default function ExploreActivitiesPage() {
                 className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-sm transition hover:border-accent/40 hover:shadow-md sm:p-6"
               >
                 <div className="mb-4 flex items-start gap-4">
-                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} className="w-[42%] max-w-56 shrink-0" />
+                <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity, t)} className="w-[42%] max-w-56 shrink-0" />
                 <div className="flex min-w-0 flex-col gap-2 pt-1 text-xs text-muted">
                   {activity.latestVersion && (
                     <span>
@@ -285,7 +286,7 @@ export default function ExploreActivitiesPage() {
                     </span>
                   )}
                   
-                  <span>{t("activities.publishedAt").replace("{date}", formatDate(activity.createdAt, locale))}</span>
+                  <span>{t("activities.publishedAt").replace("{date}", formatDate(activity.createdAt, locale, t))}</span>
                 </div>
               </div>
                 <div className="flex-1">
@@ -294,12 +295,12 @@ export default function ExploreActivitiesPage() {
                       {t(activityTypeTranslationKeys[activity.type])}
                     </p>
                     <span className="inline-flex shrink-0 items-center rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
-                      Publicada
+                      {t("activities.status.published")}
                     </span>
                   </div>
 
                   <h2 className="mt-2 wrap-break-word text-lg font-semibold text-dark">
-                    {getActivityName(activity)}
+                    {getActivityName(activity, t)}
                   </h2>
 
                   {activity.latestVersion?.description && (
@@ -321,11 +322,11 @@ export default function ExploreActivitiesPage() {
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("activities.execute")}
                     </Link>
                   ) : activity.type === "roulette" ? (
                     <Link href={`/activities/roulette/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "crossword" ? (
                     <Link
@@ -333,7 +334,7 @@ export default function ExploreActivitiesPage() {
                       className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("activities.execute")}
                     </Link>
                   ) : activity.type === "quiz" ? (
                     <Link
@@ -342,39 +343,39 @@ export default function ExploreActivitiesPage() {
                       style={{ color: "var(--primary-foreground)" }}
                     >
                       <Gamepad2 size={16} aria-hidden="true" />
-                      Executar
+                      {t("activities.execute")}
                     </Link>
                   ) : activity.type === "memory" ? (
                     <Link href={`/activities/memory/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "listening" ? (
                     <Link href={`/activities/listening/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "multiple_choice" ? (
                     <Link href={`/activities/multiple-choice/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "word_matching" ? (
                     <Link href={`/activities/word-matching/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "sentence_completion" ? (
                     <Link href={`/activities/sentence-completion/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "mole_hit" ? (
                     <Link href={`/activities/mole-hit/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : activity.type === "hangman" ? (
                     <Link href={`/activities/hangman/${encodeURIComponent(activity.slug)}/play`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                      <Gamepad2 size={16} aria-hidden="true" /> Executar
+                      <Gamepad2 size={16} aria-hidden="true" /> {t("activities.execute")}
                     </Link>
                   ) : (
                     <span className="inline-flex min-h-10 items-center rounded-lg border border-border px-4 py-2 text-xs font-medium text-muted">
-                      Execução em breve
+                      {t("activities.comingSoon")}
                     </span>
                   )}
                 </div>
@@ -394,7 +395,7 @@ export default function ExploreActivitiesPage() {
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
-                Anterior
+                {t("activities.previous")}
               </button>
               <span className="text-sm text-muted">
                 {t("activities.pageOf").replace("{page}", String(result.pagination.page)).replace("{total}", String(result.pagination.totalPages))}
@@ -409,7 +410,7 @@ export default function ExploreActivitiesPage() {
                 disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Próxima
+                {t("activities.next")}
                 <ChevronRight size={17} aria-hidden="true" />
               </button>
             </nav>
