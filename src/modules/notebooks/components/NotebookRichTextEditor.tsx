@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { EditorContent, useEditor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
@@ -65,28 +66,28 @@ export function NotebookRichTextEditor({
       {!readOnly && (
         <div
           role="toolbar"
-          aria-label="Formatação do texto"
+          aria-label={t("notebook.textFormatting")}
           className="flex flex-wrap gap-1 rounded-xl border border-[#d8c9a9] bg-[#f5efdf] p-2 sm:w-14 sm:flex-col sm:items-center"
         >
-          <button type="button" aria-label="Negrito" title="Negrito" aria-pressed={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} className={toolClass}>
+          <button type="button" aria-label={t("notebook.bold")} title={t("notebook.bold")} aria-pressed={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} className={toolClass}>
             <Bold size={17} aria-hidden="true" />
           </button>
-          <button type="button" aria-label="Itálico" title="Itálico" aria-pressed={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} className={toolClass}>
+          <button type="button" aria-label={t("notebook.italic")} title={t("notebook.italic")} aria-pressed={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} className={toolClass}>
             <Italic size={17} aria-hidden="true" />
           </button>
-          <button type="button" aria-label="Sublinhado" title="Sublinhado" aria-pressed={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} className={toolClass}>
+          <button type="button" aria-label={t("notebook.underline")} title={t("notebook.underline")} aria-pressed={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} className={toolClass}>
             <UnderlineIcon size={17} aria-hidden="true" />
           </button>
-          <button type="button" aria-label="Lista com marcadores" title="Lista com marcadores" aria-pressed={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} className={toolClass}>
+          <button type="button" aria-label={t("notebook.bulletList")} title={t("notebook.bulletList")} aria-pressed={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} className={toolClass}>
             <List size={17} aria-hidden="true" />
           </button>
-          <button type="button" aria-label="Lista numerada" title="Lista numerada" aria-pressed={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} className={toolClass}>
+          <button type="button" aria-label={t("notebook.numberedList")} title={t("notebook.numberedList")} aria-pressed={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} className={toolClass}>
             <ListOrdered size={17} aria-hidden="true" />
           </button>
-          <label className="sr-only" htmlFor="notebook-font-size">Tamanho da fonte</label>
+          <label className="sr-only" htmlFor="notebook-font-size">{t("notebook.fontSize")}</label>
           <select
             id="notebook-font-size"
-            aria-label="Tamanho da fonte"
+            aria-label={t("notebook.fontSize")}
             defaultValue="16px"
             onChange={(event) => editor.chain().focus().setFontSize(event.target.value).run()}
             className="h-9 w-18 rounded-lg border border-[#c8b994] bg-white px-1 text-xs font-semibold text-[#51452f] sm:w-11"
@@ -94,7 +95,7 @@ export function NotebookRichTextEditor({
             {fontSizes.map((size) => <option key={size} value={size}>{size}</option>)}
           </select>
           <div className="flex min-w-0 flex-1 items-center gap-1 sm:w-full sm:flex-col">
-            <label className="sr-only" htmlFor="notebook-link-url">Endereço do link</label>
+            <label className="sr-only" htmlFor="notebook-link-url">{t("notebook.linkAddress")}</label>
             <input
               id="notebook-link-url"
               type="url"
@@ -103,10 +104,10 @@ export function NotebookRichTextEditor({
               placeholder="https://..."
               className="h-9 min-w-0 flex-1 rounded-lg border border-[#c8b994] bg-white px-2 text-xs text-[#51452f] sm:w-full"
             />
-            <button type="button" aria-label="Inserir link" title="Inserir link" onClick={applyLink} disabled={!linkUrl.trim()} className={toolClass}>
+            <button type="button" aria-label={t("notebook.insertLink")} title={t("notebook.insertLink")} onClick={applyLink} disabled={!linkUrl.trim()} className={toolClass}>
               <Link2 size={16} aria-hidden="true" />
             </button>
-            <button type="button" aria-label="Remover link" title="Remover link" onClick={() => editor.chain().focus().unsetLink().run()} disabled={!editor.isActive("link")} className={toolClass}>
+            <button type="button" aria-label={t("notebook.removeLink")} title={t("notebook.removeLink")} onClick={() => editor.chain().focus().unsetLink().run()} disabled={!editor.isActive("link")} className={toolClass}>
               <Unlink size={16} aria-hidden="true" />
             </button>
           </div>
