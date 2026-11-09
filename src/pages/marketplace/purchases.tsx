@@ -10,20 +10,6 @@ import {useTranslation} from "@/hooks/useTranslation";
 import {useAuth} from "@/modules/auth/contexts/AuthContext";
 import {marketplaceService} from "@/modules/marketplace/services/marketplaceService";
 interface Purchase{id:string;title:string;original_file_name:string|null;delivery_type:"FILE"|"EXTERNAL_URL";external_url:string|null;paid_at:string;}
-const marketplaceCategoryKeys: Record<string, TranslationKey> = {
-  "Apresentação": "marketplace.presentation",
-  "Plano de aula": "marketplace.lessonPlan",
-  "Atividade": "marketplace.activity",
-  "Material complementar": "marketplace.supplementary",
-};
-
-function getMarketplaceCategoryLabel(
-  category: string,
-  t: (key: TranslationKey) => string,
-): string {
-  const key = marketplaceCategoryKeys[category];
-  return key ? t(key) : category;
-}
 
 export default function MarketplacePurchasesPage(){
  const router=useRouter();const {isAuthenticated,isLoading}=useAuth();const {t,locale}=useTranslation();const [items,setItems]=useState<Purchase[]>([]);const [error,setError]=useState("");
