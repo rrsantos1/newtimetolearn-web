@@ -210,6 +210,10 @@ const translations = {
     "confirm.backProfile": "Back to profile",
     "forgot.sentNotice": "If an account exists for this email address, recovery instructions will be sent shortly.",
     "confirm.success": "Your email address has been updated successfully.",
+    "faq.helpCenter": "Help center",
+    "faq.searchLabel": "Search frequently asked questions",
+    "faq.searchPlaceholder": "Search for a question...",
+    "faq.empty": "No questions found. Try different search terms.",
     "home.viewMaterial": "View material"
   },
   "pt-BR": {
@@ -420,6 +424,10 @@ const translations = {
     "confirm.backProfile": "Voltar ao perfil",
     "forgot.sentNotice": "Se houver uma conta associada a este e-mail, as instruções de recuperação serão enviadas em instantes.",
     "confirm.success": "Seu endereço de e-mail foi atualizado com sucesso.",
+    "faq.helpCenter": "Central de ajuda",
+    "faq.searchLabel": "Pesquisar perguntas frequentes",
+    "faq.searchPlaceholder": "Pesquisar uma dúvida...",
+    "faq.empty": "Nenhuma pergunta encontrada. Tente utilizar outros termos.",
     "home.viewMaterial": "Ver material"
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
