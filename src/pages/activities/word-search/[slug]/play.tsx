@@ -89,7 +89,7 @@ export default function PlayWordSearchPage() {
   const router = useRouter();
   const { user } = useAuth();
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : user.roles.includes("ADMIN") || user.roles.includes("TEACHER") ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("activities.play.home") : t("activities.play.back");
   const isStudent = user?.roles.includes("STUDENT") ?? false;
 
   const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
