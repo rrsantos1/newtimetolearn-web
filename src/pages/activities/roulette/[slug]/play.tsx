@@ -16,8 +16,8 @@ interface RouletteResponse {
 }
 const COLORS = ["#facc15", "#111827", "#eab308", "#374151", "#f59e0b", "#1f2937", "#fde047", "#4b5563"];
 function getMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? "Não foi possível carregar a roleta."; }
-  return "Não foi possível carregar a roleta.";
+  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? t("play.loading"); }
+  return t("play.loading");
 }
 export default function RoulettePlayPage() {
   const { t } = useTranslation();
@@ -40,7 +40,7 @@ export default function RoulettePlayPage() {
         const endpoint = user ? `/activities/${encodeURIComponent(slug)}` : `/activities/public/${encodeURIComponent(slug)}`;
         const response = await api.get<RouletteResponse>(endpoint);
         if (!active) return;
-        if (response.data.data.type !== "roulette") throw new Error("Esta atividade não é uma roleta.");
+        if (response.data.data.type !== "roulette") throw new Error(t("play.notAvailable"));
         setActivity(response.data.data);
         setRemaining(response.data.data.version.content.topics);
       } catch (cause: unknown) { if (active) setError(getMessage(cause)); }
@@ -80,8 +80,8 @@ export default function RoulettePlayPage() {
   const gradient = wheelTopics.length > 0
     ? `conic-gradient(${wheelTopics.map((_, index) => `${COLORS[index % COLORS.length]} ${(index / wheelTopics.length) * 100}% ${((index + 1) / wheelTopics.length) * 100}%`).join(", ")})`
     : "conic-gradient(#e5e7eb 0% 100%)";
-  return <PublicActivityLayout immersive title={activity?.version.name ?? "Roleta"} description={activity?.version.description ?? "Gire a roleta e converse sobre o assunto sorteado."} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />Voltar</Link></>}>
-    {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">Carregando roleta...</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <section className="relative z-0 w-full rounded-2xl border border-border bg-surface p-4 sm:p-8">
+  return <PublicActivityLayout immersive title={activity?.version.name ?? t("activities.type.roulette")} description={activity?.version.description ?? t("play.readyDescription")} titleActions={<><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted"><ArrowLeft size={16} aria-hidden="true" />{t("play.back")}</Link></>}>
+    {loading ? <p role="status" className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-muted">{t("play.loading")}</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</p> : activity ? <section className="relative z-0 w-full rounded-2xl border border-border bg-surface p-4 sm:p-8">
       <div className="grid w-full items-start gap-6 lg:grid-cols-[minmax(0,620px)_minmax(260px,320px)] lg:justify-center">
         <div className="flex min-w-0 flex-col items-center">
           <p className="text-sm text-muted">{t("play.remainingTopics")}:  <strong className="text-dark">{remaining.length}</strong></p>
