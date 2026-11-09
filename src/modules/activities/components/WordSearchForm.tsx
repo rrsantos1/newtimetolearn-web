@@ -107,7 +107,7 @@ export function WordSearchForm({
                   name="name"
                   type="text"
                   maxLength={120}
-                  placeholder="Ex.: Animals and Pets"
+                  placeholder={t("activity.form.namePlaceholder")}
                   className={inputClassName}
                   aria-required="true"
                   aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
