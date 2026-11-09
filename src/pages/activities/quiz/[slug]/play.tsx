@@ -127,10 +127,10 @@ function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
         const src = imageUrl(image);
         return src ? (
           <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl border border-border bg-background">
-            <Image src={src} alt={image.altText || `Imagem ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" />
+            <Image src={src} alt={image.altText || t("activities.play.quiz.imageAlt", { index: index + 1 })} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" />
           </div>
         ) : (
-          <p key={image.storageKey} className="rounded-xl bg-background p-3 text-xs text-muted">Imagem indisponível para visualização.</p>
+          <p key={image.storageKey} className="rounded-xl bg-background p-3 text-xs text-muted">{t("activities.play.quiz.unavailableImage")}</p>
         );
       })}
     </div>
@@ -165,7 +165,7 @@ export default function PlayQuizPage() {
     setRankingLoading(true);
     setRankingError("");
     try { setRanking(await getQuizRankingService.execute(slug)); }
-    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", "Não foi possível carregar o ranking agora.")); }
+    catch (loadError: unknown) { setRankingError(getErrorMessage(loadError).replace("Não foi possível carregar o Quiz.", t("activities.play.quiz.rankingError"))); }
     finally { setRankingLoading(false); }
   }, []);
   const correctCount = useMemo(
@@ -181,7 +181,7 @@ export default function PlayQuizPage() {
     let cancelled = false;
     async function load(): Promise<void> {
       if (!slug) {
-        setError("Não foi possível identificar o Quiz.");
+        setError(t("activities.play.quiz.identifyError"));
         setLoading(false);
         return;
       }
@@ -191,12 +191,12 @@ export default function PlayQuizPage() {
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableQuizActivity>(slug);
         if (cancelled) return;
         if (result.type !== "quiz") {
-          setError("Esta atividade não é um Quiz.");
+          setError(t("activities.play.quiz.typeError"));
           return;
         }
         const parsedQuestions = parseQuestions(result.version.content.questions);
         if (!parsedQuestions) {
-          setError("As questões deste Quiz estão indisponíveis ou possuem dados inválidos.");
+          setError(t("activities.play.quiz.questionsError"));
           return;
         }
         setActivity(result);
@@ -235,7 +235,7 @@ export default function PlayQuizPage() {
         playActivitySound("error");
       }
     } catch (submitFailure: unknown) {
-      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", t("activities.play.quiz.submitError")));
     } finally {
       setSubmitting(false);
     }
@@ -262,7 +262,7 @@ export default function PlayQuizPage() {
         playActivitySound("error");
       }
     } catch (submitFailure: unknown) {
-      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", "Não foi possível registrar o resultado. Tente novamente."));
+      setSubmitError(getErrorMessage(submitFailure).replace("Não foi possível carregar o Quiz.", t("activities.play.quiz.submitError")));
     } finally {
       setSubmitting(false);
     }
@@ -313,13 +313,13 @@ export default function PlayQuizPage() {
                 <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.85fr)]" : ""}>
                 <section className="rounded-2xl border border-sky-200 bg-sky-50/50 p-6 shadow-sm sm:p-8">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div>
-                  <h2 className="mt-4 text-xl font-bold text-dark">Como deseja responder?</h2>
+                  <h2 className="mt-4 text-xl font-bold text-dark">{t("activities.play.quiz.chooseMode")}</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">{t("activities.play.startQuizMode")}</p>
                   <fieldset className="mt-6 grid gap-3 sm:grid-cols-2">
                     <legend className="mb-3 text-sm font-semibold text-dark">{t("activities.play.mode")}</legend>
                     <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "question" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
                       <input type="radio" name="quiz-mode" value="question" checked={mode === "question"} onChange={() => setMode("question")} className="mr-2 accent-accent" />
-                      <span className="font-semibold text-dark">{t("play.question")} a questão</span>
+                      <span className="font-semibold text-dark">{t("activities.play.quiz.questionModeLabel")}</span>
                       <span className="mt-2 block text-sm leading-5 text-muted">{t("activities.play.questionByQuestionHelp")}</span>
                     </label>
                     <label className={`cursor-pointer rounded-xl border p-4 transition ${mode === "all" ? "border-sky-500 bg-sky-100 ring-2 ring-sky-300/60" : "border-sky-200 bg-white hover:border-sky-400"}`}>
@@ -350,7 +350,7 @@ export default function PlayQuizPage() {
               {phase === "playing" && (
                 <div className="space-y-5">
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4">
-                    <p className="text-sm font-semibold text-dark">{mode === "question" ? `{t("play.question")} ${currentIndex + 1} de ${questions.length}` : `${answeredCount} de ${questions.length} respondidas`}</p>
+                    <p className="text-sm font-semibold text-dark">{mode === "question" ? t("activities.play.quiz.questionProgress", { current: currentIndex + 1, total: questions.length }) : t("activities.play.quiz.answeredProgress", { answered: answeredCount, total: questions.length })}</p>
                     <div className="flex items-center gap-3">
                       
                       <button type="button" onClick={abandonQuiz} className="min-h-9 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">Abandonar Quiz</button>
@@ -404,7 +404,7 @@ export default function PlayQuizPage() {
                         </section>
                       ))}
                       <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm text-muted">{answeredCount} de {questions.length} questões respondidas.</p>
+                        <p className="text-sm text-muted">{t("activities.play.quiz.questionsAnswered", { answered: answeredCount, total: questions.length })}</p>
                         <button type="button" onClick={finishFromButton} disabled={answeredCount !== questions.length} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>{t("activities.play.finishQuiz")}</button>
                       </section>
                     </div>
@@ -461,7 +461,7 @@ export default function PlayQuizPage() {
                                 <div className="min-w-0">
                                   <h3 className="font-semibold leading-6 text-dark">{index + 1}. {question.statement}</h3>
                                   <p className="mt-2 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{chosenOption?.text ?? t("play.unanswered")}</span></p>
-                                  {!isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {correctOption?.text ?? "Indisponível"}</p>}
+                                  {!isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {correctOption?.text ?? t("activities.play.quiz.unavailableAnswer")}</p>}
                                   {question.explanation && <p className="mt-2 text-sm leading-6 text-muted">{question.explanation}</p>}
                                 </div>
                               </div>
