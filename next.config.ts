@@ -5,6 +5,11 @@ const apiOrigin = apiUrl ? new URL(apiUrl) : null;
 const apiPath = apiOrigin?.pathname.replace(/\/$/, "") ?? "";
 
 const nextConfig: NextConfig = {
+  i18n: {
+    locales: ["en", "pt-BR"],
+    defaultLocale: "en",
+    localeDetection: false,
+  },
   images: {
     remotePatterns: [
       {
