@@ -81,13 +81,14 @@ function ValidationErrorSummary() {
 }
 
 function ActivityDetailsFields() {
+  const { t } = useTranslation();
   const { errors, submitCount } = useFormikContext<DragDropBaseValues>();
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
       <div className="mt-5 grid gap-5">
         <div>
-          <label htmlFor="name" className={labelClass}>Nome da atividade *</label>
+          <label htmlFor="name" className={labelClass}>{t("activity.form.title")} *</label>
           <Field id="name" name="name" maxLength={120} className={inputClass} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} />
           {getIn(errors, "name") && submitCount > 0 ? <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, "name"))}</p> : <p className="mt-1 text-xs text-muted">{t("activity.form.required")}</p>}
         </div>
@@ -97,7 +98,7 @@ function ActivityDetailsFields() {
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor="difficulty" className={labelClass}>Dificuldade</label>
+            <label htmlFor="difficulty" className={labelClass}>{t("activity.form.difficulty")}</label>
             <Field as="select" id="difficulty" name="difficulty" className={inputClass}>
               <option value="EASY">{t("activity.form.easy")}</option><option value="MEDIUM">{t("activity.form.medium")}</option><option value="HARD">{t("activity.form.hard")}</option>
             </Field>
@@ -157,10 +158,10 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                         />
                         {getIn(errors, `content.pairs.${index}.target`) && (getIn(touched, `content.pairs.${index}.target`) || submitCount > 0) && <p role="alert" className="mt-1 text-sm text-red-600">{String(getIn(errors, `content.pairs.${index}.target`))}</p>}
                       </div>
-                      <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? "Remover questão" : "Remover par"} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> Remover</button>
+                      <button type="button" onClick={() => remove(index)} disabled={values.content.pairs.length <= 3} aria-label={`${activityMode === "multiple_choice" ? t("activity.form.removeQuestion") : t("activity.form.removePair")} ${index + 1}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-semibold text-red-600 disabled:opacity-40"><Trash2 size={16} aria-hidden="true" /> {t("activity.form.removeAnswer")}</button>
                     </fieldset>
                   ))}
-                  <button type="button" onClick={() => push({ id: createDragDropId("pair"), source: { type: "text", value: "" }, target: { type: "text", value: "" } })} disabled={values.content.pairs.length >= 50} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> {activityMode === "multiple_choice" ? "Adicionar questão" : "Adicionar associação"}</button>
+                  <button type="button" onClick={() => push({ id: createDragDropId("pair"), source: { type: "text", value: "" }, target: { type: "text", value: "" } })} disabled={values.content.pairs.length >= 50} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-40"><Plus size={17} aria-hidden="true" /> {activityMode === "multiple_choice" ? t("activity.form.addQuestion") : t("activity.form.addPair")}</button>
                 </div>
               )}
             </FieldArray>
@@ -227,18 +228,18 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
                 <div className="space-y-5">
                   {values.content.sentences.map((sentence, sentenceIndex) => (
                     <fieldset key={sentence.id} className="rounded-xl border border-border p-4 sm:p-5">
-                      <legend className="px-1 text-sm font-semibold text-dark">Frase {sentenceIndex + 1}</legend>
+                      <legend className="px-1 text-sm font-semibold text-dark">{t("activity.form.sentencesBlanks")} {sentenceIndex + 1}</legend>
                       <FieldArray name={`content.sentences.${sentenceIndex}.parts`}>
                         {({ push: pushPart, remove: removePart, insert }) => (
                           <div className="space-y-3">
                             <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
                               {sentence.parts.map((part, partIndex) => part.type === "text" ? (
                                 <div key={part.id} className="min-w-0 flex-[1_1_0%] rounded-xl border border-sky-200 bg-sky-50/60 p-3">
-                                  <label htmlFor={`sentence-${sentenceIndex}-part-${partIndex}`} className={labelClass}>Trecho {partIndex + 1}</label>
+                                  <label htmlFor={`sentence-${sentenceIndex}-part-${partIndex}`} className={labelClass}>{t("activity.form.addSegment")} {partIndex + 1}</label>
                                   <Field as="textarea" id={`sentence-${sentenceIndex}-part-${partIndex}`} name={`content.sentences.${sentenceIndex}.parts.${partIndex}.value`} rows={2} maxLength={2000} className={inputClass} />
                                   <div className="mt-2 flex flex-wrap gap-2">
-                                    <button type="button" onClick={() => insert(partIndex + 1, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" } satisfies SentencePartValue)} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-800"><Plus size={14} aria-hidden="true" /> Inserir lacuna após</button>
-                                    <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> Remover trecho</button>
+                                    <button type="button" onClick={() => insert(partIndex + 1, { id: createDragDropId("blank"), type: "blank", expectedWordId: "" } satisfies SentencePartValue)} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-sky-200 bg-white px-3 py-1.5 text-xs font-semibold text-sky-800"><Plus size={14} aria-hidden="true" /> {t("activity.form.insertBlank")}</button>
+                                    <button type="button" onClick={() => removePart(partIndex)} disabled={sentence.parts.length <= 2} className="inline-flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-red-600 disabled:opacity-40"><Trash2 size={14} aria-hidden="true" /> {t("activity.form.removeBlank")}</button>
                                   </div>
                                 </div>
                               ) : (
