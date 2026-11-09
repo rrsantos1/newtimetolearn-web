@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { Check, ChevronDown, ChevronRight } from "lucide-react";
 
 export interface CrosswordClue {
@@ -70,6 +71,7 @@ const FILLED_WORD_COLORS = [
 ] as const;
 
 export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly<CrosswordGameProps>) {
+  const { t } = useTranslation();
   const bounds = useMemo(() => getBounds(grid, clues), [grid, clues]);
   const [letters, setLetters] = useState<Record<string, string>>({});
   const lettersRef = useRef<Record<string, string>>({});
@@ -235,9 +237,9 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
       <div>
         <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-dark">
           {direction === "across" ? <ChevronRight size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
-          {direction === "across" ? "Horizontais" : "Verticais"}
+          {direction === "across" ? t("crossword.game.across") : t("crossword.game.down")}
         </h3>
-        {items.length === 0 ? <p className="text-sm text-muted">Nenhuma pista.</p> : (
+        {items.length === 0 ? <p className="text-sm text-muted">{t("crossword.game.noClues")}</p> : (
           <ol className="space-y-1">
             {items.map((clue) => {
               const selected = activeClue?.number === clue.number && activeDirection === direction;
@@ -265,7 +267,7 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
   }
 
   if (!bounds) {
-    return <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">A grade desta cruzadinha não está disponível.</section>;
+    return <section role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{t("crossword.game.gridUnavailable")}</section>;
   }
 
   const visibleRows = bounds.maxRow - bounds.minRow + 1;
@@ -277,15 +279,15 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)]">
       <div className="min-w-0 rounded-2xl border border-violet-200 bg-violet-50/40 p-3 shadow-sm sm:p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-dark">Preencha as letras nas casas</p>
+          <p className="text-sm font-semibold text-dark">{t("crossword.game.fillLetters")}</p>
           <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted">Setas para navegar</p>
+                  <p className="text-xs text-muted">{t("crossword.game.navigation")}</p>
           </div>
         </div>
         <div className="mx-auto w-full max-w-170">
           <div
             role="group"
-            aria-label="Grade de palavras cruzadas"
+            aria-label={t("crossword.game.gridLabel")}
             className="grid gap-px overflow-hidden rounded-lg"
             style={{ gridTemplateColumns: `repeat(${visibleCols}, minmax(0, 1fr))` }}
           >
@@ -305,7 +307,7 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
                     {starts.length > 0 && <span className="pointer-events-none absolute left-0.5 top-0 text-[clamp(6px,0.8vw,9px)] leading-none text-slate-700">{Math.min(...starts.map((clue) => clue.number))}</span>}
                     <input
                       id={`crossword-cell-${row}-${col}`}
-                      aria-label={`Linha ${rowOffset + 1}, coluna ${colOffset + 1}`}
+                      aria-label={t("crossword.game.cellLabel").replace("{row}", String(rowOffset + 1)).replace("{column}", String(colOffset + 1))}
                       autoComplete="off"
                       maxLength={1}
                       value={letters[key] ?? ""}
@@ -328,18 +330,18 @@ export function CrosswordGame({ grid, clues, onComplete, canAutoFill }: Readonly
           <div className="flex flex-wrap items-center gap-2">
             {canAutoFill && (
               <button type="button" onClick={fillGrid} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark transition hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
-                Preencher grade
+                {t("crossword.game.fillGrid")}
               </button>
             )}
             <button type="button" onClick={finishGame} disabled={completed} className="inline-flex min-h-10 items-center justify-center rounded-lg bg-dark px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60">
-              Conferir respostas
+              {t("crossword.game.checkAnswers")}
             </button>
           </div>
         </div>
       </div>
       <aside className="min-w-0 rounded-2xl border border-sky-200 bg-sky-50/50 p-4 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-center gap-2"><Check size={18} className="text-primary" aria-hidden="true" /><h2 className="text-base font-bold text-dark">Pistas</h2></div>
-        {activeClue && <div className="mb-4 rounded-xl border border-violet-200 bg-violet-100/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted">{activeDirection === "across" ? "Horizontal" : "Vertical"} · {activeClue.number}</p><p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p></div>}
+        <div className="mb-4 flex items-center gap-2"><Check size={18} className="text-primary" aria-hidden="true" /><h2 className="text-base font-bold text-dark">{t("crossword.game.clues")}</h2></div>
+        {activeClue && <div className="mb-4 rounded-xl border border-violet-200 bg-violet-100/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-muted">{activeDirection === "across" ? t("crossword.game.horizontal") : t("crossword.game.vertical")} · {activeClue.number}</p><p className="mt-1 text-sm font-medium text-dark">{activeClue.clue}</p></div>}
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-1">
           {renderClueList(acrossClues, "across")}
           {renderClueList(downClues, "down")}
