@@ -105,7 +105,7 @@ export default function MultipleChoicePlayPage() {
       }
     })();
     return () => { active = false; };
-  }, [isStudent, loadRanking, router.isReady, slug, user]);
+  }, [isStudent, loadRanking, router.isReady, slug, user, t]);
 
 
   const finish = useCallback(async (finalAnswers: Record<string, string>) => {
