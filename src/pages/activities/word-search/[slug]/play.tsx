@@ -211,7 +211,7 @@ export default function PlayWordSearchPage() {
 
     void load();
     return () => { cancelled = true; };
-  }, [router.isReady, router.query.slug, user, loadRanking]);
+  }, [router.isReady, router.query.slug, user, loadRanking, t]);
 
   function startGame(): void {
     setAttemptResult(null);
