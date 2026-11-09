@@ -104,9 +104,7 @@ export default function Home() {
             </h1>
 
             <p className="mt-5 w-full max-w-3xl text-base leading-7 text-muted sm:text-[1.1rem]">
-              Um ambiente de aprendizagem de inglês que aproxima professores
-              e alunos por meio de atividades interativas, prática constante e
-              experiências que tornam o aprendizado mais envolvente.
+              Uma plataforma criada para facilitar a vida de professores de inglês com atividades interativas, conteúdos prontos e liberdade para criar!
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -201,7 +199,7 @@ export default function Home() {
 
 
       {publicActivities.length > 0 && (
-        <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10" aria-labelledby="public-activities-title">
+        <section className="mx-auto w-full px-5 py-16 sm:px-8 lg:px-10 bg-white" aria-labelledby="public-activities-title">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
             <div>
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Experimente sem cadastro</span>

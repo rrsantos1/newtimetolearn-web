@@ -270,9 +270,6 @@ export default function ExploreActivitiesPage() {
                 ? "1 atividade encontrada"
                 : `${result.pagination.total} atividades encontradas`}
             </p>
-            <p className="text-xs text-muted">
-              Exibindo atividades publicadas de outros professores
-            </p>
           </div>
 
           <section
