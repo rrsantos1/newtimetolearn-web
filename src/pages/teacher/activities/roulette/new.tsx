@@ -31,7 +31,7 @@ function ScrollToFirstError() {
 
 const initialValues: CreateRouletteFormValues = { name: "", description: "", difficulty: "MEDIUM", content: { topics: [""] } };
 function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? "Não foi possível salvar a roleta."; }
+  if (axios.isAxiosError(error)) { const data = error.response?.data as { error?: { message?: string } } | undefined; return data?.error?.message ?? t("activity.creation.error"); }
   return "Ocorreu um erro inesperado.";
 }
 export default function NewRoulettePage() {
@@ -40,7 +40,7 @@ export default function NewRoulettePage() {
   const [submitError, setSubmitError] = useState("");
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
   return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.roulette")} description={t("activity.page.description.roulette")}>
-    {success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-8 text-center"><CheckCircle2 className="mx-auto size-14 text-green-600" aria-hidden="true" /><h2 className="mt-4 text-2xl font-semibold text-dark">{t("activity.roulette.saved")}</h2><p className="mt-2 text-sm text-muted">A atividade foi salva como rascunho. Envie para aprovação em {t("navigation.myActivities")}.</p><Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-dark px-5 text-sm font-semibold text-white">{t("activity.page.viewActivities")}</Link></section> : <>
+    {success ? <section className="mx-auto max-w-2xl rounded-2xl border border-border bg-surface p-8 text-center"><CheckCircle2 className="mx-auto size-14 text-green-600" aria-hidden="true" /><h2 className="mt-4 text-2xl font-semibold text-dark">{t("activity.roulette.saved")}</h2><p className="mt-2 text-sm text-muted">{t("activity.page.savedDraft")}</p><Link href="/teacher/activities" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-dark px-5 text-sm font-semibold text-white">{t("activity.page.viewActivities")}</Link></section> : <>
       <Link href="/teacher/activities/new" className="mb-5 inline-flex min-h-10 items-center gap-2 text-sm text-muted"><ArrowLeft size={16} aria-hidden="true" />{t("activity.roulette.backFormats")}</Link>
       <Formik initialValues={initialValues} validationSchema={createRouletteSchema} onSubmit={async (values, helpers) => { setSubmitError(""); try { await createRouletteService.execute(values); setSuccess(true); } catch (error: unknown) { setSubmitError(getErrorMessage(error)); } finally { helpers.setSubmitting(false); } }}>
         {({ values, errors, touched, handleChange, setFieldValue, isSubmitting, submitCount }) => <Form noValidate className="space-y-6">
