@@ -38,7 +38,7 @@ const features = [
     titleKey: "home.featureLearning",
     descriptionKey: "home.featureLearningDescription",
   },
-];
+] as const;
 
 const activityTypes = [
   { icon: Puzzle, labelKey: "home.activityTypeWords" },
