@@ -15,6 +15,7 @@ import {
 import api from "@/lib/api";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 type VerificationStatus =
   | "loading"
@@ -26,11 +27,12 @@ const TOKEN_PATTERN = /^[a-f0-9]{64}$/;
 export default function VerifyEmailPage() {
   const router = useRouter();
   const startedRef = useRef(false);
+  const { t } = useTranslation();
 
   const [status, setStatus] =
     useState<VerificationStatus>("loading");
   const [message, setMessage] = useState(
-    "Estamos confirmando seu endereço de e-mail.",
+    t("verify.loadingMessage"),
   );
   const [email, setEmail] = useState("");
   const [resending, setResending] = useState(false);
@@ -48,7 +50,7 @@ export default function VerifyEmailPage() {
     : status;
 
   const visibleMessage = isInvalidToken
-    ? "O link de verificação é inválido ou está incompleto."
+    ? t("verify.invalid")
     : message;
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function VerifyEmailPage() {
         setStatus("success");
         setMessage(
           response.data.data.message ||
-            "Seu endereço de e-mail foi confirmado com sucesso.",
+            t("verify.success"),
         );
       } catch (error: unknown) {
         if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -82,13 +84,13 @@ export default function VerifyEmailPage() {
           } else {
             setMessage(
               error.response
-                ? "Não foi possível confirmar seu e-mail. O link pode ter expirado ou já ter sido utilizado."
-                : "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.",
+                ? t("verify.failed")
+                : t("profile.connectionFailed"),
             );
           }
         } else {
           setMessage(
-            "Ocorreu um erro inesperado ao confirmar seu e-mail.",
+            t("auth.unexpected"),
           );
         }
 
@@ -107,7 +109,7 @@ export default function VerifyEmailPage() {
 
     if (!normalizedEmail) {
       setResendError(true);
-      setResendMessage("Informe seu endereço de e-mail.");
+      setResendMessage(t("verify.emailRequired"));
       return;
     }
 
@@ -119,7 +121,7 @@ export default function VerifyEmailPage() {
       });
 
       setResendMessage(
-        "Se houver uma conta pendente de verificação para esse endereço, você receberá as instruções por e-mail.",
+        t("verify.resendSuccess"),
       );
     } catch (error: unknown) {
       setResendError(true);
@@ -130,11 +132,11 @@ export default function VerifyEmailPage() {
         setResendMessage(
           data?.success === false
             ? data.error.message
-            : "Não foi possível solicitar o reenvio. Tente novamente mais tarde.",
+            : t("verify.resendFailed"),
         );
       } else {
         setResendMessage(
-          "Ocorreu um erro inesperado. Tente novamente.",
+          t("auth.unexpected"),
         );
       }
     } finally {
@@ -175,10 +177,10 @@ export default function VerifyEmailPage() {
 
           <h1 className="mt-6 text-2xl font-bold tracking-tight text-dark sm:text-3xl">
             {isLoading
-              ? "Confirmando seu e-mail"
+              ? t("verify.titleLoading")
               : isSuccess
-                ? "E-mail confirmado!"
-                : "Não foi possível confirmar"}
+                ? t("verify.titleSuccess")
+                : t("verify.titleError")}
           </h1>
 
           <p
@@ -194,7 +196,7 @@ export default function VerifyEmailPage() {
               href="/login"
               className="mt-8 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-dark transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}
             >
-              Ir para o login
+              {t("verify.login")}
               <ArrowRight size={18} aria-hidden="true" />
             </Link>
           ) : !isLoading ? (
@@ -205,11 +207,10 @@ export default function VerifyEmailPage() {
                 </span>
                 <div>
                   <h2 className="font-semibold text-dark">
-                    Precisa de outro link?
+                    {t("verify.needLink")}
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-muted">
-                    Informe seu e-mail para solicitar um novo envio de
-                    verificação.
+                    {t("verify.resendDescription")}
                   </p>
                 </div>
               </div>
@@ -218,7 +219,7 @@ export default function VerifyEmailPage() {
                 htmlFor="resend-email"
                 className="mt-5 block text-sm font-semibold text-dark"
               >
-                E-mail cadastrado
+                {t("verify.emailLabel")}
               </label>
 
               <input
@@ -250,8 +251,8 @@ export default function VerifyEmailPage() {
                   <RefreshCw size={18} aria-hidden="true" />
                 )}
                 {resending
-                  ? "Solicitando envio..."
-                  : "Reenviar verificação"}
+                  ? "{t("verify.requesting")}"
+                  : "{t("verify.resend")}"}
               </button>
 
               {resendMessage && (
@@ -268,17 +269,17 @@ export default function VerifyEmailPage() {
           ) : (
             <div className="mt-7 flex items-center justify-center gap-2 text-sm text-muted">
               <ShieldCheck size={17} aria-hidden="true" />
-              Aguarde enquanto validamos o link.
+              {t("verify.await")}
             </div>
           )}
 
           <p className="mt-7 text-sm text-muted">
-            Precisa de ajuda?{" "}
+            {t("verify.help")}{" "}
             <Link
               href="/"
               className="font-semibold text-dark underline decoration-amber-400 underline-offset-4 hover:text-amber-700"
             >
-              Voltar ao início
+              {t("verify.backHome")}
             </Link>
           </p>
         </div>
