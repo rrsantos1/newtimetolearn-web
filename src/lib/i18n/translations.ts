@@ -1117,6 +1117,12 @@ const translations = {
     "activities.play.quiz.questionsError": "The quiz questions are unavailable or contain invalid data.",
     "activities.play.quiz.rankingError": "Could not load the ranking right now.",
     "activities.play.quiz.submitError": "Could not submit the result. Please try again.",
+    "activities.play.wordSearch.loadError": "Could not load this activity.",
+    "activities.play.wordSearch.identifyError": "Could not identify the activity.",
+    "activities.play.wordSearch.typeError": "This activity is not a word search.",
+    "activities.play.wordSearch.gridError": "The activity grid is unavailable or invalid.",
+    "activities.play.wordSearch.wordsError": "Could not load the word list for this activity.",
+    "activities.play.wordSearch.rankingError": "Could not load the ranking right now.",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -2231,6 +2237,12 @@ const translations = {
     "activities.play.quiz.questionsError": "As questões deste Quiz estão indisponíveis ou possuem dados inválidos.",
     "activities.play.quiz.rankingError": "Não foi possível carregar o ranking agora.",
     "activities.play.quiz.submitError": "Não foi possível registrar o resultado. Tente novamente.",
+    "activities.play.wordSearch.loadError": "Não foi possível carregar esta atividade.",
+    "activities.play.wordSearch.identifyError": "Não foi possível identificar a atividade.",
+    "activities.play.wordSearch.typeError": "Esta atividade não é um caça-palavras.",
+    "activities.play.wordSearch.gridError": "A grade desta atividade não está disponível ou está inválida.",
+    "activities.play.wordSearch.wordsError": "Não foi possível carregar a lista de palavras desta atividade.",
+    "activities.play.wordSearch.rankingError": "Não foi possível carregar o ranking agora.",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
