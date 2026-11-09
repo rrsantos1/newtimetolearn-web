@@ -12,6 +12,7 @@ import type { EditableWordSearchActivity } from "@/modules/activities/types/acti
 import { submitWordSearchAttemptService, type WordSearchAttemptResult } from "@/modules/activities/services/wordSearch/submitWordSearchAttemptService";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 import { PublicActivityLayout } from "@/modules/activities/components/PublicActivityLayout";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface GeneratedData {
   grid?: unknown;
@@ -81,10 +82,11 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
 }
 
 export default function PlayWordSearchPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "Página inicial" : user.roles.includes("ADMIN") || user.roles.includes("TEACHER") ? "Voltar às atividades" : "Voltar às atividades";
+  const backLabel = !user ? "{t("play.home")}" : user.roles.includes("ADMIN") || user.roles.includes("TEACHER") ? "{t("play.back")}" : "{t("play.back")}";
   const isStudent = user?.roles.includes("STUDENT") ?? false;
 
   const [activity, setActivity] = useState<EditableWordSearchActivity | null>(null);
@@ -264,17 +266,17 @@ export default function PlayWordSearchPage() {
                     <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm sm:p-7">
                       <div className="flex items-center gap-2">
                         <Trophy size={21} className="text-primary" aria-hidden="true" />
-                        <h2 className="text-lg font-bold text-dark">Record atual — Top 5</h2>
+                        <h2 className="text-lg font-bold text-dark">{t("play.rankingRecord")}</h2>
                       </div>
                       <p className="mt-1 text-sm text-muted">Tente superar as melhores pontuações desta atividade.</p>
                       {rankingLoading ? (
                         <div role="status" className="mt-5 flex items-center gap-2 text-sm text-muted">
-                          <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> Carregando ranking...
+                          <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> {t("play.loadingRanking")}
                         </div>
                       ) : rankingError ? (
                         <div>
                           <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p>
-                          <button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">Tentar novamente</button>
+                          <button type="button" onClick={() => void loadRanking(activity.slug)} className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-dark hover:bg-background">{t("play.retry")}</button>
                         </div>
                       ) : <RankingList ranking={ranking} />}
                     </section>
@@ -295,11 +297,11 @@ export default function PlayWordSearchPage() {
                   />
                   {(submittingAttempt || attemptError) && (
                     <section aria-live="polite" className="mt-6 rounded-2xl border border-border bg-surface p-5 shadow-sm">
-                      {submittingAttempt && <p role="status" className="text-sm font-medium text-muted">Calculando e registrando sua pontuação...</p>}
+                      {submittingAttempt && <p role="status" className="text-sm font-medium text-muted">{t("play.scoreRegistering")}</p>}
                       {attemptError && (
                         <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                           <p>{attemptError}</p>
-                          {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.wordsFound)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">Tentar registrar novamente</button>}
+                          {pendingAttempt && <button type="button" onClick={() => void handleComplete(pendingAttempt.wordsFound)} disabled={submittingAttempt} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border border-red-300 px-3 font-semibold hover:bg-red-100 disabled:opacity-60">{t("play.submitRetry")}</button>}
                         </div>
                       )}
                     </section>
@@ -327,11 +329,11 @@ export default function PlayWordSearchPage() {
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <ConfettiCelebration active={attemptResult.attempt.wordsFound.length === attemptResult.attempt.totalWords} />
-                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">Resultado final</p>
+                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("play.result")}</p>
                       <p className="mt-1 text-3xl font-bold text-dark">{attemptResult.attempt.score}<span className="text-lg text-muted">/100 pontos</span></p>
-                      <p className="mt-2 text-sm text-muted">Palavras encontradas: {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
+                      <p className="mt-2 text-sm text-muted">{t("play.wordsFound")}:  {attemptResult.attempt.wordsFound.length} de {attemptResult.attempt.totalWords}</p>
                       
-                      <p className="mt-1 text-sm text-muted">Precisão: {attemptResult.attempt.accuracyPoints}/100</p>
+                      <p className="mt-1 text-sm text-muted">{t("play.accuracy")}:  {attemptResult.attempt.accuracyPoints}/100</p>
                     </div>
                     <p className={`rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>
                       {attemptResult.isInRanking ? "Parabéns! Seu resultado entrou no Top 5!" : "Desta vez, seu resultado não entrou no Top 5. Continue praticando!"}
@@ -340,13 +342,13 @@ export default function PlayWordSearchPage() {
                   <div className="mt-6">
                     <div className="flex items-center gap-2">
                       <Trophy size={20} className="text-primary" aria-hidden="true" />
-                      <h2 className="text-lg font-bold text-dark">Ranking atualizado</h2>
+                      <h2 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h2>
                     </div>
                     <RankingList ranking={ranking} />
                   </div>
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                     <button type="button" onClick={startGame} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}>
-                      <Play size={17} aria-hidden="true" /> Jogar novamente
+                      <Play size={17} aria-hidden="true" /> {t("play.playAgain")}
                     </button>
                     <Link href={backHref} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark transition hover:bg-background">{backLabel}</Link>
                   </div>
