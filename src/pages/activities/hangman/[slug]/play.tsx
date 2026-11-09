@@ -124,7 +124,7 @@ export default function HangmanPlayPage() {
     setRevealLost(lost);
     setSubmitError("");
     if (!isStudent) {
-      setSubmitError("{t("play.previewFinished")}. O resultado não será registrado no ranking dos alunos.");
+      setSubmitError(`${t("play.previewFinished")}. O resultado não será registrado no ranking dos alunos.`);
       return;
     }
     setScoreSaving(true);
