@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { marketplaceFaq } from "@/modules/faq/data/faqContent";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
 import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
@@ -87,7 +89,8 @@ export default function TeacherMarketplacePage() {
       <main className="min-h-screen bg-background">
         <PublicHeader />
         <p className="mx-auto max-w-4xl px-5 py-16 text-sm text-muted">Verificando acesso...</p>
-        <PublicFooter />
+        <FaqSection title="Dúvidas para vender no Marketplace" description="Consulte informações sobre cadastro, aprovação, recebimentos e entrega dos materiais." items={marketplaceFaq} />
+      <PublicFooter />      <PublicFooter />
       </main>
     );
   }
