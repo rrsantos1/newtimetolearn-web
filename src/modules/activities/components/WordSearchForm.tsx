@@ -1,6 +1,7 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   ErrorMessage,
   Field,
@@ -71,6 +72,7 @@ export function WordSearchForm({
   initialValues = defaultInitialValues,
   mode = "create",
 }: Readonly<WordSearchFormProps>) {
+  const { t } = useTranslation();
   const isEditing = mode === "edit";
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
@@ -89,7 +91,7 @@ export function WordSearchForm({
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
+                <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
                 <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
               </div>
 
@@ -102,7 +104,7 @@ export function WordSearchForm({
             <div className="space-y-5">
               <div>
                 <label htmlFor="name" className={labelClassName}>
-                  Nome da atividade <span className="text-red-600">*</span>
+                  {t("activity.form.title")} <span className="text-red-600">*</span>
                 </label>
 
                 <Field
@@ -125,7 +127,7 @@ export function WordSearchForm({
 
               <div>
                 <label htmlFor="description" className={labelClassName}>
-                  Descrição
+                  {t("activity.form.description")}
                 </label>
 
                 <Field
@@ -148,7 +150,7 @@ export function WordSearchForm({
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="difficulty" className={labelClassName}>
-                    Dificuldade <span className="text-red-600">*</span>
+                    {t("activity.form.difficulty")} <span className="text-red-600">*</span>
                   </label>
 
                   <Field
@@ -178,7 +180,7 @@ export function WordSearchForm({
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-dark">
-                Palavras do caça-palavras
+                {t("activity.form.wordSearchWords")}
               </h2>
 
               <p className="mt-1 text-sm leading-6 text-muted">
@@ -228,8 +230,8 @@ export function WordSearchForm({
                         aria-label={`Remover palavra ${index + 1}`}
                         title={
                           values.words.length <= 3
-                            ? "A atividade precisa de pelo menos 3 palavras."
-                            : "Remover palavra"
+                            ? t("activity.form.minimumWords")
+                             : t("activity.form.removeWord")
                         }
                         className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-muted"
                       >
@@ -283,12 +285,12 @@ export function WordSearchForm({
                     className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
                     aria-hidden="true"
                   />
-                  {isEditing ? "Salvando alterações..." : "Criando atividade..."}
+                  {isEditing ? t("activity.form.savingChanges") : t("activity.form.creating")}
                 </>
               ) : isEditing ? (
-                "Salvar alterações"
+                t("activity.form.saveChanges")
               ) : (
-                "Criar caça-palavras"
+                t("activity.form.createWordSearch")
               )}
             </button>
           </div>
