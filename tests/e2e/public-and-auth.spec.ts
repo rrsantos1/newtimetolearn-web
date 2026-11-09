@@ -17,20 +17,20 @@ test("home page renders the main call to action", async ({ page }) => {
     });
   });
 
-  await page.goto("/");
+  await page.goto("/pt-BR/");
 
   await expect(
     page.getByRole("heading", { level: 1, name: /Aprenda, pratique/i }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: /Começar agora/i }),
-  ).toHaveAttribute("href", "/register");
+  ).toHaveAttribute("href", "/pt-BR/register");
 });
 
 test("login page validates required fields without calling the API", async ({
   page,
 }) => {
-  await page.goto("/login");
+  await page.goto("/pt-BR/login");
 
   await expect(
     page.getByRole("heading", { name: "Bem-vindo de volta" }),
@@ -45,7 +45,7 @@ test("login page validates required fields without calling the API", async ({
 test("dashboard redirects visitors without a session to login", async ({
   page,
 }) => {
-  await page.goto("/dashboard");
+  await page.goto("/pt-BR/dashboard");
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(
