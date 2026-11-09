@@ -202,7 +202,7 @@ test("teacher creates a memory activity and submits it for approval", async ({
   await submitButton.click();
 
   await expect(
-    page.getByRole("heading", { name: "Jogo salvo com sucesso!" }),
+    page.getByRole("heading", { name: "Atividade salva com sucesso!" }),
   ).toBeVisible();
 
   expect(createdPayload.current).not.toBeNull();
