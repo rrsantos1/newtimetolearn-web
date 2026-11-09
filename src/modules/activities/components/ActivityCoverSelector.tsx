@@ -48,7 +48,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
     if (!file) return;
     setError("");
     try {
-      const uploaded = await uploadMediaImageService.execute(file, "Capa da atividade");
+      const uploaded = await uploadMediaImageService.execute(file, t("activity.cover.title"));
       select({ id: uploaded.id, publicUrl: uploaded.publicUrl, thumbnailPublicUrl: uploaded.thumbnailPublicUrl, altText: uploaded.altText });
     } catch (uploadError: unknown) {
       setError(uploadError instanceof Error ? uploadError.message : t("activity.cover.uploadError"));
@@ -80,7 +80,7 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-dark">Imagem de capa <span className="text-sm font-normal text-muted">(opcional)</span></h2>
+        <h2 className="text-lg font-semibold text-dark">{t("activity.cover.title")} <span className="text-sm font-normal text-muted">({t("activity.cover.optional")})</span></h2>
         <p className="mt-1 text-sm leading-6 text-muted">{t("activity.cover.description")}</p>
       </div>
       {pendingGeneratedCover && (
@@ -90,8 +90,8 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
             <Image src={pendingGeneratedCover.publicUrl} alt={pendingGeneratedCover.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); setGenerationFailed(false); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">Usar esta capa</button>
-            <button type="button" onClick={() => { setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className={buttonClass}>Descartar</button>
+            <button type="button" onClick={() => { select(pendingGeneratedCover); setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); setGenerationFailed(false); }} disabled={disabled} className="inline-flex min-h-10 items-center rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{t("activity.cover.useThis")}</button>
+            <button type="button" onClick={() => { setPendingGeneratedCover(null); onGenerationStateChange?.("idle"); }} disabled={disabled} className={buttonClass}>{t("activity.cover.discard")}</button>
           </div>
         </div>
       )}
@@ -101,14 +101,14 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
             <Image src={value.thumbnailPublicUrl ?? value.publicUrl} alt={value.altText} fill sizes="(max-width: 640px) 100vw, 576px" className="object-cover" />
           </div>
           <button type="button" onClick={() => onChange(null)} disabled={disabled} className={`${buttonClass} mt-3 text-red-700`}>
-            <Trash2 size={16} aria-hidden="true" /> Remover capa
+            <Trash2 size={16} aria-hidden="true" /> {t("activity.cover.remove")}
           </button>
         </div>
       )}
       <div className="flex flex-wrap gap-3">
         <label className={`${buttonClass} cursor-pointer`}>
-          <Upload size={16} aria-hidden="true" /> Enviar imagem
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void handleUpload(event)} disabled={disabled} className="sr-only" aria-label="Enviar imagem de capa" />
+          <Upload size={16} aria-hidden="true" /> {t("activity.cover.upload")}
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => void handleUpload(event)} disabled={disabled} className="sr-only" aria-label={t("activity.cover.uploadAria")} />
         </label>
         <MediaLibraryPicker disabled={disabled} onSelect={selectLibraryAsset} />
         <button type="button" onClick={() => setIsAiModalOpen(true)} disabled={disabled || isGenerating} className={buttonClass}>
@@ -137,18 +137,18 @@ export function ActivityCoverSelector({ value, onChange, disabled = false, onGen
           <section role="dialog" aria-modal="true" aria-labelledby="activity-cover-selector-ai-title" className="w-full max-w-xl rounded-2xl border border-border bg-surface p-5 shadow-xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 id="activity-cover-selector-ai-title" className="text-lg font-semibold text-dark">Gerar capa com IA</h3>
+                <h3 id="activity-cover-selector-ai-title" className="text-lg font-semibold text-dark">{t("activity.cover.generateAiTitle")}</h3>
                 <p className="mt-1 text-sm leading-6 text-muted">{t("activity.cover.modalDescription")}</p>
                 {isGenerating && <p role="status" className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">{t("activity.cover.processingHelp")}</p>}
               </div>
-              <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label="Fechar modal" className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} aria-label={t("common.close")} className="rounded-lg p-2 text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-focus-ring disabled:opacity-50"><X size={18} aria-hidden="true" /></button>
             </div>
             <label htmlFor="activity-cover-selector-prompt" className="mt-5 block text-sm font-medium text-dark">{t("activity.cover.imageDescription")}</label>
-            <textarea id="activity-cover-selector-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder="Ex.: uma ilustração alegre sobre o sistema solar, com planetas coloridos e fundo espacial..." className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
+            <textarea id="activity-cover-selector-prompt" value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={1000} rows={4} placeholder={t("activity.cover.promptPlaceholder")} className="mt-2 min-h-28 w-full rounded-xl border border-border bg-surface p-3 text-sm text-dark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20" disabled={isGenerating} />
             <p className="mt-1 text-right text-xs text-muted">{prompt.length}/1000</p>
             {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
             <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setIsAiModalOpen(false)} className={buttonClass}>Fechar</button>
+              <button type="button" onClick={() => setIsAiModalOpen(false)} className={buttonClass}>{t("common.close")}</button>
               <button type="button" onClick={() => void handleGenerate()} disabled={isGenerating || prompt.trim().length < 5} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-dark px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
                 <ImagePlus size={16} aria-hidden="true" /> {isGenerating ? t("activity.cover.generatingImage") : t("activity.cover.generateImage")}
               </button>
