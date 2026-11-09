@@ -75,6 +75,7 @@ export function translateValidationMessage(message: string, locale: string): str
 interface LocalizedErrorMessageProps {
   name: string;
   className?: string;
+  component?: string;
 }
 
 export function LocalizedErrorMessage({ name, className }: LocalizedErrorMessageProps) {
