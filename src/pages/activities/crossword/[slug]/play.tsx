@@ -122,7 +122,7 @@ export default function PlayCrosswordPage() {
     try {
       setRanking(await getCrosswordRankingService.execute(slug));
     } catch (loadError: unknown) {
-      setRankingError(getErrorMessage(loadError, t("activities.play.loadingRecord")));
+      setRankingError(getErrorMessage(loadError, t("activities.play.crossword.rankingError")));
     } finally {
       setRankingLoading(false);
     }
@@ -161,7 +161,7 @@ export default function PlayCrosswordPage() {
 
     async function load(): Promise<void> {
       if (!slug) {
-        setError("Não foi possível identificar a atividade.");
+        setError(t("activities.play.crossword.identifyError"));
         setLoading(false);
         return;
       }
@@ -171,14 +171,14 @@ export default function PlayCrosswordPage() {
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<EditableCrosswordActivity>(slug);
         if (cancelled) return;
         if (result.type !== "crossword") {
-          setError("Esta atividade não é uma cruzadinha.");
+          setError(t("activities.play.crossword.typeError"));
           return;
         }
         const generatedData = result.version.generatedData;
         const rawGrid = generatedData?.grid;
         const rawClues = normalizeCrosswordClues(generatedData?.clues);
         if (!isCrosswordGrid(rawGrid) || !rawClues || rawClues.length === 0) {
-          setError("A grade ou as pistas desta cruzadinha estão indisponíveis ou inválidas.");
+          setError(t("activities.play.crossword.contentError"));
           return;
         }
         setActivity(result);
@@ -186,7 +186,7 @@ export default function PlayCrosswordPage() {
         setClues(rawClues);
         if (user?.roles.includes("STUDENT")) void loadRanking(result.slug);
       } catch (loadError: unknown) {
-        if (!cancelled) setError(getErrorMessage(loadError));
+        if (!cancelled) setError(getErrorMessage(loadError, t("activities.play.crossword.loadError")));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -254,7 +254,7 @@ export default function PlayCrosswordPage() {
                 <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/[0.04] p-6 shadow-sm sm:p-8">
                   <h2 className="text-xl font-bold text-dark">{t("activities.play.previewDone")}</h2>
                   <p className="mt-2 text-sm leading-6 text-muted">{t("activities.play.previewDoneText")}</p>
-                  <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />Testar novamente</button>
+                  <button type="button" onClick={startGame} className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{t("activities.play.crossword.tryAgain")}</button>
                 </section>
               )}
 
