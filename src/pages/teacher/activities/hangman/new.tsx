@@ -24,7 +24,11 @@ export default function NewHangmanPage() {
     try {
       const result = await createHangmanService.execute(values);
       if (values.coverMediaAssetId) await activityCoverService.update(result.activity.slug, values.coverMediaAssetId);
-      await Promise.all(values.content.words.filter((word) => word.coverMediaAssetId).map((word) => updateHangmanWordImageService.execute(result.activity.slug, word.id, word.coverMediaAssetId ?? null)));
+      for (const word of values.content.words) {
+        if (word.coverMediaAssetId) {
+          await updateHangmanWordImageService.execute(result.activity.slug, word.id, word.coverMediaAssetId);
+        }
+      }
       setSuccess(true);
     }
     catch (error: unknown) { setSubmitError(getErrorMessage(error, t)); }
