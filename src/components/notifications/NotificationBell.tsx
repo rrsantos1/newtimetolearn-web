@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Bell, CheckCheck } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   listNotifications,
   markAllNotificationsAsRead,
@@ -8,8 +9,8 @@ import {
 } from "@/modules/notifications/services/notificationService";
 import type { NotificationItem } from "@/modules/notifications/types/notification.types";
 
-function formatNotificationDate(value: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
+function formatNotificationDate(value: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "short",
     timeStyle: "short",
   }).format(new Date(value));
@@ -17,6 +18,7 @@ function formatNotificationDate(value: string): string {
 
 export function NotificationBell() {
   const router = useRouter();
+  const { t, locale } = useTranslation();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +87,7 @@ export function NotificationBell() {
     <div className="relative">
       <button
         type="button"
-        aria-label={unreadCount > 0 ? `Notificações, ${unreadCount} não lidas` : "Notificações"}
+        aria-label={unreadCount > 0 ? t("notifications.ariaUnread").replace("{count}", String(unreadCount)) : t("notifications.ariaLabel")}
         aria-expanded={isOpen}
         aria-controls="notification-panel"
         onClick={() => setIsOpen((current) => !current)}
@@ -102,13 +104,13 @@ export function NotificationBell() {
       {isOpen && (
         <section
           id="notification-panel"
-          aria-label="Central de notificações"
+          aria-label={t("notifications.panel")}
           className="absolute right-0 top-13 z-70 w-[min(92vw,380px)] overflow-hidden rounded-2xl border border-border bg-white shadow-xl"
         >
           <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
             <div>
-              <h2 className="font-semibold text-dark">Notificações</h2>
-              <p className="text-xs text-muted">{unreadCount} não lida(s)</p>
+              <h2 className="font-semibold text-dark">{t("notifications.ariaLabel")}</h2>
+              <p className="text-xs text-muted">{unreadCount} {t("notifications.unread")}</p>
             </div>
             <button
               type="button"
@@ -117,14 +119,14 @@ export function NotificationBell() {
               className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-primary hover:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCheck size={15} aria-hidden="true" />
-              Marcar todas como lidas
+              {t("notifications.markAllRead")}
             </button>
           </header>
 
           <div className="max-h-[min(65vh,420px)] overflow-y-auto">
             {notifications.length === 0 ? (
               <p className="px-4 py-8 text-center text-sm text-muted">
-                Você ainda não possui notificações.
+                {t("notifications.empty")}
               </p>
             ) : (
               notifications.map((notification) => (
@@ -136,13 +138,13 @@ export function NotificationBell() {
                 >
                   <span className="flex items-start gap-2">
                     {!notification.readAt && (
-                      <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label="Não lida" />
+                      <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-label={t("notifications.unreadIndicator")} />
                     )}
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold text-dark">{notification.title}</span>
                       <span className="mt-1 block text-sm text-muted">{notification.message}</span>
                       <span className="mt-2 block text-xs text-muted">
-                        {formatNotificationDate(notification.createdAt)}
+                        {formatNotificationDate(notification.createdAt, locale)}
                       </span>
                     </span>
                   </span>
