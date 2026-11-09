@@ -259,7 +259,7 @@ export default function PublicActivitiesAdminPage() {
             <p className="text-sm text-muted" aria-live="polite">
               {filteredActivities.length === 1
                 ? t("teacherExplore.oneResult")
-                : `${filteredActivities.length} atividades encontradas`}
+                : t("teacherExplore.manyResults").replace("{count}", String(filteredActivities.length))}
             </p>
             {isLoading && <span className="text-xs text-muted">{t("adminPublic.updating")}</span>}
           </div>
