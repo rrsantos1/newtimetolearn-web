@@ -7,6 +7,7 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { FaqSection } from "@/modules/faq/components/FaqSection";
 import { marketplaceFaq, marketplaceFaqEn } from "@/modules/faq/data/faqContent";
 import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
 import { marketplaceService } from "@/modules/marketplace/services/marketplaceService";
 import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace.types";
@@ -14,6 +15,21 @@ import type { MarketplaceProduct } from "@/modules/marketplace/types/marketplace
 type SellerProduct = MarketplaceProduct & { status: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED"; created_at: string };
 
 type ConnectionState = "loading" | "connected" | "disconnected" | "error";
+const marketplaceCategoryKeys: Record<string, TranslationKey> = {
+  "Apresentação": "marketplace.presentation",
+  "Plano de aula": "marketplace.lessonPlan",
+  "Atividade": "marketplace.activity",
+  "Material complementar": "marketplace.supplementary",
+};
+
+function getMarketplaceCategoryLabel(
+  category: string,
+  t: (key: TranslationKey) => string,
+): string {
+  const key = marketplaceCategoryKeys[category];
+  return key ? t(key) : category;
+}
+
 
 export default function TeacherMarketplacePage() {
   const router = useRouter();
@@ -174,7 +190,7 @@ export default function TeacherMarketplacePage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-bold text-dark">{product.title}</h3>
-                    <p className="mt-1 text-sm text-muted">{product.category}</p>
+                    <p className="mt-1 text-sm text-muted">{getMarketplaceCategoryLabel(product.category, t)}</p>
                     <p className="mt-2 text-xs font-semibold text-primary">
                       {product.status === "PUBLISHED" ? t("marketplace.resourceStatusPublished") : product.status === "PENDING_REVIEW" ? t("marketplace.resourceStatusPending") : product.status === "DRAFT" ? t("marketplace.resourceStatusDraft") : t("marketplace.resourceStatusRejected")}
                     </p>
