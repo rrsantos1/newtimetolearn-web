@@ -17,7 +17,7 @@ export function PublicHeader() {
           {!user && !isLoading && (
             <Link
               href="/about"
-              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4 sm:text-sm"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-white px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4 sm:text-sm"
             >
               Sobre
             </Link>
@@ -28,7 +28,7 @@ export function PublicHeader() {
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:gap-2 sm:px-4 sm:text-sm"
+                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-white px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:gap-2 sm:px-4 sm:text-sm"
                 >
                   <ShieldCheck size={16} aria-hidden="true" />
                   Administração
@@ -46,7 +46,7 @@ export function PublicHeader() {
           ) : (
             <Link
               href="/login"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-xs font-bold text-[#142b4a] transition hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-5 sm:text-sm"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-4 text-xs font-bold text-red-600 transition-colors hover:bg-red-600 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-5 sm:text-sm"
             >
               Entrar
             </Link>
