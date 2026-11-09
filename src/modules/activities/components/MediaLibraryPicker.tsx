@@ -94,7 +94,7 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
                   <span className="font-semibold text-dark">{t("activity.media.storageUsed")}</span>
                   <span className="text-muted">
                     {formatBytes(storageUsage.usageBytes, locale)}
-                    {storageUsage.limitBytes !== null ? ` de ${formatBytes(storageUsage.limitBytes, locale)}` : ` · ${t("activity.media.noLimit")}`}
+                    {storageUsage.limitBytes !== null ? `${t("activity.media.usageOf")} ${formatBytes(storageUsage.limitBytes, locale)}` : ` · ${t("activity.media.noLimit")}`}
                   </span>
                 </div>
                 {storageUsage.limitBytes !== null && (
