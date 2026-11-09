@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, Search } from "lucide-react";
 import type { FaqItem } from "../data/faqContent";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FaqSectionProps {
   title: string;
@@ -10,15 +11,16 @@ interface FaqSectionProps {
 
 export function FaqSection({ title, description, items }: FaqSectionProps) {
   const [search, setSearch] = useState("");
-  const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+  const { t, locale } = useTranslation();
+  const normalizedSearch = search.trim().toLocaleLowerCase(locale);
 
   const filteredItems = useMemo(() => {
     if (!normalizedSearch) return items;
 
     return items.filter(({ question, answer }) =>
-      `${question} ${answer}`.toLocaleLowerCase("pt-BR").includes(normalizedSearch)
+      `${question} ${answer}`.toLocaleLowerCase(locale).includes(normalizedSearch)
     );
-  }, [items, normalizedSearch]);
+  }, [items, normalizedSearch, locale]);
 
   return (
     <section
@@ -27,7 +29,7 @@ export function FaqSection({ title, description, items }: FaqSectionProps) {
     >
       <div className="mx-auto max-w-3xl text-center">
         <span className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
-          Central de ajuda
+          {t("faq.helpCenter")}
         </span>
         <h2 id="faq-section-title" className="mt-3 text-2xl font-extrabold tracking-tight text-dark sm:text-3xl">
           {title}
@@ -39,7 +41,7 @@ export function FaqSection({ title, description, items }: FaqSectionProps) {
 
       <div className="mx-auto mt-7 max-w-2xl">
         <label htmlFor="faq-search" className="sr-only">
-          Pesquisar perguntas frequentes
+          {t("faq.searchLabel")}
         </label>
         <div className="relative">
           <Search
@@ -52,7 +54,7 @@ export function FaqSection({ title, description, items }: FaqSectionProps) {
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Pesquisar uma dúvida..."
+            placeholder={t("faq.searchPlaceholder")}
             className="min-h-12 w-full rounded-xl border border-border bg-white py-2 pl-10 pr-4 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-4 focus:ring-accent/10"
           />
         </div>
@@ -80,7 +82,7 @@ export function FaqSection({ title, description, items }: FaqSectionProps) {
           ))
         ) : (
           <p className="rounded-xl border border-dashed border-border bg-white p-6 text-center text-sm text-muted" role="status">
-            Nenhuma pergunta encontrada. Tente utilizar outros termos.
+            {t("faq.empty")}
           </p>
         )}
       </div>
