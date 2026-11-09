@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Check, Clock, GraduationCap, X } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { FaqSection } from "@/modules/faq/components/FaqSection";
-import { studentFaq } from "@/modules/faq/data/faqContent";
+import { studentFaq, studentFaqEn } from "@/modules/faq/data/faqContent";
 import {
   cancelInvitation,
   listStudentRelationships,
@@ -14,22 +14,23 @@ import type {
   TeacherStudentRelationship,
   TeacherStudentStatus,
 } from "@/modules/teacher-students/types/teacherStudent.types";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const statusLabels: Record<TeacherStudentStatus, string> = {
-  PENDING: "Aguardando sua resposta",
-  ACTIVE: "Vínculo ativo",
-  REJECTED: "Recusado",
-  CANCELLED: "Cancelado",
-};
-
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError<{ error?: { message?: string } }>(error)) {
-    return error.response?.data.error?.message ?? "Não foi possível concluir a operação.";
+    return error.response?.data.error?.message ?? fallback;
   }
-  return "Ocorreu um erro inesperado.";
+  return fallback;
 }
 
 export default function StudentTeachersPage() {
+  const { t, locale } = useTranslation();
+  const statusLabels: Record<TeacherStudentStatus, string> = {
+    PENDING: t("studentTeachers.statusPending"),
+    ACTIVE: t("studentTeachers.statusActive"),
+    REJECTED: t("studentTeachers.statusRejected"),
+    CANCELLED: t("studentTeachers.statusCancelled"),
+  };
   const [relationships, setRelationships] = useState<TeacherStudentRelationship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -42,11 +43,11 @@ export default function StudentTeachersPage() {
     try {
       setRelationships(await listStudentRelationships());
     } catch (error: unknown) {
-      setNotice(getErrorMessage(error));
+      setNotice(getErrorMessage(error, t("studentTeachers.operationError")));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,7 +57,7 @@ export default function StudentTeachersPage() {
         const data = await listStudentRelationships();
         if (isMounted) setRelationships(data);
       } catch (error: unknown) {
-        if (isMounted) setNotice(getErrorMessage(error));
+        if (isMounted) setNotice(getErrorMessage(error, t("studentTeachers.operationError")));
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -67,7 +68,7 @@ export default function StudentTeachersPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   async function handleResponse(relationshipId: string, accept: boolean) {
     setBusyId(relationshipId);
@@ -75,10 +76,10 @@ export default function StudentTeachersPage() {
     setSuccess("");
     try {
       await respondToInvitation(relationshipId, accept);
-      setSuccess(accept ? "Vínculo confirmado com sucesso." : "Convite recusado.");
+      setSuccess(accept ? t("studentTeachers.acceptSuccess") : t("studentTeachers.rejectSuccess"));
       await loadRelationships();
     } catch (error: unknown) {
-      setNotice(getErrorMessage(error));
+      setNotice(getErrorMessage(error, t("studentTeachers.operationError")));
     } finally {
       setBusyId(null);
     }
@@ -89,10 +90,10 @@ export default function StudentTeachersPage() {
     setNotice("");
     try {
       await cancelInvitation(relationshipId, "student");
-      setSuccess("Convite cancelado.");
+      setSuccess(t("studentTeachers.cancelSuccess"));
       await loadRelationships();
     } catch (error: unknown) {
-      setNotice(getErrorMessage(error));
+      setNotice(getErrorMessage(error, t("studentTeachers.operationError")));
     } finally {
       setBusyId(null);
     }
@@ -106,22 +107,22 @@ export default function StudentTeachersPage() {
     <RoleBasedLayout
       area="student"
       allowedRoles={["STUDENT"]}
-      title="Meus professores"
-      description="Consulte seus vínculos e responda aos convites enviados pelos professores."
+      title={t("studentTeachers.title")}
+      description={t("studentTeachers.description")}
     >
       {notice && <p className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">{notice}</p>}
       {success && <p className="mb-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800" role="status">{success}</p>}
 
       {isLoading ? (
-        <p className="text-sm text-muted">Carregando convites...</p>
+        <p className="text-sm text-muted">{t("studentTeachers.loading")}</p>
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
-            <h2 className="font-semibold text-dark">Convites recebidos</h2>
+            <h2 className="font-semibold text-dark">{t("studentTeachers.receivedInvitations")}</h2>
             {pending.length === 0 ? (
               <div className="mt-4 rounded-xl border border-dashed border-border p-6 text-center">
                 <Clock className="mx-auto text-muted" size={26} aria-hidden="true" />
-                <p className="mt-3 text-sm text-muted">Você não possui convites pendentes.</p>
+                <p className="mt-3 text-sm text-muted">{t("studentTeachers.noPendingInvitations")}</p>
               </div>
             ) : (
               <div className="mt-3 divide-y divide-border">
@@ -139,13 +140,13 @@ export default function StudentTeachersPage() {
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <button type="button" disabled={busyId === relationship.id} onClick={() => void handleResponse(relationship.id, true)} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60" style={{ color: "var(--primary-foreground)" }}>
-                        <Check size={16} aria-hidden="true" /> Aceitar
+                        <Check size={16} aria-hidden="true" /> {t("studentTeachers.accept")}
                       </button>
                       <button type="button" disabled={busyId === relationship.id} onClick={() => void handleResponse(relationship.id, false)} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-dark hover:bg-background disabled:opacity-60">
-                        <X size={16} aria-hidden="true" /> Recusar
+                        <X size={16} aria-hidden="true" /> {t("studentTeachers.reject")}
                       </button>
                       <button type="button" disabled={busyId === relationship.id} onClick={() => void handleCancel(relationship.id)} className="min-h-10 px-2 text-sm text-muted underline-offset-4 hover:underline disabled:opacity-60">
-                        Cancelar
+                        {t("studentTeachers.cancel")}
                       </button>
                     </div>
                   </article>
@@ -155,9 +156,9 @@ export default function StudentTeachersPage() {
           </section>
 
           <section className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
-            <h2 className="font-semibold text-dark">Professor atual</h2>
+            <h2 className="font-semibold text-dark">{t("studentTeachers.currentTeacher")}</h2>
             {active.length === 0 ? (
-              <p className="mt-4 text-sm text-muted">Você ainda não possui um professor vinculado.</p>
+              <p className="mt-4 text-sm text-muted">{t("studentTeachers.noCurrentTeacher")}</p>
             ) : (
               active.map((relationship) => (
                 <article key={relationship.id} className="mt-4 rounded-xl bg-green-50 p-4">
@@ -169,14 +170,14 @@ export default function StudentTeachersPage() {
                     className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-primary px-3 text-sm font-semibold text-white hover:opacity-90"
                     style={{ color: "var(--primary-foreground)" }}
                   >
-                    Abrir meu caderno
+                    {t("studentTeachers.openNotebook")}
                   </Link>
                 </article>
               ))
             )}
             {history.length > 0 && (
               <div className="mt-6 border-t border-border pt-4">
-                <h3 className="text-sm font-semibold text-dark">Histórico</h3>
+                <h3 className="text-sm font-semibold text-dark">{t("studentTeachers.history")}</h3>
                 {history.map((relationship) => (
                   <div key={relationship.id} className="flex items-center justify-between gap-2 py-3">
                     <span className="text-sm text-muted">{relationship.teacher.name}</span>
@@ -188,7 +189,7 @@ export default function StudentTeachersPage() {
           </section>
         </div>
       )}
-      <FaqSection title="Dúvidas sobre seus professores e o caderno virtual" description="Veja como responder aos convites e acessar o espaço compartilhado com seu professor." items={studentFaq} />
+      <FaqSection title={t("studentTeachers.faqTitle")} description={t("studentTeachers.faqDescription")} items={locale === "pt-BR" ? studentFaq : studentFaqEn} />
     </RoleBasedLayout>
   );
 }
