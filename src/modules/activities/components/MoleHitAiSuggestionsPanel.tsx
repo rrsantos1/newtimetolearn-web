@@ -90,21 +90,21 @@ export function MoleHitAiSuggestionsPanel() {
           <section role="dialog" aria-modal="true" aria-labelledby="mole-ai-modal-title" className="my-auto max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-surface p-5 shadow-2xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-2"><Sparkles size={20} aria-hidden="true" className="text-amber-700" /><h2 id="mole-ai-modal-title" className="text-xl font-bold text-dark">{t("activity.ai.generateOptions")}</h2></div>
-              <button type="button" onClick={() => setIsOpen(false)} disabled={loading} aria-label="Fechar modal" className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">×</button>
+              <button type="button" onClick={() => setIsOpen(false)} disabled={loading} aria-label={t("activity.ai.closeModal")} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border text-muted hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">×</button>
             </div>
-            <p className="mt-2 text-sm leading-6 text-muted">Informe o tema do desafio. Esse texto será usado somente para gerar as sugestões e não será salvo junto à atividade.</p>
+            <p className="mt-2 text-sm leading-6 text-muted">{t("activity.ai.moleHitTopicDescription")}</p>
             <div className="mt-5">
-              <label htmlFor="mole-ai-topic" className="mb-1 block text-sm font-medium text-dark">Tema / categoria <span className="text-red-600">*</span></label>
-              <input id="mole-ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} placeholder="Ex.: Cidades que são capitais de estados brasileiros" className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" />
+              <label htmlFor="mole-ai-topic" className="mb-1 block text-sm font-medium text-dark">{t("activity.ai.topicCategory")} <span className="text-red-600">*</span></label>
+              <input id="mole-ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} placeholder={t("activity.ai.moleHitTopicPlaceholder")} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" />
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div><label htmlFor="mole-ai-correct-quantity" className="mb-1 block text-sm font-medium text-dark">Quantidade de opções corretas</label><input id="mole-ai-correct-quantity" type="number" min={2} max={15} value={correctQuantity} onChange={(event) => setCorrectQuantity(Number(event.target.value))} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark" /></div>
-              <div><label htmlFor="mole-ai-incorrect-quantity" className="mb-1 block text-sm font-medium text-dark">Quantidade de opções incorretas</label><input id="mole-ai-incorrect-quantity" type="number" min={2} max={15} value={incorrectQuantity} onChange={(event) => setIncorrectQuantity(Number(event.target.value))} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark" /></div>
+              <div><label htmlFor="mole-ai-correct-quantity" className="mb-1 block text-sm font-medium text-dark">{t("activity.ai.correctOptionsQuantity")}</label><input id="mole-ai-correct-quantity" type="number" min={2} max={15} value={correctQuantity} onChange={(event) => setCorrectQuantity(Number(event.target.value))} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark" /></div>
+              <div><label htmlFor="mole-ai-incorrect-quantity" className="mb-1 block text-sm font-medium text-dark">{t("activity.ai.incorrectOptionsQuantity")}</label><input id="mole-ai-incorrect-quantity" type="number" min={2} max={15} value={incorrectQuantity} onChange={(event) => setIncorrectQuantity(Number(event.target.value))} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm text-dark" /></div>
             </div>
             {error && <p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
             {suggestions && <div className="mt-5 space-y-3 rounded-xl border border-border bg-background p-4">
-              <div><p className="text-sm font-semibold text-emerald-800">Corretas</p><p className="mt-1 text-sm leading-6 text-dark">{suggestions.correctOptions.join(" · ")}</p></div>
-              <div><p className="text-sm font-semibold text-red-800">Incorretas</p><p className="mt-1 text-sm leading-6 text-dark">{suggestions.incorrectOptions.join(" · ")}</p></div>
+              <div><p className="text-sm font-semibold text-emerald-800">{t("activity.form.correctOptions")}</p><p className="mt-1 text-sm leading-6 text-dark">{suggestions.correctOptions.join(" · ")}</p></div>
+              <div><p className="text-sm font-semibold text-red-800">{t("activity.form.incorrectOptions")}</p><p className="mt-1 text-sm leading-6 text-dark">{suggestions.incorrectOptions.join(" · ")}</p></div>
             </div>}
             <div className="mt-6 flex flex-col-reverse justify-end gap-3 sm:flex-row">
               <button type="button" onClick={() => setIsOpen(false)} disabled={loading} className="min-h-11 rounded-xl border border-border px-5 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">{t("activity.ai.cancel")}</button>
