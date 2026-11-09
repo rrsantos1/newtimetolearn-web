@@ -62,29 +62,7 @@ describe("createQuizSchema", () => {
     ).rejects.toThrow("Marque uma alternativa correta válida.");
   });
 
-  it("accepts an image-only alternative", async () => {
-    const imageOnlyValues = {
-      ...validValues,
-      content: {
-        questions: [{
-          ...validValues.content.questions[0],
-          options: [
-            {
-              id: "a",
-              text: "",
-              images: [{ storageKey: "quiz/option-a.jpg", altText: "Imagem de uma árvore" }],
-            },
-            validValues.content.questions[0].options[1],
-            validValues.content.questions[0].options[2],
-          ],
-        }],
-      },
-    };
-
-    await expect(createQuizSchema.validate(imageOnlyValues)).resolves.toBeDefined();
-  });
-
-  it("rejects an alternative without text or image", async () => {
+  it("rejects an alternative without text", async () => {
     await expect(
       createQuizSchema.validate({
         ...validValues,
@@ -98,6 +76,6 @@ describe("createQuizSchema", () => {
           }],
         },
       }),
-    ).rejects.toThrow("Preencha o texto da alternativa ou adicione uma imagem.");
+    ).rejects.toThrow("Preencha o texto da alternativa.");
   });
 });
