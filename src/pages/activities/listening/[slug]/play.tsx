@@ -322,7 +322,7 @@ export default function PlayListeningPage() {
                           <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? "Seu resultado entrou no Top 5!" : "Resultado registrado. Continue praticando!"}</p>
                         </>
                       ) : (
-                        <p className="mt-2 text-sm text-muted">{previewNotice || "{t("play.previewFinished")}."}.</p>
+                        <p className="mt-2 text-sm text-muted">{previewNotice || t("play.previewFinished")}.</p>
                       )}
                     </div>
 
