@@ -173,7 +173,7 @@ export default function PlayListeningPage() {
     return () => {
       cancelled = true;
     };
-  }, [router.isReady, slug, user]);
+  }, [router.isReady, slug, user, t]);
 
   const finishAttempt = useCallback(async (retry = false): Promise<void> => {
     if ((phase !== "playing" && !(retry && phase === "finished")) || submittedRef.current || !activity) return;
