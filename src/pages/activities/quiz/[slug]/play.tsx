@@ -146,7 +146,7 @@ export default function PlayQuizPage() {
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : user.roles.includes("ADMIN") || isTeacher ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("activities.play.home") : t("activities.play.back");
   const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
