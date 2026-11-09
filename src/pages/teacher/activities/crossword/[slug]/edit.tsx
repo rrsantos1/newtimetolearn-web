@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -60,6 +61,7 @@ function toFormValues(activity: EditableCrosswordActivity): CreateCrosswordFormV
 }
 
 export default function EditCrosswordPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [activity, setActivity] = useState<EditableCrosswordActivity | null>(null);
   const [initialValues, setInitialValues] = useState<CreateCrosswordFormValues | null>(null);
@@ -139,7 +141,7 @@ export default function EditCrosswordPage() {
         },
       } : current);
       setInitialValues(values);
-      setSuccessMessage("Alterações salvas. A atividade continua como rascunho até ser enviada para aprovação.");
+      setSuccessMessage(t("activity.page.updatedDraft"));
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error));
     }
@@ -162,7 +164,7 @@ export default function EditCrosswordPage() {
           submittedAt: new Date().toISOString(),
         },
       } : current);
-      setResubmitMessage("Atividade enviada para aprovação.");
+      setResubmitMessage(t("activity.page.resubmitSuccess"));
     } catch (error: unknown) {
       setResubmitMessage(getErrorMessage(error));
     } finally {
@@ -180,8 +182,8 @@ export default function EditCrosswordPage() {
     <RoleBasedLayout
       area="teacher"
       allowedRoles={["TEACHER"]}
-      title="Editar palavras cruzadas"
-      description="Atualize as informações, respostas e pistas da sua atividade."
+      title={t("activity.page.edit.crossword")}
+      description={t("activity.page.editDescription.crossword")}
     >
       <div className="mb-6">
         <Link
@@ -242,7 +244,7 @@ export default function EditCrosswordPage() {
                 disabled={resubmitting}
                 className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {resubmitting ? "Enviando..." : "Enviar para aprovação"}
+                {resubmitting ? "Enviando..." : t("activity.page.sendApproval")}
               </button>
             </section>
           )}
