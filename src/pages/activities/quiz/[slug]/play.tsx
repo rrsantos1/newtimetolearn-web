@@ -146,7 +146,7 @@ export default function PlayQuizPage() {
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const isTeacher = user?.roles.includes("TEACHER") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : isTeacher ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? t("activities.play.home") : t("activities.play.back");
+  const backLabel = !user ? t("play.home") : t("play.back");
   const [activity, setActivity] = useState<EditableQuizActivity | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -473,7 +473,7 @@ export default function PlayQuizPage() {
                       </div>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                         <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">{t("play.backMode")}</button>
-                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? t("play.retry") : t("activities.play.tryAgain")}</button>
+                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? t("play.retry") : t("play.tryAgain")}</button>
                       </div>
                     </>
                   )}
