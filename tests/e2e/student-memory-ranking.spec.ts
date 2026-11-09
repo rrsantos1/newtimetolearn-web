@@ -67,7 +67,7 @@ async function signInAsStudent(page: Page): Promise<void> {
     });
   });
 
-  await page.goto("/login");
+  await page.goto("/pt-BR/login");
   await page.getByLabel("E-mail").fill(student.email);
   await page.getByRole("textbox", { name: "Senha" }).fill("SenhaSegura123!");
   await page.getByRole("button", { name: /^Entrar$/ }).click();
@@ -125,7 +125,7 @@ test("student completes a memory activity and receives the saved score and ranki
     },
   );
 
-  await page.goto("/activities/memory/memory-student-e2e/play");
+  await page.goto("/pt-BR/activities/memory/memory-student-e2e/play");
   await expect(
     page.getByRole("heading", { name: "Ranking atual — Top 5" }),
   ).toBeVisible();
