@@ -17,7 +17,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 type CrosswordGrid = (string | null)[][];
 type GamePhase = "ready" | "playing" | "finished";
 
-function getErrorMessage(error: unknown, fallback = "Não foi possível carregar esta atividade."): string {
+function getErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
     return data?.error?.message ?? data?.message ?? fallback;
