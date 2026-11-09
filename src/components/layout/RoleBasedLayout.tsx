@@ -83,10 +83,10 @@ export function RoleBasedLayout({
               <BrandLogo href="/dashboard" />
               <div className="flex items-center gap-2 sm:gap-3">
                 {isTeacher && area === "admin" && (
-                  <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm">Área do professor</Link>
+                  <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white sm:text-sm">Área do professor</Link>
                 )}
                 {isAdmin && area !== "admin" && (
-                  <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-[#142b4a] transition hover:bg-slate-100 sm:text-sm"><ShieldCheck size={16} aria-hidden="true" />Administração</Link>
+                  <Link href="/admin" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white sm:text-sm"><ShieldCheck size={16} aria-hidden="true" />Administração</Link>
                 )}
                 <span className="hidden max-w-48 truncate text-sm font-medium text-white/90 sm:inline">{user?.name}</span>
                 <LogoutButton />
