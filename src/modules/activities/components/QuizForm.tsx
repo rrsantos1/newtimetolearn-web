@@ -235,7 +235,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                             {option.text?.trim() || (option.images?.length ? t("activity.form.imageAlternative") : t("activity.form.emptyAlternative"))}
                             {option.images?.length > 0 && <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">{option.images.map((image, index) => {
                               const imageUrl = resolveImageUrl(image);
-                              return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `Imagem da alternativa ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
+                              return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `${t("activity.form.optionImage")} ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
                             })}</div>}
                             {question.correctOptionId === option.id && <span className="ml-2 font-semibold">— {t("activity.form.correctAnswer")}</span>}
                           </li>
@@ -291,13 +291,13 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                       </button>
                     </div>
                     <div>
-                      <label htmlFor={`content.questions.${questionIndex}.statement`} className={labelClassName}>Enunciado *</label>
+                      <label htmlFor={`content.questions.${questionIndex}.statement`} className={labelClassName}>{t("activity.form.statementLabel")} *</label>
                       <Field as="textarea" id={`content.questions.${questionIndex}.statement`} name={`content.questions.${questionIndex}.statement`} rows={3} maxLength={2000} className={fieldClassName(`content.questions.${questionIndex}.statement`)} aria-required="true" aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.statement`) && (getIn(touched, `content.questions.${questionIndex}.statement`) || submitCount > 0))} />
                       <LocalizedErrorMessage name={`content.questions.${questionIndex}.statement`} component="p" className="mt-1 text-sm text-red-600" />
                     </div>
                     <ImageAttachments
                       idPrefix={`question-${question.id}-images`}
-                      label="Imagens do enunciado"
+                      label={t("activity.form.statementImages")}
                       images={question.images}
                       onChange={(images) => void setFieldValue(`content.questions.${questionIndex}.images`, images)}
                     />
