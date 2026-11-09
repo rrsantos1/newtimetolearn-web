@@ -68,8 +68,9 @@ const validationMessages: Record<string, string> = {
 };
 
 export function translateValidationMessage(message: string, locale: string): string {
-  if (locale !== "en") return message;
-  return validationMessages[message] ?? message;
+  if (locale === "en") return validationMessages[message] ?? message;
+  if (/ is a required field$/.test(message)) return "Este campo é obrigatório.";
+  return message;
 }
 
 interface LocalizedErrorMessageProps {
