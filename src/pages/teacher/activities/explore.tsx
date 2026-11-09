@@ -442,7 +442,7 @@ export default function ExploreActivitiesPage() {
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft size={17} aria-hidden="true" />
-                {t("common.previous")}
+                {t("activities.previous")}
               </button>
               <span className="text-sm text-muted">
                 Página {result.pagination.page} de {result.pagination.totalPages}
@@ -457,7 +457,7 @@ export default function ExploreActivitiesPage() {
                 disabled={page >= result.pagination.totalPages || isLoading}
                 className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-border px-3 text-sm font-medium text-dark transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {t("common.next")}
+                {t("activities.next")}
                 <ChevronRight size={17} aria-hidden="true" />
               </button>
             </nav>
