@@ -121,7 +121,7 @@ export default function MemoryGamePage() {
     } finally {
       setRankingLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
@@ -142,7 +142,7 @@ export default function MemoryGamePage() {
       }
     })();
     return () => { active = false; };
-  }, [router.isReady, slug, user, loadRanking]);
+  }, [router.isReady, slug, user, loadRanking, t]);
 
 
 
@@ -164,7 +164,7 @@ export default function MemoryGamePage() {
     } catch (error: unknown) {
       setSubmitError(getErrorMessage(error, "Não foi possível salvar seu resultado."));
     }
-  }, [activity, isStudent, matchedIds, phase, wrongAttempts]);
+  }, [activity, isStudent, matchedIds, phase, wrongAttempts, t]);
 
 
   function startGame(): void {
