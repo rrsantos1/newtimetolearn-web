@@ -460,6 +460,7 @@ const translations = {
     "activities.play.next": "Confirm and continue",
     "activities.play.finishActivity": "Complete activity",
     "activities.play.accuracyLabel": "Accuracy",
+    "activities.play.yourAnswer": "Your answer",
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -918,6 +919,7 @@ const translations = {
     "activities.play.next": "Confirmar e avançar",
     "activities.play.finishActivity": "Concluir atividade",
     "activities.play.accuracyLabel": "Precisão",
+    "activities.play.yourAnswer": "Sua resposta",
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
