@@ -125,7 +125,7 @@ export default function MoleHitPlayPage() {
     } finally {
       setRankingLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
@@ -147,7 +147,7 @@ export default function MoleHitPlayPage() {
       }
     })();
     return () => { active = false; };
-  }, [router.isReady, slug, user, loadRanking]);
+  }, [router.isReady, slug, user, loadRanking, t]);
 
   const finishGame = useCallback(async (): Promise<void> => {
     if (phase !== "playing" || !activity || gameEndedRef.current) return;
@@ -174,7 +174,7 @@ export default function MoleHitPlayPage() {
     } finally {
       setScoreSaving(false);
     }
-  }, [activity, isStudent, phase]);
+  }, [activity, isStudent, phase, t]);
 
   const spawnMole = useCallback(() => {
     if (phase !== "playing" || gameEndedRef.current) return;
