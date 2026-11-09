@@ -55,6 +55,7 @@ function ScrollToFirstError() {
 }
 
 function ValidationErrorSummary() {
+  const { t } = useTranslation();
   const { errors, submitCount, isValidating } = useFormikContext<
     CreateWordMatchingFormValues | CreateSentenceCompletionFormValues
   >();
@@ -73,7 +74,7 @@ function ValidationErrorSummary() {
 
   return (
     <section id="drag-drop-validation-summary" role="alert" tabIndex={-1} aria-labelledby="validation-summary-title" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-      <h2 id="validation-summary-title" className="font-semibold">Revise os campos da atividade</h2>
+      <h2 id="validation-summary-title" className="font-semibold">{t("activity.form.validationSummaryTitle")}</h2>
       <ul className="mt-2 list-disc space-y-1 pl-5">
         {[...new Set(messages)].map((message, index) => <li key={`${message}-${index}`}>{message}</li>)}
       </ul>
@@ -131,7 +132,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-              <div><h2 className="text-lg font-semibold text-dark">{activityMode === "multiple_choice" ? "Questões e correspondências" : "Associações"}</h2><p className="mt-1 text-sm text-muted">{activityMode === "multiple_choice" ? "Cada item de origem será apresentado individualmente, com todas as correspondências disponíveis para escolha." : "Cada item da coluna esquerda será associado a um único item da direita."}</p></div>
+              <div><h2 className="text-lg font-semibold text-dark">{activityMode === "multiple_choice" ? t("activity.form.multipleChoiceMatchingTitle") : t("activity.form.pairs")}</h2><p className="mt-1 text-sm text-muted">{activityMode === "multiple_choice" ? t("activity.form.multipleChoiceMatchingDescription") : t("activity.form.wordMatchingDescription")}</p></div>
               <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> {t("activity.form.createWithAi")}</button>
               <span className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-dark">{values.content.pairs.length}/50</span>
             </div>
