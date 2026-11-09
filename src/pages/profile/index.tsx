@@ -15,10 +15,11 @@ import { userProfileService } from "@/modules/users/services/userProfileService"
 import { EmailChangeRequestForm } from "@/modules/auth/components/EmailChangeRequestForm";
 import { ChangePasswordForm } from "@/modules/auth/components/ChangePasswordForm";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 export default function ProfilePage() {
   const { refreshProfile } = useAuth();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +75,7 @@ export default function ProfilePage() {
         const response = error.response?.data;
 
         if (response?.success === false) {
-          setErrorMessage(response.error.message);
+          setErrorMessage(translateApiError(error, locale, "profile.updateFailed"));
         } else {
           setErrorMessage(
             error.response
