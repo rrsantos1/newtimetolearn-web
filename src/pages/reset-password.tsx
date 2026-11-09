@@ -17,6 +17,7 @@ import {
 import api from "@/lib/api";
 import type { ApiErrorResponse } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const TOKEN_PATTERN = /^[a-f0-9]{64}$/i;
 
@@ -42,6 +43,7 @@ export default function ResetPasswordPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [notice, setNotice] = useState("");
   const [completed, setCompleted] = useState(false);
+  const { t } = useTranslation();
 
   const validToken =
     router.isReady && typeof token === "string" && TOKEN_PATTERN.test(token);
@@ -53,7 +55,7 @@ export default function ResetPasswordPage() {
       setNotice("");
 
       if (!validToken || typeof token !== "string") {
-        setNotice("O link de redefinição é inválido ou está incompleto.");
+        setNotice(t("reset.invalidToken"));
         helpers.setSubmitting(false);
         return;
       }
@@ -74,11 +76,11 @@ export default function ResetPasswordPage() {
             data?.success === false
               ? data.error.message
               : error.response
-                ? "Não foi possível redefinir sua senha. O link pode ter expirado ou já ter sido utilizado."
-                : "Não foi possível conectar ao servidor. Verifique sua conexão.",
+                ? t("reset.expired")
+                : t("auth.connectionFailed"),
           );
         } else {
-          setNotice("Ocorreu um erro inesperado. Tente novamente.");
+          setNotice(t("auth.unexpected"));
         }
       } finally {
         helpers.setSubmitting(false);
@@ -104,12 +106,12 @@ export default function ResetPasswordPage() {
               )}
             </span>
             <h1 className="mt-5 text-3xl font-bold tracking-tight text-dark sm:text-4xl">
-              {completed ? "Senha redefinida!" : "Crie uma nova senha"}
+              {completed ? t("reset.successTitle") : t("reset.title")}
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
               {completed
-                ? "Sua senha foi atualizada. Agora você já pode entrar na sua conta."
-                : "Escolha uma senha segura com pelo menos 8 caracteres."}
+                ? t("reset.successDescription")
+                : t("reset.description")}
             </p>
           </div>
 
@@ -131,7 +133,7 @@ export default function ResetPasswordPage() {
             {!router.isReady ? (
               <div className="flex min-h-20 items-center justify-center text-sm text-muted">
                 <LoaderCircle size={20} className="mr-2 animate-spin" aria-hidden="true" />
-                Validando link...
+                {t("reset.validating")}
               </div>
             ) : completed ? (
               <Link
@@ -139,20 +141,20 @@ export default function ResetPasswordPage() {
                 className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 font-semibold transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
                 style={{ color: "var(--primary-foreground)" }}
               >
-                Ir para o login
+                {t("reset.goLogin")}
                 <LockKeyhole size={18} aria-hidden="true" />
               </Link>
             ) : !validToken ? (
               <div>
                 <p className="text-sm leading-6 text-red-700">
-                  Este link não é válido. Solicite uma nova mensagem de recuperação.
+                  {t("reset.invalidLink")}
                 </p>
                 <Link
                   href="/forgot-password"
                   className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 font-semibold transition hover:bg-primary-hover"
                   style={{ color: "var(--primary-foreground)" }}
                 >
-                  Solicitar novo link
+                  {t("reset.requestLink")}
                 </Link>
               </div>
             ) : (
@@ -165,7 +167,7 @@ export default function ResetPasswordPage() {
               >
                 <div>
                   <label htmlFor="password" className="text-sm font-semibold text-dark">
-                    Nova senha
+                    {t("reset.newPassword")}
                   </label>
                   <div className="relative">
                     <LockKeyhole
@@ -179,7 +181,7 @@ export default function ResetPasswordPage() {
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       autoFocus
-                      placeholder="Digite sua nova senha"
+                      placeholder={t("reset.passwordPlaceholder")}
                       value={formik.values.password}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
@@ -190,7 +192,7 @@ export default function ResetPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword((current) => !current)}
-                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                       className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
                     >
                       {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
@@ -201,12 +203,12 @@ export default function ResetPasswordPage() {
                       {formik.errors.password}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-muted">Use entre 8 e 72 caracteres.</p>
+                  <p className="mt-2 text-xs text-muted">{t("reset.passwordLength")}</p>
                 </div>
 
                 <div className="mt-5">
                   <label htmlFor="confirmPassword" className="text-sm font-semibold text-dark">
-                    Confirme a nova senha
+                    {t("reset.confirmPassword")}
                   </label>
                   <div className="relative">
                     <LockKeyhole
@@ -219,7 +221,7 @@ export default function ResetPasswordPage() {
                       name="confirmPassword"
                       type={showConfirmation ? "text" : "password"}
                       autoComplete="new-password"
-                      placeholder="Digite novamente sua senha"
+                      placeholder={t("reset.confirmPlaceholder")}
                       value={formik.values.confirmPassword}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
@@ -230,7 +232,7 @@ export default function ResetPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmation((current) => !current)}
-                      aria-label={showConfirmation ? "Ocultar confirmação" : "Mostrar confirmação"}
+                      aria-label={showConfirmation ? t("auth.hidePassword") : t("auth.showPassword")}
                       className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
                     >
                       {showConfirmation ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
@@ -252,11 +254,11 @@ export default function ResetPasswordPage() {
                   {formik.isSubmitting ? (
                     <>
                       <LoaderCircle size={18} className="animate-spin" aria-hidden="true" />
-                      Salvando...
+                      {t("reset.saving")}
                     </>
                   ) : (
                     <>
-                      Redefinir senha
+                      {t("reset.submit")}
                       <KeyRound size={18} aria-hidden="true" />
                     </>
                   )}
@@ -270,7 +272,7 @@ export default function ResetPasswordPage() {
                 className="inline-flex items-center gap-2 text-sm font-semibold text-dark underline decoration-amber-400 decoration-2 underline-offset-4 hover:text-amber-700"
               >
                 <ArrowLeft size={16} aria-hidden="true" />
-                Voltar para o login
+                {t("reset.backLogin")}
               </Link>
             </div>
           </div>
