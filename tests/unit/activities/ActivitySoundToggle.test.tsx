@@ -2,6 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ActivitySoundToggle } from "@/modules/activities/components/ActivitySoundToggle";
 
+vi.mock("next/router", () => ({
+  useRouter: () => ({ locale: "pt-BR" }),
+}));
+
+
 describe("ActivitySoundToggle", () => {
   beforeEach(() => {
     window.localStorage.clear();
