@@ -295,7 +295,7 @@ export default function PlayQuizPage() {
   return (
     <PublicActivityLayout immersive
       title={activity?.version.name ?? "Quiz"}
-      description={activity?.version.description ?? "{t("activities.play.quizInstruction")}"}
+      description={activity?.version.description ?? t("activities.play.quizInstruction")}
       titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
     >
 
@@ -442,7 +442,7 @@ export default function PlayQuizPage() {
                           
                           
                         </div>
-                        {isStudent && attemptResult && <p className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}><Trophy size={18} aria-hidden="true" />{attemptResult.isInRanking ? "{t("activities.play.congratsTop5")}" : "{t("activities.play.resultNotTop5")}"}</p>}
+                        {isStudent && attemptResult && <p className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold ${attemptResult.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}><Trophy size={18} aria-hidden="true" />{attemptResult.isInRanking ? t("activities.play.congratsTop5") : t("activities.play.resultNotTop5")}</p>}
                       </div>
                       {isStudent && attemptResult && (
                         <div className="mt-7">
@@ -462,7 +462,7 @@ export default function PlayQuizPage() {
                                 {isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
                                   <h3 className="font-semibold leading-6 text-dark">{index + 1}. {question.statement}</h3>
-                                  <p className="mt-2 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{chosenOption?.text ?? "{t("play.unanswered")}"}</span></p>
+                                  <p className="mt-2 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{chosenOption?.text ?? t("play.unanswered")}</span></p>
                                   {!isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {correctOption?.text ?? "Indisponível"}</p>}
                                   {question.explanation && <p className="mt-2 text-sm leading-6 text-muted">{question.explanation}</p>}
                                 </div>
@@ -473,7 +473,7 @@ export default function PlayQuizPage() {
                       </div>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                         <button type="button" onClick={() => setPhase("setup")} className="min-h-11 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-dark hover:bg-background">{t("play.backMode")}</button>
-                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? "{t("play.retry")}" : "{t("activities.play.tryAgain")}"}</button>
+                        <button type="button" onClick={startQuiz} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary-hover" style={{ color: "var(--primary-foreground)" }}><Play size={17} className="mr-2 inline" aria-hidden="true" />{isStudent ? t("play.retry") : t("activities.play.tryAgain")}</button>
                       </div>
                     </>
                   )}
