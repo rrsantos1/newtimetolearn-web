@@ -8,6 +8,7 @@ import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
 import { HangmanForm } from "@/modules/activities/components/HangmanForm";
 import { createHangmanService } from "@/modules/activities/services/createHangmanService";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
+import { updateHangmanWordImageService } from "@/modules/activities/services/updateHangmanWordImageService";
 import type { CreateHangmanFormValues } from "@/modules/activities/schemas/createHangmanSchema";
 
 function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
@@ -20,7 +21,12 @@ export default function NewHangmanPage() {
   const [submitError, setSubmitError] = useState("");
   async function handleSubmit(values: CreateHangmanFormValues): Promise<void> {
     setSubmitError("");
-    try { const result = await createHangmanService.execute(values); if (values.coverMediaAssetId) await activityCoverService.update(result.activity.slug, values.coverMediaAssetId); setSuccess(true); }
+    try {
+      const result = await createHangmanService.execute(values);
+      if (values.coverMediaAssetId) await activityCoverService.update(result.activity.slug, values.coverMediaAssetId);
+      await Promise.all(values.content.words.filter((word) => word.coverMediaAssetId).map((word) => updateHangmanWordImageService.execute(result.activity.slug, word.id, word.coverMediaAssetId ?? null)));
+      setSuccess(true);
+    }
     catch (error: unknown) { setSubmitError(getErrorMessage(error, t)); }
   }
   return <RoleBasedLayout area="teacher" allowedRoles={["TEACHER"]} title={t("activity.page.create.hangman")} description={t("activity.page.description.hangman")}>
