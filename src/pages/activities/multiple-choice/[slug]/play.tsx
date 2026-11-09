@@ -26,12 +26,12 @@ function shuffle<T>(items: T[]): T[] {
   }
   return result;
 }
-function message(error: unknown): string {
+function message(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
-    return data?.error?.message ?? data?.message ?? "Não foi possível concluir a operação.";
+    return data?.error?.message ?? data?.message ?? fallback;
   }
-  return "Ocorreu um erro inesperado.";
+  return fallback;
 }
 function imageUrl(item: Extract<Item, { type: "image" }>): string | null {
   if (item.publicUrl) return item.publicUrl;
@@ -42,7 +42,7 @@ function ItemView({ item, emphasized = false }: Readonly<{ item: Item; emphasize
   const { t } = useTranslation();
   if (item.type === "text") return <span className={`wrap-break-word ${emphasized ? "text-xl font-extrabold tracking-wide text-orange-800 sm:text-2xl motion-safe:animate-pulse" : "text-base font-semibold text-dark"}`}>{item.value}</span>;
   const src = imageUrl(item);
-  return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || t("activities.type.multipleChoice")} fill sizes="(max-width: 640px) 90vw, 40vw" className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
+  return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || t("activities.type.multipleChoice")} fill sizes="(max-width: 640px) 90vw, 40vw" className="object-contain" /></span> : <span className="text-sm text-muted">{t("activities.play.multipleChoice.imageUnavailable")}</span>;
 }
 function Ranking({ entries }: Readonly<{ entries: DragDropRankingEntry[] }>) {
   const { t } = useTranslation();
@@ -78,8 +78,8 @@ export default function MultipleChoicePlayPage() {
   const loadRanking = useCallback(async (activitySlug: string) => {
     if (!isStudent) return;
     try { setRanking(await dragDropActivityService.getRanking(activitySlug, "multiple-choice")); }
-    catch (loadError: unknown) { setSubmitError(message(loadError)); }
-  }, [isStudent]);
+    catch (loadError: unknown) { setSubmitError(message(loadError, t("activities.play.multipleChoice.rankingError"))); }
+  }, [isStudent, t]);
 
   useEffect(() => {
     if (!router.isReady || !slug) return;
@@ -90,7 +90,7 @@ export default function MultipleChoicePlayPage() {
           ? (await api.get<ActivityResponse>(`/activities/${encodeURIComponent(slug)}`)).data.data
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ActivityResponse["data"]>(slug);
         if (!active) return;
-        if (loaded.type !== "multiple_choice") throw new Error(t("activities.type.multipleChoice"));
+        if (loaded.type !== "multiple_choice") throw new Error(t("activities.play.multipleChoice.typeError"));
         setActivity(loaded);
         const normalized = loaded.version.content.pairs.map((pair, index) => ({
           source: { ...pair.source, id: pair.source.id || `preview-source-${pair.id ?? index}` } as Item,
@@ -100,7 +100,7 @@ export default function MultipleChoicePlayPage() {
         setOptions(shuffle(normalized.map((pair) => pair.target)));
         if (isStudent) void loadRanking(loaded.slug);
       } catch (loadError: unknown) {
-        if (active) setError(message(loadError));
+        if (active) setError(message(loadError, t("activities.play.multipleChoice.loadError")));
       } finally {
         if (active) setLoading(false);
       }
@@ -124,11 +124,11 @@ export default function MultipleChoicePlayPage() {
       else if (submitted.attempt.correctCount === 0) playActivitySound("error");
       else playActivitySound("error");
     } catch (submitFailure: unknown) {
-      setSubmitError(message(submitFailure));
+      setSubmitError(message(submitFailure, t("activities.play.multipleChoice.submitError")));
     } finally {
       setSubmitting(false);
     }
-  }, [activity, attemptToken, isStudent, phase, submitting]);
+  }, [activity, attemptToken, isStudent, phase, submitting, t]);
 
 
   function start(): void {
@@ -153,20 +153,20 @@ export default function MultipleChoicePlayPage() {
   const correctCount = result?.attempt.correctCount ?? 0;
   return (
     <PublicActivityLayout immersive
-        title={activity?.version.name ?? "Atividade"}
-        description={activity?.version.description ?? "Experimente esta atividade."}
+        title={activity?.version.name ?? t("activities.play.multipleChoice.title")}
+        description={activity?.version.description ?? t("activities.play.multipleChoice.description")}
         titleActions={<div className="flex shrink-0 items-center gap-2"><ActivitySoundToggle /><Link href={backHref} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-muted hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><ArrowLeft size={16} aria-hidden="true" />{backLabel}</Link></div>}
       >
       {loading ? <p role="status" className="rounded-xl bg-surface p-6 text-sm text-muted">{t("play.loading")}</p> : error ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p> : activity ? <div className="space-y-5">
         {phase === "ready" && <div className={isStudent ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)]" : ""}>
-          <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 shadow-sm sm:p-8"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div><h2 className="mt-4 text-xl font-bold text-dark">{t("play.readyTitleSimple")}</h2><p className="mt-2 text-sm leading-6 text-muted">Uma questão será exibida por vez. Escolha uma das correspondências; todas as opções permanecerão disponíveis durante a atividade.</p><div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">Questões</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div></div><button type="button" onClick={start} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}</button>{!isStudent && <p className="mt-3 text-xs text-muted">{t("play.teacherTestNotice")}</p>}</section>
+          <section className="rounded-2xl border border-orange-200 bg-orange-50/50 p-6 shadow-sm sm:p-8"><div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Play size={24} aria-hidden="true" /></div><h2 className="mt-4 text-xl font-bold text-dark">{t("play.readyTitleSimple")}</h2><p className="mt-2 text-sm leading-6 text-muted">{t("activities.play.multipleChoice.instructions")}</p><div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-2"><div><p className="text-sm text-muted">{t("activities.play.multipleChoice.questions")}</p><p className="mt-1 font-semibold text-dark">{questions.length}</p></div></div><button type="button" onClick={start} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}><Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}</button>{!isStudent && <p className="mt-3 text-xs text-muted">{t("play.teacherTestNotice")}</p>}</section>
           {isStudent && <section className="rounded-2xl border border-[#244a7c]/20 bg-[#244a7c]/4 p-6 shadow-sm"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.ranking")}</h2></div><Ranking entries={ranking} /></section>}
         </div>}
         {phase === "playing" && current && <div className="space-y-5">
-          <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"><div><p className="text-sm text-muted">Questão</p><p className="text-lg font-bold text-dark">{currentIndex + 1} de {questions.length}</p></div><div><p className="text-sm text-muted">Respondidas</p><p className="text-lg font-bold text-dark">{selectedAnswers} de {questions.length}</p></div><button type="button" onClick={() => void finish(answers)} disabled={submitting} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-50">Finalizar</button></section>
-          <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><p className="text-sm font-semibold uppercase tracking-wide text-primary">Qual é a correspondência?</p><div className="mt-4 rounded-xl text-center border border-orange-200 bg-orange-50 p-5"><ItemView item={current.source} emphasized /></div><h2 className="mt-6 text-lg font-bold text-dark">Selecione uma opção</h2><div className="mt-3 grid gap-3 sm:grid-cols-2">{options.map((option) => <button key={option.id} type="button" onClick={() => setSelectedId(option.id)} aria-pressed={selectedId === option.id} className={`min-h-20 rounded-xl border p-4 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selectedId === option.id ? "border-orange-500 bg-orange-100 ring-2 ring-orange-300/60" : "border-border bg-white hover:border-orange-300"}`}><ItemView item={option} /></button>)}</div><button type="button" onClick={confirmAnswer} disabled={!selectedId} className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>{currentIndex + 1 === questions.length ? t("play.complete") : t("play.confirmAdvance")}</button></section>
+          <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4"><div><p className="text-sm text-muted">{t("activities.play.multipleChoice.question")}</p><p className="text-lg font-bold text-dark">{currentIndex + 1} de {questions.length}</p></div><div><p className="text-sm text-muted">{t("activities.play.multipleChoice.answered")}</p><p className="text-lg font-bold text-dark">{selectedAnswers} de {questions.length}</p></div><button type="button" onClick={() => void finish(answers)} disabled={submitting} className="min-h-10 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark disabled:opacity-50">{t("activities.play.multipleChoice.finish")}</button></section>
+          <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><p className="text-sm font-semibold uppercase tracking-wide text-primary">{t("activities.play.multipleChoice.prompt")}</p><div className="mt-4 rounded-xl text-center border border-orange-200 bg-orange-50 p-5"><ItemView item={current.source} emphasized /></div><h2 className="mt-6 text-lg font-bold text-dark">{t("activities.play.multipleChoice.selectOption")}</h2><div className="mt-3 grid gap-3 sm:grid-cols-2">{options.map((option) => <button key={option.id} type="button" onClick={() => setSelectedId(option.id)} aria-pressed={selectedId === option.id} className={`min-h-20 rounded-xl border p-4 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring ${selectedId === option.id ? "border-orange-500 bg-orange-100 ring-2 ring-orange-300/60" : "border-border bg-white hover:border-orange-300"}`}><ItemView item={option} /></button>)}</div><button type="button" onClick={confirmAnswer} disabled={!selectedId} className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--primary-foreground)" }}>{currentIndex + 1 === questions.length ? t("play.complete") : t("play.confirmAdvance")}</button></section>
         </div>}
-        {phase === "finished" && <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7"><ConfettiCelebration active={isStudent && result !== null && result.attempt.totalItems > 0 && correctCount === result.attempt.totalItems} /><h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />{t("play.correcting")}</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p><p className="mt-2 text-sm text-muted">{correctCount} de {result.attempt.totalItems} questões corretas</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">Correção das questões</h3>{result.attempt.corrections.map((correction, index) => { const question = questions.find((pair) => pair.source.id === correction.itemId); const selected = options.find((item) => item.id === correction.selectedId); const expected = options.find((item) => item.id === correction.expectedId); return <div key={correction.itemId} className="rounded-xl border border-border bg-surface p-3"><div className="grid gap-3 sm:grid-cols-[1fr_1fr]"><div><p className="mb-1 text-xs text-muted">Questão {index + 1}</p>{question && <ItemView item={question.source} />}</div><div><p className="mb-1 text-xs text-muted">{correction.isCorrect ? "Resposta correta" : "Sua resposta"}</p>{selected ? <ItemView item={selected} /> : <span className="text-sm text-muted">Não respondida</span>}{!correction.isCorrect && expected && <div className="mt-2 rounded-lg bg-emerald-50 p-2"><p className="mb-1 text-xs font-semibold text-emerald-800">Resposta esperada</p><ItemView item={expected} /></div>}</div></div><p className={`mt-2 text-sm font-semibold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>{correction.isCorrect ? t("play.correct") : t("play.incorrect")}</p></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><Ranking entries={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p></> : <p role="alert" className="mt-3 text-sm text-red-600">{submitError || t("play.previewFinished")}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{t("play.retry")}</button></section>}
+        {phase === "finished" && <section className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7"><ConfettiCelebration active={isStudent && result !== null && result.attempt.totalItems > 0 && correctCount === result.attempt.totalItems} /><h2 className="text-xl font-bold text-dark">{isStudent ? t("play.result") : t("play.previewFinished")}</h2>{submitting ? <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted"><LoaderCircle size={18} className="animate-spin" aria-hidden="true" />{t("play.correcting")}</p> : result ? <><p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 {t("play.scoreSuffix")}</p><p className="mt-2 text-sm text-muted">{t("activities.play.multipleChoice.correctCount", { correct: correctCount, total: result.attempt.totalItems })}</p><div className="mt-5 space-y-2"><h3 className="text-sm font-bold text-dark">{t("activities.play.multipleChoice.corrections")}</h3>{result.attempt.corrections.map((correction, index) => { const question = questions.find((pair) => pair.source.id === correction.itemId); const selected = options.find((item) => item.id === correction.selectedId); const expected = options.find((item) => item.id === correction.expectedId); return <div key={correction.itemId} className="rounded-xl border border-border bg-surface p-3"><div className="grid gap-3 sm:grid-cols-[1fr_1fr]"><div><p className="mb-1 text-xs text-muted">{t("activities.play.multipleChoice.questionNumber", { index: index + 1 })}</p>{question && <ItemView item={question.source} />}</div><div><p className="mb-1 text-xs text-muted">{correction.isCorrect ? t("activities.play.multipleChoice.correctAnswer") : t("play.yourAnswer")}</p>{selected ? <ItemView item={selected} /> : <span className="text-sm text-muted">{t("play.unanswered")}</span>}{!correction.isCorrect && expected && <div className="mt-2 rounded-lg bg-emerald-50 p-2"><p className="mb-1 text-xs font-semibold text-emerald-800">{t("activities.play.multipleChoice.expectedAnswer")}</p><ItemView item={expected} /></div>}</div></div><p className={`mt-2 text-sm font-semibold ${correction.isCorrect ? "text-emerald-700" : "text-red-700"}`}>{correction.isCorrect ? t("play.correct") : t("play.incorrect")}</p></div>; })}</div><div className="mt-6 flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><Ranking entries={result.ranking} /><p className="mt-4 rounded-xl bg-background p-4 text-sm text-muted">{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p></> : <p role="alert" className="mt-3 text-sm text-red-600">{submitError || t("play.previewFinished")}</p>}{submitError && <p role="alert" className="mt-3 text-sm text-red-600">{submitError}</p>}<button type="button" onClick={start} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white" style={{ color: "var(--primary-foreground)" }}><Play size={17} aria-hidden="true" />{t("play.retry")}</button></section>}
         
       </div> : null}
     </PublicActivityLayout>
