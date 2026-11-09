@@ -275,7 +275,7 @@ export default function MemoryGamePage() {
                   <p className="mt-3 text-3xl font-bold text-dark">{result.attempt.score}/100 pontos</p>
                   <p className="mt-2 text-sm text-muted">{result.attempt.matchedPairs} de {result.attempt.totalPairs} pares · {result.attempt.wrongAttempts} erro(s) · penalidade de {result.attempt.penaltyPoints} pontos.</p>
                   <div className="mt-6"><div className="flex items-center gap-2"><Trophy size={20} className="text-primary" aria-hidden="true" /><h3 className="text-lg font-bold text-dark">{t("play.rankingUpdated")}</h3></div><RankingList ranking={result.ranking} /></div>
-                  <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? "{t("play.rankingSuccess")}" : "{t("play.rankingMiss")}"}</p>
+                  <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-semibold ${result.isInRanking ? "bg-emerald-50 text-emerald-800" : "bg-background text-muted"}`}>{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingMiss")}</p>
                 </>
               ) : <p className="mt-3 text-sm text-muted">{submitError || "Registrando resultado..."}</p>}
               {!isStudent && <p className="mt-3 text-sm text-muted">{submitError || "Como professor ou administrador, você pode testar a atividade sem gerar uma tentativa pontuada."}</p>}
