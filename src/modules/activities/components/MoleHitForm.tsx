@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
+import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
+import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Plus, Trash2 } from "lucide-react";
 import { createMoleHitSchema, type CreateMoleHitFormValues } from "@/modules/activities/schemas/createMoleHitSchema";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
@@ -69,12 +70,12 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
               <div>
                 <label htmlFor="name" className={labelClassName}>{t("activity.form.title")} <span className="text-red-600">*</span></label>
                 <Field id="name" name="name" type="text" maxLength={120} placeholder={t("activity.ai.topicPlaceholder")} className={inputClassName} aria-required="true" aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)} />
-                <ErrorMessage name="name" component="p" className={errorClassName} />
+                <LocalizedErrorMessage name="name" component="p" className={errorClassName} />
               </div>
               <div>
                 <label htmlFor="description" className={labelClassName}>{t("activity.form.description")}</label>
                 <Field as="textarea" id="description" name="description" rows={3} maxLength={2000} placeholder={t("activity.form.descriptionPlaceholder")} className={inputClassName} />
-                <ErrorMessage name="description" component="p" className={errorClassName} />
+                <LocalizedErrorMessage name="description" component="p" className={errorClassName} />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
@@ -107,12 +108,12 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                         <div className="min-w-0 flex-1">
                           <label htmlFor={`content.correctOptions.${index}`} className="sr-only">{t("activity.form.correctOptions")} {index + 1}</label>
                           <Field id={`content.correctOptions.${index}`} name={`content.correctOptions.${index}`} maxLength={80} placeholder={`{t("activity.form.correctOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.correctOptions.${index}`) && submitCount > 0)} />
-                          <ErrorMessage name={`content.correctOptions.${index}`} component="p" className={errorClassName} />
+                          <LocalizedErrorMessage name={`content.correctOptions.${index}`} component="p" className={errorClassName} />
                         </div>
                         <button type="button" onClick={() => remove(index)} disabled={values.content.correctOptions.length <= 2} aria-label={`Remover opção correta ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
                       </div>
                     ))}
-                    <ErrorMessage name="content.correctOptions" component="p" className={errorClassName} />
+                    <LocalizedErrorMessage name="content.correctOptions" component="p" className={errorClassName} />
                     <button type="button" onClick={() => push("")} disabled={values.content.correctOptions.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} aria-hidden="true" />{t("activity.form.addOption")}</button>
                     <p className="text-xs text-muted">{values.content.correctOptions.length} / 30 {t("activity.form.correctOptions")}</p>
                   </div>
@@ -127,12 +128,12 @@ export function MoleHitForm({ onSubmit, submitError, initialValues = defaultInit
                         <div className="min-w-0 flex-1">
                           <label htmlFor={`content.incorrectOptions.${index}`} className="sr-only">{t("activity.form.incorrectOptions")} {index + 1}</label>
                           <Field id={`content.incorrectOptions.${index}`} name={`content.incorrectOptions.${index}`} maxLength={80} placeholder={`{t("activity.form.incorrectOptions")} ${index + 1}`} className={inputClassName} aria-invalid={Boolean(getIn(errors, `content.incorrectOptions.${index}`) && submitCount > 0)} />
-                          <ErrorMessage name={`content.incorrectOptions.${index}`} component="p" className={errorClassName} />
+                          <LocalizedErrorMessage name={`content.incorrectOptions.${index}`} component="p" className={errorClassName} />
                         </div>
                         <button type="button" onClick={() => remove(index)} disabled={values.content.incorrectOptions.length <= 2} aria-label={`Remover opção incorreta ${index + 1}`} className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Trash2 size={18} aria-hidden="true" /></button>
                       </div>
                     ))}
-                    <ErrorMessage name="content.incorrectOptions" component="p" className={errorClassName} />
+                    <LocalizedErrorMessage name="content.incorrectOptions" component="p" className={errorClassName} />
                     <button type="button" onClick={() => push("")} disabled={values.content.incorrectOptions.length >= 30} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:border-accent/40 hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} aria-hidden="true" />{t("activity.form.addOption")}</button>
                     <p className="text-xs text-muted">{values.content.incorrectOptions.length} / 30 {t("activity.form.incorrectOptions")}</p>
                   </div>
