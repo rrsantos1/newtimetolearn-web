@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       setSubmitted(false);
 
       try {
-        const response = await api.post<{ success: true; data: { message: string } }>(
+        await api.post<{ success: true; data: { message: string } }>(
           "/auth/forgot-password",
           { email: values.email.trim().toLowerCase() },
         );
