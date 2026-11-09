@@ -2,8 +2,8 @@ import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiAc
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import {
-  ErrorMessage,
   Field,
   FieldArray,
   Form,
@@ -113,7 +113,7 @@ export function WordSearchForm({
                   aria-invalid={Boolean(getIn(errors, "name") && submitCount > 0)}
                 />
 
-                <ErrorMessage
+                <LocalizedErrorMessage
                   name="name"
                   component="p"
                   className={errorClassName}
@@ -135,7 +135,7 @@ export function WordSearchForm({
                   className={`${inputClassName} resize-y`}
                 />
 
-                <ErrorMessage
+                <LocalizedErrorMessage
                   name="description"
                   component="p"
                   className={errorClassName}
@@ -162,7 +162,7 @@ export function WordSearchForm({
                     ))}
                   </Field>
 
-                  <ErrorMessage
+                  <LocalizedErrorMessage
                     name="difficulty"
                     component="p"
                     className={errorClassName}
@@ -211,7 +211,7 @@ export function WordSearchForm({
                           aria-invalid={Boolean(getIn(errors, `words.${index}`) && submitCount > 0)}
                         />
 
-                        <ErrorMessage
+                        <LocalizedErrorMessage
                           name={`words.${index}`}
                           component="p"
                           className={errorClassName}
@@ -235,7 +235,7 @@ export function WordSearchForm({
                     </div>
                   ))}
 
-                  <ErrorMessage
+                  <LocalizedErrorMessage
                     name="words"
                     component="p"
                     className={errorClassName}
