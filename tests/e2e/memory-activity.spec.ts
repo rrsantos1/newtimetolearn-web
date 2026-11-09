@@ -33,7 +33,7 @@ test.describe("public memory activity", () => {
   });
 
   test("loads the ready screen with activity details", async ({ page }) => {
-    await page.goto("/activities/memory/memory-e2e/play");
+    await page.goto("/pt-BR/activities/memory/memory-e2e/play");
 
     await expect(
       page.getByRole("heading", { name: "Memória E2E" }).first(),
@@ -64,8 +64,8 @@ test.describe("public memory activity", () => {
       });
     });
 
-    await page.goto("/activities/memory/memory-e2e/play");
-    await page.getByRole("button", { name: "Testar jogo da memória" }).click();
+    await page.goto("/pt-BR/activities/memory/memory-e2e/play");
+    await page.getByRole("button", { name: "Testar atividade" }).click();
 
     const hiddenCards = page.getByRole("button", { name: "Revelar carta" });
     await expect(hiddenCards).toHaveCount(2);
