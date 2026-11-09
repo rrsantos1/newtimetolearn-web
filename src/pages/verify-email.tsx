@@ -250,8 +250,8 @@ export default function VerifyEmailPage() {
                   <RefreshCw size={18} aria-hidden="true" />
                 )}
                 {resending
-                  ? "{t("verify.requesting")}"
-                  : "{t("verify.resend")}"}
+                  ? t("verify.requesting")
+                  : t("verify.resend")}
               </button>
 
               {resendMessage && (
