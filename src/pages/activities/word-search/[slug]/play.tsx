@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "@/hooks/useTranslation";
 import { ConfettiCelebration } from "@/modules/activities/components/ConfettiCelebration";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -120,7 +119,7 @@ export default function PlayWordSearchPage() {
     } finally {
       setRankingLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleComplete = useCallback(
     async (wordsFound: string[]): Promise<void> => {
@@ -156,7 +155,7 @@ export default function PlayWordSearchPage() {
         setSubmittingAttempt(false);
       }
     },
-    [activity, attemptResult, isStudent, submittingAttempt],
+    [activity, attemptResult, isStudent, submittingAttempt, t],
   );
 
   useEffect(() => {
