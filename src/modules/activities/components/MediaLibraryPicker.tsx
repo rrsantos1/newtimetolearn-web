@@ -9,7 +9,7 @@ interface MediaLibraryPickerProps {
   disabled: boolean;
 }
 
-function formatBytes(bytes: number): string {
+function formatBytes(bytes: number, locale: string): string {
   if (bytes < 1024) return `${bytes} B`;
   const units = ["KB", "MB", "GB", "TB"];
   let value = bytes / 1024;
@@ -24,7 +24,7 @@ function formatBytes(bytes: number): string {
 const inputClassName = "min-h-11 w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/20";
 
 export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibraryPickerProps>) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [items, setItems] = useState<MediaLibraryAsset[]>([]);
@@ -73,35 +73,35 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
     <>
       <button type="button" disabled={disabled} onClick={() => setOpen(true)}
         className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
-        <Library aria-hidden="true" size={16} /> Biblioteca
+        <Library aria-hidden="true" size={16} /> {t("activity.media.library")}
       </button>
       {open && (
         <div className="fixed inset-0 z-60 overflow-y-auto bg-black/60 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="media-library-title">
           <section className="mx-auto my-4 max-w-5xl rounded-2xl bg-surface p-5 shadow-xl sm:my-8 sm:p-7">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 id="media-library-title" className="text-xl font-bold text-dark">Biblioteca de imagens</h2>
+                <h2 id="media-library-title" className="text-xl font-bold text-dark">{t("activity.media.libraryTitle")}</h2>
                 <p className="mt-1 text-sm text-muted">{t("activity.media.description")}</p>
               </div>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Fechar biblioteca de imagens"
+              <button type="button" onClick={() => setOpen(false)} aria-label={t("activity.media.closeLibrary")}
                 className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
                 <X aria-hidden="true" size={18} />
               </button>
             </div>
             {storageUsage && (
-              <section aria-label="Uso do armazenamento" className="mt-5 rounded-xl border border-border bg-background p-4">
+              <section aria-label={t("activity.media.storageUsage")} className="mt-5 rounded-xl border border-border bg-background p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="font-semibold text-dark">Armazenamento utilizado</span>
+                  <span className="font-semibold text-dark">{t("activity.media.storageUsed")}</span>
                   <span className="text-muted">
-                    {formatBytes(storageUsage.usageBytes)}
-                    {storageUsage.limitBytes !== null ? ` de ${formatBytes(storageUsage.limitBytes)}` : " · sem limite"}
+                    {formatBytes(storageUsage.usageBytes, locale)}
+                    {storageUsage.limitBytes !== null ? ` de ${formatBytes(storageUsage.limitBytes, locale)}` : ` · ${t("activity.media.noLimit")}`}
                   </span>
                 </div>
                 {storageUsage.limitBytes !== null && (
                   <div
                     className="mt-2 h-2 overflow-hidden rounded-full bg-border"
                     role="progressbar"
-                    aria-label="Percentual de armazenamento utilizado"
+                    aria-label={t("activity.media.storagePercentage")}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-valuenow={storageUsage.usagePercentage ?? 0}
@@ -118,13 +118,13 @@ export function MediaLibraryPicker({ onSelect, disabled }: Readonly<MediaLibrary
               </section>
             )}
             {storageUsageError && <p role="status" className="mt-3 text-xs text-muted">{storageUsageError}</p>}
-            <label htmlFor="media-library-search" className="mt-5 block text-sm font-medium text-dark">Pesquisar imagens</label>
+            <label htmlFor="media-library-search" className="mt-5 block text-sm font-medium text-dark">{t("activity.media.searchImages")}</label>
             <div className="relative mt-1">
               <Search aria-hidden="true" size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
               <input id="media-library-search" value={search} onChange={(event) => setSearch(event.target.value)}
-                placeholder="Nome do arquivo ou texto alternativo" className={`${inputClassName} pl-10`} />
+                placeholder={t("activity.media.searchPlaceholder")} className={`${inputClassName} pl-10`} />
             </div>
-            {loading && <p role="status" className="mt-5 text-sm text-muted">Carregando imagens...</p>}
+            {loading && <p role="status" className="mt-5 text-sm text-muted">{t("activity.media.loadingImages")}</p>}
             {error && <p role="alert" className="mt-5 text-sm text-red-600">{error}</p>}
             {!loading && !error && items.length === 0 && <p className="mt-5 rounded-xl bg-background p-5 text-sm text-muted">{t("activity.media.empty")}</p>}
             <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
