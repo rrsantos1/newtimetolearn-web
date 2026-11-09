@@ -41,6 +41,7 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 function RankingList({ ranking }: Readonly<{ ranking: HangmanRankingEntry[] }>) {
+  const { t } = useTranslation();
   if (!ranking.length) return <p className="mt-3 text-sm text-muted">{t("play.noResults")}</p>;
   return <ol className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">{ranking.slice(0, 5).map((entry) =>
     <li key={entry.position + entry.createdAt} className="flex items-center justify-between gap-3 px-4 py-3">
@@ -95,7 +96,7 @@ export default function HangmanPlayPage() {
     setRankingLoading(true);
     setRankingError("");
     try { setRanking(await getHangmanRankingService.execute(slug)); }
-    catch (error: unknown) { setRankingError(getErrorMessage(error, "Não foi possível carregar o ranking.")); }
+    catch (error: unknown) { setRankingError(getErrorMessage(error, t("play.loadingRanking"))); }
     finally { setRankingLoading(false); }
   }, [isStudent, slug]);
 
@@ -111,7 +112,7 @@ export default function HangmanPlayPage() {
         if (loaded.type !== "hangman") throw new Error("Esta atividade não é um Jogo da Forca.");
         setActivity(loaded);
         if (user?.roles.includes("STUDENT")) void loadRanking();
-      } catch (error: unknown) { if (alive) setLoadError(getErrorMessage(error, "Não foi possível carregar a atividade.")); }
+      } catch (error: unknown) { if (alive) setLoadError(getErrorMessage(error, t("play.loading"))); }
       finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
@@ -207,10 +208,10 @@ export default function HangmanPlayPage() {
     : loadError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{loadError}</p>
     : activity ? <div className="space-y-5">
       {phase === "ready" && (isStudent || isTeacherOrAdmin) && <div className="grid gap-5 lg:grid-cols-2">
-        <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-6 shadow-sm sm:p-8"><h2 className="text-xl font-bold text-dark">{t("play.readyTitleSimple")}</h2><p className="mt-2 text-sm leading-6 text-muted">Descubra cada palavra escolhendo letras no banco. Você terá seis erros por palavra; a cada erro, uma parte do desenho será formada.</p><div className="mt-4 rounded-xl border border-sky-100 bg-white/80 p-4 text-sm text-slate-600">{words.length} palavras • 6 erros por palavra • Dica e imagem quando cadastradas</div><button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}</button>{!isStudent && <p className="mt-3 text-xs text-muted">{t("play.previewNotRanked")}</p>}</section>
+        <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-indigo-50 p-6 shadow-sm sm:p-8"><h2 className="text-xl font-bold text-dark">{t("play.readyTitleSimple")}</h2><p className="mt-2 text-sm leading-6 text-muted">{t("play.readyDescription")}</p><div className="mt-4 rounded-xl border border-sky-100 bg-white/80 p-4 text-sm text-slate-600">{words.length} palavras • 6 erros por palavra • Dica e imagem quando cadastradas</div><button type="button" onClick={startGame} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Play size={18} aria-hidden="true" />{isStudent ? t("play.start") : t("play.test")}</button>{!isStudent && <p className="mt-3 text-xs text-muted">{t("play.previewNotRanked")}</p>}</section>
         {isStudent && <section className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6"><div className="flex items-center gap-2"><Trophy size={21} className="text-primary" aria-hidden="true" /><h2 className="text-lg font-bold text-dark">{t("play.rankingCurrent")}</h2></div>{rankingLoading ? <p className="mt-4 text-sm text-muted">{t("play.loadingRanking")}</p> : rankingError ? <p role="alert" className="mt-4 text-sm text-amber-800">{rankingError}</p> : <RankingList ranking={ranking} />}</section>}
       </div>}
-      {phase === "ready" && !isStudent && !isTeacherOrAdmin && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Entre com uma conta de estudante para jogar e registrar seu resultado.</p>}
+      {phase === "ready" && !isStudent && !isTeacherOrAdmin && <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{t("play.notAvailable")}</p>}
       {(phase === "playing" || phase === "word-complete" || phase === "losing") && activeWord && <section className="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 via-white to-violet-50 p-4 shadow-sm sm:p-6">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><p className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-800">Palavra {wordIndex + 1} de {words.length}</p><p className="rounded-full bg-rose-100 px-3 py-1 text-sm text-rose-700">{t("play.errors")}: <strong className="font-bold">{mistakes}/6</strong></p></div>
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(240px,0.75fr)]">
