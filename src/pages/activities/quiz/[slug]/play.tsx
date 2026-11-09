@@ -120,6 +120,7 @@ function imageUrl(image: QuizImage): string | null {
   return base ? `${base}/${image.storageKey}` : null;
 }
 function ImageList({ images }: Readonly<{ images: QuizImage[] }>) {
+  const { t } = useTranslation();
   if (images.length === 0) return null;
   return (
     <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
