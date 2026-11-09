@@ -26,7 +26,6 @@ export const updateQuizService = {
             options: question.options.map((option) => ({
               ...option,
               text: option.text?.trim() ?? "",
-              images: option.images ?? [],
             })),
           })),
         },
