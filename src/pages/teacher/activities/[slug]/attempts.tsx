@@ -179,8 +179,8 @@ export default function ActivityAttemptsPage() {
                       </td>
                       <td className="px-5 py-4 text-dark">
                         {result.activityType === "listening"
-                          ? `${attempt.correctBlanks ?? 0} de ${attempt.totalBlanks ?? 0}`
-                          : `${attempt.wordsFound?.length ?? 0} de ${attempt.totalWords ?? 0}`}
+                          ? t("attempts.progress", { correct: attempt.correctBlanks ?? 0, total: attempt.totalBlanks ?? 0 })
+                          : t("attempts.progress", { correct: attempt.wordsFound?.length ?? 0, total: attempt.totalWords ?? 0 })}
                       </td>
                       <td className="px-5 py-4 text-muted">
                         {formatDate(attempt.createdAt, locale, t("attempts.dateUnavailable"))}
