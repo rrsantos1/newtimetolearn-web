@@ -282,7 +282,7 @@ export default function PlayListeningPage() {
                   return (
                     <article key={passage.id} className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm sm:p-7">
                       <div>
-                        <h2 className="text-lg font-bold text-dark">{passage.title || `Texto ${passageIndex + 1}`}</h2>
+                        <h2 className="text-lg font-bold text-dark">{passage.title || t("activities.play.listening.passageTitle", { index: passageIndex + 1 })}</h2>
                         {passage.audio.disclosure && <p className="mt-1 text-xs text-muted">{passage.audio.disclosure}</p>}
                       </div>
                       {audioUrl ? (
