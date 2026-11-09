@@ -6,7 +6,9 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { LocalizedErrorMessage } from "@/modules/activities/components/LocalizedErrorMessage";
 import { Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Eye, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
 import { createQuizSchema } from "@/modules/activities/schemas/createQuizSchema";
+import { uploadMediaImageService } from "../services/uploadMediaImageService";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
 
 function ScrollToFirstError() {
@@ -48,6 +50,102 @@ type QuizImageValue = {
   altText: string;
   publicUrl?: string;
 };
+
+interface ImageAttachmentsProps {
+  images: QuizImageValue[];
+  idPrefix: string;
+  label: string;
+  onChange: (images: QuizImageValue[]) => void;
+}
+
+function resolveImageUrl(image: QuizImageValue): string | undefined {
+  if (image.publicUrl) return image.publicUrl;
+  const publicBaseUrl = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  return publicBaseUrl ? `${publicBaseUrl}/${image.storageKey}` : undefined;
+}
+
+function ImageAttachments({ images, idPrefix, label, onChange }: Readonly<ImageAttachmentsProps>) {
+  const { t } = useTranslation();
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    if (images.length >= 5) {
+      setError(t("activity.form.imageLimit"));
+      return;
+    }
+
+    setError("");
+    setUploading(true);
+    try {
+      const uploaded = await uploadMediaImageService.execute(file);
+      onChange([...images, uploaded]);
+    } catch (uploadError: unknown) {
+      setError(uploadError instanceof Error ? uploadError.message : t("activity.creation.unexpectedError"));
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="mt-4 space-y-3">
+      <label htmlFor={`${idPrefix}-upload`} className="block text-sm font-medium text-dark">{label}</label>
+      <div className="flex flex-wrap items-center gap-3">
+        <input
+          id={`${idPrefix}-upload`}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={(event) => void handleFileChange(event)}
+          disabled={uploading || images.length >= 5}
+          className="block min-h-11 w-full min-w-0 max-w-xl rounded-xl border border-border bg-surface px-3 py-2 text-sm text-dark file:mr-3 file:rounded-lg file:border-0 file:bg-background file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60"
+          aria-describedby={error ? `${idPrefix}-error` : undefined}
+        />
+        <MediaLibraryPicker
+          disabled={uploading || images.length >= 5}
+          onSelect={(asset) => onChange([...images, { storageKey: asset.storageKey, publicUrl: asset.publicUrl, altText: asset.altText }])}
+        />
+        {uploading && <span role="status" className="text-sm text-muted">{t("activity.form.uploading")}</span>}
+      </div>
+      <p className="text-xs text-muted">{t("activity.form.imageHelp")}</p>
+      {error && <p id={`${idPrefix}-error`} role="alert" className="text-sm text-red-600">{error}</p>}
+      {images.length > 0 && (
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {images.map((image, index) => {
+            const imageUrl = resolveImageUrl(image);
+            return (
+              <li key={image.storageKey} className="rounded-xl border border-border p-3">
+                {imageUrl ? (
+                  <div className="relative mb-3 aspect-video overflow-hidden rounded-lg bg-background">
+                    <Image src={imageUrl} alt={image.altText || `${t("activity.form.imageDescription")} ${index + 1}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-contain" />
+                  </div>
+                ) : (
+                  <p className="mb-3 rounded-lg bg-background p-3 text-xs text-muted">{t("activity.form.configureImageBase")}</p>
+                )}
+                <label htmlFor={`${idPrefix}-alt-${index}`} className="mb-1 block text-xs font-medium text-dark">{t("activity.form.alternativeText")}</label>
+                <input
+                  id={`${idPrefix}-alt-${index}`}
+                  value={image.altText}
+                  maxLength={250}
+                  onChange={(event) => onChange(images.map((item, itemIndex) => itemIndex === index ? { ...item, altText: event.target.value } : item))}
+                  className={inputClassName}
+                  placeholder={t("activity.form.imageDescription")}
+                />
+                <button type="button" onClick={() => onChange(images.filter((item) => item.storageKey !== image.storageKey))}
+                  className="mt-2 inline-flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
+                  <Trash2 aria-hidden="true" size={15} /> {t("activity.form.removeImage")}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function createId(): string {
   return globalThis.crypto.randomUUID();
