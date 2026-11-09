@@ -1,8 +1,6 @@
 export const supportedLocales = ["en", "pt-BR"] as const;
 
 export type AppLocale = (typeof supportedLocales)[number];
-export type TranslationKey = keyof typeof translations.en;
-
 const translations = {
   en: {
     "language.label": "Language",
@@ -24,6 +22,40 @@ const translations = {
     "navigation.authenticatedArea": "Authenticated area",
     "footer.tagline": "Learn. Teach. Evolve.",
     "auth.logout": "Log out",
+    "home.badge": "Learning English can be an experience",
+    "home.title": "Learn, practice and grow with TimeToLearn.",
+    "home.description": "A platform designed to make life easier for English teachers with interactive activities, ready-to-use content and the freedom to create!",
+    "home.start": "Get started",
+    "home.about": "Discover the platform",
+    "home.featuresEyebrow": "What you will find",
+    "home.featuresTitle": "Active and meaningful learning",
+    "home.featuresDescription": "Resources to turn content into practice and support the work of educators.",
+    "home.tryWithoutSignup": "Try it without signing up",
+    "home.activitiesTitle": "Activities to explore",
+    "home.activitiesDescription": "Discover activities shared by teachers and try learning in an interactive way.",
+    "home.viewAllActivities": "View all activities",
+    "home.teachingMaterials": "Teaching materials",
+    "home.marketplaceTitle": "Marketplace highlights",
+    "home.marketplaceDescription": "Explore materials created by teachers and find new resources for your classes.",
+    "home.viewAllMaterials": "View all materials",
+    "home.finalEyebrow": "Your next step starts here",
+    "home.finalTitle": "Shall we learn together?",
+    "home.finalDescription": "Create your account and explore the possibilities of TimeToLearn.",
+    "home.createAccount": "Create my account",
+    "home.activityTypeWords": "Word games",
+    "home.activityTypeQuiz": "Quizzes and challenges",
+    "home.activityTypeListening": "Listening",
+    "home.featureActivities": "Activities to learn",
+    "home.featureActivitiesDescription": "Games and exercises that help you practice vocabulary, structures and English comprehension.",
+    "home.featureTeaching": "A space to teach",
+    "home.featureTeachingDescription": "Teachers can create, organize and share activities with their students.",
+    "home.featureLearning": "Organized learning",
+    "home.featureLearningDescription": "A dedicated environment to track activities and develop knowledge.",
+    "home.journey": "A journey of knowledge",
+    "home.practiceDaily": "Practice at your own pace. Learn every day.",
+    "home.activityPlay": "Try this activity",
+    "home.marketplaceMaterials": "Teaching materials",
+    "home.viewMaterial": "View material"
   },
   "pt-BR": {
     "language.label": "Idioma",
@@ -45,8 +77,44 @@ const translations = {
     "navigation.authenticatedArea": "Área autenticada",
     "footer.tagline": "Aprender. Ensinar. Evoluir.",
     "auth.logout": "Sair",
+    "home.badge": "Aprender inglês pode ser uma experiência",
+    "home.title": "Aprenda, pratique e evolua com o TimeToLearn.",
+    "home.description": "Uma plataforma criada para facilitar a vida de professores de inglês com atividades interativas, conteúdos prontos e liberdade para criar!",
+    "home.start": "Começar agora",
+    "home.about": "Conheça a plataforma",
+    "home.featuresEyebrow": "O que você encontra",
+    "home.featuresTitle": "Aprendizagem ativa e significativa",
+    "home.featuresDescription": "Recursos para transformar conteúdos em prática e apoiar o trabalho de quem ensina.",
+    "home.tryWithoutSignup": "Experimente sem cadastro",
+    "home.activitiesTitle": "Atividades para explorar",
+    "home.activitiesDescription": "Conheça algumas atividades compartilhadas pelos professores e experimente aprender de um jeito interativo.",
+    "home.viewAllActivities": "Ver todas as atividades",
+    "home.teachingMaterials": "Materiais didáticos",
+    "home.marketplaceTitle": "Destaques do Marketplace",
+    "home.marketplaceDescription": "Explore materiais preparados por professores e encontre novos recursos para suas aulas.",
+    "home.viewAllMaterials": "Ver todos os materiais",
+    "home.finalEyebrow": "Seu próximo passo começa aqui",
+    "home.finalTitle": "Vamos aprender juntos?",
+    "home.finalDescription": "Crie sua conta e explore as possibilidades do TimeToLearn.",
+    "home.createAccount": "Criar minha conta",
+    "home.activityTypeWords": "Jogos de palavras",
+    "home.activityTypeQuiz": "Quiz e desafios",
+    "home.activityTypeListening": "Listening",
+    "home.featureActivities": "Atividades para aprender",
+    "home.featureActivitiesDescription": "Jogos e exercícios que ajudam a praticar vocabulário, estruturas e compreensão do inglês.",
+    "home.featureTeaching": "Um espaço para ensinar",
+    "home.featureTeachingDescription": "Professores podem criar, organizar e compartilhar atividades com seus alunos.",
+    "home.featureLearning": "Sua aprendizagem organizada",
+    "home.featureLearningDescription": "Um ambiente dedicado para acompanhar atividades e desenvolver conhecimentos.",
+    "home.journey": "Uma jornada de conhecimento",
+    "home.practiceDaily": "Pratique no seu ritmo. Aprenda todos os dias.",
+    "home.activityPlay": "Experimentar atividade",
+    "home.marketplaceMaterials": "Materiais didáticos",
+    "home.viewMaterial": "Ver material"
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
+
+export type TranslationKey = keyof typeof translations.en;
 
 export function translate(locale: string | undefined, key: TranslationKey): string {
   const normalizedLocale: AppLocale = locale === "pt-BR" ? "pt-BR" : "en";
