@@ -19,10 +19,10 @@ function getErrorMessage(error: unknown): string {
 
     return responseData?.error?.message
       ?? responseData?.message
-      ?? "Não foi possível criar a cruzadinha. Revise as respostas e tente novamente.";
+      ?? t("activity.creation.error");
   }
 
-  return "Ocorreu um erro inesperado ao criar a cruzadinha.";
+  return t("activity.creation.unexpectedError");
 }
 
 export default function NewCrosswordPage() {
@@ -63,13 +63,13 @@ export default function NewCrosswordPage() {
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 aria-hidden="true" className="mb-4 size-14 text-green-600" />
             <h2 id="creation-success-title" className="text-2xl font-semibold text-dark">
-              Cruzadinha criada com sucesso!
+              {t("activity.page.savedTitle")}
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-6 text-muted">
-              Sua atividade foi salva como rascunho. Para enviá-la à aprovação do administrador, abra {t("navigation.myActivities")}, clique em Editar e selecione Enviar para aprovação.
+              {t("activity.page.savedDraft")}
             </p>
             <div className="mt-5 w-full rounded-xl bg-amber-50 p-4 text-left">
-              <p className="font-medium text-amber-900">O que acontece agora?</p>
+              <p className="font-medium text-amber-900">{t("activity.page.nextSteps")}</p>
               <p className="mt-1 text-sm leading-6 text-amber-800">
                 {t("activity.page.savedDraft")}
               </p>
@@ -100,7 +100,7 @@ export default function NewCrosswordPage() {
               className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-muted transition hover:text-dark"
             >
               <ArrowLeft aria-hidden="true" size={16} />
-              Escolher outro tipo de atividade
+              {t("activity.page.backToFormats")}
             </Link>
           </div>
           <CrosswordForm onSubmit={handleSubmit} submitError={submitError} />
