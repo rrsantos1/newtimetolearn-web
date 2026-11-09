@@ -143,14 +143,14 @@ export default function TeacherMarketplacePage() {
             <h2 className="font-bold text-dark">{t("marketplace.publishResource")}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">{isAdmin ? t("marketplace.adminPublishDescription") : t("marketplace.teacherPublishDescription")}</p>
             <Link href="/teacher/marketplace/new" className="mt-5 inline-flex min-h-10 items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-              Cadastrar material
+              {t("marketplace.registerResource")}
             </Link>
           </article>
           <article className="rounded-2xl border border-border bg-white p-6">
             <h2 className="font-bold text-dark">{t("marketplace.exploreMarketplace")}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">{t("marketplace.exploreDescription")}</p>
             <Link href="/marketplace" className="mt-5 inline-flex min-h-10 items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-              Abrir Marketplace
+              {t("marketplace.openMarketplace")}
             </Link>
           </article>
         </section>
@@ -161,10 +161,10 @@ export default function TeacherMarketplacePage() {
               <h2 id="seller-products-title" className="text-xl font-bold text-dark">{t("marketplace.myResources")}</h2>
               <p className="mt-1 text-sm text-muted">{t("marketplace.myResourcesDescription")}</p>
             </div>
-            <span className="text-sm text-muted">{products.length} {products.length === 1 ? "material" : "materiais"}</span>
+            <span className="text-sm text-muted">{(products.length === 1 ? t("marketplace.resourceCountOne") : t("marketplace.resourceCount")).replace("{count}",String(products.length))}</span>
           </div>
           {productsError && <p role="alert" className="mt-4 text-sm text-red-600">{productsError}</p>}
-          {productsLoading ? <p className="mt-5 text-sm text-muted">Carregando materiais...</p> :
+          {productsLoading ? <p className="mt-5 text-sm text-muted">{t("marketplace.loadingResources")}</p> :
             products.length === 0 ? <p className="mt-5 rounded-xl border border-border bg-white p-5 text-sm text-muted">{t("marketplace.noResources")}</p> :
             <div className="mt-5 grid gap-4">
               {products.map((product) => (
