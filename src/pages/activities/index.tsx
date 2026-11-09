@@ -8,9 +8,31 @@ import { FaqSection } from "@/modules/faq/components/FaqSection";
 import { activitiesFaq } from "@/modules/faq/data/faqContent";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { listPublicActivitiesService } from "@/modules/activities/services/listPublicActivitiesService";
-import type { ActivityListData, ListedActivity } from "@/modules/activities/types/activityList.types";
+import type { ActivityListData, ActivityType, ListedActivity } from "@/modules/activities/types/activityList.types";
+import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 const PAGE_SIZE = 12;
+
+const activityTypeKeys: Record<ActivityType, TranslationKey> = {
+  listening: "activities.type.listening",
+  quiz: "activities.type.quiz",
+  word_search: "activities.type.wordSearch",
+  crossword: "activities.type.crossword",
+  cloze: "activities.type.cloze",
+  multiple_choice: "activities.type.multipleChoice",
+  fill_in_the_blank: "activities.type.fillBlank",
+  drag_drop: "activities.type.dragDrop",
+  sentence_order: "activities.type.sentenceOrder",
+  board_game: "activities.type.boardGame",
+  roulette: "activities.type.roulette",
+  hangman: "activities.type.hangman",
+  memory: "activities.type.memory",
+  word_matching: "activities.type.wordMatching",
+  sentence_completion: "activities.type.sentenceCompletion",
+  fill_in_blanks: "activities.type.fillBlanks",
+  mole_hit: "activities.type.moleHit",
+};
 
 function getActivityName(activity: ListedActivity): string {
   return activity.publishedVersion?.name ?? activity.latestVersion?.name ?? "Atividade";
@@ -35,6 +57,7 @@ function getPlayHref(activity: ListedActivity): string {
 }
 
 export default function PublicActivitiesPage() {
+  const { t } = useTranslation();
   const [result, setResult] = useState<ActivityListData | null>(null);
   const [page, setPage] = useState(1);
   const [loadedPage, setLoadedPage] = useState<number | null>(null);
@@ -53,33 +76,33 @@ export default function PublicActivitiesPage() {
       })
       .catch(() => {
         if (!active) return;
-        setErrorState({ page, message: "Não foi possível carregar as atividades públicas." });
+        setErrorState({ page, message: t("activities.public.loadError") });
         setLoadedPage(page);
       });
     return () => { active = false; };
-  }, [page]);
+  }, [page, t]);
 
   return (
     <main className="min-h-screen bg-background">
       <Head>
-        <title>Atividades públicas | TimeToLearn</title>
-        <meta name="description" content="Explore atividades públicas e pratique inglês gratuitamente." />
+        <title>{t("activities.public.title")} | TimeToLearn</title>
+        <meta name="description" content={t("activities.public.description")} />
       </Head>
       <PublicHeader />
       <section className="mx-auto w-full px-5 py-12 sm:px-8 lg:px-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-4 text-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">Experimente sem cadastro</p>
-            <h1 className="mt-2 text-3xl font-extrabold text-dark sm:text-4xl">Atividades públicas</h1>
-            <p className="mt-3 text-sm leading-6 text-muted">Explore atividades compartilhadas por professores e pratique de forma interativa.</p>
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">{t("activities.public.eyebrow")}</p>
+            <h1 className="mt-2 text-3xl font-extrabold text-dark sm:text-4xl">{t("activities.public.title")}</h1>
+            <p className="mt-3 text-sm leading-6 text-muted">{t("activities.public.description")}</p>
           </div>
           <Link href="/" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-primary hover:underline">
-            <ArrowLeft size={16} aria-hidden="true" /> Voltar ao início
+            <ArrowLeft size={16} aria-hidden="true" /> {t("activities.public.backHome")}
           </Link>
         </div>
 
         {loading ? (
-          <p role="status" className="mt-10 text-sm text-muted">Carregando atividades...</p>
+          <p role="status" className="mt-10 text-sm text-muted">{t("activities.public.loading")}</p>
         ) : error ? (
           <p role="alert" className="mt-10 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>
         ) : result?.items.length ? (
@@ -88,20 +111,20 @@ export default function PublicActivitiesPage() {
               {result.items.map((activity) => (
                 <article key={activity.slug} className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-sm">
                   <ActivityCoverImage type={activity.type} coverImageUrl={activity.coverImageUrl} altText={activity.coverAltText ?? getActivityName(activity)} />
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted">{activity.type.replaceAll("_", " ")}</p>
+                  <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-muted">{t(activityTypeKeys[activity.type])}</p>
                   <h2 className="mt-2 text-lg font-bold text-dark">{getActivityName(activity)}</h2>
                   {activity.latestVersion?.description && <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">{activity.latestVersion.description}</p>}
                   <Link href={getPlayHref(activity)} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-dark px-4 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
-                    <Gamepad2 size={16} aria-hidden="true" /> Experimentar atividade
+                    <Gamepad2 size={16} aria-hidden="true" /> {t("activities.public.tryActivity")}
                   </Link>
                 </article>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-muted">Página {result.pagination.page} de {Math.max(1, result.pagination.totalPages)} · {result.pagination.total} atividades</p>
+              <p className="text-sm text-muted">{t("activities.pageOf").replace("{page}", String(result.pagination.page)).replace("{total}", String(Math.max(1, result.pagination.totalPages)))} · {result.pagination.total === 1 ? t("activities.public.activityCount") : t("activities.public.activitiesCount").replace("{count}", String(result.pagination.total))}</p>
               <div className="flex gap-2">
                 <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page <= 1} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">
-                  <ArrowLeft size={16} aria-hidden="true" /> Anterior
+                  <ArrowLeft size={16} aria-hidden="true" /> {t("activities.previous")}
                 </button>
                 <button type="button" onClick={() => setPage((current) => Math.min(result.pagination.totalPages, current + 1))} disabled={page >= result.pagination.totalPages} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40">
                   Próxima <ArrowRight size={16} aria-hidden="true" />
@@ -110,10 +133,10 @@ export default function PublicActivitiesPage() {
             </div>
           </>
         ) : (
-          <p className="mt-10 rounded-2xl border border-border bg-white p-8 text-sm text-muted">Ainda não há atividades públicas disponíveis.</p>
+          <p className="mt-10 rounded-2xl border border-border bg-white p-8 text-sm text-muted">{t("activities.public.empty")}</p>
         )}
       </section>
-      <FaqSection title="Dúvidas sobre as atividades" description="Conheça os formatos de atividades e entenda como funcionam a criação, a publicação e a execução." items={activitiesFaq} />
+      <FaqSection title={t("activities.public.faqTitle")} description={t("activities.public.faqDescription")} items={activitiesFaq} />
       <PublicFooter />
     </main>
   );
