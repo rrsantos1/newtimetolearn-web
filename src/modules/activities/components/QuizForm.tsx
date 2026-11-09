@@ -172,7 +172,9 @@ const initialValues: CreateQuizFormValues = {
   content: { questions: [createQuestion()] },
 };
 
-export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel = "Salvar Quiz como rascunho" }: Readonly<QuizFormProps>) {
+export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitialValues, submitLabel }: Readonly<QuizFormProps>) {
+  const { t } = useTranslation();
+  const effectiveSubmitLabel = submitLabel ?? t("activity.form.saveDraft");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
   const formInitialValues = suppliedInitialValues ?? initialValues;
