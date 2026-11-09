@@ -66,7 +66,7 @@ export default function HangmanPlayPage() {
   const { user } = useAuth();
   const isStudent = user?.roles.includes("STUDENT") ?? false;
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
-  const backLabel = !user ? "{t("play.home")}" : isStudent ? "{t("play.back")}" : "{t("play.back")}";
+  const backLabel = !user ? t("play.home") : t("play.back");
   const isTeacherOrAdmin = user?.roles.some((role) => role === "TEACHER" || role === "ADMIN") ?? false;
   const slug = typeof router.query.slug === "string" ? router.query.slug : "";
   const [activity, setActivity] = useState<ActivityResponse["data"] | null>(null);
