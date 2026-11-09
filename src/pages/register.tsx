@@ -19,6 +19,7 @@ import type {
 } from "@/modules/auth/types/auth.types";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { useTranslation } from "@/hooks/useTranslation";
+import { translateApiError } from "@/lib/i18n/apiError";
 
 const initialValues: RegisterFormValues = {
   name: "",
@@ -31,7 +32,7 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [notice, setNotice] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const formik = useFormik<RegisterFormValues>({
     initialValues,
@@ -88,7 +89,7 @@ export default function RegisterPage() {
               return;
             }
 
-            setNotice(data.error.message);
+            setNotice(translateApiError(error, locale, "register.failed"));
             return;
           }
 
