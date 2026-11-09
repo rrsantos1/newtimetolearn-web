@@ -127,7 +127,9 @@ export default function RegisterPage() {
 
   if (successMessage) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-5 py-12">
+      <main className="min-h-screen bg-background">
+        <PublicHeader />
+        <section className="flex min-h-[calc(100vh-5.5rem)] items-center justify-center px-5 py-12">
         <section className="w-full max-w-lg rounded-3xl border border-border bg-white p-7 text-center shadow-xl shadow-zinc-200/40 sm:p-10">
           <span className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-green-50 text-green-700">
             <CheckCircle2 size={32} aria-hidden="true" />
@@ -279,7 +281,7 @@ export default function RegisterPage() {
                   htmlFor="password"
                   className="text-sm font-semibold text-dark"
                 >
-                  Senha
+                  {t("auth.password")}
                 </label>
 
                 <input
@@ -287,7 +289,7 @@ export default function RegisterPage() {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
-                  placeholder="Crie uma senha com pelo menos 8 caracteres"
+                  placeholder={t("register.passwordPlaceholder")}
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -305,14 +307,14 @@ export default function RegisterPage() {
 
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <p id="password-help" className="text-xs text-muted">
-                    Use entre 8 e 72 caracteres.
+                    {t("register.passwordHelp")}
                   </p>
                   <button
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
                     className="text-xs font-semibold text-zinc-600 underline-offset-4 hover:text-dark hover:underline"
                   >
-                    {showPassword ? "Ocultar" : "Mostrar"}
+                    {showPassword ? t("register.hidePassword") : t("register.showPassword")}
                   </button>
                 </div>
 
@@ -328,7 +330,7 @@ export default function RegisterPage() {
 
               <fieldset className="mt-6">
                 <legend className="text-sm font-semibold text-dark">
-                  Como você vai utilizar o TimeToLearn?
+                  {t("register.rolePrompt")}
                 </legend>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -350,10 +352,10 @@ export default function RegisterPage() {
                     />
                     <span>
                       <span className="block text-sm font-semibold text-dark">
-                        Sou aluno
+                        {t("register.studentRole")}
                       </span>
                       <span className="mt-1 block text-xs leading-5 text-muted">
-                        Quero aprender e realizar atividades.
+                        {t("register.studentDescription")}
                       </span>
                     </span>
                   </label>
@@ -376,10 +378,10 @@ export default function RegisterPage() {
                     />
                     <span>
                       <span className="block text-sm font-semibold text-dark">
-                        Sou professor
+                        {t("register.teacherRole")}
                       </span>
                       <span className="mt-1 block text-xs leading-5 text-muted">
-                        Quero organizar atividades de aprendizagem.
+                        {t("register.teacherDescription")}
                       </span>
                     </span>
                   </label>
@@ -404,24 +406,24 @@ export default function RegisterPage() {
                       className="animate-spin"
                       aria-hidden="true"
                     />
-                    Criando sua conta...
+                    {t("register.creatingAccount")}
                   </>
                 ) : (
                   <>
-                    Criar minha conta
+                    {t("register.createMyAccount")}
                     <ArrowRight size={18} aria-hidden="true" />
                   </>
                 )}
               </button>
 
               <p className="mt-5 text-center text-sm text-muted">
-                Ao se cadastrar, você receberá um e-mail para ativar sua conta.
+                {t("register.activationNotice")}
               </p>
             </form>
 
             <div className="mt-7 border-t border-border pt-6 text-center">
               <p className="text-sm text-muted">
-                {t("auth.noAccount")}{" "}
+                {t("auth.haveAccount")}{" "}
                 <Link
                   href="/login"
                   className="font-semibold text-dark underline decoration-amber-400 decoration-2 underline-offset-4 hover:text-amber-700"
