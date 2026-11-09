@@ -54,6 +54,7 @@ function PassageText({
   onAnswerChange: (key: string, value: string) => void;
   disabled: boolean;
 }>) {
+  const { t } = useTranslation();
   const content: ReactNode[] = [];
   let cursor = 0;
 
@@ -63,7 +64,7 @@ function PassageText({
       <Fragment key={`text-${blank.id}`}>
         <span className="whitespace-pre-wrap">{passage.text.slice(cursor, blank.startOffset)}</span>
         <input
-          aria-label={`Lacuna ${blankIndex + 1} do texto ${passage.title || passageIndex + 1}`}
+          aria-label={t("activities.play.listening.blankLabel", { index: blankIndex + 1, title: passage.title || passageIndex + 1 })}
           autoComplete="off"
           spellCheck={false}
           value={answers[answerKey(passage.id, blank.id)] ?? ""}
@@ -150,19 +151,19 @@ export default function PlayListeningPage() {
 
     async function loadActivity(): Promise<void> {
       try {
-        if (!slug) throw new Error("Não foi possível identificar a atividade.");
+        if (!slug) throw new Error(t("activities.play.listening.identifyError"));
         const loaded = user
           ? await listeningService.getExecution(slug)
           : await (await import("@/modules/activities/services/getPublicActivityExecutionService")).getPublicActivityExecutionService.execute<ListeningExecutionActivity>(slug);
         if (cancelled) return;
-        if (loaded.type !== "listening") throw new Error("Esta atividade não é do tipo Listening.");
-        if (loaded.version.content.passages.length === 0) throw new Error("Esta atividade ainda não possui textos.");
+        if (loaded.type !== "listening") throw new Error(t("activities.play.listening.typeError"));
+        if (loaded.version.content.passages.length === 0) throw new Error(t("activities.play.listening.noPassages"));
         if (loaded.version.content.passages.some((passage) => passage.audio.status !== "READY" || !passage.audio.storageKey || passage.blanks.length === 0)) {
-          throw new Error("Esta atividade ainda não está pronta para execução.");
+          throw new Error(t("activities.play.listening.notReady"));
         }
         setActivity(loaded);
       } catch (caught: unknown) {
-        if (!cancelled) setLoadError(getErrorMessage(caught, "Não foi possível carregar a atividade."));
+        if (!cancelled) setLoadError(getErrorMessage(caught, t("activities.play.listening.loadError")));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -183,7 +184,7 @@ export default function PlayListeningPage() {
 
     if (!isStudent) {
       setSubmitting(false);
-      setPreviewNotice(`${t("play.previewFinished")}. O resultado não foi registrado no histórico dos alunos.`);
+      setPreviewNotice(t("activities.play.listening.previewNotice"));
       return;
     }
 
@@ -206,7 +207,7 @@ export default function PlayListeningPage() {
         playActivitySound("error");
       }
     } catch (caught: unknown) {
-      setSubmitError(getErrorMessage(caught, "Não foi possível registrar suas respostas. Tente novamente."));
+      setSubmitError(getErrorMessage(caught, t("activities.play.listening.submitError")));
       submittedRef.current = false;
     } finally {
       setSubmitting(false);
@@ -257,8 +258,8 @@ export default function PlayListeningPage() {
                 <h2 className="mt-4 text-xl font-bold text-dark">{t("play.listenInstructions")}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted">{activity.version.content.instructions || t("play.readyDescription")}</p>
                 <div className="mt-5 grid gap-3 rounded-xl bg-background p-4 sm:grid-cols-3">
-                  <div><p className="text-sm text-muted">Textos</p><p className="mt-1 font-semibold text-dark">{passages.length}</p></div>
-                  <div><p className="text-sm text-muted">Lacunas</p><p className="mt-1 font-semibold text-dark">{totalBlanks}</p></div>
+                  <div><p className="text-sm text-muted">{t("activities.play.listening.passages")}</p><p className="mt-1 font-semibold text-dark">{passages.length}</p></div>
+                  <div><p className="text-sm text-muted">{t("activities.play.listening.blanks")}</p><p className="mt-1 font-semibold text-dark">{totalBlanks}</p></div>
                   
                 </div>
                 <button type="button" onClick={startActivity} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring" style={{ color: "var(--primary-foreground)" }}>
@@ -271,8 +272,8 @@ export default function PlayListeningPage() {
             {phase === "playing" && (
               <div className="space-y-5">
                 <section className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-2.5">
-                  <p className="text-sm font-semibold text-dark">{answeredCount} de {totalBlanks} lacunas preenchidas</p>
-                  <div className="h-2 w-24 overflow-hidden rounded-full bg-background sm:w-36" role="progressbar" aria-label="Progresso das lacunas" aria-valuemin={0} aria-valuemax={totalBlanks} aria-valuenow={answeredCount}>
+                  <p className="text-sm font-semibold text-dark">{t("activities.play.listening.progress", { answered: answeredCount, total: totalBlanks })}</p>
+                  <div className="h-2 w-24 overflow-hidden rounded-full bg-background sm:w-36" role="progressbar" aria-label={t("activities.play.listening.progressLabel")} aria-valuemin={0} aria-valuemax={totalBlanks} aria-valuenow={answeredCount}>
                     <div className="h-full rounded-full bg-primary transition-all" style={{ width: totalBlanks > 0 ? `${(answeredCount / totalBlanks) * 100}%` : "0%" }} />
                   </div>
                 </section>
@@ -285,7 +286,7 @@ export default function PlayListeningPage() {
                         {passage.audio.disclosure && <p className="mt-1 text-xs text-muted">{passage.audio.disclosure}</p>}
                       </div>
                       {audioUrl ? (
-                        <audio controls preload="none" src={audioUrl} className="w-full" aria-label={`Áudio de ${passage.title || `texto ${passageIndex + 1}`}`} />
+                        <audio controls preload="none" src={audioUrl} className="w-full" aria-label={t("activities.play.listening.audioLabel", { title: passage.title || passageIndex + 1 })} />
                       ) : (
                         <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{t("play.audioUnavailable")}</p>
                       )}
@@ -319,7 +320,7 @@ export default function PlayListeningPage() {
                       {result ? (
                         <>
                           <p className="mt-1 text-3xl font-bold text-dark">{result.attempt.score}<span className="text-lg text-muted">/100 {t("play.scoreSuffix")}</span></p>
-                          <p className="mt-2 text-sm text-muted">Respostas corretas: {result.attempt.correctBlanks} de {result.attempt.totalBlanks}</p>
+                          <p className="mt-2 text-sm text-muted">{t("activities.play.listening.correctAnswers", { correct: result.attempt.correctBlanks, total: result.attempt.totalBlanks })}</p>
                           
                           <p className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-sm font-semibold text-dark"><Trophy size={18} aria-hidden="true" />{result.isInRanking ? t("play.rankingSuccess") : t("play.rankingRecorded")}</p>
                         </>
@@ -341,7 +342,7 @@ export default function PlayListeningPage() {
                               <div className="flex items-start gap-2">
                                 {item.isCorrect ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-emerald-600" aria-hidden="true" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-red-600" aria-hidden="true" />}
                                 <div className="min-w-0">
-                                  <p className="text-sm font-semibold text-dark">Lacuna {index + 1}: {item.isCorrect ? "correta" : "incorreta"}</p>
+                                  <p className="text-sm font-semibold text-dark">{t("activities.play.listening.blankResult", { index: index + 1, status: item.isCorrect ? t("activities.play.listening.correct") : t("activities.play.listening.incorrect") })}</p>
                                   <p className="mt-1 text-sm text-muted">{t("play.yourAnswer")}: <span className="font-medium text-dark">{item.answer.trim() || t("play.unanswered")}</span></p>
                                   {!item.isCorrect && <p className="mt-1 text-sm text-emerald-700">{t("play.correctAnswer")}: {item.expectedAnswer}</p>}
                                 </div>
