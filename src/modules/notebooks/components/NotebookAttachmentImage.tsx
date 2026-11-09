@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RotateCcw, Save } from "lucide-react";
 import Image from "next/image";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getNotebookAttachmentUrl } from "../services/notebookService";
 
 interface NotebookAttachmentImageProps {
@@ -24,6 +25,7 @@ export function NotebookAttachmentImage({
   onCancelResize,
   onSaveWidth,
 }: NotebookAttachmentImageProps) {
+  const { t } = useTranslation();
   const [src, setSrc] = useState<string | null>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,11 +82,11 @@ export function NotebookAttachmentImage({
   }, [entryId, relationshipId, shouldLoad]);
 
   if (hasError) {
-    return <p ref={containerRef} className="p-3 text-xs text-red-700">Não foi possível carregar esta imagem.</p>;
+    return <p ref={containerRef} className="p-3 text-xs text-red-700">{t("notebook.imageLoadFailed")}</p>;
   }
 
   if (!src) {
-    return <div ref={containerRef} className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#eee5d3] text-xs text-[#76694f]" aria-label="Imagem carregará quando estiver próxima da tela">{shouldLoad ? "Carregando imagem..." : "Imagem disponível ao rolar a página"}</div>;
+    return <div ref={containerRef} className="flex aspect-video w-full items-center justify-center rounded-lg bg-[#eee5d3] text-xs text-[#76694f]" aria-label={t("notebook.imageLazyLabel")}>{shouldLoad ? t("notebook.loadingImage") : t("notebook.imageOnScroll")}</div>;
   }
 
   const hasWidthChanges = draftWidth !== savedWidth;
@@ -98,7 +100,7 @@ export function NotebookAttachmentImage({
       setSavedWidth(draftWidth);
       onCancelResize?.();
     } catch {
-      setSaveError("Não foi possível salvar o tamanho da imagem. Tente novamente.");
+      setSaveError(t("notebook.imageResizeFailed"));
     } finally {
       setIsSavingWidth(false);
     }
@@ -129,7 +131,7 @@ export function NotebookAttachmentImage({
       {canResize && resizeOpen && onSaveWidth && (
         <div className="mt-2 grid w-full min-w-0 grid-cols-1 gap-2 rounded-lg border border-[#d8c9a9] bg-white/90 p-2">
           <label className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)_2.5rem] items-center gap-2 text-xs font-medium text-[#66583e]">
-            <span className="shrink-0">Tamanho</span>
+            <span className="shrink-0">{t("notebook.size")}</span>
             <input
               type="range"
               min={25}
@@ -140,7 +142,7 @@ export function NotebookAttachmentImage({
                 setDraftWidth(Number(event.target.value));
                 setSaveError("");
               }}
-              aria-label="Largura da imagem"
+              aria-label={t("notebook.imageWidth")}
               className="block h-6 w-full min-w-0 cursor-pointer touch-pan-x accent-[#8b6b2e]"
             />
             <span className="w-10 text-right tabular-nums">{draftWidth}%</span>
@@ -162,7 +164,7 @@ export function NotebookAttachmentImage({
               className="inline-flex min-h-8 items-center gap-1 rounded-md border border-[#c8b994] bg-[#fffdf5] px-2 text-xs font-semibold text-[#51452f] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Save size={13} aria-hidden="true" />
-              {isSavingWidth ? "Salvando..." : "Salvar"}
+              {isSavingWidth ? t("notebook.saving") : t("notebook.save")}
             </button>
           </div>
           {saveError && <p role="alert" className="w-full text-xs text-red-700">{saveError}</p>}
