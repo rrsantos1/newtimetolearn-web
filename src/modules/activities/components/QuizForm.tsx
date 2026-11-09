@@ -239,7 +239,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                           </li>
                         ))}
                       </ol>
-                      {question.explanation?.trim() && <p className="mt-4 rounded-lg bg-background p-3 text-sm leading-6 text-muted"><strong>Explicação:</strong> {question.explanation}</p>}
+                      {question.explanation?.trim() && <p className="mt-4 rounded-lg bg-background p-3 text-sm leading-6 text-muted"><strong>{t("activity.form.explanation")}:</strong> {question.explanation}</p>}
                     </article>
                   ))}
                 </div>
@@ -283,7 +283,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <div className="mb-5 flex items-center justify-between gap-3">
                       <h2 className="text-lg font-semibold text-dark">{t("activity.form.question")} {questionIndex + 1}</h2>
                       <button type="button" onClick={() => remove(questionIndex)} disabled={values.content.questions.length <= 1}
-                        aria-label={`Remover questão ${questionIndex + 1}`} title={t("activity.form.removeQuestion")}
+                        aria-label={`${t("activity.form.removeQuestion")} ${questionIndex + 1}`} title={t("activity.form.removeQuestion")}
                         className="inline-flex size-10 items-center justify-center rounded-lg border border-border text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40">
                         <Trash2 aria-hidden="true" size={18} />
                       </button>
@@ -308,7 +308,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                             <div key={option.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
                               <input type="radio" name={`correct-option-${question.id}`} checked={question.correctOptionId === option.id}
                                 onChange={() => void setFieldValue(`content.questions.${questionIndex}.correctOptionId`, option.id)}
-                                aria-label={`Marcar alternativa ${optionIndex + 1} como correta da questão ${questionIndex + 1}`}
+                                aria-label={`${t("activity.form.alternative")} ${optionIndex + 1}`}
                                 className="mt-3 size-4 accent-accent" />
                               <div className="min-w-0 flex-1">
                                 <label htmlFor={`content.questions.${questionIndex}.options.${optionIndex}.text`} className="sr-only">Texto da alternativa {optionIndex + 1}</label>
@@ -352,7 +352,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                 ))}
                 <button type="button" onClick={() => push(createQuestion())}
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-                  <Plus aria-hidden="true" size={18} /> Adicionar questão
+                  <Plus aria-hidden="true" size={18} /> {t("activity.form.addQuestion")}
                 </button>
               </div>
             )}
