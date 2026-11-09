@@ -132,7 +132,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
               <div><h2 className="text-lg font-semibold text-dark">{activityMode === "multiple_choice" ? "Questões e correspondências" : "Associações"}</h2><p className="mt-1 text-sm text-muted">{activityMode === "multiple_choice" ? "Cada item de origem será apresentado individualmente, com todas as correspondências disponíveis para escolha." : "Cada item da coluna esquerda será associado a um único item da direita."}</p></div>
-              <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> Criar com IA</button>
+              <button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> {t("activity.form.createWithAi")}</button>
               <span className="rounded-full bg-background px-3 py-1 text-sm font-semibold text-dark">{values.content.pairs.length}/50</span>
             </div>
             <FieldArray name="content.pairs">
@@ -144,7 +144,7 @@ export function WordMatchingForm({ onSubmit, submitError, initialValues: supplie
                       <div>
                         <MemoryItemEditor
                           name={`content-pairs-${index}-source`}
-                          title={activityMode === "multiple_choice" ? "Item apresentado *" : "Palavra / origem *"}
+                          title={activityMode === "multiple_choice" ? `${t("activity.form.presentedItem")} *` : `${t("activity.form.wordSource")} *`}
                           value={pair.source}
                           invalid={Boolean(getIn(errors, `content.pairs.${index}.source`) && (getIn(touched, `content.pairs.${index}.source`) || submitCount > 0))}
                           onChange={(item) => void setFieldValue(`content.pairs.${index}.source`, item)}
@@ -211,7 +211,7 @@ export function SentenceCompletionForm({ onSubmit, submitError, initialValues: s
           <AiActivitySuggestionsPanel activityType="sentence_completion" open={aiOpen} onClose={() => setAiOpen(false)} />
           <ActivityDetailsFields />
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
-            <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Banco de palavras</h2><p className="mt-1 text-sm text-muted">Inclua as respostas corretas e, se quiser, palavras distratoras.</p></div><button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> Criar com IA</button></div>
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-lg font-semibold text-dark">Banco de palavras</h2><p className="mt-1 text-sm text-muted">Inclua as respostas corretas e, se quiser, palavras distratoras.</p></div><button type="button" onClick={() => setAiOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles size={16} aria-hidden="true" /> {t("activity.form.createWithAi")}</button></div>
             <FieldArray name="content.words">
               {({ push, remove }) => (
                 <div className="space-y-3">
