@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { useAuth } from "@/modules/auth/contexts/AuthContext";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { UserRole } from "@/modules/auth/types/auth.types";
 import { hasAnyRole } from "@/modules/auth/utils/hasAnyRole";
 
@@ -17,6 +18,7 @@ export function RoleGuard({
 }: RoleGuardProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading, sessionError } = useAuth();
+  const { t } = useTranslation();
 
   const hasPermission =
     user !== null && hasAnyRole(user.roles ?? [], allowedRoles);
@@ -44,21 +46,21 @@ export function RoleGuard({
   ]);
 
   if (isLoading) {
-    return <LoadingState label="Verificando sua sessão..." fullScreen />;
+    return <LoadingState label={t("common.verifyingSession")} fullScreen />;
   }
 
   if (sessionError) {
     return (
       <main className="flex min-h-screen items-center justify-center px-5">
         <p className="text-sm text-muted" role="alert">
-          Não foi possível verificar sua sessão. Atualize a página e tente novamente.
+          {t("auth.sessionVerificationFailed")}
         </p>
       </main>
     );
   }
 
   if (!isAuthenticated || !user || !hasPermission) {
-    return <LoadingState label="Verificando permissões..." fullScreen />;
+    return <LoadingState label={t("auth.verifyingPermissions")} fullScreen />;
   }
 
   return <>{children}</>;
