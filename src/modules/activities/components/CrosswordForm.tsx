@@ -1,6 +1,7 @@
 import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiActivitySuggestionsPanel";
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   ErrorMessage,
   Field,
@@ -71,6 +72,7 @@ export function CrosswordForm({
   initialValues = defaultInitialValues,
   mode = "create",
 }: Readonly<CrosswordFormProps>) {
+  const { t } = useTranslation();
   const isEditing = mode === "edit";
   const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
 
@@ -89,7 +91,7 @@ export function CrosswordForm({
           <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
             <div className="mb-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-lg font-semibold text-dark">Informações da atividade</h2>
+                <h2 className="text-lg font-semibold text-dark">{t("activity.form.info")}</h2>
                 <button type="button" onClick={() => setAiSuggestionsOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-dark hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"><Sparkles aria-hidden="true" size={16} /> Criar com IA</button>
               </div>
               <p className="mt-1 text-sm leading-6 text-muted">
@@ -100,7 +102,7 @@ export function CrosswordForm({
             <div className="space-y-5">
               <div>
                 <label htmlFor="name" className={labelClassName}>
-                  Nome da atividade <span className="text-red-600">*</span>
+                  {t("activity.form.title")} <span className="text-red-600">*</span>
                 </label>
                 <Field
                   id="name"
@@ -117,7 +119,7 @@ export function CrosswordForm({
 
               <div>
                 <label htmlFor="description" className={labelClassName}>
-                  Descrição
+                  {t("activity.form.description")}
                 </label>
                 <Field
                   as="textarea"
@@ -134,7 +136,7 @@ export function CrosswordForm({
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label htmlFor="difficulty" className={labelClassName}>
-                    Dificuldade <span className="text-red-600">*</span>
+                    {t("activity.form.difficulty")} <span className="text-red-600">*</span>
                   </label>
                   <Field
                     as="select"
@@ -157,7 +159,7 @@ export function CrosswordForm({
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-dark">Respostas e pistas</h2>
               <p className="mt-1 text-sm leading-6 text-muted">
-                Cadastre de 3 a 20 respostas. Cada resposta pode ter até 25 letras,
+                {t("activity.form.crosswordHelp")}
                 desconsiderando espaços e hífens, e deve ter uma pista.
               </p>
             </div>
@@ -173,7 +175,7 @@ export function CrosswordForm({
                       <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)_auto] sm:items-start">
                         <div>
                           <label htmlFor={`words.${index}.word`} className={labelClassName}>
-                            Palavra ou expressão
+                            {t("activity.form.word")}
                           </label>
                           <Field
                             id={`words.${index}.word`}
@@ -208,7 +210,7 @@ export function CrosswordForm({
                           onClick={() => remove(index)}
                           disabled={values.words.length <= 3}
                           aria-label={`Remover resposta ${index + 1}`}
-                          title={values.words.length <= 3 ? "A cruzadinha precisa de pelo menos 3 respostas." : "Remover resposta"}
+                          title={values.words.length <= 3 ? t("activity.form.minimumAnswers") : t("activity.form.removeAnswer")}
                           className="mt-0 flex size-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted transition hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-40 sm:mt-7"
                         >
                           <Trash2 size={18} aria-hidden="true" />
@@ -249,9 +251,9 @@ export function CrosswordForm({
               {isSubmitting ? (
                 <>
                   <span className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" aria-hidden="true" />
-                  {isEditing ? "Salvando alterações..." : "Criando cruzadinha..."}
+                  {isEditing ? t("activity.form.savingChanges") : t("activity.form.creating")}
                 </>
-              ) : isEditing ? "Salvar alterações" : "Criar cruzadinha"}
+              ) : isEditing ? t("activity.form.saveChanges") : t("activity.form.createCrossword")}
             </button>
           </div>
         </Form>
