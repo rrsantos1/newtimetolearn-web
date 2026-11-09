@@ -208,6 +208,8 @@ const translations = {
     "confirm.titleError": "Unable to confirm",
     "confirm.failed": "Unable to confirm the email change.",
     "confirm.backProfile": "Back to profile",
+    "forgot.sentNotice": "If an account exists for this email address, recovery instructions will be sent shortly.",
+    "confirm.success": "Your email address has been updated successfully.",
     "home.viewMaterial": "View material"
   },
   "pt-BR": {
@@ -422,7 +424,9 @@ const translations = {
 
 export type TranslationKey = keyof typeof translations.en;
 
-export function translate(locale: string | undefined, key: TranslationKey): string {
+export function transla    "forgot.sentNotice": "Se houver uma conta associada a este e-mail, as instruções de recuperação serão enviadas em instantes.",
+    "confirm.success": "Seu endereço de e-mail foi atualizado com sucesso.",
+te(locale: string | undefined, key: TranslationKey): string {
   const normalizedLocale: AppLocale = locale === "pt-BR" ? "pt-BR" : "en";
   return translations[normalizedLocale][key];
 }
