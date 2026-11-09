@@ -8,7 +8,7 @@ export function useTranslation() {
     (key: TranslationKey, values?: Readonly<Record<string, string | number>>): string => {
       const message = translate(locale, key);
       return values
-        ? message.replace(/\\{(\\w+)\\}/g, (placeholder, name: string) => String(values[name] ?? placeholder))
+        ? message.replace(/\{(\w+)\}/g, (placeholder, name: string) => String(values[name] ?? placeholder))
         : message;
     },
     [locale],
