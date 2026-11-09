@@ -3,6 +3,29 @@ export interface FaqItem {
   answer: string;
 }
 
+export const homeFaqEn: FaqItem[] = [
+  {
+    question: "What is TimeToLearn?",
+    answer: "TimeToLearn is an educational platform focused on teaching and learning English. It brings together interactive activities, resources for teachers and tools to organize student progress.",
+  },
+  {
+    question: "Who is the platform for?",
+    answer: "The platform is designed mainly for English teachers who want to create, organize and share activities, and for students who want to practice and track their learning in an organized environment.",
+  },
+  {
+    question: "Does a student need to be linked to a teacher to use TimeToLearn?",
+    answer: "Not to try public activities. To use individual progress tracking and the shared digital notebook, students need to accept an invitation from a teacher.",
+  },
+  {
+    question: "Can I try activities without creating an account?",
+    answer: "Yes. Activities published as public can be accessed without signing up. Public sessions are anonymous and do not add results to the leaderboard.",
+  },
+  {
+    question: "What can teachers do on the platform?",
+    answer: "Teachers can create activities, track student attempts, invite students to establish learning connections and use the digital notebook to organize content and learning records.",
+  },
+];
+
 export const homeFaq: FaqItem[] = [
   {
     question: "O que é o TimeToLearn?",
