@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/translations";
 import { activityCoverService } from "@/modules/activities/services/activityCoverService";
 import Link from "next/link";
 import axios from "axios";
@@ -9,7 +10,7 @@ import { QuizForm } from "@/modules/activities/components/QuizForm";
 import { createQuizService } from "@/modules/activities/services/createQuizService";
 import type { CreateQuizFormValues } from "@/modules/activities/schemas/createQuizSchema";
 
-function getErrorMessage(error: unknown): string {
+function getErrorMessage(error: unknown, t: (key: TranslationKey) => string): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { error?: { message?: string }; message?: string } | undefined;
     return data?.error?.message ?? data?.message ?? t("activity.creation.error");
@@ -30,7 +31,7 @@ export default function NewQuizPage() {
       if (coverId) await activityCoverService.update(result.activity.slug, coverId);
       setSuccess(true);
     } catch (error: unknown) {
-      setSubmitError(getErrorMessage(error));
+      setSubmitError(getErrorMessage(error, t));
     }
   }
 
