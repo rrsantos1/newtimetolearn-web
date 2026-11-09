@@ -1,58 +1,30 @@
 import Link from "next/link";
 import { ClipboardCheck, Settings, ShieldCheck, Users, Images, ShoppingBag } from "lucide-react";
 import { RoleBasedLayout } from "@/components/layout/RoleBasedLayout";
-
-const features = [
-  {
-    title: "Atividades pendentes",
-    description: "Revise as atividades enviadas pelos professores para aprovação.",
-    icon: ClipboardCheck,
-    href: "/admin/activities",
-  },
-  {
-    title: "Revisão de imagens",
-    description: "Analise imagens em quarentena e aprove ou rejeite o envio para a biblioteca pública.",
-    icon: Images,
-    href: "/admin/media-review",
-  },
-  {
-    title: "Marketplace",
-    description: "Cadastre materiais próprios, gerencie publicações e revise os materiais enviados pelos professores.",
-    icon: ShoppingBag,
-    href: "/admin/marketplace",
-  },
-  {
-    title: "Usuários",
-    description: "Prepare a gestão das contas da plataforma.",
-    icon: Users,
-    href: undefined,
-  },
-  {
-    title: "Permissões",
-    description: "Prepare a gestão dos papéis e acessos.",
-    icon: ShieldCheck,
-    href: undefined,
-  },
-  {
-    title: "Configurações",
-    description: "Acesse ferramentas administrativas e tarefas de manutenção da plataforma.",
-    icon: Settings,
-    href: "/admin/settings",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function AdminPage() {
+  const { t } = useTranslation();
+  const features = [
+    { id: "activities", title: t("adminHome.pendingActivities"), description: t("adminHome.pendingActivitiesDescription"), icon: ClipboardCheck, href: "/admin/activities" },
+    { id: "media", title: t("adminHome.mediaReview"), description: t("adminHome.mediaReviewDescription"), icon: Images, href: "/admin/media-review" },
+    { id: "marketplace", title: t("adminHome.marketplace"), description: t("adminHome.marketplaceDescription"), icon: ShoppingBag, href: "/admin/marketplace" },
+    { id: "users", title: t("adminHome.users"), description: t("adminHome.usersDescription"), icon: Users, href: undefined },
+    { id: "permissions", title: t("adminHome.permissions"), description: t("adminHome.permissionsDescription"), icon: ShieldCheck, href: undefined },
+    { id: "settings", title: t("adminHome.settings"), description: t("adminHome.settingsDescription"), icon: Settings, href: "/admin/settings" },
+  ];
+
   return (
     <RoleBasedLayout
       area="admin"
       allowedRoles={["ADMIN"]}
-      title="Área administrativa"
-      description="Gerencie os recursos administrativos do TimeToLearn."
+      title={t("adminHome.title")}
+      description={t("adminHome.description")}
     >
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map(({ title, description, icon: Icon, href }) => (
+        {features.map(({ id, title, description, icon: Icon, href }) => (
           <article
-            key={title}
+            key={id}
             className="rounded-2xl border border-border bg-surface p-6 shadow-sm"
           >
             <span className="flex size-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
@@ -72,16 +44,16 @@ export default function AdminPage() {
                 style={{ color: "var(--primary-foreground)" }}
               >
                 {href === "/admin/media-review"
-                  ? "Revisar imagens"
+                  ? t("adminHome.reviewImages")
                   : href === "/admin/settings"
-                    ? "Abrir configurações"
+                    ? t("adminHome.openSettings")
                     : href === "/admin/marketplace"
-                      ? "Gerenciar Marketplace"
-                      : "Revisar atividades"}
+                      ? t("adminHome.manageMarketplace")
+                      : t("adminHome.reviewActivities")}
               </Link>
             ) : (
               <span className="mt-4 inline-block text-xs font-medium text-muted">
-                Em preparação
+                {t("adminHome.comingSoon")}
               </span>
             )}
           </article>
