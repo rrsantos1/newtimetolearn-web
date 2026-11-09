@@ -39,14 +39,14 @@ export default function ForgotPasswordPage() {
           { email: values.email.trim().toLowerCase() },
         );
 
-        setNotice(response.data.data.message);
+        setNotice(t("forgot.sentNotice"));
         setSubmitted(true);
       } catch (error: unknown) {
         if (axios.isAxiosError<ApiErrorResponse>(error)) {
           const data = error.response?.data;
           setNotice(
             data?.success === false
-              ? data.error.message
+              ? t("auth.loginFailed")
               : error.response
                 ? t("auth.loginFailed")
                 : t("auth.connectionFailed"),
