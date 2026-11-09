@@ -170,6 +170,37 @@ export const teacherStudentsFaq: FaqItem[] = [
   },
 ];
 
+export const studentFaqEn: FaqItem[] = [
+  {
+    question: "How do I receive an invitation from a teacher?",
+    answer: "The teacher sends an invitation to the email address associated with your account. Then open the My teachers area to view your invitations.",
+  },
+  {
+    question: "How do I accept an invitation?",
+    answer: "In the My teachers area, find the pending invitation and select Accept. Once confirmed, the connection will appear as active.",
+  },
+  {
+    question: "Can I decline an invitation?",
+    answer: "Yes. In the area where invitations are displayed, select Decline. An invitation can also be cancelled while it is still pending.",
+  },
+  {
+    question: "How do I access my digital notebook?",
+    answer: "After your connection with the teacher becomes active, select Open my notebook in the My teachers area.",
+  },
+  {
+    question: "How does the digital notebook work?",
+    answer: "The notebook is a shared space with your connected teacher. It organizes records by date, content and attachments, and includes tools for communication about those records.",
+  },
+  {
+    question: "Who can add or organize content in the notebook?",
+    answer: "The notebook is shared by the teacher and student. Available options may vary depending on the type of record and each participant's permissions.",
+  },
+  {
+    question: "What happens if I end my connection with a teacher?",
+    answer: "The connection will no longer be active. If you need guidance again, a new connection must be established through an invitation.",
+  },
+];
+
 export const studentFaq: FaqItem[] = [
   {
     question: "Como recebo um convite de um professor?",
