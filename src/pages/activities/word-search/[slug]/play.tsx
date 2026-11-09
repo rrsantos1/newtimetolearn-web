@@ -84,7 +84,6 @@ function RankingList({ ranking }: Readonly<{ ranking: WordSearchRankingEntry[] }
 
 export default function PlayWordSearchPage() {
   const { t } = useTranslation();
-  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuth();
   const backHref = !user ? "/" : user.roles.includes("ADMIN") ? "/admin/activities" : user.roles.includes("TEACHER") ? "/teacher/activities" : "/student/activities";
