@@ -197,9 +197,9 @@ test("teacher creates a memory activity and submits it for approval", async ({
     await pairFields.nth(index).fill(value);
   }
 
-  await page
-    .getByRole("button", { name: "Salvar jogo da memória como rascunho" })
-    .click();
+  const submitButton = page.locator('form button[type="submit"]');
+  await expect(submitButton).toBeVisible();
+  await submitButton.click();
 
   await expect(
     page.getByRole("heading", { name: "Jogo salvo com sucesso!" }),
