@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Gamepad2 } from "lucide-react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicFooter } from "@/components/layout/PublicFooter";
+import { FaqSection } from "@/modules/faq/components/FaqSection";
+import { activitiesFaq } from "@/modules/faq/data/faqContent";
 import { ActivityCoverImage } from "@/modules/activities/components/ActivityCoverImage";
 import { listPublicActivitiesService } from "@/modules/activities/services/listPublicActivitiesService";
 import type { ActivityListData, ListedActivity } from "@/modules/activities/types/activityList.types";
@@ -111,6 +113,7 @@ export default function PublicActivitiesPage() {
           <p className="mt-10 rounded-2xl border border-border bg-white p-8 text-sm text-muted">Ainda não há atividades públicas disponíveis.</p>
         )}
       </section>
+      <FaqSection title="Dúvidas sobre as atividades" description="Conheça os formatos de atividades e entenda como funcionam a criação, a publicação e a execução." items={activitiesFaq} />
       <PublicFooter />
     </main>
   );
