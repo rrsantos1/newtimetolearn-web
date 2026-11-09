@@ -130,7 +130,7 @@ test("student completes a memory activity and receives the saved score and ranki
     page.getByRole("heading", { name: "Ranking atual — Top 5" }),
   ).toBeVisible();
 
-  await page.getByRole("button", { name: "Iniciar jogo da memória" }).click();
+  await page.getByRole("button", { name: "Iniciar atividade" }).click();
   const cards = page.getByRole("button", { name: "Revelar carta" });
   await expect(cards).toHaveCount(2);
   await cards.nth(0).click();
