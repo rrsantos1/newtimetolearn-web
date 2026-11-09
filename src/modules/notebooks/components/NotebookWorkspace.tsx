@@ -233,7 +233,7 @@ export function NotebookWorkspace({
     } finally {
       setIsLoading(false);
     }
-  }, [relationshipId]);
+  }, [relationshipId, t]);
 
   useEffect(() => {
     if (!focusedEntryId) return;
@@ -732,7 +732,7 @@ export function NotebookWorkspace({
                                 {activeAttachmentAction?.entryId === entry.id && (
                                   <p className="flex items-center justify-center gap-2 text-xs text-[#76694f]" role="status" aria-live="polite">
                                     <LoaderCircle size={13} className="animate-spin" aria-hidden="true" />
-                                    Baixando vídeo...
+                                    {t("notebook.downloadingVideo")}
                                   </p>
                                 )}
                               </div>
@@ -1037,7 +1037,7 @@ export function NotebookWorkspace({
                   disabled={safeNotesPage >= totalNotesPages - 1}
                   className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border bg-white px-2.5 text-xs font-semibold text-dark disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Próxima <ChevronRight size={14} aria-hidden="true" />
+                  {t("notebook.next")} <ChevronRight size={14} aria-hidden="true" />
                 </button>
               </nav>
             )}
