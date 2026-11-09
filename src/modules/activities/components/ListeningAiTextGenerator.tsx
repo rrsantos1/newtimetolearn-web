@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import axios from "axios";
 import { LoaderCircle, Sparkles, X } from "lucide-react";
 import { listeningService } from "@/modules/activities/services/listeningService";
@@ -22,6 +23,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Props>) {
+  const { t } = useTranslation();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [topic, setTopic] = useState("");
   const [objective, setObjective] = useState("");
@@ -104,8 +106,8 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
             <Sparkles size={20} aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
-            <h3 id="listening-ai-title" className="text-base font-semibold text-dark">Criar texto com auxílio da IA</h3>
-            <p className="mt-1 text-sm leading-6 text-muted">Gere um texto e revise as sugestões de lacunas antes de adicionar à atividade. A prévia do áudio fica no formulário da atividade.</p>
+            <h3 id="listening-ai-title" className="text-base font-semibold text-dark">{t("activity.ai.listeningTitle")}</h3>
+            <p className="mt-1 text-sm leading-6 text-muted">{t("activity.ai.listeningDescription")}</p>
           </div>
           <button ref={closeButtonRef} type="button" onClick={onClose} disabled={loading} aria-label="Fechar janela de geração com IA" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-amber-100 hover:text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50">
             <X size={20} aria-hidden="true" />
@@ -114,33 +116,33 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="listening-ai-topic" className="block text-sm font-medium text-dark">Tema do texto *</label>
-            <input id="listening-ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} required className={fieldClass} placeholder="Ex.: Uma viagem ao interior" />
+            <label htmlFor="listening-ai-topic" className="block text-sm font-medium text-dark">{t("activity.ai.textTopic")} *</label>
+            <input id="listening-ai-topic" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={160} required className={fieldClass} placeholder={t("activity.ai.topicPlaceholder")} />
           </div>
           <div>
-            <label htmlFor="listening-ai-objective" className="block text-sm font-medium text-dark">Objetivo da prática *</label>
-            <input id="listening-ai-objective" value={objective} onChange={(event) => setObjective(event.target.value)} maxLength={500} required className={fieldClass} placeholder="Ex.: praticar verbos irregulares no passado" />
+            <label htmlFor="listening-ai-objective" className="block text-sm font-medium text-dark">{t("activity.ai.practiceObjective")} *</label>
+            <input id="listening-ai-objective" value={objective} onChange={(event) => setObjective(event.target.value)} maxLength={500} required className={fieldClass} placeholder={t("activity.ai.practiceObjective")} />
           </div>
           <div>
-            <label htmlFor="listening-ai-word-count" className="block text-sm font-medium text-dark">Tamanho aproximado (palavras)</label>
+            <label htmlFor="listening-ai-word-count" className="block text-sm font-medium text-dark">{t("activity.ai.wordCount")}</label>
             <input id="listening-ai-word-count" type="number" min={50} max={600} step={10} value={wordCount} onChange={(event) => setWordCount(Number(event.target.value))} className={fieldClass} />
-            <p className="mt-1 text-xs text-muted">Entre 50 e 600 palavras; o áudio suporta até 4.096 caracteres.</p>
+            <p className="mt-1 text-xs text-muted">{t("activity.ai.wordCountHelp")}</p>
           </div>
           <div>
-            <label htmlFor="listening-ai-difficulty" className="block text-sm font-medium text-dark">Dificuldade</label>
+            <label htmlFor="listening-ai-difficulty" className="block text-sm font-medium text-dark">{t("activity.ai.difficulty")}</label>
             <select id="listening-ai-difficulty" value={difficulty} onChange={(event) => setDifficulty(event.target.value as Difficulty)} className={fieldClass}>
-              <option value="easy">Fácil</option><option value="medium">Média</option><option value="hard">Difícil</option>
+              <option value="easy">{t("activity.form.easy")}</option><option value="medium">{t("activity.form.medium")}</option><option value="hard">{t("activity.form.hard")}</option>
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="listening-ai-grade" className="block text-sm font-medium text-dark">Ano/série ou nível de idioma (opcional)</label>
-            <input id="listening-ai-grade" value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} maxLength={80} className={fieldClass} placeholder="Ex.: 8º ano ou inglês intermediário" />
+            <label htmlFor="listening-ai-grade" className="block text-sm font-medium text-dark">{t("activity.ai.languageLevel")}</label>
+            <input id="listening-ai-grade" value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} maxLength={80} className={fieldClass} placeholder={t("activity.ai.languageLevel")} />
           </div>
         </div>
 
         <button type="button" onClick={() => void handleGenerate()} disabled={loading || topic.trim().length < 2 || objective.trim().length < 2 || !Number.isInteger(wordCount) || wordCount < 50 || wordCount > 600} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-900 px-5 py-3 text-sm font-semibold text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50">
           {loading ? <LoaderCircle size={17} className="animate-spin" aria-hidden="true" /> : <Sparkles size={17} aria-hidden="true" />}
-          {loading ? "Gerando texto e lacunas..." : "Gerar texto e sugerir lacunas"}
+          {loading ? t("activity.ai.generatingText") : t("activity.ai.generateText")}
         </button>
 
         {error && <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
@@ -150,11 +152,11 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
           <div className="mt-5 rounded-xl border border-amber-200 bg-white p-4 sm:p-5">
             <h4 className="font-semibold text-dark">{generated.title}</h4>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-dark">{generated.text}</p>
-            <p className="mt-3 text-xs text-muted">{generated.text.trim().split(/\s+/).filter(Boolean).length} palavras · Revise o conteúdo e a adequação pedagógica antes de usar.</p>
+            <p className="mt-3 text-xs text-muted">{generated.text.trim().split(/\s+/).filter(Boolean).length} {t("activity.ai.reviewPedagogy")}</p>
 
             <fieldset className="mt-5 rounded-xl border border-border p-4">
-              <legend className="px-1 text-sm font-semibold text-dark">Sugestões de lacunas</legend>
-              <p className="mb-3 text-xs leading-5 text-muted">Desmarque qualquer palavra ou expressão que não queira transformar em lacuna.</p>
+              <legend className="px-1 text-sm font-semibold text-dark">{t("activity.ai.reviewBlanks")}</legend>
+              <p className="mb-3 text-xs leading-5 text-muted">{t("activity.ai.uncheckBlanks")}</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {generated.suggestedBlanks.map((blank) => (
                   <label key={blank} className="flex min-h-10 items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-dark">
@@ -163,11 +165,11 @@ export function ListeningAiTextGenerator({ open, onClose, onApply }: Readonly<Pr
                   </label>
                 ))}
               </div>
-              {selectedBlanks.length === 0 && <p className="mt-2 text-xs text-amber-800">Selecione ao menos uma sugestão; você também poderá editar as lacunas depois.</p>}
+              {selectedBlanks.length === 0 && <p className="mt-2 text-xs text-amber-800">{t("activity.ai.selectOneBlank")}</p>}
             </fieldset>
 
             <button type="button" onClick={handleApply} disabled={selectedBlanks.length === 0} className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50">
-              Adicionar texto e lacunas à atividade
+              {t("activity.ai.addTextBlanks")}
             </button>
           </div>
         )}
