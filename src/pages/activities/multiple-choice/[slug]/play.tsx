@@ -39,6 +39,7 @@ function imageUrl(item: Extract<Item, { type: "image" }>): string | null {
   return base ? `${base}/${item.storageKey}` : null;
 }
 function ItemView({ item, emphasized = false }: Readonly<{ item: Item; emphasized?: boolean }>) {
+  const { t } = useTranslation();
   if (item.type === "text") return <span className={`wrap-break-word ${emphasized ? "text-xl font-extrabold tracking-wide text-orange-800 sm:text-2xl motion-safe:animate-pulse" : "text-base font-semibold text-dark"}`}>{item.value}</span>;
   const src = imageUrl(item);
   return src ? <span className="relative block aspect-video w-full overflow-hidden rounded-lg"><Image src={src} alt={item.altText || t("activities.type.multipleChoice")} fill sizes="(max-width: 640px) 90vw, 40vw" className="object-contain" /></span> : <span className="text-sm text-muted">Imagem indisponível</span>;
