@@ -2,6 +2,7 @@ import { AiActivitySuggestionsPanel } from "@/modules/activities/components/AiAc
 import { ActivityCoverField } from "@/modules/activities/components/ActivityCoverField";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import { ErrorMessage, Field, FieldArray, Form, Formik, getIn, useFormikContext } from "formik";
 import { Eye, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { MediaLibraryPicker } from "@/modules/activities/components/MediaLibraryPicker";
@@ -200,7 +201,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
           <div className="flex justify-end">
             <button type="button" onClick={() => setPreviewOpen(true)}
               className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-dark hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
-              <Eye aria-hidden="true" size={17} /> Pré-visualizar Quiz
+              <Eye aria-hidden="true" size={17} /> {t("activity.form.previewQuiz")}
             </button>
           </div>
           {previewOpen && (
@@ -208,8 +209,8 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
               <section className="mx-auto my-4 max-w-4xl rounded-2xl bg-surface p-5 shadow-xl sm:my-8 sm:p-8">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">Pré-visualização do professor</p>
-                    <h2 id="quiz-preview-title" className="mt-2 text-2xl font-bold text-dark">{values.name.trim() || "Quiz sem título"}</h2>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted">{t("activity.form.teacherPreview")}</p>
+                    <h2 id="quiz-preview-title" className="mt-2 text-2xl font-bold text-dark">{values.name.trim() || t("activity.form.quizNoTitle")}</h2>
                     {values.description?.trim() && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{values.description}</p>}
                   </div>
                   <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Fechar pré-visualização" className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring">
@@ -219,8 +220,8 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                 <div className="mt-6 space-y-5">
                   {values.content.questions.map((question, questionIndex) => (
                     <article key={question.id} className="rounded-xl border border-border p-4 sm:p-5">
-                      <h3 className="text-sm font-semibold text-muted">Questão {questionIndex + 1}</h3>
-                      <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-dark">{question.statement || "Enunciado não preenchido."}</p>
+                      <h3 className="text-sm font-semibold text-muted">{t("activity.form.question")} {questionIndex + 1}</h3>
+                      <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-dark">{question.statement || t("activity.form.statementEmpty")}</p>
                       {question.images.length > 0 && <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">{question.images.map((image, index) => {
                         const imageUrl = resolveImageUrl(image);
                         return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-xl bg-background"><Image src={imageUrl} alt={image.altText || `Imagem do enunciado ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
@@ -229,7 +230,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                         {question.options.map((option, optionIndex) => (
                           <li key={option.id} className={`rounded-xl border p-3 text-sm ${question.correctOptionId === option.id ? "border-green-500 bg-green-50 text-green-900" : "border-border text-dark"}`}>
                             <span className="mr-2 font-semibold">{String.fromCharCode(65 + optionIndex)}.</span>
-                            {option.text?.trim() || (option.images?.length ? "Alternativa com imagem" : "Alternativa sem conteúdo")}
+                            {option.text?.trim() || (option.images?.length ? t("activity.form.imageAlternative") : t("activity.form.emptyAlternative"))}
                             {option.images?.length > 0 && <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">{option.images.map((image, index) => {
                               const imageUrl = resolveImageUrl(image);
                               return imageUrl ? <div key={image.storageKey} className="relative aspect-video overflow-hidden rounded-lg bg-background"><Image src={imageUrl} alt={image.altText || `Imagem da alternativa ${index + 1}`} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-contain" /></div> : null;
@@ -257,17 +258,17 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                 <ErrorMessage name="name" component="p" className="mt-1 text-sm text-red-600" />
               </div>
               <div>
-                <label htmlFor="description" className={labelClassName}>Descrição</label>
+                <label htmlFor="description" className={labelClassName}>{t("activity.form.description")}</label>
                 <Field as="textarea" id="description" name="description" rows={3} maxLength={2000} className={fieldClassName("description")} aria-invalid={Boolean(getIn(errors, "description") && (getIn(touched, "description") || submitCount > 0))} />
                 <ErrorMessage name="description" component="p" className="mt-1 text-sm text-red-600" />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="difficulty" className={labelClassName}>Dificuldade</label>
+                  <label htmlFor="difficulty" className={labelClassName}>{t("activity.form.difficulty")}</label>
                   <Field as="select" id="difficulty" name="difficulty" className={inputClassName}>
-                    <option value="EASY">Fácil</option>
-                    <option value="MEDIUM">Média</option>
-                    <option value="HARD">Difícil</option>
+                    <option value="EASY">{t("activity.form.easy")}</option>
+                    <option value="MEDIUM">{t("activity.form.medium")}</option>
+                    <option value="HARD">{t("activity.form.hard")}</option>
                   </Field>
                 </div>
               </div>
@@ -280,9 +281,9 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                 {values.content.questions.map((question, questionIndex) => (
                   <section key={question.id} className="rounded-2xl border border-border bg-surface p-5 shadow-sm sm:p-7">
                     <div className="mb-5 flex items-center justify-between gap-3">
-                      <h2 className="text-lg font-semibold text-dark">Questão {questionIndex + 1}</h2>
+                      <h2 className="text-lg font-semibold text-dark">{t("activity.form.question")} {questionIndex + 1}</h2>
                       <button type="button" onClick={() => remove(questionIndex)} disabled={values.content.questions.length <= 1}
-                        aria-label={`Remover questão ${questionIndex + 1}`} title="Remover questão"
+                        aria-label={`Remover questão ${questionIndex + 1}`} title={t("activity.form.removeQuestion")}
                         className="inline-flex size-10 items-center justify-center rounded-lg border border-border text-muted hover:border-red-300 hover:text-red-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40">
                         <Trash2 aria-hidden="true" size={18} />
                       </button>
@@ -302,7 +303,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     <FieldArray name={`content.questions.${questionIndex}.options`}>
                       {({ push: pushOption, remove: removeOption }) => (
                         <fieldset aria-invalid={Boolean((getIn(errors, `content.questions.${questionIndex}.correctOptionId`) || getIn(errors, `content.questions.${questionIndex}.options`)) && submitCount > 0)} className={`mt-5 space-y-3 rounded-xl ${Boolean((getIn(errors, `content.questions.${questionIndex}.correctOptionId`) || getIn(errors, `content.questions.${questionIndex}.options`)) && submitCount > 0) ? "border border-red-300 p-3" : ""}`}>
-                          <legend className="mb-3 text-sm font-semibold text-dark">Alternativas (marque a correta)</legend>
+                          <legend className="mb-3 text-sm font-semibold text-dark">{t("activity.form.alternatives")}</legend>
                           {question.options.map((option, optionIndex) => (
                             <div key={option.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
                               <input type="radio" name={`correct-option-${question.id}`} checked={question.correctOptionId === option.id}
@@ -311,7 +312,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                                 className="mt-3 size-4 accent-accent" />
                               <div className="min-w-0 flex-1">
                                 <label htmlFor={`content.questions.${questionIndex}.options.${optionIndex}.text`} className="sr-only">Texto da alternativa {optionIndex + 1}</label>
-                                <Field id={`content.questions.${questionIndex}.options.${optionIndex}.text`} name={`content.questions.${questionIndex}.options.${optionIndex}.text`} maxLength={1000} placeholder={`Alternativa ${optionIndex + 1}`} className={fieldClassName(`content.questions.${questionIndex}.options.${optionIndex}.text`)} aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.options.${optionIndex}.text`) && (getIn(touched, `content.questions.${questionIndex}.options.${optionIndex}.text`) || submitCount > 0))} />
+                                <Field id={`content.questions.${questionIndex}.options.${optionIndex}.text`} name={`content.questions.${questionIndex}.options.${optionIndex}.text`} maxLength={1000} placeholder={`${t("activity.form.alternative")} ${optionIndex + 1}`} className={fieldClassName(`content.questions.${questionIndex}.options.${optionIndex}.text`)} aria-invalid={Boolean(getIn(errors, `content.questions.${questionIndex}.options.${optionIndex}.text`) && (getIn(touched, `content.questions.${questionIndex}.options.${optionIndex}.text`) || submitCount > 0))} />
                                 <ErrorMessage name={`content.questions.${questionIndex}.options.${optionIndex}.text`} component="p" className="mt-1 text-sm text-red-600" />
                                 <ImageAttachments
                                   idPrefix={`question-${question.id}-option-${option.id}-images`}
@@ -343,7 +344,7 @@ export function QuizForm({ onSubmit, submitError, initialValues: suppliedInitial
                     </FieldArray>
 
                     <div className="mt-5">
-                      <label htmlFor={`content.questions.${questionIndex}.explanation`} className={labelClassName}>Explicação após responder (opcional)</label>
+                      <label htmlFor={`content.questions.${questionIndex}.explanation`} className={labelClassName}>{t("activity.form.explanation")}</label>
                       <Field as="textarea" id={`content.questions.${questionIndex}.explanation`} name={`content.questions.${questionIndex}.explanation`} rows={2} maxLength={2000} className={inputClassName} />
                       <ErrorMessage name={`content.questions.${questionIndex}.explanation`} component="p" className="mt-1 text-sm text-red-600" />
                     </div>
