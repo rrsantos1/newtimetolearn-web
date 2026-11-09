@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { AuthenticatedNavigation } from "@/components/layout/AuthenticatedNavigation";
 import { LogoutButton } from "@/modules/auth/components/LogoutButton";
 import { RoleGuard } from "@/modules/auth/components/RoleGuard";
@@ -82,6 +83,7 @@ export function RoleBasedLayout({
             <div className="mx-auto flex min-h-[5.5rem] w-full items-center justify-between gap-4 px-5 sm:px-8 lg:px-10">
               <BrandLogo href="/dashboard" />
               <div className="flex items-center gap-2 sm:gap-3">
+                <LanguageSwitcher />
                 {isTeacher && area === "admin" && (
                   <Link href="/teacher" className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-semibold !text-red-600 transition-colors hover:bg-red-600 hover:!text-white sm:text-sm">Área do professor</Link>
                 )}
