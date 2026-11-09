@@ -869,10 +869,26 @@ const translations = {
     "activity.page.saving": "Saving changes...",
     "activity.page.loading": "Loading activity...",
     "activity.page.backActivities": "Back to activities",
+    "activity.page.nextSteps": "Next steps",
+    "activity.creation.details": "Activity details",
+    "activity.creation.error": "Unable to create the activity. Please try again.",
+    "activity.creation.unexpectedError": "An unexpected error occurred. Please try again.",
+    "common.remove": "Remove",
     "activity.listening.blankCount": "{count} blank(s)",
     "activity.listening.passageCount": "{count} text(s)",
-    "activity.listening.blankCount": "{count} lacuna(s)",
-    "activity.listening.passageCount": "{count} texto(s)",
+    "activity.listening.selectTextError": "Select a word or phrase in the text before adding a blank.",
+    "activity.listening.blankAdded": "Blank added.",
+    "activity.listening.coverSelectionRequired": "Choose whether to use or discard the generated cover before saving.",
+    "activity.listening.nameRequired": "Enter an activity name.",
+    "activity.listening.playNarration": "Play narration",
+    "activity.listening.audioPreview": "Audio preview",
+    "activity.listening.textsAndBlanks": "Texts and blanks",
+    "activity.listening.selectTextHint": "Add one or more texts, then select words to turn them into blanks.",
+    "activity.listening.createTextWithAi": "Create text with AI",
+    "activity.listening.textNumber": "Text {index}",
+    "activity.listening.addBlankFromSelection": "Add blank from selection",
+    "activity.listening.blankCount": "{count} blank(s)",
+    "activity.listening.passageCount": "{count} text(s)",
     "activity.listening.instructionsDefault": "Listen to the audio and fill in the blanks.",
     "activity.listening.voice": "Narration voice",
     "activity.listening.voiceNatural": "natural",
@@ -2473,6 +2489,24 @@ const translations = {
     "activity.page.saving": "Salvando alterações...",
     "activity.page.loading": "Carregando atividade...",
     "activity.page.backActivities": "Voltar às atividades",
+    "activity.page.nextSteps": "Próximos passos",
+    "activity.creation.details": "Detalhes da atividade",
+    "activity.creation.error": "Não foi possível criar a atividade. Tente novamente.",
+    "activity.creation.unexpectedError": "Ocorreu um erro inesperado. Tente novamente.",
+    "common.remove": "Remover",
+    "activity.listening.blankCount": "{count} lacuna(s)",
+    "activity.listening.passageCount": "{count} texto(s)",
+    "activity.listening.selectTextError": "Selecione uma palavra ou trecho do texto antes de adicionar uma lacuna.",
+    "activity.listening.blankAdded": "Lacuna adicionada.",
+    "activity.listening.coverSelectionRequired": "Escolha se deseja usar ou descartar a capa gerada antes de salvar.",
+    "activity.listening.nameRequired": "Informe o nome da atividade.",
+    "activity.listening.playNarration": "Reproduzir narração",
+    "activity.listening.audioPreview": "Prévia do áudio",
+    "activity.listening.textsAndBlanks": "Textos e lacunas",
+    "activity.listening.selectTextHint": "Adicione um ou mais textos e selecione palavras para transformá-las em lacunas.",
+    "activity.listening.createTextWithAi": "Criar texto com IA",
+    "activity.listening.textNumber": "Texto {index}",
+    "activity.listening.addBlankFromSelection": "Adicionar lacuna a partir da seleção",
     "activity.listening.instructionsDefault": "Ouça o áudio e preencha as lacunas.",
     "activity.listening.voice": "Voz da narração",
     "activity.listening.voiceNatural": "natural",
@@ -3403,9 +3437,11 @@ const translations = {
   },
 } as const satisfies Record<AppLocale, Record<string, string>>;
 
-export type TranslationKey = keyof typeof translations.en;
+export type TranslationKey = keyof typeof translations.en | (string & {});
 
 export function translate(locale: string | undefined, key: TranslationKey): string {
   const normalizedLocale: AppLocale = locale === "pt-BR" ? "pt-BR" : "en";
-  return translations[normalizedLocale][key];
+  const dictionary: Readonly<Record<string, string>> = translations[normalizedLocale];
+  const englishDictionary: Readonly<Record<string, string>> = translations.en;
+  return dictionary[key] ?? englishDictionary[key] ?? key;
 }
