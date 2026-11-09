@@ -196,8 +196,8 @@ export default function PublicActivitiesAdminPage() {
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
             >
               <option value="ALL">{t("activities.allDifficulties")}</option>
-              {Object.entries(difficultyLabels).map(([value, label]) => (
-                <option key={value} value={value}>{t(label)}</option>
+              {(["EASY", "MEDIUM", "HARD"] as const).map((value) => (
+                <option key={value} value={value}>{t(difficultyKeys[value])}</option>
               ))}
             </select>
           </label>
