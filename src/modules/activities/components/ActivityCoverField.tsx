@@ -55,15 +55,15 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
       event.preventDefault();
       event.stopImmediatePropagation();
       setError(state === "generating"
-        ? "{t("activity.cover.processingHelp")}"
+        ? t("activity.cover.processingHelp")
         : state === "awaiting_selection"
-          ? "{t("activity.cover.generatedReady")}"
-          : "{t("activity.cover.generateError")}");
+          ? t("activity.cover.generatedReady")
+          : t("activity.cover.generateError"));
     }
 
     form.addEventListener("submit", preventInvalidSubmit, true);
     return () => form.removeEventListener("submit", preventInvalidSubmit, true);
-  }, []);
+  }, [t]);
 
   function updateGenerationState(state: "idle" | "generating" | "awaiting_selection" | "failed"): void {
     generationStateRef.current = state;
@@ -92,7 +92,7 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
       const uploaded = await uploadMediaImageService.execute(file, "Capa da atividade");
       selectCover({ id: uploaded.id, publicUrl: uploaded.publicUrl, thumbnailPublicUrl: uploaded.thumbnailPublicUrl, altText: uploaded.altText });
     } catch (uploadError: unknown) {
-      setError(uploadError instanceof Error ? uploadError.message : "{t("activity.cover.uploadError")}");
+      setError(uploadError instanceof Error ? uploadError.message : t("activity.cover.uploadError"));
     }
   }
 
@@ -111,7 +111,7 @@ export function ActivityCoverField({ fieldPrefix = "", title, description }: Rea
       setPrompt("");
     } catch (generationError: unknown) {
       updateGenerationState("failed");
-      setError(generationError instanceof Error ? generationError.message : "{t("activity.cover.generateError")}");
+      setError(generationError instanceof Error ? generationError.message : t("activity.cover.generateError"));
     } finally {
       setIsGenerating(false);
     }
