@@ -97,7 +97,10 @@ export default function MultipleChoicePlayPage() {
           target: { ...pair.target, id: pair.target.id || `preview-target-${pair.id ?? index}` } as Item,
         }));
         setQuestions(shuffle(normalized));
-        setOptions(shuffle(normalized.map((pair) => pair.target)));
+        const uniqueOptions = [...new Map(
+          normalized.map((pair) => [pair.target.id, pair.target] as const),
+        ).values()];
+        setOptions(shuffle(uniqueOptions));
         if (isStudent) void loadRanking(loaded.slug);
       } catch (loadError: unknown) {
         if (active) setError(message(loadError, t("activities.play.multipleChoice.loadError")));
