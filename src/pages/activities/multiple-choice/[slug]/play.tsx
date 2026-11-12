@@ -33,6 +33,11 @@ function message(error: unknown, fallback: string): string {
   }
   return fallback;
 }
+function getOptionKey(item: Item): string {
+  return item.type === "text"
+    ? `text:${item.value.trim().toLocaleLowerCase("pt-BR")}`
+    : `image:${item.storageKey}`;
+}
 function imageUrl(item: Extract<Item, { type: "image" }>): string | null {
   if (item.publicUrl) return item.publicUrl;
   const base = process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL?.replace(/\/$/, "");
@@ -98,7 +103,7 @@ export default function MultipleChoicePlayPage() {
         }));
         setQuestions(shuffle(normalized));
         const uniqueOptions = [...new Map(
-          normalized.map((pair) => [pair.target.id, pair.target] as const),
+          normalized.map((pair) => [getOptionKey(pair.target), pair.target] as const),
         ).values()];
         setOptions(shuffle(uniqueOptions));
         if (isStudent) void loadRanking(loaded.slug);
